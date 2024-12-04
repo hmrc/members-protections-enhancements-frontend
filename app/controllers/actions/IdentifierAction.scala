@@ -18,6 +18,7 @@ package controllers.actions
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.{Constants, FrontendAppConfig}
+import connectors.cache.SessionDataCacheConnector
 import controllers.routes
 import models.cache.PensionSchemeUser.{Adminstrator, Practitioner}
 import models.cache.SessionData
@@ -27,10 +28,10 @@ import play.api.mvc.Results._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import connectors.cache.SessionDataCacheConnector
-
+import utils.Extractors.&&
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -51,8 +52,8 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
     authorised(Enrolment(Constants.psaEnrolmentKey).or(Enrolment(Constants.pspEnrolmentKey)))
       .retrieve(Retrievals.internalId.and(Retrievals.authorisedEnrolments)) {
 
-        case Some(internalId: String) ~ (IsPSA(psaId) && IsPSP(pspId)) =>
-          sessionDataCacheConnector.fetch(internalId).flatMap{
+        case Some(internalId) ~ (IsPSA(psaId) && IsPSP(pspId)) =>
+          sessionDataCacheConnector.fetch(internalId).flatMap {
             case None =>
               Future.successful(Redirect(config.adminOrPractitionerUrl))
             case Some(SessionData(Adminstrator)) => block(AdministratorRequest(internalId, request, psaId.value))

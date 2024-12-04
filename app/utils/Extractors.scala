@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package config
+package utils
 
-object Constants {
-  val psaEnrolmentKey = "HMRC-PODS-ORG"
-  val pspEnrolmentKey = "HMRC-PODSPP-ORG"
+object Extractors {
 
-  val psaIdKey = "PSAID"
-  val pspIdKey = "PSPID"
+  object && {
+    def unapply[A](a: A): Some[(A, A)] = Some((a, a))
+  }
+
+  object Int {
+    def unapply(s: String): Option[Int] =
+      s.toIntOption
+  }
 }

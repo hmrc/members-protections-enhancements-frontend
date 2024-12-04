@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package config
+package utils
 
-object Constants {
-  val psaEnrolmentKey = "HMRC-PODS-ORG"
-  val pspEnrolmentKey = "HMRC-PODSPP-ORG"
+import scala.concurrent.{ExecutionContext, Future}
 
-  val psaIdKey = "PSAID"
-  val pspIdKey = "PSPID"
+object FutureUtils {
+
+  implicit class FutureOps[A](val future: Future[A]) extends AnyVal {
+
+    def tap[B](f: A => Future[B])(implicit ec: ExecutionContext): Future[A] =
+      future.flatMap(a => f(a).as(a).recover(_ => a))
+
+    def tapError[B](f: Throwable => Future[B])(implicit ec: ExecutionContext): Future[A] =
+      future.recoverWith {
+        case t => f(t).flatMap(_ => Future.failed(t)).recoverWith(_ => Future.failed(t))
+      }
+
+    def as[B](b: B)(implicit ec: ExecutionContext): Future[B] =
+      future.map(_ => b)
+  }
 }
