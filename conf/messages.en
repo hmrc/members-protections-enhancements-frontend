@@ -1,4 +1,4 @@
-service.name = MPE-frontend-test
+service.name = members-protections-enhancements-frontend
 
 site.back = Back
 site.remove = Remove
@@ -27,8 +27,8 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-index.title = MPE-frontend-test
-index.heading = MPE-frontend-test
+index.title = members-protections-enhancements-frontend
+index.heading = members-protections-enhancements-frontend
 index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
 
 checkYourAnswers.title = Check your answers
