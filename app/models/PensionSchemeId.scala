@@ -14,11 +14,30 @@
  * limitations under the License.
  */
 
-package models.requests
+package models
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
+import models.PensionSchemeId.{PsaId, PspId}
 
-case class OptionalDataRequest[A] (request: Request[A], userId: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+sealed trait PensionSchemeId { self =>
 
-case class DataRequest[A] (request: Request[A], userId: String, userAnswers: UserAnswers) extends WrappedRequest[A](request)
+  val value: String
+
+  def fold[B](f1: PsaId => B, f2: PspId => B): B =
+    self match {
+      case id @ PsaId(_) => f1(id)
+      case id @ PspId(_) => f2(id)
+    }
+
+  val isPSP: Boolean = this match {
+    case PspId(_) => true
+    case _ => false
+  }
+}
+
+object PensionSchemeId {
+
+  case class PspId(value: String) extends PensionSchemeId
+
+  case class PsaId(value: String) extends PensionSchemeId
+
+}
