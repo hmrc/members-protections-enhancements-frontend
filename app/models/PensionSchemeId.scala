@@ -18,6 +18,7 @@ package models
 
 import models.PensionSchemeId.{PsaId, PspId}
 
+
 sealed trait PensionSchemeId { self =>
 
   val value: String
