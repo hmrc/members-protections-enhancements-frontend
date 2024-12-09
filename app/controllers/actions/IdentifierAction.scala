@@ -42,7 +42,7 @@ trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent]
 class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthConnector,
                                               config: FrontendAppConfig,
                                               sessionDataCacheConnector: SessionDataCacheConnector,
-                                              playBodyParsers: PlayBodyParsers)
+                                              playBodyParsers: BodyParsers.Default)
                                              (implicit override val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
@@ -70,7 +70,7 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
     }
   }
 
-  override def parser: BodyParser[AnyContent] = playBodyParsers.default
+  override def parser: BodyParser[AnyContent] = playBodyParsers
 
   object IsPSA {
     def unapply(enrolments: Enrolments): Option[EnrolmentIdentifier] =

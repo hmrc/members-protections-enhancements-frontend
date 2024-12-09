@@ -16,16 +16,24 @@
 
 package controllers.actions
 
-import models.UserAnswers
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import generators.ModelGenerators
+import models.PensionSchemeId.PsaId
+import models.requests.IdentifierRequest
+import org.scalatest.OptionValues._
+import play.api.mvc._
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
+class FakePsaIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifierAction with ModelGenerators {
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request, request.userId, dataToReturn))
+  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
+    block(administratorRequestGen(request).map(_.copy(userId = "id", request, psaId = PsaId("A2100001"))).sample.value)
+  }
 
-  override protected implicit val executionContext: ExecutionContext =
+  override def parser: BodyParser[AnyContent] =
+    bodyParsers.default
+
+  override protected def executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
 }
