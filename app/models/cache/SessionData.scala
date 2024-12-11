@@ -28,11 +28,11 @@ object SessionData {
 sealed trait PensionSchemeUser
 
 object PensionSchemeUser {
-  case object Adminstrator extends WithName("administrator") with PensionSchemeUser
+  case object Administrator extends WithName("administrator") with PensionSchemeUser
   case object Practitioner extends WithName("practitioner") with PensionSchemeUser
 
   implicit val reads: Reads[PensionSchemeUser] = {
-    case JsString(Adminstrator.name) => JsSuccess(Adminstrator)
+    case JsString(Administrator.name) => JsSuccess(Administrator)
     case JsString(Practitioner.name) => JsSuccess(Practitioner)
     case _ => JsError("Unknown value")
   }

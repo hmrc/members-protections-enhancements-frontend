@@ -20,7 +20,7 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.{Constants, FrontendAppConfig}
 import connectors.cache.SessionDataCacheConnector
 import controllers.routes
-import models.cache.PensionSchemeUser.{Adminstrator, Practitioner}
+import models.cache.PensionSchemeUser.{Administrator, Practitioner}
 import models.cache.SessionData
 import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
@@ -56,11 +56,11 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
           sessionDataCacheConnector.fetch(internalId).flatMap {
             case None =>
               Future.successful(Redirect(config.adminOrPractitionerUrl))
-            case Some(SessionData(Adminstrator)) => block(AdministratorRequest(internalId, request, psaId.value))
+            case Some(SessionData(Administrator)) => block(AdministratorRequest(internalId, request, psaId.value))
             case Some(SessionData(Practitioner)) => block(PractitionerRequest(internalId, request, pspId.value))
           }
-        case Some(internalId) ~ (IsPSA(psaId)) => block(AdministratorRequest(internalId, request, psaId.value))
-        case Some(internalId) ~ (IsPSP(pspId)) => block(PractitionerRequest(internalId, request, pspId.value))
+        case Some(internalId) ~ IsPSA(psaId) => block(AdministratorRequest(internalId, request, psaId.value))
+        case Some(internalId) ~ IsPSP(pspId) => block(PractitionerRequest(internalId, request, pspId.value))
         case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       } recover {
       case _: NoActiveSession =>
