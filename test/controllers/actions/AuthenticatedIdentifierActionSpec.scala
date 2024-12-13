@@ -123,7 +123,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
           setAuthValue(authResult(Some("internalId")))
 
           val result = handler.run(FakeRequest())
-          val expectedUrl = routes.UnauthorisedController.onPageLoad().url
+          val expectedUrl = appConfig.youNeedToRegisterUrl
 
           redirectLocation(result) mustBe Some(expectedUrl)
       }

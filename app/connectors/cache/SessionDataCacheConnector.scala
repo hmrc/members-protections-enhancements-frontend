@@ -30,7 +30,7 @@ class SessionDataCacheConnectorImpl @Inject()(config : FrontendAppConfig, http: 
   extends SessionDataCacheConnector {
 
   private def url(cacheId: String): String =
-    s"${config.pensionsAdministrator}/pension-administrator/journey-cache/session-data/$cacheId"
+    s"${config.membersProtectionsEnhancements}/journey-cache/session-data/$cacheId"
 
   override def fetch(cacheId:  String)(implicit hc:  HeaderCarrier, ec:  ExecutionContext): Future[Option[SessionData]] =
     http.get(url"${url(cacheId)}")

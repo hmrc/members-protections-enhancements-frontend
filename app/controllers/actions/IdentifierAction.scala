@@ -20,6 +20,7 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.{Constants, FrontendAppConfig}
 import connectors.cache.SessionDataCacheConnector
 import controllers.routes
+import models.PensionSchemeId.PsaId
 import models.cache.PensionSchemeUser.{Administrator, Practitioner}
 import models.cache.SessionData
 import models.requests.IdentifierRequest
@@ -61,6 +62,7 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
           }
         case Some(internalId) ~ IsPSA(psaId) => block(AdministratorRequest(internalId, request, psaId.value))
         case Some(internalId) ~ IsPSP(pspId) => block(PractitionerRequest(internalId, request, pspId.value))
+        case Some(_) ~ _ => Future.successful(Redirect(config.youNeedToRegisterUrl))
         case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       } recover {
       case _: NoActiveSession =>
@@ -86,4 +88,3 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
         .flatMap(_.getIdentifier(Constants.pspIdKey))
   }
 }
-
