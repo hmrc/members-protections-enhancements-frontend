@@ -28,7 +28,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val appName: String = configuration.get[String]("appName")
 
   private val contactHost = configuration.get[String]("contact-frontend.host")
-  private val contactFormServiceIdentifier = "members-protections-enhancements-frontend"
+  private val contactFormServiceIdentifier = "members-protections-enhancements"
 
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=${host + request.uri}"
@@ -38,7 +38,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val signOutUrl: String       = configuration.get[String]("urls.signOut")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
-  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/members-protections-enhancements-frontend"
+  val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/members-protections-enhancements"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
@@ -52,4 +52,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+
+  val membersProtectionsEnhancements: Service = configuration.get[Service]("microservice.services.members-protections-enhancements")
+  val baseUrl: String = configuration.get[String]("urls.manage-pension-schemes.baseUrl")
+  val adminOrPractitionerUrl: String = baseUrl + configuration.get[String]("urls.manage-pension-schemes.adminOrPractitioner")
+  val youNeedToRegisterUrl: String = baseUrl + configuration.get[String]("urls.manage-pension-schemes.register")
 }

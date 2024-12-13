@@ -14,18 +14,31 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package models
 
-import models.UserAnswers
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import models.PensionSchemeId.{PsaId, PspId}
 
-import scala.concurrent.{ExecutionContext, Future}
 
-class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
+sealed trait PensionSchemeId { self =>
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request, request.userId, dataToReturn))
+  val value: String
 
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  def fold[B](f1: PsaId => B, f2: PspId => B): B =
+    self match {
+      case id @ PsaId(_) => f1(id)
+      case id @ PspId(_) => f2(id)
+    }
+
+  val isPSP: Boolean = this match {
+    case PspId(_) => true
+    case _ => false
+  }
+}
+
+object PensionSchemeId {
+
+  case class PspId(value: String) extends PensionSchemeId
+
+  case class PsaId(value: String) extends PensionSchemeId
+
 }
