@@ -1,5 +1,5 @@
 
-# members-protections-enhancements-frontend
+# members-protections-and-enhancements-frontend
 
 A look-up service that allows individuals to see all their protections online, and allow the PSA authenticated online access to view the protections for their members (individuals), therefore making the process fully self-serve and increasing the accuracy of information available to PSAs.
 ## Live examples
