@@ -19,7 +19,7 @@ A look-up service that allows individuals to see all their protections online, a
 
 ## Running the service
 
-Service Manager: m2 -start MEMBERS_PROTECTIONS_ENHANCEMENTS
+Service Manager: sm2 -start MPE_ALL
 
 Port: 30029
 
