@@ -20,7 +20,7 @@ A look-up service that allows individuals to see all their protections online, a
 
 ## Running the service
 
-Service Manager: PODS_ALL
+Service Manager: m2 -start MEMBERS_PROTECTIONS_ENHANCEMENTS
 
 Port: 30029
 
