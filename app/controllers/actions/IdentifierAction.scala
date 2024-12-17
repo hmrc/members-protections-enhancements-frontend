@@ -16,59 +16,75 @@
 
 package controllers.actions
 
-import com.google.inject.Inject
-import config.FrontendAppConfig
+import com.google.inject.{ImplementedBy, Inject, Singleton}
+import config.{Constants, FrontendAppConfig}
+import connectors.cache.SessionDataCacheConnector
 import controllers.routes
+import models.PensionSchemeId.PsaId
+import models.cache.PensionSchemeUser.{Administrator, Practitioner}
+import models.cache.SessionData
 import models.requests.IdentifierRequest
+import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import play.api.mvc.Results._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import utils.Extractors.&&
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
+@ImplementedBy(classOf[AuthenticatedIdentifierAction])
+trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent]
 
-class AuthenticatedIdentifierAction @Inject()(
-                                               override val authConnector: AuthConnector,
-                                               config: FrontendAppConfig,
-                                               val parser: BodyParsers.Default
-                                             )
-                                             (implicit val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions {
+@Singleton
+class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthConnector,
+                                              config: FrontendAppConfig,
+                                              sessionDataCacheConnector: SessionDataCacheConnector,
+                                              playBodyParsers: BodyParsers.Default)
+                                             (implicit override val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(Retrievals.internalId) {
-      _.map {
-        internalId => block(IdentifierRequest(request, internalId))
-      }.getOrElse(throw new UnauthorizedException("Unable to retrieve internal Id"))
-    } recover {
+    authorised(Enrolment(Constants.psaEnrolmentKey).or(Enrolment(Constants.pspEnrolmentKey)))
+      .retrieve(Retrievals.internalId.and(Retrievals.authorisedEnrolments)) {
+
+        case Some(internalId) ~ (IsPSA(psaId) && IsPSP(pspId)) =>
+          sessionDataCacheConnector.fetch(internalId).flatMap {
+            case None =>
+              Future.successful(Redirect(config.adminOrPractitionerUrl))
+            case Some(SessionData(Administrator)) => block(AdministratorRequest(internalId, request, psaId.value))
+            case Some(SessionData(Practitioner)) => block(PractitionerRequest(internalId, request, pspId.value))
+          }
+        case Some(internalId) ~ IsPSA(psaId) => block(AdministratorRequest(internalId, request, psaId.value))
+        case Some(internalId) ~ IsPSP(pspId) => block(PractitionerRequest(internalId, request, pspId.value))
+        case Some(_) ~ _ => Future.successful(Redirect(config.youNeedToRegisterUrl))
+        case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+      } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }
-}
 
-class SessionIdentifierAction @Inject()(
-                                         val parser: BodyParsers.Default
-                                       )
-                                       (implicit val executionContext: ExecutionContext) extends IdentifierAction {
+  override def parser: BodyParser[AnyContent] = playBodyParsers
 
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
+  object IsPSA {
+    def unapply(enrolments: Enrolments): Option[EnrolmentIdentifier] =
+      enrolments.enrolments
+        .find(_.key == Constants.psaEnrolmentKey)
+        .flatMap(_.getIdentifier(Constants.psaIdKey))
+  }
 
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
-    hc.sessionId match {
-      case Some(session) =>
-        block(IdentifierRequest(request, session.value))
-      case None =>
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-    }
+  object IsPSP {
+    def unapply(enrolments: Enrolments): Option[EnrolmentIdentifier] =
+      enrolments.enrolments
+        .find(_.key == Constants.pspEnrolmentKey)
+        .flatMap(_.getIdentifier(Constants.pspIdKey))
   }
 }

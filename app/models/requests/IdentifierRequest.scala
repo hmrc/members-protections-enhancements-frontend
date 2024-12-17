@@ -16,6 +16,39 @@
 
 package models.requests
 
+import models.PensionSchemeId.{PsaId, PspId}
+import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import play.api.mvc.{Request, WrappedRequest}
 
-case class IdentifierRequest[A] (request: Request[A], userId: String) extends WrappedRequest[A](request)
+sealed abstract class IdentifierRequest[A] (request: Request[A]) extends WrappedRequest[A](request) { self =>
+  val userId: String
+  def fold[B](admin: AdministratorRequest[A] => B, practitioner: PractitionerRequest[A] => B): B =
+    self match {
+      case a: AdministratorRequest[A] => admin(a)
+      case p: PractitionerRequest[A] => practitioner(p)
+    }
+
+  def getUserId: String = fold(_.userId, _.userId)
+
+}
+
+object IdentifierRequest {
+  case class AdministratorRequest[A](userId: String,
+                                     request: Request[A],
+                                     psaId: PsaId) extends IdentifierRequest[A](request)
+
+  object AdministratorRequest {
+    def apply[A](userId: String, request: Request[A], psaId: String): IdentifierRequest[A] =
+      AdministratorRequest(userId, request, PsaId(psaId))
+  }
+
+  case class PractitionerRequest[A](userId: String,
+                                    request: Request[A],
+                                    pspId: PspId) extends IdentifierRequest[A](request)
+
+  object PractitionerRequest {
+    def apply[A](userId: String, request: Request[A], pspId: String): IdentifierRequest[A] =
+      PractitionerRequest(userId, request, PspId(pspId))
+  }
+
+}

@@ -16,9 +16,33 @@
 
 package generators
 
-import models._
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
+import models.PensionSchemeId.{PsaId, PspId}
+import models.requests.IdentifierRequest
+import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
+import org.scalacheck.Gen
+import play.api.mvc.Request
 
-trait ModelGenerators {
+trait ModelGenerators extends Generators {
+
+  val psaIdGen: Gen[PsaId] = nonEmptyString.map(PsaId)
+  val pspIdGen: Gen[PspId] = nonEmptyString.map(PspId)
+
+  def administratorRequestGen[A](request: Request[A]): Gen[AdministratorRequest[A]] = {
+    for {
+      userId <- nonEmptyString
+      psaId <- psaIdGen
+    } yield AdministratorRequest(userId, request, psaId)
+  }
+
+  def practitionerRequestGen[A](request: Request[A]): Gen[PractitionerRequest[A]] = {
+    for {
+      userId <- nonEmptyString
+      psaId <- pspIdGen
+    } yield PractitionerRequest(userId, request, psaId)
+  }
+
+  def identifierRequestGen[A](request: Request[A]): Gen[IdentifierRequest[A]] =
+    Gen.oneOf(administratorRequestGen[A](request), practitionerRequestGen[A](request))
+
+
 }

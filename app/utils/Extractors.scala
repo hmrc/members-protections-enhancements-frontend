@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package utils
 
-import models.UserAnswers
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+object Extractors {
 
-import scala.concurrent.{ExecutionContext, Future}
+  object && {
+    def unapply[A](a: A): Some[(A, A)] = Some((a, a))
+  }
 
-class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
-
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request, request.userId, dataToReturn))
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  object Int {
+    def unapply(s: String): Option[Int] =
+      s.toIntOption
+  }
 }

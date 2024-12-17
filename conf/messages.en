@@ -27,8 +27,8 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-index.title = members-protections-enhancements-frontend
-index.heading = members-protections-enhancements-frontend
+index.title = members-protections-and-enhancements
+index.heading = members-protections-and-enhancements
 index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
 
 checkYourAnswers.title = Check your answers

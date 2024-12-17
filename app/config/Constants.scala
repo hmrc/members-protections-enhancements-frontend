@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package config
 
-import models.UserAnswers
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+object Constants {
+  val psaEnrolmentKey = "HMRC-PODS-ORG"
+  val pspEnrolmentKey = "HMRC-PODSPP-ORG"
 
-import scala.concurrent.{ExecutionContext, Future}
-
-class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
-
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request, request.userId, dataToReturn))
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  val psaIdKey = "PSAID"
+  val pspIdKey = "PSPID"
 }
