@@ -33,11 +33,11 @@ Enrolment PSP: `HMRC-PODSPP-ORG` `PspId` `21000005` (local and Staging environme
 ## Tests and prototype
 [View the prototype here](https://lpe-prototype-7cb785453062.herokuapp.com/)
 
-| Repositories      | Link                                          |
-|-------------------|-----------------------------------------------|
-| Journey tests     | https://github.com/hmrc/mpe-ui-journey-tests  |
-| Performance tests | https://github.com/hmrc/mpe-performance-tests |
-| Prototype         | https://github.com/hmrc/lpe-prototype        |
+| Repositories      | Link                                           |
+|-------------------|------------------------------------------------|
+| Journey tests     | https://github.com/hmrc/mpe-ui-journey-tests   |
+| Performance tests | https://github.com/hmrc/mpe-performance-tests  |
+| Prototype         | https://github.com/hmrc/lpe-prototype          |
 
 ## Confluence Page
 
