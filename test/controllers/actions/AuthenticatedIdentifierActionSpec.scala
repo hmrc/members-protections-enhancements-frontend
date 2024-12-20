@@ -18,10 +18,7 @@ package controllers.actions
 
 import base.SpecBase
 import config.{Constants, FrontendAppConfig}
-import connectors.cache.SessionDataCacheConnector
 import controllers.routes
-import models.cache.PensionSchemeUser.{Administrator, Practitioner}
-import models.cache.SessionData
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -31,8 +28,8 @@ import play.api.mvc.Results.Ok
 import play.api.mvc.{Action, AnyContent, BodyParsers}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubPlayBodyParsersFactory}
-import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.retrieve.~
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,7 +39,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
     new AuthenticatedIdentifierAction(
       mockAuthConnector,
       appConfig,
-      mockSessionDataCacheConnector,
       bodyParsers)(ExecutionContext.global)
 
   class Handler(appConfig: FrontendAppConfig) {
@@ -71,7 +67,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
     Enrolment(Constants.pspEnrolmentKey, Seq(EnrolmentIdentifier(Constants.pspIdKey, "21000002")), "Activated")
 
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  private val mockSessionDataCacheConnector: SessionDataCacheConnector = mock[SessionDataCacheConnector]
   private val bodyParsers: BodyParsers.Default = mock[BodyParsers.Default]
 
   def setAuthValue(value: Option[String] ~ Enrolments): Unit =
@@ -79,13 +74,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
   def setAuthValue[A](value: Future[A]): Unit =
     when(mockAuthConnector.authorise[A](any(), any())(any(), any()))
-      .thenReturn(value)
-
-  def setSessionValue(value: Option[SessionData]): Unit =
-    setSessionValue(Future.successful(value))
-
-  def setSessionValue(value: Future[Option[SessionData]]): Unit =
-    when(mockSessionDataCacheConnector.fetch(any())(any(), any()))
       .thenReturn(value)
 
   "AuthenticateIdentifierAction" - {
@@ -127,18 +115,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
           redirectLocation(result) mustBe Some(expectedUrl)
       }
-
-      "Redirect user to admin or practitioner page" - {
-        "user has both psa and psp enrolment but nothing is in the cache" in runningApplication { implicit app =>
-          setAuthValue(authResult(Some("internalId"), psaEnrolment, pspEnrolment))
-          setSessionValue(None)
-
-          val result = handler.run(FakeRequest())
-          val expectedUrl = appConfig.adminOrPractitionerUrl
-
-          redirectLocation(result) mustBe Some(expectedUrl)
-        }
-      }
     }
 
     "return an IdentifierRequest" - {
@@ -155,30 +131,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
       "User has a psp enrolment" in runningApplication { implicit app =>
         setAuthValue(authResult(Some("internalId"), pspEnrolment))
-
-        val result = handler.run(FakeRequest())
-
-        status(result) mustBe OK
-        (contentAsJson(result) \ "psaId").asOpt[String] mustBe None
-        (contentAsJson(result) \ "pspId").asOpt[String] mustBe Some("21000002")
-        (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
-      }
-
-      "User has a both psa and psp enrolment with admin stored in cache" in runningApplication { implicit app =>
-        setAuthValue(authResult(Some("internalId"), psaEnrolment, pspEnrolment))
-        setSessionValue(Some(SessionData(Administrator)))
-
-        val result = handler.run(FakeRequest())
-
-        status(result) mustBe OK
-        (contentAsJson(result) \ "psaId").asOpt[String] mustBe Some("A2100001")
-        (contentAsJson(result) \ "pspId").asOpt[String] mustBe None
-        (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
-      }
-
-      "User has a both psa and psp enrolment with practitioner stored in cache" in runningApplication { implicit app =>
-        setAuthValue(authResult(Some("internalId"), psaEnrolment, pspEnrolment))
-        setSessionValue(Some(SessionData(Practitioner)))
 
         val result = handler.run(FakeRequest())
 

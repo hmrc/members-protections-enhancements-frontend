@@ -18,11 +18,7 @@ package controllers.actions
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.{Constants, FrontendAppConfig}
-import connectors.cache.SessionDataCacheConnector
 import controllers.routes
-import models.PensionSchemeId.PsaId
-import models.cache.PensionSchemeUser.{Administrator, Practitioner}
-import models.cache.SessionData
 import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import play.api.mvc.Results._
@@ -32,7 +28,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.Extractors.&&
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,7 +37,6 @@ trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent]
 @Singleton
 class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthConnector,
                                               config: FrontendAppConfig,
-                                              sessionDataCacheConnector: SessionDataCacheConnector,
                                               playBodyParsers: BodyParsers.Default)
                                              (implicit override val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions {
 
@@ -53,13 +47,6 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
     authorised(Enrolment(Constants.psaEnrolmentKey).or(Enrolment(Constants.pspEnrolmentKey)))
       .retrieve(Retrievals.internalId.and(Retrievals.authorisedEnrolments)) {
 
-        case Some(internalId) ~ (IsPSA(psaId) && IsPSP(pspId)) =>
-          sessionDataCacheConnector.fetch(internalId).flatMap {
-            case None =>
-              Future.successful(Redirect(config.adminOrPractitionerUrl))
-            case Some(SessionData(Administrator)) => block(AdministratorRequest(internalId, request, psaId.value))
-            case Some(SessionData(Practitioner)) => block(PractitionerRequest(internalId, request, pspId.value))
-          }
         case Some(internalId) ~ IsPSA(psaId) => block(AdministratorRequest(internalId, request, psaId.value))
         case Some(internalId) ~ IsPSP(pspId) => block(PractitionerRequest(internalId, request, pspId.value))
         case Some(_) ~ _ => Future.successful(Redirect(config.youNeedToRegisterUrl))
