@@ -19,30 +19,31 @@
 @this(
 layout: templates.Layout,
 govukButton : GovukButton,
-heading: Heading
+heading: h1
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("CheckMembersProtectionEnhancements.title"))) {
+@layout(pageTitle = titleNoForm(messages("check.members.protection.enhancements.title"))) {
 
-@heading("CheckMembersProtectionEnhancements.heading")
+    @heading("check.members.protection.enhancements.heading")
 
-<div class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-5">
-    <p>@messages("CheckMembersProtectionEnhancements.p1")</p>
-    <ul class="govuk-list govuk-list--bullet govuk-!-margin-top-1">
-        <li>@messages("CheckMembersProtectionEnhancements.l1")</li>
-        <li>@messages("CheckMembersProtectionEnhancements.l2")</li>
-        <li>@messages("CheckMembersProtectionEnhancements.l3")</li>
-        <li>@messages("CheckMembersProtectionEnhancements.l4")</li>
-    </ul>
-</div>
+    <div class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-5">
+        <p>@messages("check.members.protection.enhancements.p1")</p>
 
-<p class="govuk-body">
-    @govukButton(
-    ButtonViewModel(messages("site.start"))
-    .asLink(routes.MemberNameController.onPageLoad().url)
-    )
-</p>
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-top-1">
+            <li>@messages("check.members.protection.enhancements.full_name")</li>
+            <li>@messages("check.members.protection.enhancements.dob")</li>
+            <li>@messages("check.members.protection.enhancements.nino")</li>
+            <li>@messages("check.members.protection.enhancements.pension_scheme_admin_check_ref")</li>
+        </ul>
+    </div>
+
+    <p class="govuk-body">
+        @govukButton(
+        ButtonViewModel(messages("site.start"))
+        .asLink(routes.MemberNameController.onPageLoad().url)
+        )
+    </p>
 
 }

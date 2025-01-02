@@ -48,14 +48,14 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
-CheckMembersProtectionEnhancements.title = Start page
-CheckMembersProtectionEnhancements.heading = Check a member''s protections and enhancements
-CheckMembersProtectionEnhancements.p1 = You will need the member's:
-CheckMembersProtectionEnhancements.l1 = full name
-CheckMembersProtectionEnhancements.l2 = date of birth
-CheckMembersProtectionEnhancements.l3 = National Insurance number
-CheckMembersProtectionEnhancements.l4 = pension scheme administrator check reference
+check.members.protection.enhancements.title = Start page
+check.members.protection.enhancements.heading = Check a member''s protections and enhancements
+check.members.protection.enhancements.p1 = You will need the member's:
+check.members.protection.enhancements.full_name = full name
+check.members.protection.enhancements.dob = date of birth
+check.members.protection.enhancements.nino = National Insurance number
+check.members.protection.enhancements.pension_scheme_admin_check_ref = pension scheme administrator check reference
 
-MemberName.title = Member name
-MemberName.heading = What is the member''s name?
+member.name.title = Member name
+member.name.heading = What is the member''s name?
 

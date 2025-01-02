@@ -18,13 +18,13 @@
 
 @this(
 layout: templates.Layout,
-heading: Heading
+heading: h1
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("MemberName.title"))) {
+@layout(pageTitle = titleNoForm(messages("member.name.title"))) {
 
-@heading("MemberName.heading")
+ @heading("member.name.heading")
 
 }
