@@ -19,12 +19,17 @@
 @this(
 layout: templates.Layout,
 govukButton : GovukButton,
+govukBackLink: GovukBackLink,
 heading: h1
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("check.members.protection.enhancements.title"))) {
+
+    <p class="govuk-body govuk-!-margin-top-10-">
+        @govukBackLink(BackLink(messages("site.back")))
+    </p>
 
     @heading("check.members.protection.enhancements.heading")
 
