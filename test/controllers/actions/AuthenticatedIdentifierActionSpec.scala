@@ -106,12 +106,12 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         redirectLocation(result) mustBe Some(expectedUrl)
       }
 
-      "Redirect user to Admin or Practitioner page when user does not have psa or psp enrolment" in runningApplication {
+      "Redirect user to Login page when user does not have psa or psp enrolment" in runningApplication {
         implicit app =>
           setAuthValue(authResult(Some("internalId")))
 
           val result = handler.run(FakeRequest())
-          val expectedUrl = appConfig.youNeedToRegisterUrl
+          val expectedUrl = appConfig.loginUrl
 
           redirectLocation(result) mustBe Some(expectedUrl)
       }
