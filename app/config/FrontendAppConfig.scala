@@ -40,6 +40,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
-  val baseUrl: String = configuration.get[String]("urls.manage-pension-schemes.baseUrl")
-  val youNeedToRegisterUrl: String = baseUrl + configuration.get[String]("urls.manage-pension-schemes.register")
+  val managePensionSchemesBaseUrl: String = configuration.get[String]("urls.manage-pension-schemes.baseUrl")
+  val youNeedToRegisterUrl: String = managePensionSchemesBaseUrl + configuration.get[String]("urls.manage-pension-schemes.register")
 }
