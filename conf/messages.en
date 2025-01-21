@@ -48,7 +48,7 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
-check.members.protection.enhancements.title = Start page
+check.members.protection.enhancements.title = Check a member''s protections and enhancements
 check.members.protection.enhancements.heading = Check a member''s protections and enhancements
 check.members.protection.enhancements.p1 = You will need the member's:
 check.members.protection.enhancements.full_name = full name
