@@ -1,4 +1,4 @@
-service.name = members-protections-enhancements-frontend
+service.name = Check a member''s protections and enhancements
 
 site.back = Back
 site.remove = Remove
@@ -47,3 +47,15 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+check.members.protection.enhancements.title = Check a member''s protections and enhancements
+check.members.protection.enhancements.heading = Check a member''s protections and enhancements
+check.members.protection.enhancements.p1 = You will need the member's:
+check.members.protection.enhancements.full_name = full name
+check.members.protection.enhancements.dob = date of birth
+check.members.protection.enhancements.nino = National Insurance number
+check.members.protection.enhancements.pension_scheme_admin_check_ref = pension scheme administrator check reference
+
+member.name.title = Member name
+member.name.heading = What is the member''s name?
+

@@ -1,0 +1,54 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.components._
+
+@this(
+layout: templates.Layout,
+govukButton : GovukButton,
+govukBackLink: GovukBackLink,
+heading: h1
+)
+
+@()(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("check.members.protection.enhancements.title"))) {
+
+    <p class="govuk-body govuk-!-margin-top-10-">
+        @govukBackLink(BackLink(messages("site.back")))
+    </p>
+
+    @heading("check.members.protection.enhancements.heading")
+
+    <div class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-5">
+        <p>@messages("check.members.protection.enhancements.p1")</p>
+
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-top-1">
+            <li>@messages("check.members.protection.enhancements.full_name")</li>
+            <li>@messages("check.members.protection.enhancements.dob")</li>
+            <li>@messages("check.members.protection.enhancements.nino")</li>
+            <li>@messages("check.members.protection.enhancements.pension_scheme_admin_check_ref")</li>
+        </ul>
+    </div>
+
+    <p class="govuk-body">
+        @govukButton(
+        ButtonViewModel(messages("site.start"))
+        .asLink(routes.MemberNameController.onPageLoad().url)
+        )
+    </p>
+
+}

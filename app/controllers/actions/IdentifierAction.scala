@@ -49,7 +49,7 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
 
         case Some(internalId) ~ IsPSA(psaId) => block(AdministratorRequest(internalId, request, psaId.value))
         case Some(internalId) ~ IsPSP(pspId) => block(PractitionerRequest(internalId, request, pspId.value))
-        case Some(_) ~ _ => Future.successful(Redirect(config.youNeedToRegisterUrl))
+        case Some(_) ~ _ => Future.successful(Redirect(config.loginUrl))
         case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       } recover {
       case _: NoActiveSession =>

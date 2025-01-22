@@ -32,7 +32,7 @@
     hmrcStandardPage: HmrcStandardPage
 )
 
-@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = false, showHmrcBanner: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
 
 @head = {
 
@@ -55,7 +55,6 @@
 
 @content = {
     @contentBlock
-    @hmrcReportTechnicalIssueHelper()
 }
 
 @hmrcStandardPage(HmrcStandardPageParams(
@@ -64,13 +63,11 @@
         additionalHeadBlock = Some(head)
     ),
     serviceURLs = ServiceURLs(
-        serviceUrl = Some(routes.IndexController.onPageLoad().url),
+        serviceUrl = Some(routes.CheckMembersProtectionEnhancementsController.onPageLoad().url),
         signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
     ),
     banners = Banners(
-        displayHmrcBanner = showHmrcBanner,
-        phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
+        displayHmrcBanner = showHmrcBanner
     ),
-    isWelshTranslationAvailable = appConfig.languageTranslationEnabled,
     backLink = if (showBackLink) Some(BackLink.mimicsBrowserBackButtonViaJavaScript) else None
 ))(content)

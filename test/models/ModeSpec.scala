@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-abstract class WithName(val name: String) {
-  override val toString: String = name
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
+class ModeSpec extends AnyWordSpec with Matchers {
+
+  "Mode" must {
+    "return a normal type" in {
+      Mode.jsLiteral.to(NormalMode) mustBe "NormalMode"
+    }
+    "return a check mode type" in {
+      Mode.jsLiteral.to(CheckMode) mustBe "CheckMode"
+    }
+  }
+
 }

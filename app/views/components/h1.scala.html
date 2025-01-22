@@ -14,18 +14,16 @@
  * limitations under the License.
  *@
 
-@this(
-    layout: templates.Layout
-)
+@this()
 
-@()(implicit request: Request[_], messages: Messages)
+@(
+ msgKey: String,
+ id: Option[String] = None,
+ headingArgs: Option[String] = None,
+ extraHeadingClasses: String = "",
+ headerSize: String = "xl"
+)(implicit messages: Messages)
 
-@layout(
-    pageTitle    = titleNoForm(messages("index.title")),
-    showBackLink = false
-) {
-
-    <h1 class="govuk-heading-xl">@messages("index.heading")</h1>
-
-    <p class="govuk-body">@messages("index.guidance")</p>
-}
+<h1 class=@{s"govuk-heading-$headerSize $extraHeadingClasses"}>
+ @{headingArgs.fold(messages(msgKey))(messages(msgKey, _))}
+</h1>

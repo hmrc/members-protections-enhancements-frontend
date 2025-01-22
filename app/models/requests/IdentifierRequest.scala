@@ -28,8 +28,6 @@ sealed abstract class IdentifierRequest[A] (request: Request[A]) extends Wrapped
       case p: PractitionerRequest[A] => practitioner(p)
     }
 
-  def getUserId: String = fold(_.userId, _.userId)
-
 }
 
 object IdentifierRequest {

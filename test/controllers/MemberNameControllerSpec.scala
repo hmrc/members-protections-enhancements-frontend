@@ -19,27 +19,25 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.IndexView
+import views.html.MemberNameView
 
-class IndexControllerSpec extends SpecBase {
+class MemberNameControllerSpec extends SpecBase {
 
-  "Index Controller" - {
-
+  "Member Name Controller" - {
     "must return OK and the correct view for a GET" in {
-
-      val application = applicationBuilder(userAnswers = None).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.IndexController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.MemberNameController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[IndexView]
+        val view = application.injector.instanceOf[MemberNameView]
 
         status(result) mustEqual OK
-
         contentAsString(result) mustEqual view()(request, messages(application)).toString
       }
     }
   }
+
 }
