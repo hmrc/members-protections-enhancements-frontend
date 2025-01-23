@@ -92,7 +92,8 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         setAuthValue(Future.failed(new AuthorisationException("Authorise predicate fails") {}))
 
         val result = handler.run(FakeRequest())
-        val expectedUrl = routes.UnauthorisedController.onPageLoad().url
+        val continueUrl = urlEncode(appConfig.loginContinueUrl)
+        val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
         redirectLocation(result) mustBe Some(expectedUrl)
       }
