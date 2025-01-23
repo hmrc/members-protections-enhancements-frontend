@@ -83,7 +83,7 @@ class AuthActionSpec extends SpecBase {
 
     "the user doesn't have sufficient enrolments" - {
 
-      "must redirect the user to the unauthorised page" in {
+      "must redirect the user to the sign in page" in {
 
         val application = applicationBuilder(userAnswers = None).build()
 
@@ -95,16 +95,18 @@ class AuthActionSpec extends SpecBase {
             appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
+          val continueUrl = urlEncode(appConfig.loginContinueUrl)
+          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
+          redirectLocation(result).value mustBe expectedUrl
         }
       }
     }
 
     "the user doesn't have sufficient confidence level" - {
 
-      "must redirect the user to the unauthorised page" in {
+      "must redirect the user to the sign in page" in {
 
         val application = applicationBuilder(userAnswers = None).build()
 
@@ -116,16 +118,18 @@ class AuthActionSpec extends SpecBase {
             appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
+          val continueUrl = urlEncode(appConfig.loginContinueUrl)
+          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
+          redirectLocation(result).value mustBe expectedUrl
         }
       }
     }
 
     "the user used an unaccepted auth provider" - {
 
-      "must redirect the user to the unauthorised page" in {
+      "must redirect the user to the sign in page" in {
 
         val application = applicationBuilder(userAnswers = None).build()
 
@@ -137,16 +141,18 @@ class AuthActionSpec extends SpecBase {
             appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
+          val continueUrl = urlEncode(appConfig.loginContinueUrl)
+          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result).value mustBe routes.UnauthorisedController.onPageLoad().url
+          redirectLocation(result).value mustBe expectedUrl
         }
       }
     }
 
     "the user has an unsupported affinity group" - {
 
-      "must redirect the user to the unauthorised page" in {
+      "must redirect the user to the sign in page" in {
 
         val application = applicationBuilder(userAnswers = None).build()
 
@@ -158,16 +164,18 @@ class AuthActionSpec extends SpecBase {
             appConfig, bodyParsers)
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
+          val continueUrl = urlEncode(appConfig.loginContinueUrl)
+          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+          redirectLocation(result) mustBe Some(expectedUrl)
         }
       }
     }
 
     "the user has an unsupported credential role" - {
 
-      "must redirect the user to the unauthorised page" in {
+      "must redirect the user to the sign in page" in {
 
         val application = applicationBuilder(userAnswers = None).build()
 
@@ -180,9 +188,11 @@ class AuthActionSpec extends SpecBase {
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
+          val continueUrl = urlEncode(appConfig.loginContinueUrl)
+          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+          redirectLocation(result) mustBe Some(expectedUrl)
         }
       }
     }

@@ -52,10 +52,8 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
         case Some(_) ~ _ => Future.successful(Redirect(config.loginUrl))
         case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       } recover {
-      case _: NoActiveSession =>
+      case _ =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-      case _: AuthorisationException =>
-        Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }
 
