@@ -18,4 +18,7 @@ GET         /account/signed-out                                         controll
 
 GET         /unauthorised                                               controllers.UnauthorisedController.onPageLoad()
 
-GET         /member-name                                                controllers.MemberNameController.onPageLoad()
+GET         /members-name                                               controllers.WhatIsTheMembersNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /members-name                                               controllers.WhatIsTheMembersNameController.onSubmit(mode: Mode = NormalMode)
+
+GET         /members-date-of-birth                                      controllers.MembersDobController.onPageLoad()

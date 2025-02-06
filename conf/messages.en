@@ -56,6 +56,14 @@ check.members.protection.enhancements.dob = date of birth
 check.members.protection.enhancements.nino = National Insurance number
 check.members.protection.enhancements.pension_scheme_admin_check_ref = pension scheme administrator check reference
 
-member.name.title = Member name
+member.name.title = What is the member''s name?
 member.name.heading = What is the member''s name?
+member.name.firstName = First name
+member.name.lastName = Last name
+member.name.error.invalid = Please enter the member''s name in a valid format
+member.name.error.required.firstName = Enter the member''s first name
+member.name.error.required.lastName = Enter the member''s last name
+
+member.dob.title = What is the member''s date of birth?
+member.dob.heading = What is the member''s date of birth?
 
