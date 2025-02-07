@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import forms.mappings.Mappings
 import play.api.data.Form
 import play.api.data.Forms.mapping
-import viewmodels.models.NameViewModel
+import viewmodels.models.MemberDetails
 
 class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
 
@@ -30,7 +30,7 @@ class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
   val firstName = "firstName"
   val lastName = "lastName"
 
-  def apply(): Form[NameViewModel] =
+  def apply(): Form[MemberDetails] =
     Form(
       mapping(
         firstName -> text("member.name.firstName.error.required").verifying(
@@ -45,7 +45,7 @@ class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
             maxLength(nameMaxLength, "member.name.lastName.error.length")
           )
         ),
-      )(NameViewModel.apply)(NameViewModel.unapply)
+      )(MemberDetails.apply)(MemberDetails.unapply)
     )
 
 }

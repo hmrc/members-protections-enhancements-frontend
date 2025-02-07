@@ -18,19 +18,18 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.WhatIsTheMembersNameController.viewModel
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import forms.WhatIsTheMembersNameFormProvider
 import models.{Mode, UserAnswers}
-import models.requests.OptionalDataRequest
 import navigation.Navigator
+import pages._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.MpeService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.DisplayMessage.Message
-import viewmodels.models.{FormPageViewModel, NameViewModel}
+import viewmodels.models.{FormPageViewModel, MemberDetails}
 import views.html.WhatIsTheMembersNameView
-import pages._
-import services.MpeService
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -39,7 +38,6 @@ class WhatIsTheMembersNameController @Inject()(
                                                 identify: IdentifierAction,
                                                 getData: DataRetrievalAction,
                                                 navigator: Navigator,
-                                                requireData: DataRequiredAction,
                                                 service: MpeService,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 formProvider: WhatIsTheMembersNameFormProvider,
@@ -74,10 +72,10 @@ class WhatIsTheMembersNameController @Inject()(
 
 object WhatIsTheMembersNameController {
 
-  def viewModel(mode: Mode): FormPageViewModel[NameViewModel] = FormPageViewModel(
+  def viewModel(mode: Mode): FormPageViewModel[MemberDetails] = FormPageViewModel(
     Message("member.name.title"),
     Message("member.name.heading"),
-    NameViewModel(
+    MemberDetails(
       "member.name.firstName",
       "member.name.lastName"
     ),

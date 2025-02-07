@@ -16,14 +16,11 @@
 
 package viewmodels.models
 
-import play.api.libs.json.{Format, Json}
-import viewmodels.DisplayMessage.Message
+import models.Mode
+import play.api.mvc.Call
 
-case class NameViewModel (
-                         firstName: String,
-                         lastName: String
-                         )
-
-object NameViewModel {
-  implicit val format: Format[NameViewModel] = Json.format[NameViewModel]
-}
+case class MemberDetailsViewModel(title: String,
+                                  heading: String,
+                                  mode: Mode,
+                                  submitUrl: Call
+                                 )

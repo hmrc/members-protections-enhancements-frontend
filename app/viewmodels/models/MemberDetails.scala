@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package pages
+package viewmodels.models
 
-import play.api.libs.json.JsPath
-import viewmodels.models.MemberDetails
+import play.api.libs.json.{Format, Json}
+import viewmodels.DisplayMessage.Message
 
-case object WhatIsTheMembersNamePage extends QuestionPage[MemberDetails] {
+case class MemberDetails(
+                         firstName: String,
+                         lastName: String
+                         )
 
-  override def path: JsPath                    = JsPath \ toString
-  override def toString: String                = "member.name"
+object MemberDetails {
+  implicit val format: Format[MemberDetails] = Json.format[MemberDetails]
 }

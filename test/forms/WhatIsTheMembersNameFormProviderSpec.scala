@@ -19,8 +19,7 @@ package forms
 import forms.behaviours.FieldBehaviours
 import org.scalacheck.Gen.alphaChar
 import play.api.data.{Form, FormError}
-import viewmodels.models.NameViewModel
-
+import viewmodels.models.MemberDetails
 
 class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
 
@@ -28,32 +27,31 @@ class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
 
   import formProvider._
 
-  val form: Form[NameViewModel] = formProvider()
+  val form: Form[MemberDetails] = formProvider()
 
   ".firstName" - {
-//    behave.like(fieldThatBindsValidData(form, "firstName", stringsWithMaxLength(nameMaxLength)))
     behave.like(mandatoryField(form, "firstName", FormError("firstName", List("member.name.firstName.error.required"))))
-//    val lengthUpperLimit = 35
-//    val lengthFormError = FormError("firstName", "firstName.error.length", List(nameMaxLength))
-//    behave.like(fieldLengthError(form, "firstName", lengthFormError, nameMaxLength + 1, lengthUpperLimit, alphaChar))
 
-//    behave.like(
-//      invalidAlphaField(
-//        form,
-//        fieldName = "firstName",
-//        errorMessage = "firstName.error.invalid",
-//        args = List(nameRegex)
-//      )
-//    )
+    behave.like(
+      invalidAlphaField(
+        form,
+        fieldName = "firstName",
+        errorMessage = "member.name.firstName.error.invalid",
+        args = List(nameRegex)
+      )
+    )
   }
 
   ".lastName" - {
-//    behave.like(fieldThatBindsValidData(form, "lastName", stringsWithMaxLength(nameMaxLength)))
     behave.like(mandatoryField(form, "lastName", FormError("lastName", List("member.name.lastName.error.required"))))
-//    val lengthUpperLimit = 35
-//    val lengthFormError = FormError("lastName", "lastName.error.length", List(nameMaxLength))
-//    behave.like(fieldLengthError(form, "lastName", lengthFormError, nameMaxLength + 1, lengthUpperLimit, alphaChar))
-
+    behave.like(
+      invalidAlphaField(
+        form,
+        fieldName = "lastName",
+        errorMessage = "member.name.lastName.error.invalid",
+        args = List(nameRegex)
+      )
+    )
   }
 
 }

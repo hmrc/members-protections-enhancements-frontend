@@ -28,7 +28,7 @@ govukInput: GovukInput,
 govukButton: GovukButton
 )
 
-@(form: Form[NameViewModel], viewModel: FormPageViewModel[NameViewModel])(implicit request: Request[_], messages: Messages)
+@(form: Form[MemberDetails], viewModel: FormPageViewModel[MemberDetails])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, viewModel.title.toMessage)) {
 
