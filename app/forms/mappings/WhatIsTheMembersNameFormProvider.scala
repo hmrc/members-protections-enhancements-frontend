@@ -22,10 +22,10 @@ import play.api.data.Form
 import play.api.data.Forms.mapping
 import viewmodels.models.NameViewModel
 
-class WhatIsTheMembersNameFormProvider @Inject extends Mappings {
+class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
 
-  private val nameMaxLength = 35
-  private val nameRegex = "^[a-zA-Z\\-' ]+$"
+  val nameMaxLength = 35
+  val nameRegex = "^[a-zA-Z\\-' ]+$"
 
   val firstName = "firstName"
   val lastName = "lastName"
@@ -34,15 +34,15 @@ class WhatIsTheMembersNameFormProvider @Inject extends Mappings {
     Form(
       mapping(
         firstName -> text("member.name.firstName.error.required").verifying(
-        firstError(
-          regexp(nameRegex, "memberDetails.firstName.error.invalid"),
-          maxLength(nameMaxLength, "memberDetails.firstName.error.length")
-        )
-      ),
+          firstError(
+            regexp(nameRegex, "member.name.firstName.error.invalid"),
+            maxLength(nameMaxLength, "member.name.firstName.error.length")
+          )
+        ),
         lastName -> text("member.name.lastName.error.required").verifying(
           firstError(
-            regexp(nameRegex, "memberDetails.lastName.error.invalid"),
-            maxLength(nameMaxLength, "memberDetails.lastName.error.length")
+            regexp(nameRegex, "member.name.lastName.error.invalid"),
+            maxLength(nameMaxLength, "member.name.lastName.error.length")
           )
         ),
       )(NameViewModel.apply)(NameViewModel.unapply)

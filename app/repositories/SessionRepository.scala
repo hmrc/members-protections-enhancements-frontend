@@ -26,6 +26,7 @@ import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.play.http.logging.Mdc
+import utils.FutureUtils.FutureOps
 
 import java.time.{Clock, Instant}
 import java.util.concurrent.TimeUnit
@@ -75,7 +76,7 @@ class SessionRepository @Inject()(
     }
   }
 
-  def set(answers: UserAnswers): Future[Boolean] = Mdc.preservingMdc {
+  def set(answers: UserAnswers): Future[Unit] = Mdc.preservingMdc {
 
     val updatedAnswers = answers copy (lastUpdated = Instant.now(clock))
 
@@ -86,7 +87,7 @@ class SessionRepository @Inject()(
         options     = ReplaceOptions().upsert(true)
       )
       .toFuture()
-      .map(_ => true)
+      .as(())
   }
 
   def clear(id: String): Future[Boolean] = Mdc.preservingMdc {

@@ -38,7 +38,7 @@ govukButton: GovukButton
 
          @govukInput(
              InputViewModel(
-               field = form("member.name.firstName"),
+               field = form("firstName"),
                label = LabelViewModel(viewModel.page.firstName).withCssClass(LabelSize.Small.toString)
              )
              .withWidth(Fixed20)
@@ -52,11 +52,8 @@ govukButton: GovukButton
            .withWidth(Fixed20)
          )
 
-<p class="govuk-body">
-    @govukButton(
-    ButtonViewModel(messages("site.continue"))
-    .asLink(routes.MembersDobController.onPageLoad().url)
-    )
-</p>
+        @govukButton(
+            ButtonViewModel(viewModel.buttonText.toMessage)
+        )
     }
 }

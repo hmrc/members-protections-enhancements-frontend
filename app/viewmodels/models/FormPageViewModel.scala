@@ -53,7 +53,7 @@ object FormPageViewModel {
     None,
     page,
     None,
-    Message("site.Continue"),
+    Message("site.continue"),
     None,
     onSubmit
   )
@@ -71,7 +71,7 @@ object FormPageViewModel {
       None,
       page,
       refresh = None,
-      Message("site.Continue"),
+      Message("site.continue"),
       details,
       onSubmit
     )

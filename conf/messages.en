@@ -60,9 +60,12 @@ member.name.title = What is the member''s name?
 member.name.heading = What is the member''s name?
 member.name.firstName = First name
 member.name.lastName = Last name
-member.name.error.invalid = Please enter the member''s name in a valid format
-member.name.error.required.firstName = Enter the member''s first name
-member.name.error.required.lastName = Enter the member''s last name
+member.name.firstName.error.required = Enter the member''s first name
+member.name.lastName.error.required = Enter the member''s last name
+member.name.firstName.error.invalid = Please enter the member''s name in a valid format
+member.name.lastName.error.invalid = Please enter the member''s name in a valid format
+member.name.firstName.error.length = Member''s first name must be 35 characters or fewer
+member.name.lastName.error.length = Member''s last name must be 35 characters or fewer
 
 member.dob.title = What is the member''s date of birth?
 member.dob.heading = What is the member''s date of birth?

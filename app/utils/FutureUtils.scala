@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package viewmodels.models
+package utils
 
-import play.api.libs.json.{Format, Json}
-import viewmodels.DisplayMessage.Message
+import scala.concurrent.{ExecutionContext, Future}
 
-case class NameViewModel (
-                         firstName: String,
-                         lastName: String
-                         )
+object FutureUtils {
 
-object NameViewModel {
-  implicit val format: Format[NameViewModel] = Json.format[NameViewModel]
+  implicit class FutureOps[A](val future: Future[A]) extends AnyVal {
+
+    def as[B](b: B)(implicit ec: ExecutionContext): Future[B] =
+      future.map(_ => b)
+  }
 }

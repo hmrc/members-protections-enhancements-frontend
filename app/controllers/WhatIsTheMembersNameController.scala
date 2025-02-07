@@ -18,15 +18,19 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.WhatIsTheMembersNameController.viewModel
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
 import forms.WhatIsTheMembersNameFormProvider
-import models.Mode
+import models.{Mode, UserAnswers}
+import models.requests.OptionalDataRequest
+import navigation.Navigator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.DisplayMessage.Message
 import viewmodels.models.{FormPageViewModel, NameViewModel}
 import views.html.WhatIsTheMembersNameView
+import pages._
+import services.MpeService
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,6 +38,9 @@ class WhatIsTheMembersNameController @Inject()(
                                                 override val messagesApi: MessagesApi,
                                                 identify: IdentifierAction,
                                                 getData: DataRetrievalAction,
+                                                navigator: Navigator,
+                                                requireData: DataRequiredAction,
+                                                service: MpeService,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 formProvider: WhatIsTheMembersNameFormProvider,
                                                 view: WhatIsTheMembersNameView,
@@ -41,16 +48,26 @@ class WhatIsTheMembersNameController @Inject()(
   extends FrontendBaseController
     with I18nSupport {
 
+  private val form = formProvider()
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
-      val form = formProvider()
       Ok(view(form, viewModel(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-
-      Future.successful(Ok)
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors =>
+            Future.successful(BadRequest(view(formWithErrors, viewModel(mode)))
+            ),
+          answer =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(UserAnswers(request.userId)).set(WhatIsTheMembersNamePage, answer))
+              _ <- service.save(updatedAnswers)
+            } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers)))
   }
 
 }
