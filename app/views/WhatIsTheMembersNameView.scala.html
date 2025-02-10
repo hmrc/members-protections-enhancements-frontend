@@ -24,6 +24,7 @@
 layout: templates.Layout,
 heading: h1,
 formHelper: FormWithCSRF,
+govukErrorSummary: GovukErrorSummary,
 govukInput: GovukInput,
 govukButton: GovukButton
 )
@@ -33,6 +34,10 @@ govukButton: GovukButton
 @layout(pageTitle = title(form, viewModel.title.toMessage)) {
 
     @formHelper(action = viewModel.onSubmit, Symbol("autoComplete") -> "off") {
+
+        @if(form.hasErrors) {
+        @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
 
         @heading("member.name.heading")
 
