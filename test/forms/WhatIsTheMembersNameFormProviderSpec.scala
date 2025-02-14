@@ -17,7 +17,6 @@
 package forms
 
 import forms.behaviours.FieldBehaviours
-import org.scalacheck.Gen.alphaChar
 import play.api.data.{Form, FormError}
 import viewmodels.models.MemberDetails
 

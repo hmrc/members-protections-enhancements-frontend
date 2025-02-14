@@ -25,7 +25,7 @@ import navigation.Navigator
 import pages._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.MpeService
+import services.SaveService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.DisplayMessage.Message
 import viewmodels.models.{FormPageViewModel, MemberDetails}
@@ -38,7 +38,7 @@ class WhatIsTheMembersNameController @Inject()(
                                                 identify: IdentifierAction,
                                                 getData: DataRetrievalAction,
                                                 navigator: Navigator,
-                                                service: MpeService,
+                                                service: SaveService,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 formProvider: WhatIsTheMembersNameFormProvider,
                                                 view: WhatIsTheMembersNameView,
@@ -79,6 +79,6 @@ object WhatIsTheMembersNameController {
       "member.name.firstName",
       "member.name.lastName"
     ),
-    routes.WhatIsTheMembersNameController.onSubmit()
+    routes.WhatIsTheMembersNameController.onSubmit(mode)
   )
 }

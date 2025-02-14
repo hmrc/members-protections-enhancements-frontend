@@ -78,7 +78,7 @@ class SessionRepository @Inject()(
 
   def set(answers: UserAnswers): Future[Unit] = Mdc.preservingMdc {
 
-    val updatedAnswers = answers copy (lastUpdated = Instant.now(clock))
+    val updatedAnswers = answers.copy(lastUpdated = Instant.now(clock))
 
     collection
       .replaceOne(

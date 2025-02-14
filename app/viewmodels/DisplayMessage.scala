@@ -17,8 +17,6 @@
 package viewmodels
 
 import play.api.i18n.Messages
-import viewmodels.DisplayMessage.LinkMessage
-
 
 sealed trait DisplayMessage
 

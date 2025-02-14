@@ -18,7 +18,6 @@ package viewmodels.models
 
 import models.{Mode, NormalMode}
 import play.api.mvc.Call
-import uk.gov.hmrc.hmrcfrontend.views.viewmodels.pageheading.PageHeading
 import viewmodels.DisplayMessage
 import viewmodels.DisplayMessage.{InlineMessage, Message}
 
@@ -43,10 +42,10 @@ case class FormPageViewModel[+A](
 
 object FormPageViewModel {
   def apply[A](
-              title: Message,
-              heading: InlineMessage,
-              page: A,
-              onSubmit: Call
+                title: Message,
+                heading: InlineMessage,
+                page: A,
+                onSubmit: Call
               ): FormPageViewModel[A] = FormPageViewModel(
     title,
     heading,

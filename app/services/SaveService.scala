@@ -17,9 +17,7 @@
 package services
 
 import com.google.inject.ImplementedBy
-import models.{Mode, UserAnswers}
-import pages.QuestionPage
-import play.api.mvc.Result
+import models.UserAnswers
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -27,14 +25,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SaveServiceImpl @Inject()(sessionRepository: SessionRepository) extends MpeService {
-  override def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+class SaveServiceImpl @Inject()(sessionRepository: SessionRepository) extends SaveService {
+  override def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
     sessionRepository.set(userAnswers)
+  }
 }
 
 @ImplementedBy(classOf[SaveServiceImpl])
-trait MpeService {
+trait SaveService {
   def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit]
 }
-
-

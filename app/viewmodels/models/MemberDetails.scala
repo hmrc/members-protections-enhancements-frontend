@@ -17,12 +17,11 @@
 package viewmodels.models
 
 import play.api.libs.json.{Format, Json}
-import viewmodels.DisplayMessage.Message
 
 case class MemberDetails(
-                         firstName: String,
-                         lastName: String
-                         )
+                          firstName: String,
+                          lastName: String
+                        )
 
 object MemberDetails {
   implicit val format: Format[MemberDetails] = Json.format[MemberDetails]
