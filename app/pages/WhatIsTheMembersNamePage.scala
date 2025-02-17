@@ -16,11 +16,11 @@
 
 package pages
 
+import models.MemberDetails
 import play.api.libs.json.JsPath
-import viewmodels.models.MemberDetails
 
 case object WhatIsTheMembersNamePage extends QuestionPage[MemberDetails] {
 
   override def path: JsPath                    = JsPath \ toString
-  override def toString: String                = "member.name"
+  override def toString: String                = "memberName"
 }

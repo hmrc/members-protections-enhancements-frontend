@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package viewmodels.models
+package models
 
-import models.Mode
-import play.api.mvc.Call
+import play.api.libs.json.{Format, Json}
 
-case class MemberDetailsViewModel(title: String,
-                                  heading: String,
-                                  mode: Mode,
-                                  submitUrl: Call
-                                 )
+case class MemberDetails(
+                          firstName: String,
+                          lastName: String
+                        )
+
+object MemberDetails {
+  implicit val format: Format[MemberDetails] = Json.format[MemberDetails]
+}

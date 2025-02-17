@@ -30,13 +30,13 @@ class CheckMembersProtectionEnhancementsViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("check.members.protection.enhancements.heading")
+      view.getElementsByTag("h1").text() mustBe messages(app)("checkMembersProtectionEnhancements.heading")
 
-      view.html.contains(messages(app)("check.members.protection.enhancements.p1"))
-      view.text.contains(messages(app)("check.members.protection.enhancements.full-name"))
-      view.text.contains(messages(app)("check.members.protection.enhancements.dob"))
-      view.text.contains(messages(app)("check.members.protection.enhancements.nino"))
-      view.text.contains(messages(app)("check.members.protection.enhancements.pension-scheme-admin-check-ref"))
+      view.html.contains(messages(app)("checkMembersProtectionEnhancements.p1"))
+      view.text.contains(messages(app)("checkMembersProtectionEnhancements.full-name"))
+      view.text.contains(messages(app)("checkMembersProtectionEnhancements.dob"))
+      view.text.contains(messages(app)("checkMembersProtectionEnhancements.nino"))
+      view.text.contains(messages(app)("checkMembersProtectionEnhancements.pension-scheme-admin-check-ref"))
     }
   }
 

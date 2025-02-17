@@ -17,8 +17,8 @@
 package forms
 
 import forms.behaviours.FieldBehaviours
+import models.MemberDetails
 import play.api.data.{Form, FormError}
-import viewmodels.models.MemberDetails
 
 class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
 
@@ -29,25 +29,25 @@ class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
   val form: Form[MemberDetails] = formProvider()
 
   ".firstName" - {
-    behave.like(mandatoryField(form, "firstName", FormError("firstName", List("member.name.firstName.error.required"))))
+    behave.like(mandatoryField(form, "firstName", FormError("firstName", List("memberName.firstName.error.required"))))
 
     behave.like(
       invalidAlphaField(
         form,
         fieldName = "firstName",
-        errorMessage = "member.name.firstName.error.invalid",
+        errorMessage = "memberName.firstName.error.invalid",
         args = List(nameRegex)
       )
     )
   }
 
   ".lastName" - {
-    behave.like(mandatoryField(form, "lastName", FormError("lastName", List("member.name.lastName.error.required"))))
+    behave.like(mandatoryField(form, "lastName", FormError("lastName", List("memberName.lastName.error.required"))))
     behave.like(
       invalidAlphaField(
         form,
         fieldName = "lastName",
-        errorMessage = "member.name.lastName.error.invalid",
+        errorMessage = "memberName.lastName.error.invalid",
         args = List(nameRegex)
       )
     )

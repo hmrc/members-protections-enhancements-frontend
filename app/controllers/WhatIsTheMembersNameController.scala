@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.WhatIsTheMembersNameController.viewModel
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import forms.WhatIsTheMembersNameFormProvider
-import models.{Mode, UserAnswers}
+import models.{MemberDetails, Mode, UserAnswers}
 import navigation.Navigator
 import pages._
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SaveService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.DisplayMessage.Message
-import viewmodels.models.{FormPageViewModel, MemberDetails}
+import viewmodels.models.FormPageViewModel
 import views.html.WhatIsTheMembersNameView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -73,11 +73,11 @@ class WhatIsTheMembersNameController @Inject()(
 object WhatIsTheMembersNameController {
 
   def viewModel(mode: Mode): FormPageViewModel[MemberDetails] = FormPageViewModel(
-    Message("member.name.title"),
-    Message("member.name.heading"),
+    Message("memberName.title"),
+    Message("memberName.heading"),
     MemberDetails(
-      "member.name.firstName",
-      "member.name.lastName"
+      "memberName.firstName",
+      "memberName.lastName"
     ),
     routes.WhatIsTheMembersNameController.onSubmit(mode)
   )

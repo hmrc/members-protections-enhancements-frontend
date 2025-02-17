@@ -30,7 +30,7 @@ class MembersDobViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("member.dob.heading")
+      view.getElementsByTag("h1").text() mustBe messages(app)("memberDob.heading")
 
     }
   }

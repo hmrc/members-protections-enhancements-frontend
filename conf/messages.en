@@ -48,25 +48,25 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
-check.members.protection.enhancements.title = Check a member''s protections and enhancements
-check.members.protection.enhancements.heading = Check a member''s protections and enhancements
-check.members.protection.enhancements.p1 = You will need the member's:
-check.members.protection.enhancements.full_name = full name
-check.members.protection.enhancements.dob = date of birth
-check.members.protection.enhancements.nino = National Insurance number
-check.members.protection.enhancements.pension_scheme_admin_check_ref = pension scheme administrator check reference
+checkMembersProtectionEnhancements.title = Check a member''s protections and enhancements
+checkMembersProtectionEnhancements.heading = Check a member''s protections and enhancements
+checkMembersProtectionEnhancements.p1 = You will need the member's:
+checkMembersProtectionEnhancements.full_name = full name
+checkMembersProtectionEnhancements.dob = date of birth
+checkMembersProtectionEnhancements.nino = National Insurance number
+checkMembersProtectionEnhancements.pension_scheme_admin_check_ref = pension scheme administrator check reference
 
-member.name.title = What is the member''s name?
-member.name.heading = What is the member''s name?
-member.name.firstName = First name
-member.name.lastName = Last name
-member.name.firstName.error.required = Enter the member''s first name
-member.name.lastName.error.required = Enter the member''s last name
-member.name.firstName.error.invalid = Please enter the member''s name in a valid format
-member.name.lastName.error.invalid = Please enter the member''s name in a valid format
-member.name.firstName.error.length = The member''s first name must be 35 characters or fewer
-member.name.lastName.error.length = The member''s last name must be 35 characters or fewer
+memberName.title = What is the member''s name?
+memberName.heading = What is the member''s name?
+memberName.firstName = First name
+memberName.lastName = Last name
+memberName.firstName.error.required = Enter the member''s first name
+memberName.lastName.error.required = Enter the member''s last name
+memberName.firstName.error.invalid = Please enter the member''s name in a valid format
+memberName.lastName.error.invalid = Please enter the member''s name in a valid format
+memberName.firstName.error.length = The member''s first name must be 35 characters or fewer
+memberName.lastName.error.length = The member''s last name must be 35 characters or fewer
 
-member.dob.title = What is the member''s date of birth?
-member.dob.heading = What is the member''s date of birth?
+memberDob.title = What is the member''s date of birth?
+memberDob.heading = What is the member''s date of birth?
 

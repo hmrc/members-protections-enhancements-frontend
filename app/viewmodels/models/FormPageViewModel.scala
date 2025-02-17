@@ -35,10 +35,7 @@ case class FormPageViewModel[+A](
                                   optNotificationBanner: Option[(String, String, String)] = None,
                                   showBackLink: Boolean = true,
                                   breadcrumbs: Option[List[(String, String)]] = None
-                                ) {
-  def withButtonText(message: Message): FormPageViewModel[A] =
-    copy(buttonText = message)
-}
+                                )
 
 object FormPageViewModel {
   def apply[A](

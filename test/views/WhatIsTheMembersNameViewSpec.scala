@@ -19,7 +19,7 @@ package views
 import base.SpecBase
 import controllers.WhatIsTheMembersNameController
 import forms.WhatIsTheMembersNameFormProvider
-import models.NormalMode
+import models.{MemberDetails, NormalMode}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
@@ -27,7 +27,7 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import viewmodels.models.{FormPageViewModel, MemberDetails}
+import viewmodels.models.FormPageViewModel
 import views.html.WhatIsTheMembersNameView
 
 class WhatIsTheMembersNameViewSpec extends SpecBase {
@@ -35,11 +35,11 @@ class WhatIsTheMembersNameViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("member.name.heading")
+      view.getElementsByTag("h1").text() mustBe messages(app)("memberName.heading")
 
-      view.html.contains(messages(app)("member.name.title"))
-      view.text.contains(messages(app)("member.name.firstName"))
-      view.text.contains(messages(app)("member.name.lastName"))
+      view.html.contains(messages(app)("memberName.title"))
+      view.text.contains(messages(app)("memberName.firstName"))
+      view.text.contains(messages(app)("memberName.lastName"))
     }
   }
 

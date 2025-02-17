@@ -25,18 +25,18 @@ heading: h1
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("check.members.protection.enhancements.title"))) {
+@layout(pageTitle = titleNoForm(messages("checkMembersProtectionEnhancements.title"))) {
 
-    @heading("check.members.protection.enhancements.heading")
+    @heading("checkMembersProtectionEnhancements.heading")
 
     <div class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-5">
-        <p>@messages("check.members.protection.enhancements.p1")</p>
+        <p>@messages("checkMembersProtectionEnhancements.p1")</p>
 
         <ul class="govuk-list govuk-list--bullet govuk-!-margin-top-1">
-            <li>@messages("check.members.protection.enhancements.full_name")</li>
-            <li>@messages("check.members.protection.enhancements.dob")</li>
-            <li>@messages("check.members.protection.enhancements.nino")</li>
-            <li>@messages("check.members.protection.enhancements.pension_scheme_admin_check_ref")</li>
+            <li>@messages("checkMembersProtectionEnhancements.full_name")</li>
+            <li>@messages("checkMembersProtectionEnhancements.dob")</li>
+            <li>@messages("checkMembersProtectionEnhancements.nino")</li>
+            <li>@messages("checkMembersProtectionEnhancements.pension_scheme_admin_check_ref")</li>
         </ul>
     </div>
 

@@ -18,9 +18,9 @@ package forms
 
 import com.google.inject.Inject
 import forms.mappings.Mappings
+import models.MemberDetails
 import play.api.data.Form
 import play.api.data.Forms.mapping
-import viewmodels.models.MemberDetails
 
 class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
 
@@ -33,16 +33,16 @@ class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
   def apply(): Form[MemberDetails] =
     Form(
       mapping(
-        firstName -> text("member.name.firstName.error.required").verifying(
+        firstName -> text("memberName.firstName.error.required").verifying(
           firstError(
-            regexp(nameRegex, "member.name.firstName.error.invalid"),
-            maxLength(nameMaxLength, "member.name.firstName.error.length")
+            regexp(nameRegex, "memberName.firstName.error.invalid"),
+            maxLength(nameMaxLength, "memberName.firstName.error.length")
           )
         ),
-        lastName -> text("member.name.lastName.error.required").verifying(
+        lastName -> text("memberName.lastName.error.required").verifying(
           firstError(
-            regexp(nameRegex, "member.name.lastName.error.invalid"),
-            maxLength(nameMaxLength, "member.name.lastName.error.length")
+            regexp(nameRegex, "memberName.lastName.error.invalid"),
+            maxLength(nameMaxLength, "memberName.lastName.error.length")
           )
         ),
       )(MemberDetails.apply)(MemberDetails.unapply)
