@@ -69,4 +69,12 @@ memberName.lastName.error.length = The member''s last name must be 35 characters
 
 memberDob.title = What is the member''s date of birth?
 memberDob.heading = What is the member''s date of birth?
+memberDob.error.invalid = Please enter the member's date of birth in a valid format
+memberDob.error.required.day = Enter a day of birth
+memberDob.error.required.month = Enter a month of birth
+memberDob.error.required.year = Enter a year of birth
+memberDob.error.dateOfBirth.maxDate = The date of birth must be before today
+
+memberNino.title = Members National Insurance number
+memberNino.heading = What is Members National Insurance number?
 

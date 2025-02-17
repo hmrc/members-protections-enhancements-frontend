@@ -17,40 +17,24 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{DataRequiredAction, DataRetrievalAction, IdentifierAction}
-import models.{MembersDob, Mode}
+import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.DisplayMessage.Message
-import viewmodels.models.FormPageViewModel
-import views.html.MembersDobView
+import views.html.MembersNinoView
 
-import java.time.LocalDate
-
-class MembersDobController @Inject()(
+class MembersNinoController @Inject()(
                                       override val messagesApi: MessagesApi,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,
-                                      requireData: DataRequiredAction,
                                       val controllerComponents: MessagesControllerComponents,
-                                      view: MembersDobView
+                                      view: MembersNinoView
                                     ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) {
+  //TODO This controller and test is created for navigation purposes. Once this ticket is build, Need to add the functionality for it.
+
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
       Ok(view())
   }
-}
-
-object MembersDobController {
-
-  def viewModel(mode: Mode): FormPageViewModel[MembersDob] = FormPageViewModel(
-    Message("memberDob.title"),
-    Message("memberDob.heading"),
-    MembersDob(
-      LocalDate.now()
-    ),
-    routes.WhatIsTheMembersNameController.onSubmit(mode)
-  )
 }
