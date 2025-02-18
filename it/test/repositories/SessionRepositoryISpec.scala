@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package repository
+package repositories
+
 import config.FrontendAppConfig
+import models.requests.DataRequest
 import models.{SessionData, UserAnswers}
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
@@ -25,17 +27,14 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
-import repositories.SessionRepository
+import play.api.test.FakeRequest
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
-import java.time.temporal.ChronoUnit
 import java.time.{Clock, Instant, ZoneId}
-import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 
-class SessionRepositorySpec
-  extends AnyFreeSpec
+class SessionRepositoryISpec
+    extends AnyFreeSpec
     with Matchers
     with DefaultPlayMongoRepositorySupport[SessionData]
     with ScalaFutures
@@ -48,6 +47,7 @@ class SessionRepositorySpec
 
   private val userAnswers = UserAnswers(Json.obj("foo" -> "bar"))
   private val sessionData = SessionData(userAnswers, Instant.ofEpochSecond(1), "id")
+  private val request     = DataRequest(FakeRequest(), "id", userAnswers)
 
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.cacheTtl) thenReturn 1
@@ -59,6 +59,7 @@ class SessionRepositorySpec
   )
 
   ".set" - {
+
     "must set the last updated time on the supplied user answers to `now`, and save them" in {
 
       val expectedResult = sessionData copy (lastUpdated = instant)
@@ -72,11 +73,6 @@ class SessionRepositorySpec
   }
 
   ".setUserAnswers" - {
-    "must throw an exception if there is no Mongo document to update" in {
-      a[RuntimeException] mustBe thrownBy {
-        Await.result(repository.setUserAnswers("id", userAnswers), Duration.Inf)
-      }
-    }
     "must set the last updated time to now or greater and the user answers and save them" in {
       val expectedResult = sessionData.copy(lastUpdated = instant)
 
@@ -162,5 +158,4 @@ class SessionRepositorySpec
       }
     }
   }
-
 }

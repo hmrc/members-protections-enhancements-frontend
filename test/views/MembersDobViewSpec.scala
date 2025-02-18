@@ -20,7 +20,6 @@ import base.SpecBase
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import views.html.MembersDobView
@@ -30,7 +29,7 @@ class MembersDobViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("memberDob.heading")
+      view.getElementsByTag("h1").text() mustBe messages("memberDob.heading")
 
     }
   }
@@ -39,7 +38,6 @@ class MembersDobViewSpec extends SpecBase {
   trait Setup {
 
     val app: Application = applicationBuilder().build()
-    implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
     val view: Document =

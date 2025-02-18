@@ -19,11 +19,18 @@ package controllers
 import base.SpecBase
 import forms.WhatIsTheMembersNameFormProvider
 import models.{MemberDetails, NormalMode}
+import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.data.Form
+import play.api.inject.bind
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import viewmodels.models.FormPageViewModel
+import repositories.SessionRepository
 import views.html.WhatIsTheMembersNameView
+
+import scala.concurrent.Future
 
 class WhatIsTheMembersNameControllerSpec extends SpecBase {
 
@@ -33,9 +40,11 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
   private val formProvider = new WhatIsTheMembersNameFormProvider()
   private val form: Form[MemberDetails] = formProvider()
 
+  def onwardRoute = Call("GET", routes.MembersDobController.onPageLoad().url)
+
   "Member Name Controller" - {
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         val request = FakeRequest(GET, onPageLoad)
@@ -43,15 +52,25 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[WhatIsTheMembersNameView]
-        val viewModel: FormPageViewModel[MemberDetails] = WhatIsTheMembersNameController.viewModel(NormalMode)
+        //val viewModel: FormPageViewModel[MemberDetails] = WhatIsTheMembersNameController.viewModel(NormalMode)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages).toString
       }
     }
 
     "must save the form data and redirect on valid submission" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.setUserAnswers(any(), any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder()
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit)
@@ -68,7 +87,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit)
@@ -79,11 +98,10 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[WhatIsTheMembersNameView]
-        val viewModel: FormPageViewModel[MemberDetails] = WhatIsTheMembersNameController.viewModel(NormalMode)
         val formWithErrors = form.bind(Map("firstName" -> "", "lastName" -> "Doe"))
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(formWithErrors, viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(formWithErrors, NormalMode)(request, messages).toString
 
       }
     }

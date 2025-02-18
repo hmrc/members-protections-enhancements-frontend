@@ -27,7 +27,6 @@ import play.api.test.Helpers._
 import repositories.SessionRepository
 
 import java.net.URLEncoder
-
 import scala.concurrent.Future
 
 class AuthControllerSpec extends SpecBase with MockitoSugar {
@@ -40,7 +39,7 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(None)
+        applicationBuilder(emptyUserAnswers)
           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
@@ -69,7 +68,7 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(None)
+        applicationBuilder(emptyUserAnswers)
           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 

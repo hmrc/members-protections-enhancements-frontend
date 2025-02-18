@@ -17,7 +17,6 @@
 package controllers
 
 import base.SpecBase
-import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -27,13 +26,11 @@ class CheckMembersProtectionEnhancementsControllerSpec extends SpecBase {
 
   "Check Members Protection Enhancements Controller" - {
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         implicit val request: FakeRequest[AnyContentAsEmpty.type] =
           FakeRequest(GET, routes.CheckMembersProtectionEnhancementsController.onPageLoad().url)
-
-        implicit val msg: Messages = messages(application)
 
         val result = route(application, request).value
 

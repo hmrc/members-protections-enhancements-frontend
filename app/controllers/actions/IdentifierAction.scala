@@ -47,14 +47,19 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
     authorised(Enrolment(Constants.psaEnrolmentKey).or(Enrolment(Constants.pspEnrolmentKey)))
       .retrieve(Retrievals.internalId.and(Retrievals.authorisedEnrolments)) {
 
-        case Some(internalId) ~ IsPSA(psaId) => block(AdministratorRequest(internalId, request, psaId.value))
-        case Some(internalId) ~ IsPSP(pspId) => block(PractitionerRequest(internalId, request, pspId.value))
+        case Some(internalId) ~ IsPSA(psaId) if hasValidSession(hc) => block(AdministratorRequest(internalId, request, psaId.value))
+        case Some(internalId) ~ IsPSP(pspId) if hasValidSession(hc) => block(PractitionerRequest(internalId, request, pspId.value))
         case Some(_) ~ _ => Future.successful(Redirect(config.loginUrl))
         case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       } recover {
       case _ =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
     }
+  }
+
+  private val hasValidSession: HeaderCarrier => Boolean = hc => hc.sessionId match {
+    case Some(_) => true
+    case None => false
   }
 
   override def parser: BodyParser[AnyContent] = playBodyParsers

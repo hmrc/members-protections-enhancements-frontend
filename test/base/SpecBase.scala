@@ -32,6 +32,7 @@
 
 package base
 
+import config.FrontendAppConfig
 import controllers.actions._
 import models.UserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -39,12 +40,17 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.{Injector, bind}
+import play.api.libs.json.Json
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
+import uk.gov.hmrc.http.HeaderCarrier
+import utils.WireMockSupport
 
 import java.net.URLEncoder
 import scala.reflect.ClassTag
@@ -57,18 +63,46 @@ trait SpecBase
     with ScalaFutures
     with IntegrationPatience
     with MockitoSugar
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with WireMockSupport
+    with GuiceOneAppPerSuite {
 
-  val userAnswersId: String = "id"
+  implicit lazy val application: Application           = applicationBuilder().build()
+  implicit lazy val applicationWithConfig: Application = applicationBuilderWithConfig().build()
+  implicit val hc: HeaderCarrier                       = HeaderCarrier()
+  val userAnswersId: String                            = "id"
 
-  def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
+  implicit val config: FrontendAppConfig = mock[FrontendAppConfig]
 
-  def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
+  def emptyUserAnswers: UserAnswers = UserAnswers()
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+  def injector: Injector                               = app.injector
+  def fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+
+  def messagesApi: MessagesApi    = injector.instanceOf[MessagesApi]
+  implicit def messages: Messages = messagesApi.preferred(fakeRequest)
+
+  protected val nonEmptyUserAnswers: UserAnswers = UserAnswers(Json.obj("test" -> "test"))
+
+  protected def applicationBuilder(userAnswers: UserAnswers = UserAnswers()): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakePsaIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+
+  protected def applicationBuilderWithConfig(
+                                              config: Map[String, Any] = Map(),
+                                              userAnswers: UserAnswers = UserAnswers()
+                                            ): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .configure(
+        config ++ Map(
+          "microservice.services.auth.port" -> wiremockPort,
+          "microservice.host"               -> "http://localhost:9900/fmn"
+        )
+      )
+      .overrides(
         bind[IdentifierAction].to[FakePsaIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
@@ -81,4 +115,13 @@ trait SpecBase
 
   def urlEncode(input: String): String = URLEncoder.encode(input, "utf-8")
 
+  def injected[T](c: Class[T]): T = app.injector.instanceOf(c)
+
+  def injected[T](implicit evidence: ClassTag[T]): T = app.injector.instanceOf[T]
+
+  implicit lazy val cc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+
+  implicit class StringOps(s: String) {
+    def removeAllNonces(): String = s.replaceAll("""nonce="[^"]*"""", "")
+  }
 }

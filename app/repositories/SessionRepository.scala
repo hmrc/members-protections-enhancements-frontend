@@ -17,13 +17,13 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.UserAnswers
+import models.{SessionData, UserAnswers}
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import org.mongodb.scala.SingleObservableFuture
-import play.api.libs.json.Format
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.MongoComponent
-import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.mongo.play.json.{Codecs, PlayMongoRepository}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.play.http.logging.Mdc
 import utils.FutureUtils.FutureOps
@@ -39,10 +39,10 @@ class SessionRepository @Inject()(
                                    appConfig: FrontendAppConfig,
                                    clock: Clock
                                  )(implicit ec: ExecutionContext)
-  extends PlayMongoRepository[UserAnswers](
+  extends PlayMongoRepository[SessionData](
     collectionName = "user-answers",
     mongoComponent = mongoComponent,
-    domainFormat   = UserAnswers.format,
+    domainFormat   = SessionData.format,
     indexes        = Seq(
       IndexModel(
         Indexes.ascending("lastUpdated"),
@@ -67,7 +67,7 @@ class SessionRepository @Inject()(
       .map(_ => true)
   }
 
-  def get(id: String): Future[Option[UserAnswers]] = Mdc.preservingMdc {
+  def get(id: String): Future[Option[SessionData]] = Mdc.preservingMdc {
     keepAlive(id).flatMap {
       _ =>
         collection
@@ -76,19 +76,38 @@ class SessionRepository @Inject()(
     }
   }
 
-  def set(answers: UserAnswers): Future[Unit] = Mdc.preservingMdc {
+  def set(sessionData: SessionData): Future[Boolean] = {
 
-    val updatedAnswers = answers.copy(lastUpdated = Instant.now(clock))
+    val updatedSessionData = sessionData copy (lastUpdated = Instant.now(clock))
 
     collection
       .replaceOne(
-        filter      = byId(updatedAnswers.id),
-        replacement = updatedAnswers,
-        options     = ReplaceOptions().upsert(true)
+        filter = byId(updatedSessionData.id),
+        replacement = updatedSessionData,
+        options = ReplaceOptions().upsert(true)
       )
       .toFuture()
-      .as(())
+      .map(_ => true)
   }
+
+  def setUserAnswers(id: String, userAnswers: UserAnswers): Future[Boolean] =
+    collection
+      .updateOne(
+        filter = byId(id),
+        update = Updates.combine(
+          Updates.set("userAnswers", Codecs.toBson(Json.toJson(userAnswers))),
+          Updates.set("lastUpdated", Instant.now(clock))
+        ),
+        options = UpdateOptions().upsert(false)
+      )
+      .toFuture()
+      .map { updateResult =>
+        if (updateResult.getModifiedCount == 0) {
+          throw new RuntimeException("Nothing matches in Mongo collection to update")
+        } else {
+          true
+        }
+      }
 
   def clear(id: String): Future[Boolean] = Mdc.preservingMdc {
     collection

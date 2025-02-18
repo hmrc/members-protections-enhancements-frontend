@@ -29,14 +29,14 @@ govukInput: GovukInput,
 govukButton: GovukButton
 )
 
-@(form: Form[MemberDetails], viewModel: FormPageViewModel[MemberDetails])(implicit request: Request[_], messages: Messages)
+@(form: Form[MemberDetails], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, viewModel.title.toMessage)) {
+@layout(pageTitle = title(form, messages("memberName.title"))) {
 
-    @formHelper(action = viewModel.onSubmit) {
+    @formHelper(action = routes.WhatIsTheMembersNameController.onSubmit(mode)) {
 
         @if(form.hasErrors) {
-        @govukErrorSummary(ErrorSummaryViewModel(form))
+            @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
         @heading("memberName.heading")
@@ -44,7 +44,7 @@ govukButton: GovukButton
          @govukInput(
              InputViewModel(
                field = form("firstName"),
-               label = LabelViewModel(viewModel.page.firstName).withCssClass(LabelSize.Small.toString)
+               label = LabelViewModel(messages("memberName.firstName")).withCssClass(LabelSize.Small.toString)
              )
              .withWidth(Fixed20)
          )
@@ -52,13 +52,13 @@ govukButton: GovukButton
          @govukInput(
             InputViewModel(
               field = form("lastName"),
-              label = LabelViewModel(viewModel.page.lastName).withCssClass(LabelSize.Small.toString)
+              label = LabelViewModel(messages("memberName.lastName")).withCssClass(LabelSize.Small.toString)
            )
            .withWidth(Fixed20)
          )
 
         @govukButton(
-            ButtonViewModel(viewModel.buttonText.toMessage)
+            ButtonViewModel(messages("site.continue"))
         )
     }
 }

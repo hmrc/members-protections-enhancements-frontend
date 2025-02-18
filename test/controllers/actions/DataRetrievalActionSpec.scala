@@ -17,12 +17,14 @@
 package controllers.actions
 
 import base.SpecBase
-import models.UserAnswers
 import models.requests.IdentifierRequest.AdministratorRequest
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import models.requests.{DataRequest, IdentifierRequest}
+import models.{MemberDetails, SessionData, UserAnswers}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.ArgumentMatchers.any
+import pages.WhatIsTheMembersNamePage
 import play.api.test.FakeRequest
 import repositories.SessionRepository
 
@@ -31,23 +33,28 @@ import scala.concurrent.Future
 
 class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
+  private val dummyValue               = MemberDetails("fname", "lname")
+  private val userAnswers: UserAnswers = UserAnswers().setOrException(WhatIsTheMembersNamePage, dummyValue)
+
   class Harness(sessionRepository: SessionRepository) extends DataRetrievalActionImpl(sessionRepository) {
-    def callTransform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = transform(request)
+    def callTransform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] = transform(request)
   }
 
-  "Data Retrieval Action" - {
+  "DataRetrievalAction.transform" - {
 
     "when there is no data in the cache" - {
 
       "must set userAnswers to 'None' in the request" in {
 
-        val sessionRepository = mock[SessionRepository]
-        when(sessionRepository.get(any())) thenReturn Future(None)
-        val action = new Harness(sessionRepository)
+        val sessionRepository                              = mock[SessionRepository]
+        when(sessionRepository.get(any)) thenReturn Future(None)
+        when(sessionRepository.set(any())) thenReturn Future(true)
+        val action                                         = new Harness(sessionRepository)
+        val sessionDataCaptor: ArgumentCaptor[SessionData] = ArgumentCaptor.forClass(classOf[SessionData])
+        val result                                         = action.callTransform(AdministratorRequest.apply("id", FakeRequest(), "A2100001")).futureValue
 
-        val result = action.callTransform(AdministratorRequest.apply("id", FakeRequest(), "A2100001")).futureValue
-
-        result.userAnswers must not be defined
+        result.userAnswers.get(WhatIsTheMembersNamePage) mustBe None
+        verify(sessionRepository, times(1)).set(sessionDataCaptor.capture())
       }
     }
 
@@ -56,12 +63,14 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
       "must build a userAnswers object and add it to the request" in {
 
         val sessionRepository = mock[SessionRepository]
-        when(sessionRepository.get(any())) thenReturn Future(Some(UserAnswers("id")))
-        val action = new Harness(sessionRepository)
+        when(sessionRepository.get(any())) thenReturn Future(Some(SessionData(userAnswers, id = "id")))
+        when(sessionRepository.set(any())) thenReturn Future(true)
+        val action                                         = new Harness(sessionRepository)
+        val sessionDataCaptor: ArgumentCaptor[SessionData] = ArgumentCaptor.forClass(classOf[SessionData])
+        val result                                         = action.callTransform(AdministratorRequest.apply("id", FakeRequest(), "A2100001")).futureValue
 
-        val result = action.callTransform(AdministratorRequest.apply("id", FakeRequest(), "A2100001")).futureValue
-
-        result.userAnswers mustBe defined
+        result.userAnswers.get(WhatIsTheMembersNamePage) mustBe defined
+        result.userAnswers.get(WhatIsTheMembersNamePage) mustBe Some(dummyValue)
       }
     }
   }

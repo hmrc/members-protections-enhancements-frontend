@@ -17,18 +17,15 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.WhatIsTheMembersNameController.viewModel
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import forms.WhatIsTheMembersNameFormProvider
-import models.{MemberDetails, Mode, UserAnswers}
+import models.Mode
 import navigation.Navigator
 import pages._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.SaveService
+import services.SessionCacheService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.DisplayMessage.Message
-import viewmodels.models.FormPageViewModel
 import views.html.WhatIsTheMembersNameView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,7 +35,7 @@ class WhatIsTheMembersNameController @Inject()(
                                                 identify: IdentifierAction,
                                                 getData: DataRetrievalAction,
                                                 navigator: Navigator,
-                                                service: SaveService,
+                                                cacheService: SessionCacheService,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 formProvider: WhatIsTheMembersNameFormProvider,
                                                 view: WhatIsTheMembersNameView,
@@ -50,7 +47,11 @@ class WhatIsTheMembersNameController @Inject()(
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
-      Ok(view(form, viewModel(mode)))
+      val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
+        case None        => form
+        case Some(value) => form.fill(value)
+      }
+      Ok(view(namesForm, mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
@@ -59,26 +60,26 @@ class WhatIsTheMembersNameController @Inject()(
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode)))
+            Future.successful(BadRequest(view(formWithErrors, mode))
             ),
           answer =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(UserAnswers(request.userId)).set(WhatIsTheMembersNamePage, answer))
-              _ <- service.save(updatedAnswers)
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))
+              _ <- cacheService.save(request.userId, updatedAnswers)
             } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers)))
   }
 
 }
 
-object WhatIsTheMembersNameController {
-
-  def viewModel(mode: Mode): FormPageViewModel[MemberDetails] = FormPageViewModel(
-    Message("memberName.title"),
-    Message("memberName.heading"),
-    MemberDetails(
-      "memberName.firstName",
-      "memberName.lastName"
-    ),
-    routes.WhatIsTheMembersNameController.onSubmit(mode)
-  )
-}
+//object WhatIsTheMembersNameController {
+//
+//  def viewModel(mode: Mode): FormPageViewModel[MemberDetails] = FormPageViewModel(
+//    Message("memberName.title"),
+//    Message("memberName.heading"),
+//    MemberDetails(
+//      "memberName.firstName",
+//      "memberName.lastName"
+//    ),
+//    routes.WhatIsTheMembersNameController.onSubmit(mode)
+//  )
+//}

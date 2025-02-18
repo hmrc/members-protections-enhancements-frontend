@@ -20,7 +20,6 @@ import base.SpecBase
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import views.html.CheckMembersProtectionEnhancementsView
@@ -30,13 +29,13 @@ class CheckMembersProtectionEnhancementsViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("checkMembersProtectionEnhancements.heading")
+      view.getElementsByTag("h1").text() mustBe messages("checkMembersProtectionEnhancements.heading")
 
-      view.html.contains(messages(app)("checkMembersProtectionEnhancements.p1"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.full-name"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.dob"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.nino"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.pension-scheme-admin-check-ref"))
+      view.html.contains(messages("checkMembersProtectionEnhancements.p1"))
+      view.text.contains(messages("checkMembersProtectionEnhancements.full-name"))
+      view.text.contains(messages("checkMembersProtectionEnhancements.dob"))
+      view.text.contains(messages("checkMembersProtectionEnhancements.nino"))
+      view.text.contains(messages("checkMembersProtectionEnhancements.pension-scheme-admin-check-ref"))
     }
   }
 
@@ -44,7 +43,6 @@ class CheckMembersProtectionEnhancementsViewSpec extends SpecBase {
   trait Setup {
 
     val app: Application = applicationBuilder().build()
-    implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
     val view: Document =
