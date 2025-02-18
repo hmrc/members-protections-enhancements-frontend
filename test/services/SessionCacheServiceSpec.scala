@@ -27,12 +27,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class SaveServiceSpec extends SpecBase with ScalaCheckPropertyChecks {
+class SessionCacheServiceSpec extends SpecBase with ScalaCheckPropertyChecks {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
-  val service = new SaveServiceImpl(mockSessionRepository)
+  val service = new SessionCacheServiceImpl(mockSessionRepository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()

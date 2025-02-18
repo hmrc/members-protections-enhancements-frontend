@@ -25,7 +25,7 @@ import navigation.Navigator
 import pages._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.SaveService
+import services.SessionCacheService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import viewmodels.DisplayMessage.Message
 import viewmodels.models.FormPageViewModel
@@ -38,7 +38,7 @@ class WhatIsTheMembersNameController @Inject()(
                                                 identify: IdentifierAction,
                                                 getData: DataRetrievalAction,
                                                 navigator: Navigator,
-                                                service: SaveService,
+                                                service: SessionCacheService,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 formProvider: WhatIsTheMembersNameFormProvider,
                                                 view: WhatIsTheMembersNameView,
@@ -52,6 +52,7 @@ class WhatIsTheMembersNameController @Inject()(
     implicit request =>
       Ok(view(form, viewModel(mode)))
   }
+
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>

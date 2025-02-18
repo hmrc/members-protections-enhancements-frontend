@@ -25,13 +25,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SaveServiceImpl @Inject()(sessionRepository: SessionRepository) extends SaveService {
+class SessionCacheServiceImpl @Inject()(sessionRepository: SessionRepository) extends SessionCacheService {
   override def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
     sessionRepository.set(userAnswers)
   }
 }
 
-@ImplementedBy(classOf[SaveServiceImpl])
-trait SaveService {
+@ImplementedBy(classOf[SessionCacheServiceImpl])
+trait SessionCacheService {
   def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit]
 }

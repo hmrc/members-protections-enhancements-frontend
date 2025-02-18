@@ -20,7 +20,7 @@ GET         /unauthorised                                               controll
 
 GET         /members-name                                               controllers.WhatIsTheMembersNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /members-name                                               controllers.WhatIsTheMembersNameController.onSubmit(mode: Mode = NormalMode)
-GET         /change-members-name                                               controllers.WhatIsTheMembersNameController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-members-name                                               controllers.WhatIsTheMembersNameController.onSubmit(mode: Mode = CheckMode)
+GET         /change-members-name                                        controllers.WhatIsTheMembersNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-members-name                                        controllers.WhatIsTheMembersNameController.onSubmit(mode: Mode = CheckMode)
 
 GET         /members-date-of-birth                                      controllers.MembersDobController.onPageLoad()
