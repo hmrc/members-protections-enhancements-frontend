@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,20 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.MemberNameView
+import views.html.MembersDobView
 
-class MemberNameControllerSpec extends SpecBase {
+class MembersDobControllerSpec extends SpecBase {
 
   "Member Name Controller" - {
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.MemberNameController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.MembersDobController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[MemberNameView]
+        val view = application.injector.instanceOf[MembersDobView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view()(request, messages(application)).toString

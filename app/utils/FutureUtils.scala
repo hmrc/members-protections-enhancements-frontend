@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package models.requests
+package utils
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
+import scala.concurrent.{ExecutionContext, Future}
 
-case class OptionalDataRequest[A] (request: Request[A],
-                                   userId: String,
-                                   userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+object FutureUtils {
 
-case class DataRequest[A] (
-                            request: Request[A],
-                            userId: String,
-                            userAnswers: UserAnswers) extends WrappedRequest[A](request)
+  implicit class FutureOps[A](val future: Future[A]) extends AnyVal {
+
+    def as[B](b: B)(implicit ec: ExecutionContext): Future[B] =
+      future.map(_ => b)
+  }
+}

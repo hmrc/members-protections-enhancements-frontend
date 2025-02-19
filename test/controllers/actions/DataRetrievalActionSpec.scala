@@ -19,35 +19,38 @@ package controllers.actions
 import base.SpecBase
 import models.UserAnswers
 import models.requests.IdentifierRequest.AdministratorRequest
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import models.requests.{DataRequest, IdentifierRequest}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.ArgumentMatchers.any
 import play.api.test.FakeRequest
 import repositories.SessionRepository
 
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
   class Harness(sessionRepository: SessionRepository) extends DataRetrievalActionImpl(sessionRepository) {
-    def callTransform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = transform(request)
+    def callTransform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] = transform(request)
   }
 
   "Data Retrieval Action" - {
+
+    val userAnswers = UserAnswers("id", lastUpdated = Instant.now())
 
     "when there is no data in the cache" - {
 
       "must set userAnswers to 'None' in the request" in {
 
         val sessionRepository = mock[SessionRepository]
-        when(sessionRepository.get(any())) thenReturn Future(None)
+        when(sessionRepository.get(any())) thenReturn Future(Some(userAnswers))
         val action = new Harness(sessionRepository)
 
         val result = action.callTransform(AdministratorRequest.apply("id", FakeRequest(), "A2100001")).futureValue
 
-        result.userAnswers must not be defined
+        result.userAnswers mustBe userAnswers
       }
     }
 
@@ -55,13 +58,14 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
       "must build a userAnswers object and add it to the request" in {
 
+
         val sessionRepository = mock[SessionRepository]
-        when(sessionRepository.get(any())) thenReturn Future(Some(UserAnswers("id")))
+        when(sessionRepository.get(any())) thenReturn Future(Some(userAnswers))
         val action = new Harness(sessionRepository)
 
         val result = action.callTransform(AdministratorRequest.apply("id", FakeRequest(), "A2100001")).futureValue
 
-        result.userAnswers mustBe defined
+        result.userAnswers mustBe userAnswers
       }
     }
   }

@@ -30,6 +30,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubPlayBodyParsersFactory}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -119,10 +120,10 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
     }
 
     "return an IdentifierRequest" - {
-      "User has a psa enrolment" in runningApplication { implicit app =>
+      "User has a psa enrolment and has a valid session" in runningApplication { implicit app =>
         setAuthValue(authResult(Some("internalId"), psaEnrolment))
 
-        val result = handler.run(FakeRequest())
+        val result = handler.run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
 
         status(result) mustBe OK
         (contentAsJson(result) \ "psaId").asOpt[String] mustBe Some("A2100001")
@@ -130,15 +131,39 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
       }
 
-      "User has a psp enrolment" in runningApplication { implicit app =>
+      "User has a psp enrolment and has a valid session" in runningApplication { implicit app =>
         setAuthValue(authResult(Some("internalId"), pspEnrolment))
 
-        val result = handler.run(FakeRequest())
+        val result = handler.run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
 
         status(result) mustBe OK
         (contentAsJson(result) \ "psaId").asOpt[String] mustBe None
         (contentAsJson(result) \ "pspId").asOpt[String] mustBe Some("21000002")
         (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
+      }
+    }
+
+    "Redirect user to protection enhancement" - {
+      "User has a psa enrolment but has a no valid session" in runningApplication { implicit app =>
+        setAuthValue(authResult(Some("internalId"), psaEnrolment))
+
+        val result = handler.run(FakeRequest())
+
+        status(result) mustBe SEE_OTHER
+        val expectedUrl = s"${appConfig.loginUrl}"
+
+        redirectLocation(result) mustBe Some(expectedUrl)
+      }
+
+      "User has a psp enrolment but has a no valid session" in runningApplication { implicit app =>
+        setAuthValue(authResult(Some("internalId"), pspEnrolment))
+
+        val result = handler.run(FakeRequest())
+
+        status(result) mustBe SEE_OTHER
+        val expectedUrl = s"${appConfig.loginUrl}"
+
+        redirectLocation(result) mustBe Some(expectedUrl)
       }
     }
   }

@@ -96,6 +96,12 @@ trait Generators {
     chars     <- listOfN(length, arbitrary[Char])
   } yield chars.mkString
 
+  def stringLengthBetween(minLength: Int, maxLength: Int, charGen: Gen[Char]): Gen[String] =
+    for {
+      length <- choose(minLength, maxLength)
+      chars <- listOfN(length, charGen)
+    } yield chars.mkString
+
   def stringsExceptSpecificValues(excluded: Seq[String]): Gen[String] =
     nonEmptyString suchThat (!excluded.contains(_))
 

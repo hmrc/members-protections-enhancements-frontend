@@ -23,20 +23,15 @@ import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import views.html.CheckMembersProtectionEnhancementsView
+import views.html.MembersDobView
 
-class CheckMembersProtectionEnhancementsViewSpec extends SpecBase {
+class MembersDobViewSpec extends SpecBase {
 
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("checkMembersProtectionEnhancements.heading")
+      view.getElementsByTag("h1").text() mustBe messages(app)("memberDob.heading")
 
-      view.html.contains(messages(app)("checkMembersProtectionEnhancements.p1"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.full-name"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.dob"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.nino"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.pension-scheme-admin-check-ref"))
     }
   }
 
@@ -48,7 +43,7 @@ class CheckMembersProtectionEnhancementsViewSpec extends SpecBase {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[CheckMembersProtectionEnhancementsView].apply().body
+      Jsoup.parse(app.injector.instanceOf[MembersDobView].apply().body
       )
   }
 

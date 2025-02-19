@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package models.requests
+package pages
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
+case object CheckMembersProtectionEnhancementsPage extends Page {
 
-case class OptionalDataRequest[A] (request: Request[A],
-                                   userId: String,
-                                   userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+  override def toString: String = "checkMembersProtectionEnhancements"
 
-case class DataRequest[A] (
-                            request: Request[A],
-                            userId: String,
-                            userAnswers: UserAnswers) extends WrappedRequest[A](request)
+}

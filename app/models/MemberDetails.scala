@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package models.requests
+package models
 
-import play.api.mvc.{Request, WrappedRequest}
-import models.UserAnswers
+import play.api.libs.json.{Format, Json}
 
-case class OptionalDataRequest[A] (request: Request[A],
-                                   userId: String,
-                                   userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+case class MemberDetails(
+                          firstName: String,
+                          lastName: String
+                        )
 
-case class DataRequest[A] (
-                            request: Request[A],
-                            userId: String,
-                            userAnswers: UserAnswers) extends WrappedRequest[A](request)
+object MemberDetails {
+  implicit val format: Format[MemberDetails] = Json.format[MemberDetails]
+}

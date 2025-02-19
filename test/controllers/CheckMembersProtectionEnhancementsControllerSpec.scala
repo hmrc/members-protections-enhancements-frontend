@@ -27,7 +27,7 @@ class CheckMembersProtectionEnhancementsControllerSpec extends SpecBase {
 
   "Check Members Protection Enhancements Controller" - {
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         implicit val request: FakeRequest[AnyContentAsEmpty.type] =

@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import views.html.components._
+package viewmodels.models
 
-@this(
-layout: templates.Layout,
-heading: h1
+import play.api.mvc.Call
+import viewmodels.DisplayMessage.{InlineMessage, LinkMessage, Message}
+
+case class ViewOnlyDetailsViewModel(
+  updated: Boolean,
+  link: Option[LinkMessage],
+  submittedText: Option[Message],
+  title: Message,
+  heading: InlineMessage,
+  buttonText: Message,
+  onSubmit: Call,
+  noLabel: Option[Message] = None,
+  showBackLink: Boolean = true
 )
-
-@()(implicit request: Request[_], messages: Messages)
-
-@layout(pageTitle = titleNoForm(messages("member.name.title"))) {
-
- @heading("member.name.heading")
-
-}
