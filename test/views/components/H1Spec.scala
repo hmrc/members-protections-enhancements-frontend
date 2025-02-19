@@ -27,7 +27,7 @@ class H1Spec extends SpecBase {
 
   "Heading component" - {
     "display correct contents" in {
-      val app = applicationBuilder().build()
+      val app = applicationBuilder(emptyUserAnswers).build()
       implicit lazy val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(Seq.empty)
 
       val view: Html = new h1()("test-id", Some("Test heading"))

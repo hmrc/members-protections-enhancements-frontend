@@ -43,7 +43,7 @@ class CheckMembersProtectionEnhancementsViewSpec extends SpecBase {
 
   trait Setup {
 
-    val app: Application = applicationBuilder().build()
+    val app: Application = applicationBuilder(emptyUserAnswers).build()
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 

@@ -65,7 +65,7 @@ trait SpecBase
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+  protected def applicationBuilder(userAnswers: UserAnswers): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
@@ -75,7 +75,7 @@ trait SpecBase
 
 
   def runningApplication(block: Application => Unit): Unit =
-    running(_ => applicationBuilder())(block)
+    running(_ => applicationBuilder(emptyUserAnswers))(block)
 
   protected def injected[A: ClassTag](implicit app: Application): A = app.injector.instanceOf[A]
 

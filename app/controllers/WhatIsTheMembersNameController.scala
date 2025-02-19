@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.WhatIsTheMembersNameController.viewModel
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import forms.WhatIsTheMembersNameFormProvider
-import models.{MemberDetails, Mode, UserAnswers}
+import models.{MemberDetails, Mode}
 import navigation.Navigator
 import pages._
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -50,7 +50,11 @@ class WhatIsTheMembersNameController @Inject()(
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
-      Ok(view(form, viewModel(mode)))
+      val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
+        case None        => form
+        case Some(value) => form.fill(value)
+      }
+      Ok(view(namesForm, viewModel(mode)))
   }
 
 
@@ -64,7 +68,7 @@ class WhatIsTheMembersNameController @Inject()(
             ),
           answer =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.getOrElse(UserAnswers(request.userId)).set(WhatIsTheMembersNamePage, answer))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))
               _ <- service.save(updatedAnswers)
             } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers)))
   }

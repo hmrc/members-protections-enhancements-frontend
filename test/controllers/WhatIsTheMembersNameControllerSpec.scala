@@ -35,7 +35,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
 
   "Member Name Controller" - {
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         val request = FakeRequest(GET, onPageLoad)
@@ -51,7 +51,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
     }
 
     "must save the form data and redirect on valid submission" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit)
@@ -68,7 +68,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit)
