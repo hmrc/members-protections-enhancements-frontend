@@ -68,7 +68,6 @@ trait SpecBase
   protected def applicationBuilder(userAnswers: UserAnswers): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakePsaIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
