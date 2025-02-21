@@ -67,6 +67,15 @@ memberName.lastName.error.invalid = Please enter the member''s name in a valid f
 memberName.firstName.error.length = The member''s first name must be 35 characters or fewer
 memberName.lastName.error.length = The member''s last name must be 35 characters or fewer
 
-memberDob.title = What is the member''s date of birth?
-memberDob.heading = What is the member''s date of birth?
+memberDob.title = What is the {0} date of birth?
+memberDob.heading = What is the {0} date of birth?
+memberDob.hint = For example, 27 03 2007
+memberDob.error.invalid = Please enter the member's date of birth in a valid format
+memberDob.error.required.day = Enter a day of birth
+memberDob.error.required.month = Enter a month of birth
+memberDob.error.required.year = Enter a year of birth
+memberDob.error.dateOfBirth.maxDate = The date of birth must be before today
+
+memberNino.title = Members National Insurance number
+memberNino.heading = What is Members National Insurance number?
 

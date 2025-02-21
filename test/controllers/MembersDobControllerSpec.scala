@@ -17,25 +17,36 @@
 package controllers
 
 import base.SpecBase
+import forms.MembersDobFormProvider
+import models.{MembersDob, NormalMode}
+import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import viewmodels.models.FormPageViewModel
 import views.html.MembersDobView
 
 class MembersDobControllerSpec extends SpecBase {
+
+  private lazy val onPageLoad = routes.MembersDobController.onPageLoad(NormalMode).url
+  private lazy val onSubmit = routes.MembersDobController.onSubmit(NormalMode).url
+
+  private val formProvider = new MembersDobFormProvider()
+  private val form: Form[MembersDob] = formProvider()
 
   "Member Name Controller" - {
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.MembersDobController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.MembersDobController.onPageLoad(NormalMode).url)
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersDobView]
+        val viewModel: FormPageViewModel[MembersDob] = MembersDobController.viewModel(NormalMode, "My Name")
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
       }
     }
   }

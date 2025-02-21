@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package models
+package pages
 
-import play.api.libs.json.{Format, Json}
+case object MembersNinoPage extends Page {
 
-case class MemberDetails(
-                          firstName: String,
-                          lastName: String
-                        ) {
-  val fullName: String = s"$firstName $lastName"
-}
-
-object MemberDetails {
-  implicit val format: Format[MemberDetails] = Json.format[MemberDetails]
+  override def toString: String = "memberNino"
 }

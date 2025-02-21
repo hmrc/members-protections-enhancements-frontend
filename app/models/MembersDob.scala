@@ -18,13 +18,9 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class MemberDetails(
-                          firstName: String,
-                          lastName: String
-                        ) {
-  val fullName: String = s"$firstName $lastName"
-}
+case class MembersDob(day: String, month: String, year: String)
+//case class MembersDob1(dob: LocalDate)
 
-object MemberDetails {
-  implicit val format: Format[MemberDetails] = Json.format[MemberDetails]
+object MembersDob {
+  implicit val format: Format[MembersDob] = Json.format[MembersDob]
 }

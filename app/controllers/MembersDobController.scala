@@ -17,24 +17,109 @@
 package controllers
 
 import com.google.inject.Inject
+import controllers.MembersDobController.viewModel
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import forms.MembersDobFormProvider
+import models.requests.DataRequest
+import models.{MemberDetails, MembersDob, Mode}
+import navigation.Navigator
+import pages.{MembersDobPage, WhatIsTheMembersNamePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc._
+import services.SessionCacheService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.DisplayMessage.Message
+import viewmodels.models.FormPageViewModel
 import views.html.MembersDobView
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class MembersDobController @Inject()(
                                       override val messagesApi: MessagesApi,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,
-                                      val controllerComponents: MessagesControllerComponents,
+                                      navigator: Navigator,
+                                      service: SessionCacheService,
+                                      formProvider: MembersDobFormProvider,
+                                      implicit val controllerComponents: MessagesControllerComponents,
                                       view: MembersDobView
-                                    ) extends FrontendBaseController with I18nSupport {
+                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  //TODO This controller and test is created for navigation purposes. Once this ticket is build, Need to add the functionality for it.
+  private val form: Form[MembersDob] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-      Ok(view())
+      withMemberDetails { memberDetails =>
+        println(s"onPageLoad: Retrieved member details -> $memberDetails")
+        Future.successful(Ok(view(form, viewModel(mode, memberDetails.fullName))))
+      }
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
+    implicit request =>
+      withMemberDetails { memberDetails =>
+        println(s"onSubmit: Retrieved member details -> $memberDetails")
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              println(s"onSubmit: Form validation failed -> ${formWithErrors.errors}")
+              Future.successful(BadRequest(view(formWithErrors, viewModel(mode, memberDetails.fullName))))
+            },
+            answer => {
+              println(s"onSubmit: Form submitted successfully with data -> $answer")
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
+                _ <- service.save(updatedAnswers)
+              } yield {
+                println(s"onSubmit: Data saved successfully, redirecting...")
+                Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
+              }
+            }
+          )
+      }
+  }
+
+  private def withMemberDetails(f: MemberDetails => Future[Result]
+                               )(implicit request: DataRequest[_]): Future[Result] = {
+    request.userAnswers.get(WhatIsTheMembersNamePage) match {
+      case None =>
+        println("withMemberDetails: No member details found, redirecting...")
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      case Some(memberDetails) =>
+        println(s"withMemberDetails: Found member details -> $memberDetails")
+        f(memberDetails)
+    }
   }
 }
+
+object MembersDobController {
+  def viewModel(mode: Mode, membersName: String): FormPageViewModel[MembersDob] = {
+    println(s"viewModel: Creating FormPageViewModel with membersName -> $membersName")
+    FormPageViewModel(
+      title = Message("memberDob.title"),
+      heading = Message("memberDob.heading", Message(membersName)),
+      page = MembersDob(
+        "date.day",
+        "date.month",
+        "date.year"
+      ),
+      onSubmit = routes.MembersDobController.onSubmit(mode)
+    )
+  }
+}
+
+//object MembersDobController1 {
+//  def viewModel1(mode: Mode, membersName: String): FormPageViewModel[MembersDob1] =
+//    FormPageViewModel(
+//      title = Message("memberDob.title"),
+//      heading = Message("memberDob.heading", Message(membersName)),
+//      page = MembersDob1(
+//      LocalDate.now()
+//      ),
+//      onSubmit = routes.MembersDobController.onSubmit(mode)
+//    )
+//}
+
+
