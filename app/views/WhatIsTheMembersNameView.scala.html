@@ -31,7 +31,7 @@ govukButton: GovukButton
 
 @(form: Form[MemberDetails], viewModel: FormPageViewModel[MemberDetails])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, viewModel.title.toMessage)) {
+@layout(pageTitle = title(form, viewModel.title.toMessage), backLinkUrl = viewModel.backLinkUrl) {
 
     @formHelper(action = viewModel.onSubmit) {
 

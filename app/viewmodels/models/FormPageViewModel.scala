@@ -17,7 +17,9 @@
 package viewmodels.models
 
 import models.{Mode, NormalMode}
+import play.api.i18n.Messages.implicitMessagesProviderToMessages
 import play.api.mvc.Call
+import uk.gov.hmrc.govukfrontend.views.viewmodels.backlink.BackLink
 import viewmodels.DisplayMessage
 import viewmodels.DisplayMessage.{InlineMessage, Message}
 
@@ -29,6 +31,7 @@ case class FormPageViewModel[+A](
                                   refresh: Option[Int],
                                   buttonText: Message,
                                   onSubmit: Call,
+                                  backLinkUrl: Option[String] = None,
                                   mode: Mode = NormalMode,
                                   optViewOnlyDetails: Option[ViewOnlyDetailsViewModel] = None,
                                   optNotificationBanner: Option[(String, String, String)] = None,
@@ -41,7 +44,8 @@ object FormPageViewModel {
                 title: Message,
                 heading: InlineMessage,
                 page: A,
-                onSubmit: Call
+                onSubmit: Call,
+                backLinkUrl: Option[String]
               ): FormPageViewModel[A] = FormPageViewModel(
     title,
     heading,
@@ -49,6 +53,7 @@ object FormPageViewModel {
     page,
     None,
     Message("site.continue"),
-    onSubmit
+    onSubmit,
+    backLinkUrl
   )
 }

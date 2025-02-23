@@ -84,6 +84,7 @@ object WhatIsTheMembersNameController {
       "memberName.firstName",
       "memberName.lastName"
     ),
-    routes.WhatIsTheMembersNameController.onSubmit(mode)
+    routes.WhatIsTheMembersNameController.onSubmit(mode),
+    Some(routes.CheckMembersProtectionEnhancementsController.onPageLoad().url)
   )
 }
