@@ -51,44 +51,35 @@ class MembersDobController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
       withMemberDetails { memberDetails =>
-        println(s"onPageLoad: Retrieved member details -> $memberDetails")
         Future.successful(Ok(view(form, viewModel(mode, memberDetails.fullName))))
       }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-      withMemberDetails { memberDetails =>
-        println(s"onSubmit: Retrieved member details -> $memberDetails")
         form
           .bindFromRequest()
           .fold(
             formWithErrors => {
-              println(s"onSubmit: Form validation failed -> ${formWithErrors.errors}")
-              Future.successful(BadRequest(view(formWithErrors, viewModel(mode, memberDetails.fullName))))
+              println("------------------- "+formWithErrors)
+              Future.successful(BadRequest(view(formWithErrors, viewModel(mode, "Naren"))))
             },
             answer => {
-              println(s"onSubmit: Form submitted successfully with data -> $answer")
               for {
                 updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
                 _ <- service.save(updatedAnswers)
               } yield {
-                println(s"onSubmit: Data saved successfully, redirecting...")
                 Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
               }
             }
           )
-      }
   }
 
-  private def withMemberDetails(f: MemberDetails => Future[Result]
-                               )(implicit request: DataRequest[_]): Future[Result] = {
+  private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
     request.userAnswers.get(WhatIsTheMembersNamePage) match {
       case None =>
-        println("withMemberDetails: No member details found, redirecting...")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       case Some(memberDetails) =>
-        println(s"withMemberDetails: Found member details -> $memberDetails")
         f(memberDetails)
     }
   }
@@ -96,14 +87,13 @@ class MembersDobController @Inject()(
 
 object MembersDobController {
   def viewModel(mode: Mode, membersName: String): FormPageViewModel[MembersDob] = {
-    println(s"viewModel: Creating FormPageViewModel with membersName -> $membersName")
     FormPageViewModel(
       title = Message("memberDob.title"),
       heading = Message("memberDob.heading", Message(membersName)),
       page = MembersDob(
-        "date.day",
-        "date.month",
-        "date.year"
+        "day",
+        "month",
+        "year"
       ),
       onSubmit = routes.MembersDobController.onSubmit(mode)
     )

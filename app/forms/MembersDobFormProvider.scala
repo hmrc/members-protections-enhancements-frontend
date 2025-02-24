@@ -36,7 +36,7 @@ class MembersDobFormProvider @Inject() extends Mappings {
 
   def apply(): Form[MembersDob] =
     Form(
-      mapping(
+      "date" -> mapping(
         "day" -> text("memberDob.error.required.day").verifying(
           firstError(
             regexp(dateDayRegex, "memberDob.error.invalid"),
@@ -67,7 +67,6 @@ class MembersDobFormProvider @Inject() extends Mappings {
       !date.isAfter(maxDate) && !date.isBefore(minDate)
     }.getOrElse(false)
   }
-
 }
 
 

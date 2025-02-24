@@ -38,14 +38,13 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @heading("memberDob.heading")
-
         @govukDateInput(
             DateViewModel(
-                field  = form("day"),
-                legend = LegendViewModel(viewModel.page.day).withCssClass(LegendSize.Small.toString)
-            )
-            .withHint(HintViewModel(Text(messages("memberDob.hint"))))
+                field  = form("date"),
+                    legend = Legend(
+                        content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("messages__dob__title", "Naren")}</h1>"),
+                )
+            ).withHint(HintViewModel(Text(messages("memberDob.hint"))))
         )
 
         @govukButton(

@@ -17,6 +17,7 @@ date.year = Year
 date.error.day = day
 date.error.month = month
 date.error.year = year
+messages__dob__title = What is {0}’s date of birth?
 
 timeout.title = You’re about to be signed out
 timeout.message = For security reasons, you will be signed out of this service in
