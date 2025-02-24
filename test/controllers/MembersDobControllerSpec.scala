@@ -60,9 +60,9 @@ class MembersDobControllerSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(POST, onSubmit)
           .withFormUrlEncodedBody(
-            "date.day" -> "10",
-            "date.month" -> "10",
-            "date.year" -> "2024")
+            "dateOfBirth.day" -> "10",
+            "dateOfBirth.month" -> "10",
+            "dateOfBirth.year" -> "2024")
 
         val result = route(application, request).value
 
@@ -80,15 +80,15 @@ class MembersDobControllerSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(POST, onSubmit)
           .withFormUrlEncodedBody(
-            "date.day" -> "",
-            "date.month" -> "",
-            "date.year" -> "")
+            "dateOfBirth.day" -> "",
+            "dateOfBirth.month" -> "",
+            "dateOfBirth.year" -> "")
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersDobView]
         val viewModel: FormPageViewModel[MembersDob] = MembersDobController.viewModel(NormalMode)
-        val formWithErrors = form.bind(Map("date.day" -> "", "date.month" -> "", "date.year" -> ""))
+        val formWithErrors = form.bind(Map("dateOfBirth.day" -> "", "dateOfBirth.month" -> "", "dateOfBirth.year" -> ""))
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString

@@ -36,7 +36,7 @@ class MembersDobFormProvider @Inject() extends Mappings {
 
   def apply(): Form[MembersDob] =
     Form(
-      "date" -> mapping(
+      "dateOfBirth" -> mapping(
         "day" -> text("membersDob.error.required.day").verifying(
           firstError(regexp(dateDayRegex, "membersDob.error.invalid"),
           )

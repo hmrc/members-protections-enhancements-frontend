@@ -33,7 +33,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
 
   val messages: Messages = Helpers.stubMessagesApi().preferred(FakeRequest())
 
-  private val formField = "date"
+  private val formField = "dateOfBirth"
 
   private val minDate = LocalDate.of(1900, 1, 1)
   private val maxDate = LocalDate.now()
