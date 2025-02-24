@@ -38,23 +38,21 @@ class MembersDobFormProvider @Inject() extends Mappings {
     Form(
       "date" -> mapping(
         "day" -> text("memberDob.error.required.day").verifying(
-          firstError(
-            regexp(dateDayRegex, "memberDob.error.invalid"),
+          firstError(regexp(dateDayRegex, "memberDob.error.invalid"),
           )
         ),
         "month" -> text("memberDob.error.required.month").verifying(
-          firstError(
-            regexp(dateMonthRegex, "memberDob.error.invalid")
+          firstError(regexp(dateMonthRegex, "memberDob.error.invalid")
           )
         ),
         "year" -> text("memberDob.error.required.year").verifying(
-          firstError(
-            regexp(dateYearRegex, "memberDob.error.invalid")
+          firstError(regexp(dateYearRegex, "memberDob.error.invalid")
           )
         )
       )(MembersDob.apply)(MembersDob.unapply)
         .verifying("memberDob.error.invalid", dob => isValidDate(dob))
-        .verifying("memberDob.error.dateOfBirth.maxDate", dob => isWithinDateRange(dob))
+        .verifying("memberDob.error.dateOfBirth.maxDate",
+          dob => isValidDate(dob) && isWithinDateRange(dob))
     )
 
   private def isValidDate(dob: MembersDob): Boolean = {
