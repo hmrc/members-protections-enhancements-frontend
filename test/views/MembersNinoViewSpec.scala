@@ -30,7 +30,7 @@ class MembersNinoViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("memberDob.heading")
+      view.getElementsByTag("h1").text() mustBe messages(app)("membersNino.heading")
 
     }
   }
@@ -38,7 +38,7 @@ class MembersNinoViewSpec extends SpecBase {
 
   trait Setup {
 
-    val app: Application = applicationBuilder().build()
+    val app: Application = applicationBuilder(emptyUserAnswers).build()
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 

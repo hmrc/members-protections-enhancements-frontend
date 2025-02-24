@@ -79,11 +79,11 @@ class WhatIsTheMembersNameController @Inject()(
 object WhatIsTheMembersNameController {
 
   def viewModel(mode: Mode): FormPageViewModel[MemberDetails] = FormPageViewModel(
-    Message("memberName.title"),
-    Message("memberName.heading"),
+    Message("membersName.title"),
+    Message("membersName.heading"),
     MemberDetails(
-      "memberName.firstName",
-      "memberName.lastName"
+      "membersName.firstName",
+      "membersName.lastName"
     ),
     routes.WhatIsTheMembersNameController.onSubmit(mode)
   )

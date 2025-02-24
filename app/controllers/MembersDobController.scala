@@ -88,8 +88,8 @@ class MembersDobController @Inject()(
 object MembersDobController {
   def viewModel(mode: Mode): FormPageViewModel[MembersDob] = {
     FormPageViewModel(
-      title = Message("memberDob.title"),
-      heading = Message("memberDob.heading"),
+      title = Message("membersDob.title"),
+      heading = Message("membersDob.heading"),
       page = MembersDob(
         "day",
         "month",

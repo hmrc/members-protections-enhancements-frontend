@@ -30,7 +30,7 @@
 
 @(form: Form[MembersDob], viewModel: FormPageViewModel[MembersDob], name: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, s"${messages("memberDob.title", name)}")) {
+@layout(pageTitle = title(form, s"${messages("membersDob.title", name)}")) {
 
     @formHelper(action = viewModel.onSubmit) {
 
@@ -42,9 +42,9 @@
             DateViewModel(
                 field  = form("date"),
                     legend = Legend(
-                        content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("memberDob.heading", name)}</h1>"),
+                        content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("membersDob.heading", name)}</h1>"),
                 )
-            ).withHint(HintViewModel(Text(messages("memberDob.hint"))))
+            ).withHint(HintViewModel(Text(messages("membersDob.hint"))))
         )
 
         @govukButton(

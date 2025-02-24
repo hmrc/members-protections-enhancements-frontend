@@ -28,7 +28,7 @@ import scala.util.Try
 class MembersDobFormProvider @Inject() extends Mappings {
 
   private val maxDate: LocalDate = LocalDate.now()
-  private val minDate: LocalDate = maxDate.minusYears(130)
+  private val minDate: LocalDate = LocalDate.of(1900,1,1)
 
    val dateDayRegex = "([0-9]{1,2})"
    val dateMonthRegex = "([0-9]{1,2})"
@@ -37,21 +37,20 @@ class MembersDobFormProvider @Inject() extends Mappings {
   def apply(): Form[MembersDob] =
     Form(
       "date" -> mapping(
-        "day" -> text("memberDob.error.required.day").verifying(
-          firstError(regexp(dateDayRegex, "memberDob.error.invalid"),
+        "day" -> text("membersDob.error.required.day").verifying(
+          firstError(regexp(dateDayRegex, "membersDob.error.invalid"),
           )
         ),
-        "month" -> text("memberDob.error.required.month").verifying(
-          firstError(regexp(dateMonthRegex, "memberDob.error.invalid")
-          )
+        "month" -> text("membersDob.error.required.month").verifying(
+          firstError(regexp(dateMonthRegex, "membersDob.error.invalid"))
         ),
-        "year" -> text("memberDob.error.required.year").verifying(
-          firstError(regexp(dateYearRegex, "memberDob.error.invalid")
+        "year" -> text("membersDob.error.required.year").verifying(
+          firstError(regexp(dateYearRegex, "membersDob.error.invalid")
           )
         )
       )(MembersDob.apply)(MembersDob.unapply)
-        .verifying("memberDob.error.invalid", dob => isValidDate(dob))
-        .verifying("memberDob.error.dateOfBirth.maxDate",
+        .verifying("membersDob.error.invalid", dob => isValidDate(dob))
+        .verifying("membersDob.error.dateOfBirth.maxDate",
           dob => isValidDate(dob) && isWithinDateRange(dob))
     )
 

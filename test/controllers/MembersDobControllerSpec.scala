@@ -18,7 +18,8 @@ package controllers
 
 import base.SpecBase
 import forms.MembersDobFormProvider
-import models.{MembersDob, NormalMode}
+import models.{MemberDetails, MembersDob, NormalMode}
+import pages.WhatIsTheMembersNamePage
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -33,20 +34,65 @@ class MembersDobControllerSpec extends SpecBase {
   private val formProvider = new MembersDobFormProvider()
   private val form: Form[MembersDob] = formProvider()
 
-  "Member Name Controller" - {
+  "Member Dob Controller" - {
     "must return OK and the correct view for a GET" in {
-      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val application = applicationBuilder(userAnswers = userAnswers).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.MembersDobController.onPageLoad(NormalMode).url)
+        val request = FakeRequest(GET, onPageLoad)
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersDobView]
-        val viewModel: FormPageViewModel[MembersDob] = MembersDobController.viewModel(NormalMode, "My Name")
+        val viewModel: FormPageViewModel[MembersDob] = MembersDobController.viewModel(NormalMode)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
+      }
+    }
+
+    "must save the form data and redirect on valid submission" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(POST, onSubmit)
+          .withFormUrlEncodedBody(
+            "date.day" -> "10",
+            "date.month" -> "10",
+            "date.year" -> "2024")
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.MembersNinoController.onPageLoad().url
+
+      }
+    }
+
+
+    "must return a Bad Request and errors when invalid data is submitted" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(POST, onSubmit)
+          .withFormUrlEncodedBody(
+            "date.day" -> "",
+            "date.month" -> "",
+            "date.year" -> "")
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[MembersDobView]
+        val viewModel: FormPageViewModel[MembersDob] = MembersDobController.viewModel(NormalMode)
+        val formWithErrors = form.bind(Map("date.day" -> "", "date.month" -> "", "date.year" -> ""))
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString
+
       }
     }
   }

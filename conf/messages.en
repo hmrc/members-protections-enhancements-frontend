@@ -56,26 +56,26 @@ checkMembersProtectionEnhancements.dob = date of birth
 checkMembersProtectionEnhancements.nino = National Insurance number
 checkMembersProtectionEnhancements.pension_scheme_admin_check_ref = pension scheme administrator check reference
 
-memberName.title = What is the member''s name?
-memberName.heading = What is the member''s name?
-memberName.firstName = First name
-memberName.lastName = Last name
-memberName.firstName.error.required = Enter the member''s first name
-memberName.lastName.error.required = Enter the member''s last name
-memberName.firstName.error.invalid = Please enter the member''s name in a valid format
-memberName.lastName.error.invalid = Please enter the member''s name in a valid format
-memberName.firstName.error.length = The member''s first name must be 35 characters or fewer
-memberName.lastName.error.length = The member''s last name must be 35 characters or fewer
+membersName.title = What is the member''s name?
+membersName.heading = What is the member''s name?
+membersName.firstName = First name
+membersName.lastName = Last name
+membersName.firstName.error.required = Enter the member''s first name
+membersName.lastName.error.required = Enter the member''s last name
+membersName.firstName.error.invalid = Please enter the member''s name in a valid format
+membersName.lastName.error.invalid = Please enter the member''s name in a valid format
+membersName.firstName.error.length = The member''s first name must be 35 characters or fewer
+membersName.lastName.error.length = The member''s last name must be 35 characters or fewer
 
-memberDob.title = What is the {0}''s date of birth?
-memberDob.heading = What is the {0}''s date of birth?
-memberDob.hint = For example, 27 03 2007
-memberDob.error.invalid = Please enter the member''s date of birth in a valid format
-memberDob.error.required.day = Enter a day of birth
-memberDob.error.required.month = Enter a month of birth
-memberDob.error.required.year = Enter a year of birth
-memberDob.error.dateOfBirth.maxDate = The date of birth must be before today
+membersDob.title = What is the {0}''s date of birth?
+membersDob.heading = What is the {0}''s date of birth?
+membersDob.hint = For example, 27 03 2007
+membersDob.error.invalid = Please enter the member''s date of birth in a valid format
+membersDob.error.required.day = Enter a day of birth
+membersDob.error.required.month = Enter a month of birth
+membersDob.error.required.year = Enter a year of birth
+membersDob.error.dateOfBirth.maxDate = The date of birth must be before today
 
-memberNino.title = Members National Insurance number
-memberNino.heading = What is Members National Insurance number?
+membersNino.title = Members National Insurance number
+membersNino.heading = What is Members National Insurance number?
 

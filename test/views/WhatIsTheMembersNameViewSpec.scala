@@ -35,11 +35,11 @@ class WhatIsTheMembersNameViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("memberName.heading")
+      view.getElementsByTag("h1").text() mustBe messages(app)("membersName.heading")
 
-      view.html.contains(messages(app)("memberName.title"))
-      view.text.contains(messages(app)("memberName.firstName"))
-      view.text.contains(messages(app)("memberName.lastName"))
+      view.html.contains(messages(app)("membersName.title"))
+      view.text.contains(messages(app)("membersName.firstName"))
+      view.text.contains(messages(app)("membersName.lastName"))
     }
   }
 
