@@ -28,9 +28,9 @@
     govukButton: GovukButton
 )
 
-@(form: Form[MembersDob], viewModel: FormPageViewModel[MembersDob])(implicit request: Request[_], messages: Messages)
+@(form: Form[MembersDob], viewModel: FormPageViewModel[MembersDob], name: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, viewModel.title.toMessage)) {
+@layout(pageTitle = title(form, s"${messages("memberDob.title", name)}")) {
 
     @formHelper(action = viewModel.onSubmit) {
 
@@ -42,7 +42,7 @@
             DateViewModel(
                 field  = form("date"),
                     legend = Legend(
-                        content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("messages__dob__title", "Naren")}</h1>"),
+                        content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("memberDob.heading", name)}</h1>"),
                 )
             ).withHint(HintViewModel(Text(messages("memberDob.hint"))))
         )

@@ -17,7 +17,6 @@ date.year = Year
 date.error.day = day
 date.error.month = month
 date.error.year = year
-messages__dob__title = What is {0}’s date of birth?
 
 timeout.title = You’re about to be signed out
 timeout.message = For security reasons, you will be signed out of this service in
@@ -68,8 +67,8 @@ memberName.lastName.error.invalid = Please enter the member''s name in a valid f
 memberName.firstName.error.length = The member''s first name must be 35 characters or fewer
 memberName.lastName.error.length = The member''s last name must be 35 characters or fewer
 
-memberDob.title = What is the {0} date of birth?
-memberDob.heading = What is the {0} date of birth?
+memberDob.title = What is the {0}''s date of birth?
+memberDob.heading = What is the {0}''s date of birth?
 memberDob.hint = For example, 27 03 2007
 memberDob.error.invalid = Please enter the member's date of birth in a valid format
 memberDob.error.required.day = Enter a day of birth

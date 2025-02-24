@@ -51,28 +51,28 @@ class MembersDobController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
       withMemberDetails { memberDetails =>
-        Future.successful(Ok(view(form, viewModel(mode, memberDetails.fullName))))
+        Future.successful(Ok(view(form, viewModel(mode), memberDetails.fullName)))
       }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => {
-              println("------------------- "+formWithErrors)
-              Future.successful(BadRequest(view(formWithErrors, viewModel(mode, "Naren"))))
-            },
-            answer => {
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
-                _ <- service.save(updatedAnswers)
-              } yield {
-                Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
-              }
+      withMemberDetails { memberDetails =>
+
+        form.bindFromRequest().fold(
+          formWithErrors => {
+            Future.successful(BadRequest(view(formWithErrors, viewModel(mode), memberDetails.fullName)))
+          },
+          answer => {
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
+              _ <- service.save(updatedAnswers)
+            } yield {
+              Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
             }
-          )
+          }
+        )
+      }
   }
 
   private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
@@ -86,10 +86,10 @@ class MembersDobController @Inject()(
 }
 
 object MembersDobController {
-  def viewModel(mode: Mode, membersName: String): FormPageViewModel[MembersDob] = {
+  def viewModel(mode: Mode): FormPageViewModel[MembersDob] = {
     FormPageViewModel(
       title = Message("memberDob.title"),
-      heading = Message("memberDob.heading", Message(membersName)),
+      heading = Message("memberDob.heading"),
       page = MembersDob(
         "day",
         "month",
@@ -99,17 +99,3 @@ object MembersDobController {
     )
   }
 }
-
-//object MembersDobController1 {
-//  def viewModel1(mode: Mode, membersName: String): FormPageViewModel[MembersDob1] =
-//    FormPageViewModel(
-//      title = Message("memberDob.title"),
-//      heading = Message("memberDob.heading", Message(membersName)),
-//      page = MembersDob1(
-//      LocalDate.now()
-//      ),
-//      onSubmit = routes.MembersDobController.onSubmit(mode)
-//    )
-//}
-
-

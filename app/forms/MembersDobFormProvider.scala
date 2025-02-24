@@ -30,9 +30,9 @@ class MembersDobFormProvider @Inject() extends Mappings {
   private val maxDate: LocalDate = LocalDate.now()
   private val minDate: LocalDate = maxDate.minusYears(130)
 
-   val dateDayRegex: String = "([0-9])"
-   val dateMonthRegex: String = "([0-9])"
-   val dateYearRegex: String = "([0-9]){4}"
+   val dateDayRegex = "([0-9]{1,2})"
+   val dateMonthRegex = "([0-9]{1,2})"
+   val dateYearRegex = "([0-9]{4})"
 
   def apply(): Form[MembersDob] =
     Form(
@@ -68,18 +68,3 @@ class MembersDobFormProvider @Inject() extends Mappings {
     }.getOrElse(false)
   }
 }
-
-
-//class MembersDobForm1 @Inject() extends Mappings {
-//
-//  def apply() (implicit message: Messages): Form[MembersDob1] =
-//    Form(
-//      mapping(
-//        "dob" -> localDate(
-//          invalidKey = "memberDob.error.invalid",
-//          allRequiredKey = "memberDob.error.required.day",
-//          twoRequiredKey = "memberDob.error.required.month", requiredKey = "memberDob.error.required.year",
-//          args = Seq("memberDob.error.dateOfBirth.maxDate")
-//
-//      ))(MembersDob1.apply)(MembersDob1.unapply))
-//}

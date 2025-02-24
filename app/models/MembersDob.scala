@@ -19,7 +19,6 @@ package models
 import play.api.libs.json.{Format, Json}
 
 case class MembersDob(day: String, month: String, year: String)
-//case class MembersDob1(dob: LocalDate)
 
 object MembersDob {
   implicit val format: Format[MembersDob] = Json.format[MembersDob]
