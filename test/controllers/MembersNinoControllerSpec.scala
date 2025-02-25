@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import models.NormalMode
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.MembersNinoView
@@ -33,9 +34,10 @@ class MembersNinoControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersNinoView]
+        val backLinkRoute = routes.MembersDobController.onPageLoad(NormalMode).url
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(Some(backLinkRoute))(request, messages(application)).toString
       }
     }
   }

@@ -42,8 +42,9 @@ class MembersNinoViewSpec extends SpecBase {
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
+    // Needs value for Backlink url when this page in Implementation
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[MembersNinoView].apply().body
+      Jsoup.parse(app.injector.instanceOf[MembersNinoView].apply(None).body
       )
   }
 
