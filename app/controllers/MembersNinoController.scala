@@ -18,6 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import models.NormalMode
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -35,6 +36,6 @@ class MembersNinoController @Inject()(
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
-      Ok(view())
+      Ok(view(Some(routes.MembersDobController.onPageLoad(NormalMode).url)))
   }
 }
