@@ -21,7 +21,9 @@ import play.api.libs.json.{Format, Json}
 case class MemberDetails(
                           firstName: String,
                           lastName: String
-                        )
+                        ) {
+  val fullName: String = s"$firstName $lastName"
+}
 
 object MemberDetails {
   implicit val format: Format[MemberDetails] = Json.format[MemberDetails]

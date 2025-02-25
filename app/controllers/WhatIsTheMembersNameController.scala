@@ -23,6 +23,7 @@ import forms.WhatIsTheMembersNameFormProvider
 import models.{MemberDetails, Mode}
 import navigation.Navigator
 import pages._
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
@@ -46,7 +47,7 @@ class WhatIsTheMembersNameController @Inject()(
   extends FrontendBaseController
     with I18nSupport {
 
-  private val form = formProvider()
+  private val form: Form[MemberDetails] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
@@ -78,11 +79,11 @@ class WhatIsTheMembersNameController @Inject()(
 object WhatIsTheMembersNameController {
 
   def viewModel(mode: Mode): FormPageViewModel[MemberDetails] = FormPageViewModel(
-    Message("memberName.title"),
-    Message("memberName.heading"),
+    Message("membersName.title"),
+    Message("membersName.heading"),
     MemberDetails(
-      "memberName.firstName",
-      "memberName.lastName"
+      "membersName.firstName",
+      "membersName.lastName"
     ),
     routes.WhatIsTheMembersNameController.onSubmit(mode)
   )

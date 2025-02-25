@@ -17,24 +17,85 @@
 package controllers
 
 import com.google.inject.Inject
+import controllers.MembersDobController.viewModel
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import forms.MembersDobFormProvider
+import models.requests.DataRequest
+import models.{MemberDetails, MembersDob, Mode}
+import navigation.Navigator
+import pages.{MembersDobPage, WhatIsTheMembersNamePage}
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc._
+import services.SessionCacheService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import viewmodels.DisplayMessage.Message
+import viewmodels.models.FormPageViewModel
 import views.html.MembersDobView
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class MembersDobController @Inject()(
                                       override val messagesApi: MessagesApi,
                                       identify: IdentifierAction,
                                       getData: DataRetrievalAction,
-                                      val controllerComponents: MessagesControllerComponents,
+                                      navigator: Navigator,
+                                      service: SessionCacheService,
+                                      formProvider: MembersDobFormProvider,
+                                      implicit val controllerComponents: MessagesControllerComponents,
                                       view: MembersDobView
-                                    ) extends FrontendBaseController with I18nSupport {
+                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  //TODO This controller and test is created for navigation purposes. Once this ticket is build, Need to add the functionality for it.
+  private val form: Form[MembersDob] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
-      Ok(view())
+      withMemberDetails { memberDetails =>
+        Future.successful(Ok(view(form, viewModel(mode), memberDetails.fullName)))
+      }
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
+    implicit request =>
+      withMemberDetails { memberDetails =>
+
+        form.bindFromRequest().fold(
+          formWithErrors => {
+            Future.successful(BadRequest(view(formWithErrors, viewModel(mode), memberDetails.fullName)))
+          },
+          answer => {
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
+              _ <- service.save(updatedAnswers)
+            } yield {
+              Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
+            }
+          }
+        )
+      }
+  }
+
+  private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
+    request.userAnswers.get(WhatIsTheMembersNamePage) match {
+      case None =>
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      case Some(memberDetails) =>
+        f(memberDetails)
+    }
+  }
+}
+
+object MembersDobController {
+  def viewModel(mode: Mode): FormPageViewModel[MembersDob] = {
+    FormPageViewModel(
+      title = Message("membersDob.title"),
+      heading = Message("membersDob.heading"),
+      page = MembersDob(
+        "day",
+        "month",
+        "year"
+      ),
+      onSubmit = routes.MembersDobController.onSubmit(mode)
+    )
   }
 }

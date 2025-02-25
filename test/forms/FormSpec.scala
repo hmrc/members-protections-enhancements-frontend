@@ -17,11 +17,11 @@
 package forms
 
 import org.scalatest.OptionValues
-import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.data.{Form, FormError}
 
-trait FormSpec extends AnyFreeSpec with Matchers with OptionValues {
+trait FormSpec extends AnyWordSpec with Matchers with OptionValues {
 
   def checkForError(form: Form[_], data: Map[String, String], expectedErrors: Seq[FormError]) = {
 

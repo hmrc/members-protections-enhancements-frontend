@@ -17,31 +17,24 @@
 package views
 
 import base.SpecBase
-import controllers.WhatIsTheMembersNameController
-import forms.WhatIsTheMembersNameFormProvider
-import models.{MemberDetails, NormalMode}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import viewmodels.models.FormPageViewModel
-import views.html.WhatIsTheMembersNameView
+import views.html.MembersNinoView
 
-class WhatIsTheMembersNameViewSpec extends SpecBase {
+class MembersNinoViewSpec extends SpecBase {
 
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("membersName.heading")
+      view.getElementsByTag("h1").text() mustBe messages(app)("membersNino.heading")
 
-      view.html.contains(messages(app)("membersName.title"))
-      view.text.contains(messages(app)("membersName.firstName"))
-      view.text.contains(messages(app)("membersName.lastName"))
     }
   }
+
 
   trait Setup {
 
@@ -49,11 +42,8 @@ class WhatIsTheMembersNameViewSpec extends SpecBase {
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
-    private val formProvider = new WhatIsTheMembersNameFormProvider()
-    private val form: Form[MemberDetails] = formProvider()
-    val viewModel: FormPageViewModel[MemberDetails] = WhatIsTheMembersNameController.viewModel(NormalMode)
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[WhatIsTheMembersNameView].apply(form, viewModel).body
+      Jsoup.parse(app.injector.instanceOf[MembersNinoView].apply().body
       )
   }
 

@@ -17,12 +17,17 @@
 package views
 
 import base.SpecBase
+import controllers.MembersDobController
+import forms.MembersDobFormProvider
+import models.{MembersDob, NormalMode}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
+import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import viewmodels.models.FormPageViewModel
 import views.html.MembersDobView
 
 class MembersDobViewSpec extends SpecBase {
@@ -30,7 +35,11 @@ class MembersDobViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("memberDob.heading")
+      view.getElementsByTag("h1").text() mustBe "What is the Pearl Harvey's date of birth?"
+      view.html.contains(messages(app)("membersDob.title"))
+      view.text.contains(messages(app)("date.day"))
+      view.text.contains(messages(app)("date.month"))
+      view.text.contains(messages(app)("date.year"))
 
     }
   }
@@ -41,9 +50,12 @@ class MembersDobViewSpec extends SpecBase {
     val app: Application = applicationBuilder(emptyUserAnswers).build()
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
+    private val formProvider = new MembersDobFormProvider()
+    private val form: Form[MembersDob] = formProvider()
+    val viewModel: FormPageViewModel[MembersDob] = MembersDobController.viewModel(NormalMode)
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[MembersDobView].apply().body
+      Jsoup.parse(app.injector.instanceOf[MembersDobView].apply(form, viewModel, "Pearl Harvey").body
       )
   }
 

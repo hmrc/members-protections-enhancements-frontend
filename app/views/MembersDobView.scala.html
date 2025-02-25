@@ -15,16 +15,40 @@
  *@
 
 @import views.html.components._
+@import viewmodels.models._
+@import viewmodels.govuk._
+@import viewmodels._
 
 @this(
-layout: templates.Layout,
-heading: h1
+    layout: templates.Layout,
+    heading: h1,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukDateInput: GovukDateInput,
+    govukButton: GovukButton
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(form: Form[MembersDob], viewModel: FormPageViewModel[MembersDob], name: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("memberDob.title"))) {
+@layout(pageTitle = title(form, s"${messages("membersDob.title", name)}")) {
 
-@heading("memberDob.heading")
+    @formHelper(action = viewModel.onSubmit) {
 
+        @if(form.hasErrors) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        @govukDateInput(
+            DateViewModel(
+                field  = form("dateOfBirth"),
+                    legend = Legend(
+                        content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("membersDob.heading", name)}</h1>"),
+                )
+            ).withHint(HintViewModel(Text(messages("membersDob.hint"))))
+        )
+
+        @govukButton(
+            ButtonViewModel(viewModel.buttonText.toMessage)
+        )
+    }
 }

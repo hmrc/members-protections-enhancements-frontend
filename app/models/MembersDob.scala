@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import models.MemberDetails
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Format, Json}
 
-case object WhatIsTheMembersNamePage extends QuestionPage[MemberDetails] {
+case class MembersDob(day: String, month: String, year: String)
 
-  override def path: JsPath                    = JsPath \ toString
-  override def toString: String                = "membersName"
+object MembersDob {
+  implicit val format: Format[MembersDob] = Json.format[MembersDob]
 }

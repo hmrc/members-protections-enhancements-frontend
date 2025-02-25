@@ -28,26 +28,26 @@ class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
 
   val form: Form[MemberDetails] = formProvider()
 
-  ".firstName" - {
-    behave.like(mandatoryField(form, "firstName", FormError("firstName", List("memberName.firstName.error.required"))))
+  ".firstName" must {
+    behave.like(mandatoryField(form, "firstName", FormError("firstName", List("membersName.firstName.error.required"))))
 
     behave.like(
       invalidAlphaField(
         form,
         fieldName = "firstName",
-        errorMessage = "memberName.firstName.error.invalid",
+        errorMessage = "membersName.firstName.error.invalid",
         args = List(nameRegex)
       )
     )
   }
 
-  ".lastName" - {
-    behave.like(mandatoryField(form, "lastName", FormError("lastName", List("memberName.lastName.error.required"))))
+  ".lastName" must {
+    behave.like(mandatoryField(form, "lastName", FormError("lastName", List("membersName.lastName.error.required"))))
     behave.like(
       invalidAlphaField(
         form,
         fieldName = "lastName",
-        errorMessage = "memberName.lastName.error.invalid",
+        errorMessage = "membersName.lastName.error.invalid",
         args = List(nameRegex)
       )
     )

@@ -33,16 +33,16 @@ class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
   def apply(): Form[MemberDetails] =
     Form(
       mapping(
-        firstName -> text("memberName.firstName.error.required").verifying(
+        firstName -> text("membersName.firstName.error.required").verifying(
           firstError(
-            regexp(nameRegex, "memberName.firstName.error.invalid"),
-            maxLength(nameMaxLength, "memberName.firstName.error.length")
+            regexp(nameRegex, "membersName.firstName.error.invalid"),
+            maxLength(nameMaxLength, "membersName.firstName.error.length")
           )
         ),
-        lastName -> text("memberName.lastName.error.required").verifying(
+        lastName -> text("membersName.lastName.error.required").verifying(
           firstError(
-            regexp(nameRegex, "memberName.lastName.error.invalid"),
-            maxLength(nameMaxLength, "memberName.lastName.error.length")
+            regexp(nameRegex, "membersName.lastName.error.invalid"),
+            maxLength(nameMaxLength, "membersName.lastName.error.length")
           )
         ),
       )(MemberDetails.apply)(MemberDetails.unapply)
