@@ -85,6 +85,7 @@ object WhatIsTheMembersNameController {
       "membersName.firstName",
       "membersName.lastName"
     ),
-    routes.WhatIsTheMembersNameController.onSubmit(mode)
+    routes.WhatIsTheMembersNameController.onSubmit(mode),
+    backLinkUrl = Some(routes.CheckMembersProtectionEnhancementsController.onPageLoad().url)
   )
 }

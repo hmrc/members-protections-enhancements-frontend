@@ -30,7 +30,7 @@
 
 @(form: Form[MembersDob], viewModel: FormPageViewModel[MembersDob], name: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, s"${messages("membersDob.title", name)}")) {
+@layout(pageTitle = title(form, s"${messages("membersDob.title", name)}"), backLinkUrl = viewModel.backLinkUrl) {
 
     @formHelper(action = viewModel.onSubmit) {
 

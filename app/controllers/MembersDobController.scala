@@ -86,6 +86,7 @@ class MembersDobController @Inject()(
 }
 
 object MembersDobController {
+
   def viewModel(mode: Mode): FormPageViewModel[MembersDob] = {
     FormPageViewModel(
       title = Message("membersDob.title"),
@@ -95,7 +96,8 @@ object MembersDobController {
         "month",
         "year"
       ),
-      onSubmit = routes.MembersDobController.onSubmit(mode)
+      onSubmit = routes.MembersDobController.onSubmit(mode),
+      backLinkUrl = Some(routes.WhatIsTheMembersNameController.onPageLoad(mode).url)
     )
   }
 }
