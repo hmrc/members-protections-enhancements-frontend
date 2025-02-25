@@ -21,9 +21,9 @@ layout: templates.Layout,
 heading: h1
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("membersNino.title"))) {
+@layout(pageTitle = titleNoForm(messages("membersNino.title")), backLinkUrl = backLinkUrl) {
 
 @heading("membersNino.heading")
 
