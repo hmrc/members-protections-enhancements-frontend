@@ -51,7 +51,10 @@ class MembersDobController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
     implicit request =>
       withMemberDetails { memberDetails =>
-        Future.successful(Ok(view(form, viewModel(mode), memberDetails.fullName)))
+        request.userAnswers.get(MembersDobPage) match {
+          case None => Future.successful(Ok(view(form, viewModel(mode), memberDetails.fullName)))
+          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode), memberDetails.fullName)))
+        }
       }
   }
 
