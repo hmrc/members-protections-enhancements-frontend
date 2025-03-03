@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package pages
+@import views.html.components._
 
-import models.MembersNino
-import play.api.libs.json.JsPath
+@this(
+layout: templates.Layout,
+heading: h1
+)
 
-case object MembersNinoPage extends QuestionPage[MembersNino] {
+@(backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
 
-  override def path: JsPath = JsPath \ toString
+@layout(pageTitle = titleNoForm(messages("membersPsaCheckRef.title")), backLinkUrl = backLinkUrl) {
 
-  override def toString: String = "membersNino"
+    @heading("membersPsaCheckRef.heading")
 
 }

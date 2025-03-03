@@ -14,15 +14,27 @@
  * limitations under the License.
  */
 
-package pages
+package forms
 
+import forms.behaviours.FieldBehaviours
 import models.MembersNino
-import play.api.libs.json.JsPath
+import play.api.data.{Form, FormError}
 
-case object MembersNinoPage extends QuestionPage[MembersNino] {
+class MembersNinoFormProviderSpec extends FieldBehaviours {
 
-  override def path: JsPath = JsPath \ toString
+  private val formProvider = new MembersNinoFormProvider()
 
-  override def toString: String = "membersNino"
+  val form: Form[MembersNino] = formProvider()
 
+  ".nino" must {
+    behave.like(mandatoryField(form, "nino", FormError("nino", List("membersNino.error.required"))))
+
+    behave.like(
+      invalidAlphaField(
+        form,
+        fieldName = "nino",
+        errorMessage = "membersNino.error.invalid"
+      )
+    )
+  }
 }

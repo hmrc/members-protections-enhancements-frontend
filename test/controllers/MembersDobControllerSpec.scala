@@ -38,7 +38,7 @@ class MembersDobControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET" in {
 
       val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-      val application = applicationBuilder(userAnswers = userAnswers).build()
+      val application = applicationBuilder(userAnswers).build()
 
       running(application) {
         val request = FakeRequest(GET, onPageLoad)
@@ -67,11 +67,10 @@ class MembersDobControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.MembersNinoController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.MembersNinoController.onPageLoad(NormalMode).url
 
       }
     }
-
 
     "must return a Bad Request and errors when invalid data is submitted" in {
       val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value

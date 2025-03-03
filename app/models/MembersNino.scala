@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import models.MembersNino
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Format, Json}
 
-case object MembersNinoPage extends QuestionPage[MembersNino] {
+case class MembersNino(nino: String)
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "membersNino"
-
+object MembersNino {
+  implicit val format: Format[MembersNino] = Json.format[MembersNino]
 }
