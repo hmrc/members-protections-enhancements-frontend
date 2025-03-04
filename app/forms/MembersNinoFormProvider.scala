@@ -31,9 +31,11 @@ class MembersNinoFormProvider @Inject() extends Mappings {
   def apply(): Form[MembersNino] =
     Form(
       mapping(
-        nino -> text("membersNino.error.required").verifying(
-          "membersNino.error.invalid", value => value.matches(ninoRegex) || value.matches(trnRegex)
-        )
+        nino -> text("membersNino.error.required")
+          .transform[String](_.filterNot(_.isWhitespace), identity)
+          .verifying(
+            "membersNino.error.invalid", value => value.matches(ninoRegex) || value.matches(trnRegex)
+          )
       )(MembersNino.apply)(MembersNino.unapply)
     )
 }

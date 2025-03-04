@@ -70,6 +70,23 @@ class MembersNinoControllerSpec extends SpecBase {
       }
     }
 
+    "must save the form data and redirect on valid submission when Nino is added with spaces" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(POST, onSubmit)
+          .withFormUrlEncodedBody(
+            "nino" -> "QQ 12 34 56 C")
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.MembersPsaCheckRefController.onPageLoad().url
+
+      }
+    }
+
     "must return a Bad Request and errors when invalid data is submitted" in {
       val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
