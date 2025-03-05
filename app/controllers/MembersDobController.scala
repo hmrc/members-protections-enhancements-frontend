@@ -17,20 +17,15 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.MembersDobController.viewModel
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import forms.MembersDobFormProvider
-import models.requests.DataRequest
-import models.{MemberDetails, MembersDob, Mode}
+import models.{MembersDob, Mode}
 import navigation.Navigator
-import pages.{MembersDobPage, WhatIsTheMembersNamePage}
+import pages.MembersDobPage
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc._
 import services.SessionCacheService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.DisplayMessage.Message
-import viewmodels.models.FormPageViewModel
 import views.html.MembersDobView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,27 +39,25 @@ class MembersDobController @Inject()(
                                       formProvider: MembersDobFormProvider,
                                       implicit val controllerComponents: MessagesControllerComponents,
                                       view: MembersDobView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                    )(implicit ec: ExecutionContext) extends MpeBaseController(identify, getData) {
 
   private val form: Form[MembersDob] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
     implicit request =>
-      withMemberDetails { memberDetails =>
+      memberDetails =>
         request.userAnswers.get(MembersDobPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(mode), memberDetails.fullName)))
-          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode), memberDetails.fullName)))
+          case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), memberDetails.fullName)))
+          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), memberDetails.fullName)))
         }
-      }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
     implicit request =>
-      withMemberDetails { memberDetails =>
-
+      memberDetails =>
         form.bindFromRequest().fold(
           formWithErrors => {
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode), memberDetails.fullName)))
+            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersDobPage), memberDetails.fullName)))
           },
           answer => {
             for {
@@ -75,32 +68,5 @@ class MembersDobController @Inject()(
             }
           }
         )
-      }
-  }
-
-  private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
-    request.userAnswers.get(WhatIsTheMembersNamePage) match {
-      case None =>
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-      case Some(memberDetails) =>
-        f(memberDetails)
-    }
-  }
-}
-
-object MembersDobController {
-
-  def viewModel(mode: Mode): FormPageViewModel[MembersDob] = {
-    FormPageViewModel(
-      title = Message("membersDob.title"),
-      heading = Message("membersDob.heading"),
-      page = MembersDob(
-        "day",
-        "month",
-        "year"
-      ),
-      onSubmit = routes.MembersDobController.onSubmit(mode),
-      backLinkUrl = Some(routes.WhatIsTheMembersNameController.onPageLoad(mode).url)
-    )
   }
 }

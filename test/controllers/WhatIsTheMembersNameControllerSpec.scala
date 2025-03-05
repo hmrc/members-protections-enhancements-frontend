@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,8 @@ import views.html.WhatIsTheMembersNameView
 class WhatIsTheMembersNameControllerSpec extends SpecBase {
 
   private lazy val onPageLoad = routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
-  private lazy val onSubmit = routes.WhatIsTheMembersNameController.onSubmit(NormalMode).url
+  private lazy val onSubmit = routes.WhatIsTheMembersNameController.onSubmit(NormalMode)
+  private lazy val backLinkUrl = routes.CheckMembersProtectionEnhancementsController.onPageLoad().url
 
   private val formProvider = new WhatIsTheMembersNameFormProvider()
   private val form: Form[MemberDetails] = formProvider()
@@ -43,7 +44,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[WhatIsTheMembersNameView]
-        val viewModel: FormPageViewModel[MemberDetails] = WhatIsTheMembersNameController.viewModel(NormalMode)
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
@@ -54,7 +55,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
-        val request = FakeRequest(POST, onSubmit)
+        val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
             "firstName" -> "John",
             "lastName" -> "Doe")
@@ -71,7 +72,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
-        val request = FakeRequest(POST, onSubmit)
+        val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
             "firstName" -> "",
             "lastName" -> "Doe")
@@ -79,7 +80,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[WhatIsTheMembersNameView]
-        val viewModel: FormPageViewModel[MemberDetails] = WhatIsTheMembersNameController.viewModel(NormalMode)
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
         val formWithErrors = form.bind(Map("firstName" -> "", "lastName" -> "Doe"))
 
         status(result) mustEqual BAD_REQUEST

@@ -1,5 +1,5 @@
 @*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ govukInput: GovukInput,
 govukButton: GovukButton
 )
 
-@(form: Form[MemberDetails], viewModel: FormPageViewModel[MemberDetails])(implicit request: Request[_], messages: Messages)
+@(form: Form[MemberDetails], viewModel: FormPageViewModel)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, viewModel.title.toMessage), backLinkUrl = viewModel.backLinkUrl) {
+@layout(pageTitle = title(form, messages("membersName.title")), backLinkUrl = viewModel.backLinkUrl) {
 
     @formHelper(action = viewModel.onSubmit) {
 
@@ -44,7 +44,7 @@ govukButton: GovukButton
          @govukInput(
              InputViewModel(
                field = form("firstName"),
-               label = LabelViewModel(viewModel.page.firstName).withCssClass(LabelSize.Small.toString)
+               label = LabelViewModel("membersName.firstName").withCssClass(LabelSize.Small.toString)
              )
              .withWidth(Fixed20)
          )
@@ -52,7 +52,7 @@ govukButton: GovukButton
          @govukInput(
             InputViewModel(
               field = form("lastName"),
-              label = LabelViewModel(viewModel.page.lastName).withCssClass(LabelSize.Small.toString)
+              label = LabelViewModel("membersName.lastName").withCssClass(LabelSize.Small.toString)
            )
            .withWidth(Fixed20)
          )

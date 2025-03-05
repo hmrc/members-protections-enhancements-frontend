@@ -17,7 +17,7 @@
 package views
 
 import base.SpecBase
-import controllers.MembersDobController
+import controllers.routes
 import forms.MembersDobFormProvider
 import models.{MembersDob, NormalMode}
 import org.jsoup.Jsoup
@@ -52,7 +52,9 @@ class MembersDobViewSpec extends SpecBase {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
     private val formProvider = new MembersDobFormProvider()
     private val form: Form[MembersDob] = formProvider()
-    val viewModel: FormPageViewModel[MembersDob] = MembersDobController.viewModel(NormalMode)
+    private val onSubmit = routes.MembersDobController.onSubmit(NormalMode)
+    private val backLinkUrl = routes.WhatIsTheMembersNameController.onSubmit(NormalMode).url
+    val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
     val view: Document =
       Jsoup.parse(app.injector.instanceOf[MembersDobView].apply(form, viewModel, "Pearl Harvey").body

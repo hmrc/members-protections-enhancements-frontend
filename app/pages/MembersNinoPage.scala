@@ -16,7 +16,4 @@
 
 package pages
 
-case object MembersNinoPage extends Page {
-
-  override def toString: String = "membersNino"
-}
+case object MembersNinoPage extends Page

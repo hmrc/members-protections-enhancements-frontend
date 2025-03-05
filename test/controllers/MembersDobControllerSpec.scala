@@ -29,7 +29,8 @@ import views.html.MembersDobView
 class MembersDobControllerSpec extends SpecBase {
 
   private lazy val onPageLoad = routes.MembersDobController.onPageLoad(NormalMode).url
-  private lazy val onSubmit = routes.MembersDobController.onSubmit(NormalMode).url
+  private lazy val onSubmit = routes.MembersDobController.onSubmit(NormalMode)
+  private lazy val backLinkUrl = routes.WhatIsTheMembersNameController.onSubmit(NormalMode).url
 
   private val formProvider = new MembersDobFormProvider()
   private val form: Form[MembersDob] = formProvider()
@@ -46,7 +47,7 @@ class MembersDobControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersDobView]
-        val viewModel: FormPageViewModel[MembersDob] = MembersDobController.viewModel(NormalMode)
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
@@ -58,7 +59,7 @@ class MembersDobControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
-        val request = FakeRequest(POST, onSubmit)
+        val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
             "dateOfBirth.day" -> "10",
             "dateOfBirth.month" -> "10",
@@ -78,7 +79,7 @@ class MembersDobControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
-        val request = FakeRequest(POST, onSubmit)
+        val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
             "dateOfBirth.day" -> "",
             "dateOfBirth.month" -> "",
@@ -87,7 +88,7 @@ class MembersDobControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersDobView]
-        val viewModel: FormPageViewModel[MembersDob] = MembersDobController.viewModel(NormalMode)
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
         val formWithErrors = form.bind(Map("dateOfBirth.day" -> "", "dateOfBirth.month" -> "", "dateOfBirth.year" -> ""))
 
         status(result) mustEqual BAD_REQUEST

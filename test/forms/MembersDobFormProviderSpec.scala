@@ -48,9 +48,9 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         )
         val result = form.bind(data)
         result.value.value shouldEqual MembersDob(
-          date.getDayOfMonth.toString,
-          date.getMonthValue.toString,
-          date.getYear.toString)
+          date.getDayOfMonth,
+          date.getMonthValue,
+          date.getYear)
       }
     }
 
