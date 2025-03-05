@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package forms.mappings
 
-import java.time.LocalDate
+import models.MembersDob
 
+import java.time.LocalDate
 import play.api.data.validation.{Constraint, Invalid, Valid}
+
+import scala.util.Try
 
 trait Constraints {
 
@@ -86,17 +89,17 @@ trait Constraints {
         Invalid(errorKey, maximum)
     }
 
-  protected def maxDate(maximum: LocalDate, errorKey: String, args: Any*): Constraint[LocalDate] =
+  protected def maxDate(maximum: LocalDate, errorKey: String, args: Any*): Constraint[MembersDob] =
     Constraint {
-      case date if date.isAfter(maximum) =>
+      case membersDob if toLocalDate(membersDob).isAfter(maximum) =>
         Invalid(errorKey, args: _*)
       case _ =>
         Valid
     }
 
-  protected def minDate(minimum: LocalDate, errorKey: String, args: Any*): Constraint[LocalDate] =
+  protected def minDate(minimum: Int, errorKey: String, args: Any*): Constraint[MembersDob] =
     Constraint {
-      case date if date.isBefore(minimum) =>
+      case membersDob if toLocalDate(membersDob).getYear < minimum =>
         Invalid(errorKey, args: _*)
       case _ =>
         Valid
@@ -109,4 +112,16 @@ trait Constraints {
       case _ =>
         Invalid(errorKey)
     }
+
+  protected def toLocalDate(input: MembersDob): LocalDate = {
+    LocalDate.of(input.year, input.month, input.day)
+  }
+
+  protected def validDate(input: MembersDob): Boolean = {
+    Try(toLocalDate(input)).isSuccess
+  }
+
+  protected def toMembersDob(input: LocalDate): MembersDob = {
+    MembersDob(input.getDayOfMonth, input.getMonthValue, input.getYear)
+  }
 }

@@ -35,21 +35,4 @@ object DisplayMessage {
     def apply(key: String, args: Message*): Message =
       Message(key, args.toList)
   }
-
-  case class LinkMessage(content: Message, url: String, attrs: Map[String, String], hiddenText: Option[Message] = None)
-    extends InlineMessage {
-
-    def withAttr(key: String, value: String): LinkMessage =
-      copy(attrs = attrs + (key -> value))
-  }
-
-  object LinkMessage {
-
-    def apply(content: Message, url: String): LinkMessage =
-      LinkMessage(content, url, Map(), None)
-
-    def apply(content: Message, url: String, hiddenText: Message): LinkMessage =
-      LinkMessage(content, url, Map(), Some(hiddenText))
-  }
-
 }

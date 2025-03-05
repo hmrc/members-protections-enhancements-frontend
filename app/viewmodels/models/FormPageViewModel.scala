@@ -18,40 +18,12 @@ package viewmodels.models
 
 import models.{Mode, NormalMode}
 import play.api.mvc.Call
-import viewmodels.DisplayMessage
-import viewmodels.DisplayMessage.{InlineMessage, Message}
+import viewmodels.DisplayMessage.Message
 
-case class FormPageViewModel[+A](
-                                  title: Message,
-                                  heading: InlineMessage,
-                                  description: Option[DisplayMessage],
-                                  page: A,
-                                  refresh: Option[Int],
-                                  buttonText: Message,
-                                  onSubmit: Call,
-                                  backLinkUrl: Option[String] = None,
-                                  mode: Mode = NormalMode,
-                                  optViewOnlyDetails: Option[ViewOnlyDetailsViewModel] = None,
-                                  optNotificationBanner: Option[(String, String, String)] = None,
-                                  showBackLink: Boolean = true,
-                                  breadcrumbs: Option[List[(String, String)]] = None
-                                )
-
-object FormPageViewModel {
-  def apply[A](
-                title: Message,
-                heading: InlineMessage,
-                page: A,
-                onSubmit: Call,
-                backLinkUrl: Option[String]
-              ): FormPageViewModel[A] = FormPageViewModel(
-    title,
-    heading,
-    None,
-    page,
-    None,
-    Message("site.continue"),
-    onSubmit,
-    backLinkUrl
-  )
-}
+case class FormPageViewModel(
+                              mode: Mode = NormalMode,
+                              buttonText: Message = Message("site.continue"),
+                              onSubmit: Call,
+                              backLinkUrl: Option[String] = None,
+                              showBackLink: Boolean = true
+                            )

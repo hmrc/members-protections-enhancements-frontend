@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,9 @@
 
 package models
 
-import models.PensionSchemeId.{PsaId, PspId}
-
-
 sealed trait PensionSchemeId { self =>
 
   val value: String
-
-  def fold[B](f1: PsaId => B, f2: PspId => B): B =
-    self match {
-      case id @ PsaId(_) => f1(id)
-      case id @ PspId(_) => f2(id)
-    }
-
-  val isPSP: Boolean = this match {
-    case PspId(_) => true
-    case _ => false
-  }
 }
 
 object PensionSchemeId {
