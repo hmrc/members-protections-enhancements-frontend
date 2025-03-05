@@ -17,7 +17,6 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.MembersNinoController.viewModel
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import forms.MembersNinoFormProvider
 import models.requests.DataRequest
@@ -87,10 +86,8 @@ class MembersNinoController @Inject()(
         f(memberDetails)
     }
   }
-}
 
-object MembersNinoController {
-  def viewModel(mode: Mode): FormPageViewModel[MembersNino] = {
+  private def viewModel(mode: Mode): FormPageViewModel[MembersNino] = {
     FormPageViewModel(
       title = Message("membersNino.title"),
       heading = Message("membersNino.heading"),

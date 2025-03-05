@@ -18,7 +18,9 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class MembersNino(nino: String)
+case class MembersNino(nino: String) {
+  override def toString: String = nino.replaceAll("..(?!$)", "$0 ")
+}
 
 object MembersNino {
   implicit val format: Format[MembersNino] = Json.format[MembersNino]

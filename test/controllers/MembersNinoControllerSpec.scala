@@ -23,6 +23,7 @@ import pages.WhatIsTheMembersNamePage
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import viewmodels.DisplayMessage.Message
 import viewmodels.models.FormPageViewModel
 import views.html.MembersNinoView
 
@@ -33,6 +34,14 @@ class MembersNinoControllerSpec extends SpecBase {
 
   private val formProvider = new MembersNinoFormProvider()
   private val form: Form[MembersNino] = formProvider()
+
+  private def viewModel: FormPageViewModel[MembersNino] = {
+    FormPageViewModel(title = Message("membersNino.title"),
+      heading = Message("membersNino.heading"),
+      page = MembersNino("nino"),
+      onSubmit = routes.MembersNinoController.onSubmit(NormalMode),
+      backLinkUrl = Some(routes.MembersDobController.onPageLoad(NormalMode).url))
+  }
 
   "Members Nino Controller" - {
     "must return OK and the correct view for a GET" in {
@@ -46,7 +55,6 @@ class MembersNinoControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersNinoView]
-        val viewModel: FormPageViewModel[MembersNino] = MembersNinoController.viewModel(NormalMode)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
@@ -99,7 +107,6 @@ class MembersNinoControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersNinoView]
-        val viewModel: FormPageViewModel[MembersNino] = MembersNinoController.viewModel(NormalMode)
         val formWithErrors = form.bind(Map("nino" -> ""))
 
         status(result) mustEqual BAD_REQUEST
