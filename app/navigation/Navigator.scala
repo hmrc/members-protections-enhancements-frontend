@@ -29,7 +29,8 @@ class Navigator @Inject()() {
   private val normalRoutes: Page => UserAnswers => Call = {
     case CheckMembersProtectionEnhancementsPage => _ => routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)
     case WhatIsTheMembersNamePage => _ => routes.MembersDobController.onPageLoad(NormalMode)
-    case MembersDobPage => _ => routes.MembersNinoController.onPageLoad()
+    case MembersDobPage => _ => routes.MembersNinoController.onPageLoad(NormalMode)
+    case MembersNinoPage => _ => routes.MembersPsaCheckRefController.onPageLoad()
     case _ => _ => routes.CheckMembersProtectionEnhancementsController.onPageLoad()
   }
 
