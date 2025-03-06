@@ -16,8 +16,4 @@
 
 package pages
 
-case object CheckMembersProtectionEnhancementsPage extends Page {
-
-  override def toString: String = "checkMembersProtectionEnhancements"
-
-}
+case object CheckMembersProtectionEnhancementsPage extends Page

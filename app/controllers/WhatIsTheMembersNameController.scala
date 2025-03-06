@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,15 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.WhatIsTheMembersNameController.viewModel
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import forms.WhatIsTheMembersNameFormProvider
 import models.{MemberDetails, Mode}
 import navigation.Navigator
 import pages._
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.DisplayMessage.Message
-import viewmodels.models.FormPageViewModel
 import views.html.WhatIsTheMembersNameView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,18 +40,17 @@ class WhatIsTheMembersNameController @Inject()(
                                                 formProvider: WhatIsTheMembersNameFormProvider,
                                                 view: WhatIsTheMembersNameView,
                                               )(implicit ec: ExecutionContext)
-  extends FrontendBaseController
-    with I18nSupport {
+  extends MpeBaseController(identify, getData) {
 
   private val form: Form[MemberDetails] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = handle {
     implicit request =>
       val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
         case None => form
         case Some(value) => form.fill(value)
       }
-      Ok(view(namesForm, viewModel(mode)))
+      Future.successful(Ok(view(namesForm, viewModel(mode, WhatIsTheMembersNamePage))))
   }
 
 
@@ -65,7 +60,7 @@ class WhatIsTheMembersNameController @Inject()(
         .bindFromRequest()
         .fold(
           formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode)))
+            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, WhatIsTheMembersNamePage)))
             ),
           answer =>
             for {
@@ -74,18 +69,4 @@ class WhatIsTheMembersNameController @Inject()(
             } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers)))
   }
 
-}
-
-object WhatIsTheMembersNameController {
-
-  def viewModel(mode: Mode): FormPageViewModel[MemberDetails] = FormPageViewModel(
-    Message("membersName.title"),
-    Message("membersName.heading"),
-    MemberDetails(
-      "membersName.firstName",
-      "membersName.lastName"
-    ),
-    routes.WhatIsTheMembersNameController.onSubmit(mode),
-    backLinkUrl = Some(routes.CheckMembersProtectionEnhancementsController.onPageLoad().url)
-  )
 }

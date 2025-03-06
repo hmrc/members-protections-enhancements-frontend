@@ -29,7 +29,7 @@
     govukButton: GovukButton
 )
 
-@(form: Form[MembersNino], viewModel: FormPageViewModel[MembersNino], name: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[MembersNino], viewModel: FormPageViewModel, name: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, s"${messages("membersNino.title", name)}"), backLinkUrl = viewModel.backLinkUrl) {
 

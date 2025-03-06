@@ -15,7 +15,7 @@
  */
 
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,10 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
+import viewmodels.models.FormPageViewModel
 
 import java.net.URLEncoder
 import scala.reflect.ClassTag
@@ -80,4 +82,6 @@ trait SpecBase
 
   def urlEncode(input: String): String = URLEncoder.encode(input, "utf-8")
 
+  def getFormPageViewModel(onSubmit: Call, backLinkUrl: String) =
+    FormPageViewModel(onSubmit = onSubmit, backLinkUrl = Some(backLinkUrl))
 }

@@ -17,7 +17,7 @@
 package views
 
 import base.SpecBase
-import controllers.{MembersNinoController, routes}
+import controllers.routes
 import forms.MembersNinoFormProvider
 import models.{MembersNino, NormalMode}
 import org.jsoup.Jsoup
@@ -27,7 +27,6 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import viewmodels.DisplayMessage.Message
 import viewmodels.models.FormPageViewModel
 import views.html.MembersNinoView
 
@@ -52,14 +51,9 @@ class MembersNinoViewSpec extends SpecBase {
 
     private val formProvider = new MembersNinoFormProvider()
     private val form: Form[MembersNino] = formProvider()
-
-    private def viewModel: FormPageViewModel[MembersNino] = {
-      FormPageViewModel(title = Message("membersNino.title"),
-        heading = Message("membersNino.heading"),
-        page = MembersNino("nino"),
-        onSubmit = routes.MembersNinoController.onSubmit(NormalMode),
-        backLinkUrl = Some(routes.MembersDobController.onPageLoad(NormalMode).url))
-    }
+    private val onSubmit = routes.MembersNinoController.onSubmit(NormalMode)
+    private val backLinkUrl = routes.MembersDobController.onSubmit(NormalMode).url
+    val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
     val view: Document =
       Jsoup.parse(app.injector.instanceOf[MembersNinoView].apply(form, viewModel, "Pearl Harvey").body

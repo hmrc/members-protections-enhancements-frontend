@@ -17,7 +17,7 @@
 package views
 
 import base.SpecBase
-import controllers.WhatIsTheMembersNameController
+import controllers.routes
 import forms.WhatIsTheMembersNameFormProvider
 import models.{MemberDetails, NormalMode}
 import org.jsoup.Jsoup
@@ -51,7 +51,9 @@ class WhatIsTheMembersNameViewSpec extends SpecBase {
 
     private val formProvider = new WhatIsTheMembersNameFormProvider()
     private val form: Form[MemberDetails] = formProvider()
-    val viewModel: FormPageViewModel[MemberDetails] = WhatIsTheMembersNameController.viewModel(NormalMode)
+    private val onSubmit = routes.WhatIsTheMembersNameController.onSubmit(NormalMode)
+    private val backLinkUrl = routes.CheckMembersProtectionEnhancementsController.onPageLoad().url
+    val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
     val view: Document =
       Jsoup.parse(app.injector.instanceOf[WhatIsTheMembersNameView].apply(form, viewModel).body
       )

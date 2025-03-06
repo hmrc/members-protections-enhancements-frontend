@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       forAll(gen) {
         case (max, date) =>
 
-          val result = maxDate(max, "error.future")(date)
+          val result = maxDate(max, "error.future")(toMembersDob(date))
           result mustEqual Valid
       }
     }
@@ -150,7 +150,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       forAll(gen) {
         case (max, date) =>
 
-          val result = maxDate(max, "error.future", "foo")(date)
+          val result = maxDate(max, "error.future", "foo")(toMembersDob(date))
           result mustEqual Invalid("error.future", "foo")
       }
     }
@@ -168,7 +168,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       forAll(gen) {
         case (min, date) =>
 
-          val result = minDate(min, "error.past", "foo")(date)
+          val result = minDate(min.getYear, "error.past", "foo")(toMembersDob(date))
           result mustEqual Valid
       }
     }
@@ -183,7 +183,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       forAll(gen) {
         case (min, date) =>
 
-          val result = minDate(min, "error.past", "foo")(date)
+          val result = minDate(min.getYear, "error.past", "foo")(toMembersDob(date))
           result mustEqual Invalid("error.past", "foo")
       }
     }

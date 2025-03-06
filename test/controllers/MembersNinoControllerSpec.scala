@@ -23,25 +23,18 @@ import pages.WhatIsTheMembersNamePage
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import viewmodels.DisplayMessage.Message
 import viewmodels.models.FormPageViewModel
 import views.html.MembersNinoView
 
 class MembersNinoControllerSpec extends SpecBase {
 
   private lazy val onPageLoad = routes.MembersNinoController.onPageLoad(NormalMode).url
-  private lazy val onSubmit = routes.MembersNinoController.onSubmit(NormalMode).url
+  private lazy val onSubmit = routes.MembersNinoController.onSubmit(NormalMode)
+  private lazy val backLinkUrl = routes.MembersDobController.onSubmit(NormalMode).url
 
   private val formProvider = new MembersNinoFormProvider()
   private val form: Form[MembersNino] = formProvider()
 
-  private def viewModel: FormPageViewModel[MembersNino] = {
-    FormPageViewModel(title = Message("membersNino.title"),
-      heading = Message("membersNino.heading"),
-      page = MembersNino("nino"),
-      onSubmit = routes.MembersNinoController.onSubmit(NormalMode),
-      backLinkUrl = Some(routes.MembersDobController.onPageLoad(NormalMode).url))
-  }
 
   "Members Nino Controller" - {
     "must return OK and the correct view for a GET" in {
@@ -55,6 +48,7 @@ class MembersNinoControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersNinoView]
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
@@ -66,7 +60,7 @@ class MembersNinoControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
-        val request = FakeRequest(POST, onSubmit)
+        val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
             "nino" -> "QQ123456C")
 
@@ -83,7 +77,7 @@ class MembersNinoControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
-        val request = FakeRequest(POST, onSubmit)
+        val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
             "nino" -> "QQ 12 34 56 C")
 
@@ -100,7 +94,7 @@ class MembersNinoControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
-        val request = FakeRequest(POST, onSubmit)
+        val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
             "nino" -> "")
 
@@ -108,6 +102,7 @@ class MembersNinoControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[MembersNinoView]
         val formWithErrors = form.bind(Map("nino" -> ""))
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString

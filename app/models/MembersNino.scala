@@ -18,10 +18,10 @@ package models
 
 import play.api.libs.json.{Format, Json}
 
-case class MembersNino(nino: String) {
-  override def toString: String = nino.replaceAll("..(?!$)", "$0 ")
-}
+case class MembersNino(nino: String)
 
 object MembersNino {
   implicit val format: Format[MembersNino] = Json.format[MembersNino]
+
+  def apply(nino: String): MembersNino = new MembersNino(nino.filterNot(_.isWhitespace).replaceAll("..(?!$)", "$0 "))
 }

@@ -62,8 +62,8 @@ membersName.firstName = First name
 membersName.lastName = Last name
 membersName.firstName.error.required = Enter the member''s first name
 membersName.lastName.error.required = Enter the member''s last name
-membersName.firstName.error.invalid = Please enter the member''s name in a valid format
-membersName.lastName.error.invalid = Please enter the member''s name in a valid format
+membersName.firstName.error.invalid = Please enter the member''s first name in a valid format
+membersName.lastName.error.invalid = Please enter the member''s last name in a valid format
 membersName.firstName.error.length = The member''s first name must be 35 characters or fewer
 membersName.lastName.error.length = The member''s last name must be 35 characters or fewer
 
@@ -72,9 +72,13 @@ membersDob.heading = What is the {0}''s date of birth?
 membersDob.hint = For example, 27 03 2007
 membersDob.error.invalid = Please enter the member''s date of birth in a valid format
 membersDob.error.required.day = Enter a day of birth
+membersDob.error.invalid.day = Enter a valid day. A day should be in between 1 to 31
 membersDob.error.required.month = Enter a month of birth
+membersDob.error.invalid.month = Enter a valid month. A month should be in between 1 to 12
 membersDob.error.required.year = Enter a year of birth
+membersDob.error.invalid.year = Enter a valid year. A year should be in between 1900 and current year
 membersDob.error.dateOfBirth.maxDate = The date of birth must be before today
+membersDob.error.dateOfBirth.startYear = The date of birth must be after 1900
 
 membersNino.title = What is the {0}''s National Insurance number?
 membersNino.heading = What is the {0}''s National Insurance number?
