@@ -28,4 +28,9 @@ POST        /members-date-of-birth                                      controll
 GET         /change-members-date-of-birth                               controllers.MembersDobController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-members-date-of-birth                               controllers.MembersDobController.onSubmit(mode: Mode = CheckMode)
 
-GET         /members-national-insurance-number                          controllers.MembersNinoController.onPageLoad()
+GET         /members-national-insurance-number                          controllers.MembersNinoController.onPageLoad(mode: Mode = NormalMode)
+POST        /members-national-insurance-number                          controllers.MembersNinoController.onSubmit(mode: Mode = NormalMode)
+GET         /change-members-national-insurance-number                   controllers.MembersNinoController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-members-national-insurance-number                   controllers.MembersNinoController.onSubmit(mode: Mode = CheckMode)
+
+GET         /members-pension-scheme-administrator-check-reference       controllers.MembersPsaCheckRefController.onPageLoad()

@@ -17,28 +17,22 @@
 package views
 
 import base.SpecBase
-import controllers.routes
-import forms.MembersNinoFormProvider
-import models.{MembersNino, NormalMode}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import viewmodels.models.FormPageViewModel
-import views.html.MembersNinoView
+import views.html.MembersPsaCheckRefView
 
-class MembersNinoViewSpec extends SpecBase {
+class MembersPsaCheckRefViewSpec extends SpecBase {
 
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("What is the Pearl Harvey's National Insurance number?")
+      view.getElementsByTag("h1").text() mustBe messages(app)("membersPsaCheckRef.heading")
+      view.html.contains(messages(app)("membersPsaCheckRef.title"))
 
-      view.html.contains(messages(app)("membersNino.title"))
-      view.text.contains(messages(app)("membersNino.hint"))
     }
   }
 
@@ -49,14 +43,9 @@ class MembersNinoViewSpec extends SpecBase {
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
-    private val formProvider = new MembersNinoFormProvider()
-    private val form: Form[MembersNino] = formProvider()
-    private val onSubmit = routes.MembersNinoController.onSubmit(NormalMode)
-    private val backLinkUrl = routes.MembersDobController.onSubmit(NormalMode).url
-    val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
-
+    // Needs value for Backlink url when this page in Implementation
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[MembersNinoView].apply(form, viewModel, "Pearl Harvey").body
+      Jsoup.parse(app.injector.instanceOf[MembersPsaCheckRefView].apply(None).body
       )
   }
 

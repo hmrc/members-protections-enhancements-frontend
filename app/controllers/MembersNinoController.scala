@@ -18,24 +18,58 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import models.NormalMode
-import play.api.i18n.{I18nSupport, MessagesApi}
+import forms.MembersNinoFormProvider
+import models.{MembersNino, Mode}
+import navigation.Navigator
+import pages.MembersNinoPage
+import play.api.data.Form
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import services.SessionCacheService
 import views.html.MembersNinoView
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class MembersNinoController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: IdentifierAction,
                                        getData: DataRetrievalAction,
-                                       val controllerComponents: MessagesControllerComponents,
+                                       navigator: Navigator,
+                                       service: SessionCacheService,
+                                       formProvider: MembersNinoFormProvider,
+                                       implicit val controllerComponents: MessagesControllerComponents,
                                        view: MembersNinoView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                     )(implicit ec: ExecutionContext) extends MpeBaseController(identify, getData) {
 
-  //TODO This controller and test is created for navigation purposes. Once this ticket is build, Need to add the functionality for it.
+  private val form: Form[MembersNino] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
     implicit request =>
-      Ok(view(Some(routes.MembersDobController.onPageLoad(NormalMode).url)))
+      memberDetails =>
+        request.userAnswers.get(MembersNinoPage) match {
+          case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
+          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), memberDetails.fullName)))
+        }
   }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
+    implicit request =>
+      memberDetails =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
+            },
+            answer => {
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
+                _ <- service.save(updatedAnswers)
+              } yield {
+                Redirect(navigator.nextPage(MembersNinoPage, mode, updatedAnswers))
+              }
+            }
+          )
+  }
+
 }

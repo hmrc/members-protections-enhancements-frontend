@@ -80,6 +80,11 @@ membersDob.error.invalid.year = Enter a valid year. A year should be in between 
 membersDob.error.dateOfBirth.maxDate = The date of birth must be before today
 membersDob.error.dateOfBirth.startYear = The date of birth must be after 1900
 
-membersNino.title = Members National Insurance number
-membersNino.heading = What is Members National Insurance number?
+membersNino.title = What is the {0}''s National Insurance number?
+membersNino.heading = What is the {0}''s National Insurance number?
+membersNino.hint = For example, QQ 12 34 56 C
+membersNino.error.required = Enter a National Insurance number
+membersNino.error.invalid = Please enter the member''s National Insurance number in a valid format
 
+membersPsaCheckRef.title = What is Member''s pension scheme administrator check reference?
+membersPsaCheckRef.heading = What is Member''s pension scheme administrator check reference?

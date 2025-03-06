@@ -61,7 +61,7 @@ abstract class MpeBaseController @Inject()(
   private def submitUrl(mode: Mode, page: Page): Call = page match {
     case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
     case MembersDobPage => routes.MembersDobController.onSubmit(mode)
-    case MembersNinoPage => routes.MembersNinoController.onPageLoad()
+    case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
     case _ => routes.CheckMembersProtectionEnhancementsController.onPageLoad()
   }
 

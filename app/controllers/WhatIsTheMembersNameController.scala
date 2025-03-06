@@ -47,7 +47,7 @@ class WhatIsTheMembersNameController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = handle {
     implicit request =>
       val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
-        case None        => form
+        case None => form
         case Some(value) => form.fill(value)
       }
       Future.successful(Ok(view(namesForm, viewModel(mode, WhatIsTheMembersNamePage))))
