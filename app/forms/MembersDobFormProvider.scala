@@ -28,12 +28,7 @@ class MembersDobFormProvider @Inject() extends Mappings {
   def apply(): Form[MembersDob] =
     Form(
       "dateOfBirth" -> dateMapping
-        .verifying(
-          firstError(
-            maxDate(LocalDate.now, "membersDob.error.dateOfBirth.maxDate"),
-            minDate(startYear, "membersDob.error.dateOfBirth.startYear")
-          )
-        )
+        .verifying("membersDob.error.invalid", inputs => validDate(inputs))
     )
 }
 
