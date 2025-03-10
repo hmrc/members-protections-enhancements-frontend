@@ -17,12 +17,17 @@
 package views
 
 import base.SpecBase
+import controllers.routes
+import forms.MembersPsaCheckRefFormProvider
+import models.{MembersPsaCheckRef, NormalMode}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
+import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import viewmodels.models.FormPageViewModel
 import views.html.MembersPsaCheckRefView
 
 class MembersPsaCheckRefViewSpec extends SpecBase {
@@ -30,12 +35,12 @@ class MembersPsaCheckRefViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("membersPsaCheckRef.heading")
-      view.html.contains(messages(app)("membersPsaCheckRef.title"))
+      view.getElementsByTag("h1").text() mustBe messages(app)("What is Pearl Harvey's pension scheme administrator check reference?")
 
+      view.html.contains(messages(app)("membersPsaCheckRef.title"))
+      view.html.contains(messages(app)("membersPsaCheckRef.hint"))
     }
   }
-
 
   trait Setup {
 
@@ -43,10 +48,14 @@ class MembersPsaCheckRefViewSpec extends SpecBase {
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
-    // Needs value for Backlink url when this page in Implementation
+    private val formProvider = new MembersPsaCheckRefFormProvider()
+    private val form: Form[MembersPsaCheckRef] = formProvider()
+    private val onSubmit = routes.MembersPsaCheckRefController.onSubmit(NormalMode)
+    private val backLinkUrl = routes.MembersNinoController.onSubmit(NormalMode).url
+    val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[MembersPsaCheckRefView].apply(None).body
+      Jsoup.parse(app.injector.instanceOf[MembersPsaCheckRefView].apply(form, viewModel, "Pearl Harvey").body
       )
   }
-
 }

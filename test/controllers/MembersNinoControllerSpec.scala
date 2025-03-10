@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import forms.MembersNinoFormProvider
 import models.{MemberDetails, MembersNino, NormalMode}
-import pages.WhatIsTheMembersNamePage
+import pages.{MembersNinoPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -67,8 +67,29 @@ class MembersNinoControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.MembersPsaCheckRefController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url
 
+      }
+    }
+
+    "must return OK and pre-fill the form when data is already present" in {
+      val userAnswers = emptyUserAnswers
+        .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersNinoPage, MembersNino("QQ123456C")).success.value
+
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[MembersNinoView]
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(
+          MembersNino("QQ123456C")), viewModel, "Pearl Harvey")(request, messages(application)).toString
       }
     }
 
@@ -84,7 +105,7 @@ class MembersNinoControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.MembersPsaCheckRefController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url
 
       }
     }
