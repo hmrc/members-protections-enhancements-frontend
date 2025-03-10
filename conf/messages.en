@@ -86,5 +86,8 @@ membersNino.hint = For example, QQ 12 34 56 C
 membersNino.error.required = Enter a National Insurance number
 membersNino.error.invalid = Please enter the member''s National Insurance number in a valid format
 
-membersPsaCheckRef.title = What is Member''s pension scheme administrator check reference?
-membersPsaCheckRef.heading = What is Member''s pension scheme administrator check reference?
+membersPsaCheckRef.title = What is {0}''s pension scheme administrator check reference?
+membersPsaCheckRef.heading = What is {0}''s pension scheme administrator check reference?
+membersPsaCheckRef.hint = For example PSA12345678A
+membersPsaCheckRef.error.required = Enter a pension scheme administrator check reference
+membersPsaCheckRef.error.invalid = Please enter the member''s pension scheme administrator check reference in a valid format

@@ -19,7 +19,7 @@ package controllers
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import models.requests.DataRequest
 import models.{MemberDetails, Mode, NormalMode}
-import pages.{MembersDobPage, MembersNinoPage, Page, WhatIsTheMembersNamePage}
+import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, Page, WhatIsTheMembersNamePage}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -62,6 +62,7 @@ abstract class MpeBaseController @Inject()(
     case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
     case MembersDobPage => routes.MembersDobController.onSubmit(mode)
     case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
+    case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
     case _ => routes.CheckMembersProtectionEnhancementsController.onPageLoad()
   }
 
@@ -69,6 +70,7 @@ abstract class MpeBaseController @Inject()(
     case WhatIsTheMembersNamePage => routes.CheckMembersProtectionEnhancementsController.onPageLoad().url
     case MembersDobPage => routes.WhatIsTheMembersNameController.onPageLoad(mode).url
     case MembersNinoPage => routes.MembersDobController.onPageLoad(mode).url
+    case MembersPsaCheckRefPage => routes.MembersNinoController.onPageLoad(mode).url
     case _ => routes.CheckMembersProtectionEnhancementsController.onPageLoad().url
   }
 }

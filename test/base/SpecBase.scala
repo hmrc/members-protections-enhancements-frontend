@@ -74,7 +74,6 @@ trait SpecBase
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
 
-
   def runningApplication(block: Application => Unit): Unit =
     running(_ => applicationBuilder(emptyUserAnswers))(block)
 
@@ -82,6 +81,6 @@ trait SpecBase
 
   def urlEncode(input: String): String = URLEncoder.encode(input, "utf-8")
 
-  def getFormPageViewModel(onSubmit: Call, backLinkUrl: String) =
+  def getFormPageViewModel(onSubmit: Call, backLinkUrl: String): FormPageViewModel =
     FormPageViewModel(onSubmit = onSubmit, backLinkUrl = Some(backLinkUrl))
 }

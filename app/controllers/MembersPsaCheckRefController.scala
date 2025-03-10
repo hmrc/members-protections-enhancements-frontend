@@ -18,24 +18,58 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import models.NormalMode
-import play.api.i18n.{I18nSupport, MessagesApi}
+import forms.MembersPsaCheckRefFormProvider
+import models.{MembersPsaCheckRef, Mode}
+import navigation.Navigator
+import pages.MembersPsaCheckRefPage
+import play.api.data.Form
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import services.SessionCacheService
 import views.html.MembersPsaCheckRefView
 
+import scala.concurrent.{ExecutionContext, Future}
+
 class MembersPsaCheckRefController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: MembersPsaCheckRefView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                              override val messagesApi: MessagesApi,
+                                              identify: IdentifierAction,
+                                              getData: DataRetrievalAction,
+                                              navigator: Navigator,
+                                              service: SessionCacheService,
+                                              formProvider: MembersPsaCheckRefFormProvider,
+                                              implicit val controllerComponents: MessagesControllerComponents,
+                                              view: MembersPsaCheckRefView
+                                            )(implicit ec: ExecutionContext) extends MpeBaseController(identify, getData) {
 
-  //TODO This controller and test is created for navigation purposes. Once this ticket is build, Need to add the functionality for it.
+  private val form: Form[MembersPsaCheckRef] = formProvider()
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
     implicit request =>
-      Ok(view(Some(routes.MembersNinoController.onPageLoad(NormalMode).url)))
+      membersDetails =>
+        request.userAnswers.get(MembersPsaCheckRefPage) match {
+          case None => Future.successful(Ok(view(form, viewModel(mode, MembersPsaCheckRefPage), membersDetails.fullName)))
+          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersPsaCheckRefPage), membersDetails.fullName)))
+        }
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
+    implicit request =>
+      memberDetails =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersPsaCheckRefPage), memberDetails.fullName)))
+            },
+            answer => {
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersPsaCheckRefPage, answer))
+                _ <- service.save(updatedAnswers)
+              } yield {
+                Redirect(navigator.nextPage(MembersPsaCheckRefPage, mode, updatedAnswers))
+              }
+            }
+          )
   }
 }

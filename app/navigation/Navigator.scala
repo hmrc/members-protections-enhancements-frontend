@@ -30,7 +30,8 @@ class Navigator @Inject()() {
     case CheckMembersProtectionEnhancementsPage => _ => routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)
     case WhatIsTheMembersNamePage => _ => routes.MembersDobController.onPageLoad(NormalMode)
     case MembersDobPage => _ => routes.MembersNinoController.onPageLoad(NormalMode)
-    case MembersNinoPage => _ => routes.MembersPsaCheckRefController.onPageLoad()
+    case MembersNinoPage => _ => routes.MembersPsaCheckRefController.onPageLoad(NormalMode)
+    case MembersPsaCheckRefPage => _ => routes.CheckYourAnswersController.onPageLoad()
     case _ => _ => routes.CheckMembersProtectionEnhancementsController.onPageLoad()
   }
 
