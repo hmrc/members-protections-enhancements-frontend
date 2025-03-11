@@ -44,7 +44,7 @@
                 id = form("dateOfBirth").id,
                 namePrefix = None,
                 fieldset = Some(Fieldset(
-                                    legend = Some(Legend(content = HtmlContent(s"<h1 class='govuk-heading-xl'>${messages("membersDob.heading", name)}</h1>")))
+                                    legend = Some(Legend(content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("membersDob.heading", name)}</h1>")))
                                 )),
                 hint = Some(Hint(content = Text(messages("membersDob.hint")))),
                 errorMessage = form("dateOfBirth").error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))

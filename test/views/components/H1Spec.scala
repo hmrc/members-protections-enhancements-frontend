@@ -37,7 +37,7 @@ class H1Spec extends SpecBase {
       val element = doc.select("h1")
       element.size mustBe 1
 
-      element.attr("class") mustBe "govuk-heading-xl"
+      element.attr("class") mustBe "govuk-heading-l"
       element.text() mustBe "test-id"
     }
   }
