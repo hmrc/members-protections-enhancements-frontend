@@ -18,6 +18,8 @@
 @import viewmodels.models._
 @import viewmodels.govuk._
 @import viewmodels._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._
 
 @this(
     layout: templates.Layout,
@@ -38,14 +40,15 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @govukDateInput(
-            DateViewModel(
-                field  = form("dateOfBirth"),
-                    legend = Legend(
-                        content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("membersDob.heading", name)}</h1>"),
-                )
-            ).withHint(HintViewModel(Text(messages("membersDob.hint"))))
-        )
+        @govukDateInput(DateInput(
+                id = form("dateOfBirth").id,
+                namePrefix = None,
+                fieldset = Some(Fieldset(
+                                    legend = Some(Legend(content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("membersDob.heading", name)}</h1>")))
+                                )),
+                hint = Some(Hint(content = Text(messages("membersDob.hint")))),
+                errorMessage = form("dateOfBirth").error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
+                ).withDayMonthYearFormField(form("dateOfBirth")))
 
         @govukButton(
             ButtonViewModel(viewModel.buttonText.toMessage)
