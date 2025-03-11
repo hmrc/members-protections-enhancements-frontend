@@ -35,7 +35,7 @@ class MembersDobViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe "What is the Pearl Harvey's date of birth?"
+      view.getElementsByTag("h1").text() mustBe "What is Pearl Harvey's date of birth?"
       view.html.contains(messages(app)("membersDob.title"))
       view.text.contains(messages(app)("date.day"))
       view.text.contains(messages(app)("date.month"))
