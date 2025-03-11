@@ -14,16 +14,19 @@
  * limitations under the License.
  *@
 
+@import views.html.components._
+
 @this(
     layout: templates.Layout,
-    govukSummaryList: GovukSummaryList
+    govukSummaryList: GovukSummaryList,
+    heading: h1
 )
 
-@(list: SummaryList)(implicit request: Request[_], messages: Messages)
+@(list: SummaryList, backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title"))) {
+@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title")), backLinkUrl = backLinkUrl) {
 
-    <h1 class="govuk-heading-xl">@messages("checkYourAnswers.heading")</h1>
+    @heading("checkYourAnswers.heading")
 
     @govukSummaryList(list)
 }
