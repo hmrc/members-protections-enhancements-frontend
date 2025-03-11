@@ -35,7 +35,7 @@ class MembersNinoViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("What is the Pearl Harvey's National Insurance number?")
+      view.getElementsByTag("h1").text() mustBe messages(app)("What is Pearl Harvey's National Insurance number?")
 
       view.html.contains(messages(app)("membersNino.title"))
       view.text.contains(messages(app)("membersNino.hint"))
