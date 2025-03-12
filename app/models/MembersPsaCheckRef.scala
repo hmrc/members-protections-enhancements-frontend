@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import views.html.components._
+package models
 
-@this(
-    layout: templates.Layout,
-    govukSummaryList: GovukSummaryList,
-    heading: h1
-)
+import play.api.libs.json.{Format, Json}
 
-@(list: SummaryList, backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
+case class MembersPsaCheckRef(psaCheckRef: String)
 
-@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title")), backLinkUrl = backLinkUrl) {
-
-    @heading("checkYourAnswers.heading")
-
-    @govukSummaryList(list)
+object MembersPsaCheckRef {
+  implicit val format: Format[MembersPsaCheckRef] = Json.format[MembersPsaCheckRef]
 }

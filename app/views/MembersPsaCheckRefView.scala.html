@@ -15,16 +15,43 @@
  *@
 
 @import views.html.components._
+@import viewmodels.InputWidth.Fixed10
+@import viewmodels.models._
+@import viewmodels.govuk._
+@import viewmodels._
 
 @this(
-layout: templates.Layout,
-heading: h1
+    layout: templates.Layout,
+    heading: h1,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukInput: GovukInput,
+    govukButton: GovukButton
 )
 
-@(backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
+@(form: Form[MembersPsaCheckRef], viewModel: FormPageViewModel, name: String)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("membersPsaCheckRef.title")), backLinkUrl = backLinkUrl) {
+@layout(pageTitle = title(form, s"${messages("membersPsaCheckRef.title", name)}"), backLinkUrl = viewModel.backLinkUrl) {
 
-    @heading("membersPsaCheckRef.heading")
+   @formHelper(action = viewModel.onSubmit) {
 
+        @if(form.hasErrors) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        @heading(s"${messages("membersPsaCheckRef.heading", name)}")
+
+        @govukInput(
+           InputViewModel(
+                field = form("psaCheckRef"),
+                label = Label()
+           )
+           .withWidth(Fixed10)
+           .withHint(HintViewModel(Text(messages("membersPsaCheckRef.hint"))))
+           )
+
+       @govukButton(
+             ButtonViewModel(viewModel.buttonText.toMessage)
+       )
+   }
 }
