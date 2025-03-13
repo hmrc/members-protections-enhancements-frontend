@@ -54,6 +54,19 @@ class MembersDobFormProviderSpec extends DateBehaviours {
       }
     }
 
+    "bind data having spaces" in {
+      val day = 11
+      val month = 11
+      val year = 2010
+        val data = Map(
+          s"$formField.day" -> "1 1",
+          s"$formField.month" -> "1 1",
+          s"$formField.year" -> "2 0 1 0"
+        )
+        val result = form.bind(data)
+        result.value.value shouldEqual MembersDob(day, month, year)
+    }
+
     "fail to bind" when {
       val fields = List("day", "month", "year")
 
