@@ -30,7 +30,7 @@ trait Formatters {
       data.get(key) match {
         case None                      => Left(Seq(FormError(key, errorKey, args)))
         case Some(s) if s.trim.isEmpty => Left(Seq(FormError(key, errorKey, args)))
-        case Some(s)                   => Right(s.filterNot(_.isWhitespace))
+        case Some(s)                   => Right(s)
       }
 
     override def unbind(key: String, value: String): Map[String, String] =
@@ -64,7 +64,7 @@ trait Formatters {
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Int] =
         baseFormatter
           .bind(key, data)
-          .map(_.replace(",", ""))
+          .map(_.filterNot(_.isWhitespace).replace(",", ""))
           .flatMap {
             case s if s.matches(decimalRegexp) =>
               Left(Seq(FormError(key, wholeNumberKey, args)))
