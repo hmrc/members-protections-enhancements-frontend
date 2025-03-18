@@ -17,7 +17,7 @@
 package forms
 
 import forms.behaviours.FieldBehaviours
-import models.{MembersNino, MembersPsaCheckRef}
+import models.MembersPsaCheckRef
 import play.api.data.{Form, FormError}
 
 class MembersPsaCheckRefFormProviderSpec extends FieldBehaviours {

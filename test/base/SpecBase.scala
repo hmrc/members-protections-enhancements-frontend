@@ -39,11 +39,12 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Call
+import play.api.mvc.{BodyParsers, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
 import viewmodels.models.FormPageViewModel
@@ -59,7 +60,8 @@ trait SpecBase
     with ScalaFutures
     with IntegrationPatience
     with MockitoSugar
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with GuiceOneAppPerSuite {
 
   val userAnswersId: String = "id"
 
@@ -67,10 +69,14 @@ trait SpecBase
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
+  val parsers = app.injector.instanceOf[BodyParsers.Default]
+
+  private val fakePsaIdentifierAction: FakePsaIdentifierAction = new FakePsaIdentifierAction(parsers)
+
   protected def applicationBuilder(userAnswers: UserAnswers): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
-        bind[IdentifierAction].to[FakePsaIdentifierAction],
+        bind[IdentifierAction].toInstance(fakePsaIdentifierAction),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
 

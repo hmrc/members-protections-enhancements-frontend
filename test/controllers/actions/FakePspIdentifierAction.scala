@@ -19,7 +19,7 @@ package controllers.actions
 import generators.ModelGenerators
 import models.PensionSchemeId.PspId
 import models.requests.IdentifierRequest
-import org.scalatest.OptionValues._
+import models.requests.IdentifierRequest.PractitionerRequest
 import play.api.mvc._
 
 import javax.inject.Inject
@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakePspIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifierAction with ModelGenerators {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-    block(practitionerRequestGen(request).map(_.copy(userId = "id", request, pspId = PspId("21000002"))).sample.value)
+    block(PractitionerRequest(userId = "id", request, pspId = PspId("21000002")))
   }
 
   override def parser: BodyParser[AnyContent] =
