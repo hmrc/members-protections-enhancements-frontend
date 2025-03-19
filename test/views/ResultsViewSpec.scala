@@ -36,7 +36,6 @@ class ResultsViewSpec extends SpecBase {
     }
   }
 
-
   trait Setup {
 
     val app: Application = applicationBuilder(emptyUserAnswers).build()
