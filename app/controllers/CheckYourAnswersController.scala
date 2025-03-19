@@ -18,28 +18,45 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import models.NormalMode
-import play.api.i18n.{I18nSupport, MessagesApi}
+import models._
+import pages._
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import viewmodels.govuk.summarylist._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import views.html.CheckYourAnswersView
+
+import scala.concurrent.Future
 
 class CheckYourAnswersController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             identify: IdentifierAction,
                                             getData: DataRetrievalAction,
-                                            val controllerComponents: MessagesControllerComponents,
+                                            implicit val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourAnswersView
-                                          ) extends FrontendBaseController with I18nSupport {
+                                          ) extends MpeBaseController(identify, getData) {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
+  def onPageLoad(): Action[AnyContent] = handle {
     implicit request =>
-
-      val list = SummaryListViewModel(
-        rows = Seq.empty
+      (for {
+        memberDetails <- request.userAnswers.get(WhatIsTheMembersNamePage)
+        dob <- request.userAnswers.get(MembersDobPage)
+        nino <- request.userAnswers.get(MembersNinoPage)
+        psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
+      } yield Future.successful(Ok(
+        view(rows(memberDetails, dob, nino, psaRefCheck), Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))
       )
+      )).getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
+  }
 
-      Ok(view(list, Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url)))
+  private def rows(memberDetails: MemberDetails, membersDob: MembersDob, membersNino: MembersNino,
+                   membersPsaCheckRef: MembersPsaCheckRef)(implicit messages: Messages): Seq[SummaryListRow] = {
+    List(
+      membersFirstNameRow(memberDetails),
+      membersLastNameRow(memberDetails),
+      membersDobRow(membersDob),
+      membersNinoRow(membersNino),
+      membersPsaCheckRefRow(membersPsaCheckRef)
+    )
   }
 }
