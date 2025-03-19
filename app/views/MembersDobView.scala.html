@@ -34,7 +34,7 @@
 
 @layout(pageTitle = title(form, s"${messages("membersDob.title", name)}"), backLinkUrl = viewModel.backLinkUrl) {
 
-    @formHelper(action = viewModel.onSubmit) {
+    @formHelper(action = viewModel.onSubmit, Symbol("autoComplete") -> "off") {
 
         @if(form.hasErrors) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
