@@ -28,14 +28,14 @@ object CheckYourAnswersSummary {
     SummaryListRow(
       key = Key(content = Text(messages("membersName.firstName"))),
       value = Value(content = Text(memberDetails.firstName)),
-      classes = "",
       actions = Some(Actions(
         items = Seq(
           ActionItem(
             href = routes.WhatIsTheMembersNameController.onPageLoad(CheckMode).url + "#firstName",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersName.firstName")
-          )
+            visuallyHiddenText = Some("membersName.firstName"),
+            attributes = Map("id" -> "change-first-name")
+          ),
         )
       ))
     )
@@ -45,7 +45,6 @@ object CheckYourAnswersSummary {
     SummaryListRow(
       key = Key(content = Text(messages("membersName.lastName"))),
       value = Value(content = Text(memberDetails.lastName)),
-      classes = "",
       actions = Some(Actions(
         items = Seq(
           ActionItem(
@@ -62,7 +61,6 @@ object CheckYourAnswersSummary {
     SummaryListRow(
       key = Key(content = Text(messages("membersDob.dob"))),
       value = Value(content = Text(membersDob.dob)),
-      classes = "",
       actions = Some(Actions(
         items = Seq(
           ActionItem(
@@ -79,7 +77,6 @@ object CheckYourAnswersSummary {
     SummaryListRow(
       key = Key(content = Text(messages("membersNino.nino"))),
       value = Value(content = Text(membersNino.nino)),
-      classes = "",
       actions = Some(Actions(
         items = Seq(
           ActionItem(
@@ -96,7 +93,6 @@ object CheckYourAnswersSummary {
     SummaryListRow(
       key = Key(content = Text(messages("membersPsaCheckRef.pensionSchemeAdminCheckRef"))),
       value = Value(content = Text(membersPsaCheckRef.psaCheckRef)),
-      classes = "",
       actions = Some(Actions(
         items = Seq(
           ActionItem(
