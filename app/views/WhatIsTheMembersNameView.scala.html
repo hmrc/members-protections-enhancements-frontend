@@ -33,7 +33,7 @@ govukButton: GovukButton
 
 @layout(pageTitle = title(form, messages("membersName.title")), backLinkUrl = viewModel.backLinkUrl) {
 
-    @formHelper(action = viewModel.onSubmit) {
+    @formHelper(action = viewModel.onSubmit, Symbol("autoComplete") -> "off") {
 
         @if(form.hasErrors) {
         @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -47,6 +47,7 @@ govukButton: GovukButton
                label = LabelViewModel("membersName.firstName").withCssClass(LabelSize.Small.toString)
              )
              .withWidth(Fixed20)
+             .withAutocomplete("given-name")
          )
 
          @govukInput(
@@ -55,6 +56,7 @@ govukButton: GovukButton
               label = LabelViewModel("membersName.lastName").withCssClass(LabelSize.Small.toString)
            )
            .withWidth(Fixed20)
+           .withAutocomplete("family-name")
          )
 
         @govukButton(

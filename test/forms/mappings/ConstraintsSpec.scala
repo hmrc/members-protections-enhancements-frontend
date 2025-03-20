@@ -177,7 +177,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
 
       val gen: Gen[(LocalDate, LocalDate)] = for {
         min  <- datesBetween(LocalDate.of(2000, 1, 2), LocalDate.of(3000, 1, 1))
-        date <- datesBetween(LocalDate.of(2000, 1, 1), min.minusDays(1))
+        date <- datesBetween(LocalDate.of(1900, 1, 1), min)
       } yield (min, date)
 
       forAll(gen) {
