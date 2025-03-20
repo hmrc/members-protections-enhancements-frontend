@@ -50,7 +50,8 @@ object CheckYourAnswersSummary {
           ActionItem(
             href = routes.WhatIsTheMembersNameController.onPageLoad(CheckMode).url + "#lastName",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersName.lastName")
+            visuallyHiddenText = Some("membersName.lastName"),
+            attributes = Map("id" -> "change-last-name")
           )
         )
       ))
@@ -66,7 +67,8 @@ object CheckYourAnswersSummary {
           ActionItem(
             href = routes.MembersDobController.onPageLoad(CheckMode).url + "#dateOfBirth",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersDob.dob")
+            visuallyHiddenText = Some("membersDob.dob"),
+            attributes = Map("id" -> "change-dob")
           )
         )
       ))
@@ -82,7 +84,8 @@ object CheckYourAnswersSummary {
           ActionItem(
             href = routes.MembersNinoController.onPageLoad(CheckMode).url + "#nino",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersNino.nino")
+            visuallyHiddenText = Some("membersNino.nino"),
+            attributes = Map("id" -> "change-nino")
           )
         )
       ))
@@ -98,7 +101,8 @@ object CheckYourAnswersSummary {
           ActionItem(
             href = routes.MembersPsaCheckRefController.onPageLoad(CheckMode).url + "#psaCheckRef",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersPsaCheckRef.pensionSchemeAdminCheckRef")
+            visuallyHiddenText = Some("membersPsaCheckRef.pensionSchemeAdminCheckRef"),
+            attributes = Map("id" -> "change-pensionSchemeAdminCheckRef")
           )
         )
       ))
