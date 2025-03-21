@@ -10,6 +10,7 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
+site.acceptAndSubmit = Accept and submit
 
 date.day = Day
 date.month = Month
@@ -31,8 +32,8 @@ index.title = members-protections-and-enhancements
 index.heading = members-protections-and-enhancements
 index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
 
-checkYourAnswers.title = Check your answers
-checkYourAnswers.heading = Check your answers
+checkYourAnswers.title = Check {0}'''s details
+checkYourAnswers.heading = Check {0}'''s details
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
@@ -70,6 +71,7 @@ membersName.lastName.error.length = The member''s last name must be 35 character
 membersDob.title = What is {0}''s date of birth?
 membersDob.heading = What is {0}''s date of birth?
 membersDob.hint = For example, 27 03 2007
+membersDob.dob = Date of birth
 membersDob.error.invalid = Please enter a valid member''s date of birth
 membersDob.error.required.day = Enter a day of birth
 membersDob.error.invalid.day = Enter a valid day. A day should be in between 1 to 31
@@ -83,11 +85,16 @@ membersDob.error.dateOfBirth.startYear = The date of birth must be after 1900
 membersNino.title = What is {0}''s National Insurance number?
 membersNino.heading = What is {0}''s National Insurance number?
 membersNino.hint = For example, QQ 12 34 56 C
+membersNino.nino = National Insurance number
 membersNino.error.required = Enter a National Insurance number
 membersNino.error.invalid = Please enter the member''s National Insurance number in a valid format
 
 membersPsaCheckRef.title = What is {0}''s pension scheme administrator check reference?
 membersPsaCheckRef.heading = What is {0}''s pension scheme administrator check reference?
 membersPsaCheckRef.hint = For example, PSA12345678A
+membersPsaCheckRef.pensionSchemeAdminCheckRef = Pension scheme administrator check reference
 membersPsaCheckRef.error.required = Enter a pension scheme administrator check reference
 membersPsaCheckRef.error.invalid = Please enter the member''s pension scheme administrator check reference in a valid format
+
+results.title = Results
+results.heading = Results
