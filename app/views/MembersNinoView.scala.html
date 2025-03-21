@@ -33,21 +33,20 @@
 
 @layout(pageTitle = title(form, s"${messages("membersNino.title", name)}"), backLinkUrl = viewModel.backLinkUrl) {
 
-   @formHelper(action = viewModel.onSubmit) {
+   @formHelper(action = viewModel.onSubmit, Symbol("autoComplete") -> "off") {
 
         @if(form.hasErrors) {
            @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @heading(s"${messages("membersNino.heading", name)}")
-
         @govukInput(
            InputViewModel(
                 field = form("nino"),
-                label = Label()
+                label = LabelViewModel(s"${messages("membersNino.heading", name)}").asPageHeading().withCssClass("govuk-label--l")
            )
            .withWidth(Fixed10)
            .withHint(HintViewModel(Text(messages("membersNino.hint"))))
+           .withAutocomplete("on")
            )
 
         @govukButton(
