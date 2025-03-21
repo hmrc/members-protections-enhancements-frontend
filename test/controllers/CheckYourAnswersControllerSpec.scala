@@ -58,7 +58,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
         val backLinkRoute = routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, Some(backLinkRoute))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "Pearl Harvey", Some(backLinkRoute))(request, messages(application)).toString
       }
     }
 

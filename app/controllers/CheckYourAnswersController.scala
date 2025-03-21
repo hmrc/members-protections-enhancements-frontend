@@ -44,7 +44,7 @@ class CheckYourAnswersController @Inject()(
         nino <- request.userAnswers.get(MembersNinoPage)
         psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
       } yield Future.successful(Ok(
-        view(rows(memberDetails, dob, nino, psaRefCheck), Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))
+        view(rows(memberDetails, dob, nino, psaRefCheck), memberDetails.fullName, Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))
       )
       )).getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
   }

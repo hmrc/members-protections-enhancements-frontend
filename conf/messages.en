@@ -32,8 +32,8 @@ index.title = members-protections-and-enhancements
 index.heading = members-protections-and-enhancements
 index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
 
-checkYourAnswers.title = Check your answers
-checkYourAnswers.heading = Check your answers
+checkYourAnswers.title = Check {0}'''s details
+checkYourAnswers.heading = Check {0}'''s details
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service

@@ -24,18 +24,19 @@
     govukButton: GovukButton
 )
 
-@(summaryList: Seq[SummaryListRow], backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
+@(summaryList: Seq[SummaryListRow], name: String, backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title")), backLinkUrl = backLinkUrl) {
+@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title", name)), backLinkUrl = backLinkUrl) {
 
-    @heading("checkYourAnswers.heading")
+    @heading(s"${messages("checkYourAnswers.heading", name)}")
 
     @govukSummaryList(SummaryList(summaryList))
 
-<p class="govuk-body">
-    @govukButton(
-    ButtonViewModel(messages("site.acceptAndSubmit"))
-    .asLink(routes.ResultsController.onPageLoad().url)
-    )
-</p>
+    <p class="govuk-body">
+        @govukButton(
+        ButtonViewModel(messages("site.acceptAndSubmit"))
+        .asLink(routes.ResultsController.onPageLoad().url)
+        )
+    </p>
+
 }

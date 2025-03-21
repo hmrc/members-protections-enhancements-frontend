@@ -34,7 +34,7 @@ class CheckYourAnswersViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("Check your answers")
+      view.getElementsByTag("h1").text() mustBe messages(app)("Check Pearl Harvey's details")
 
       view.html.contains(messages(app)("checkYourAnswers.title"))
       view.html.contains(messages(app)("membersName.firstName"))
@@ -62,7 +62,7 @@ class CheckYourAnswersViewSpec extends SpecBase {
     private val backLinkUrl = routes.MembersPsaCheckRefController.onSubmit(NormalMode).url
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[CheckYourAnswersView].apply(summaryList, Some(backLinkUrl)).body
+      Jsoup.parse(app.injector.instanceOf[CheckYourAnswersView].apply(summaryList, "Pearl Harvey", Some(backLinkUrl)).body
       )
   }
 }
