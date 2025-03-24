@@ -37,3 +37,5 @@ GET         /members-pension-scheme-administrator-check-reference               
 POST        /members-pension-scheme-administrator-check-reference               controllers.MembersPsaCheckRefController.onSubmit(mode: Mode = NormalMode)
 GET         /change-members-pension-scheme-administrator-check-reference        controllers.MembersPsaCheckRefController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-members-pension-scheme-administrator-check-reference        controllers.MembersPsaCheckRefController.onSubmit(mode: Mode = CheckMode)
+
+GET         /results                                                            controllers.ResultsController.onPageLoad()

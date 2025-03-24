@@ -15,18 +15,29 @@
  *@
 
 @import views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 
 @this(
     layout: templates.Layout,
     govukSummaryList: GovukSummaryList,
-    heading: h1
+    heading: h1,
+    govukButton: GovukButton
 )
 
-@(list: SummaryList, backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
+@(summaryList: Seq[SummaryListRow], name: String, backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title")), backLinkUrl = backLinkUrl) {
+@layout(pageTitle = titleNoForm(messages("checkYourAnswers.title", name)), backLinkUrl = backLinkUrl) {
 
-    @heading("checkYourAnswers.heading")
+    @heading(s"${messages("checkYourAnswers.heading", name)}")
 
-    @govukSummaryList(list)
+    @govukSummaryList(SummaryList(summaryList))
+
+    <p class="govuk-body">
+        @govukButton(
+        ButtonViewModel(messages("site.acceptAndSubmit"))
+        .asLink(routes.ResultsController.onPageLoad().url)
+        .withCssClass("govuk-!-margin-top-6")
+        )
+    </p>
+
 }

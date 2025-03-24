@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +12,19 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models
+@import views.html.components._
 
-import play.api.libs.json.{Format, Json}
+@this(
+layout: templates.Layout,
+heading: h1
+)
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+@(backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
 
-case class MembersDob(day: Int, month: Int, year: Int) {
-  private val date: LocalDate = LocalDate.of(year, month, day)
-  val dob: String = date.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
-}
+@layout(pageTitle = titleNoForm(messages("results.title")), backLinkUrl = backLinkUrl) {
 
-object MembersDob {
-  implicit val format: Format[MembersDob] = Json.format[MembersDob]
+   @heading("results.heading")
+
 }
