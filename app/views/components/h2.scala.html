@@ -14,24 +14,16 @@
  * limitations under the License.
  *@
 
-@import views.html.components._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
+@this()
 
-@this(
-layout: templates.Layout,
-heading: h1,
-h2: h2,
-govukTable: GovukTable
-)
+@(
+ msgKey: String,
+ id: Option[String] = None,
+ headingArgs: Option[String] = None,
+ extraHeadingClasses: String = "",
+ headerSize: String = "m"
+)(implicit messages: Messages)
 
-@(table: Seq[Seq[TableRow]], backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
-
-@layout(pageTitle = titleNoForm(messages("results.title")), backLinkUrl = backLinkUrl) {
-
-   @heading("results.heading", headerSize = "xl")
-
-   @h2("results.h2")
-
-   @govukTable(Table(table))
-
-}
+<h2 class=@{s"govuk-heading-$headerSize $extraHeadingClasses"}>
+ @{headingArgs.fold(messages(msgKey))(messages(msgKey, _))}
+</h2>
