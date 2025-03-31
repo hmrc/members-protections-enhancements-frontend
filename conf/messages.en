@@ -63,8 +63,8 @@ membersName.firstName = First name
 membersName.lastName = Last name
 membersName.firstName.error.required = Enter the member''s first name
 membersName.lastName.error.required = Enter the member''s last name
-membersName.firstName.error.invalid = Please enter the member''s first name in a valid format
-membersName.lastName.error.invalid = Please enter the member''s last name in a valid format
+membersName.firstName.error.invalid = Enter the member''s first name in a valid format
+membersName.lastName.error.invalid = Enter the member''s last name in a valid format
 membersName.firstName.error.length = The member''s first name must be 35 characters or fewer
 membersName.lastName.error.length = The member''s last name must be 35 characters or fewer
 
@@ -72,14 +72,14 @@ membersDob.title = What is {0}''s date of birth?
 membersDob.heading = What is {0}''s date of birth?
 membersDob.hint = For example, 27 03 2007
 membersDob.dob = Date of birth
-membersDob.error.invalid = Please enter a valid member''s date of birth
+membersDob.error.invalid = Enter a valid member''s date of birth
 membersDob.error.required.day = Enter a day of birth
 membersDob.error.invalid.day = Enter a valid day. A day should be in between 1 to 31
 membersDob.error.required.month = Enter a month of birth
 membersDob.error.invalid.month = Enter a valid month. A month should be in between 1 to 12
 membersDob.error.required.year = Enter a year of birth
 membersDob.error.invalid.year = Enter a valid year. A year should be in between 1900 and current year
-membersDob.error.dateOfBirth.maxDate = The date of birth must be before today
+membersDob.error.dateOfBirth.maxDate = The date of birth must be before the current date
 membersDob.error.dateOfBirth.startYear = The date of birth must be after 1900
 
 membersNino.title = What is {0}''s National Insurance number?
@@ -87,14 +87,14 @@ membersNino.heading = What is {0}''s National Insurance number?
 membersNino.hint = For example, QQ 12 34 56 C
 membersNino.nino = National Insurance number
 membersNino.error.required = Enter a National Insurance number
-membersNino.error.invalid = Please enter the member''s National Insurance number in a valid format
+membersNino.error.invalid = Enter the member''s National Insurance number in a valid format
 
 membersPsaCheckRef.title = What is {0}''s pension scheme administrator check reference?
 membersPsaCheckRef.heading = What is {0}''s pension scheme administrator check reference?
-membersPsaCheckRef.hint = For example, PSA12345678A
+membersPsaCheckRef.hint = For example, PSA 12 34 56 78 A
 membersPsaCheckRef.pensionSchemeAdminCheckRef = Pension scheme administrator check reference
 membersPsaCheckRef.error.required = Enter a pension scheme administrator check reference
-membersPsaCheckRef.error.invalid = Please enter the member''s pension scheme administrator check reference in a valid format
+membersPsaCheckRef.error.invalid = Enter the member''s pension scheme administrator check reference in a valid format
 
 results.title = Results
 results.heading = Results

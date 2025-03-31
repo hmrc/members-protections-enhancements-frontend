@@ -22,4 +22,9 @@ case class MembersPsaCheckRef(psaCheckRef: String)
 
 object MembersPsaCheckRef {
   implicit val format: Format[MembersPsaCheckRef] = Json.format[MembersPsaCheckRef]
+
+  def apply(psaCheckRef: String): MembersPsaCheckRef = {
+    val ref = psaCheckRef.filterNot(_.isWhitespace).splitAt(3)
+    new MembersPsaCheckRef(s"${ref._1} ${ref._2.replaceAll("..(?!$)", "$0 ")}")
+  }
 }

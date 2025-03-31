@@ -25,7 +25,7 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.data.validation.{Invalid, Valid}
 
-class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators  with Constraints {
+class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with Constraints {
 
 
   "firstError" - {
@@ -127,30 +127,27 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
 
     "must return Valid for a date before or equal to the maximum" in {
 
-      val gen: Gen[(LocalDate, LocalDate)] = for {
-        max  <- datesBetween(LocalDate.of(2000, 1, 1), LocalDate.of(3000, 1, 1))
-        date <- datesBetween(LocalDate.of(2000, 1, 1), max)
-      } yield (max, date)
+      val gen: Gen[LocalDate] = for {
+        date <- datesBetween(LocalDate.of(2000, 1, 1), maxDate)
+      } yield date
 
       forAll(gen) {
-        case (max, date) =>
+        date =>
 
-          val result = maxDate(max, "error.future")(toMembersDob(date))
+          val result = maxDate("error.future")(toMembersDob(date))
           result mustEqual Valid
       }
     }
 
     "must return Invalid for a date after the maximum" in {
 
-      val gen: Gen[(LocalDate, LocalDate)] = for {
-        max  <- datesBetween(LocalDate.of(2000, 1, 1), LocalDate.of(3000, 1, 1))
-        date <- datesBetween(max.plusDays(1), LocalDate.of(3000, 1, 2))
-      } yield (max, date)
+      val gen: Gen[LocalDate] = for {
+        date <- datesBetween(maxDate.plusDays(1), LocalDate.of(3000, 1, 2))
+      } yield date
 
       forAll(gen) {
-        case (max, date) =>
-
-          val result = maxDate(max, "error.future", "foo")(toMembersDob(date))
+        date =>
+          val result = maxDate("error.future", "foo")(toMembersDob(date))
           result mustEqual Invalid("error.future", "foo")
       }
     }
@@ -177,7 +174,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
 
       val gen: Gen[(LocalDate, LocalDate)] = for {
         min  <- datesBetween(LocalDate.of(2000, 1, 2), LocalDate.of(3000, 1, 1))
-        date <- datesBetween(LocalDate.of(1900, 1, 1), min)
+        date <- datesBetween(LocalDate.of(minYear, 1, 1), min)
       } yield (min, date)
 
       forAll(gen) {
