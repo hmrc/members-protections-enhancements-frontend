@@ -99,4 +99,4 @@ membersPsaCheckRef.error.invalid = Enter the member''s pension scheme administra
 
 results.title = Results of your protections and enhancements check
 results.heading = Results of your protections and enhancements check
-results.h2 = Member''s details
+results.memberDetails.heading = Member''s details

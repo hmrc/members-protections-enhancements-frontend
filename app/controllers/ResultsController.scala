@@ -44,12 +44,12 @@ class ResultsController @Inject()(
         nino <- request.userAnswers.get(MembersNinoPage)
         psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
       } yield Future.successful(Ok(
-        view(rows(memberDetails, dob, nino, psaRefCheck), Some(routes.CheckYourAnswersController.onPageLoad().url))
+        view(resultsTable(memberDetails, dob, nino, psaRefCheck), Some(routes.CheckYourAnswersController.onPageLoad().url))
       )
       )).getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
   }
 
-  private def rows(memberDetails: MemberDetails, membersDob: MembersDob, membersNino: MembersNino,
+  private def resultsTable(memberDetails: MemberDetails, membersDob: MembersDob, membersNino: MembersNino,
                    membersPsaCheckRef: MembersPsaCheckRef)(implicit messages: Messages): Seq[Seq[TableRow]] = {
     List(
       membersNameRow(memberDetails),

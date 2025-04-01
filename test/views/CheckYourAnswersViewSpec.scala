@@ -59,7 +59,7 @@ class CheckYourAnswersViewSpec extends SpecBase {
       membersNinoRow(MembersNino("AB123456A")),
       membersPsaCheckRefRow(MembersPsaCheckRef("PSA12345678A"))
     )
-    private val backLinkUrl = routes.MembersPsaCheckRefController.onSubmit(NormalMode).url
+     val backLinkUrl: String = routes.MembersPsaCheckRefController.onSubmit(NormalMode).url
 
     val view: Document =
       Jsoup.parse(app.injector.instanceOf[CheckYourAnswersView].apply(summaryList, "Pearl Harvey", Some(backLinkUrl)).body
