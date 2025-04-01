@@ -25,8 +25,6 @@ import java.time.LocalDate
 
 trait Mappings extends Formatters with Constraints {
 
-  val startYear: Int = 1900
-
   protected def text(errorKey: String = "error.required", args: Seq[String] = Seq.empty): FieldMapping[String] =
     of(stringFormatter(errorKey, args))
 
@@ -63,7 +61,7 @@ trait Mappings extends Formatters with Constraints {
       "month" -> int(requiredKey = "membersDob.error.required.month", wholeNumberKey = "membersDob.error.invalid.month",
         nonNumericKey = "membersDob.error.invalid.month").verifying("membersDob.error.invalid.month", m => m > 0 && m < 13),
       "year" -> int(requiredKey = "membersDob.error.required.year", wholeNumberKey = "membersDob.error.invalid.year", nonNumericKey
-      = "membersDob.error.invalid.year").verifying("membersDob.error.invalid.year", y => y >= 1900 && y < LocalDate.now().getYear)
+      = "membersDob.error.invalid.year").verifying("membersDob.error.invalid.year", y => y >= minYear && y <= maxDate.getYear)
     )(MembersDob.apply)(MembersDob.unapply)
   }
 

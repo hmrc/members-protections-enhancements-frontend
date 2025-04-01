@@ -25,6 +25,9 @@ import scala.util.Try
 
 trait Constraints {
 
+  val minYear: Int = 1900
+  val maxDate: LocalDate = LocalDate.now()
+
   protected def firstError[A](constraints: Constraint[A]*): Constraint[A] =
     Constraint {
       input =>
@@ -89,12 +92,18 @@ trait Constraints {
         Invalid(errorKey, maximum)
     }
 
-  protected def maxDate(maximum: LocalDate, errorKey: String, args: Any*): Constraint[MembersDob] =
+  protected def maxDate(errorKey: String, args: Any*): Constraint[MembersDob] =
     Constraint {
-      case membersDob if toLocalDate(membersDob).isAfter(maximum) =>
+      case membersDob if isFutureDate(membersDob) =>
         Invalid(errorKey, args: _*)
       case _ =>
         Valid
+    }
+
+  protected def validDate(errorKey: String, args: Any*): Constraint[MembersDob] =
+    Constraint {
+      case membersDob if isValidDate(membersDob) => Valid
+      case _ => Invalid(errorKey, args: _*)
     }
 
   protected def minDate(minimum: Int, errorKey: String, args: Any*): Constraint[MembersDob] =
@@ -113,15 +122,17 @@ trait Constraints {
         Invalid(errorKey)
     }
 
-  protected def toLocalDate(input: MembersDob): LocalDate = {
+  private def toLocalDate(input: MembersDob): LocalDate =
     LocalDate.of(input.year, input.month, input.day)
-  }
 
-  protected def validDate(input: MembersDob): Boolean = {
-    Try(toLocalDate(input)).isSuccess
-  }
+  private def isValidDate(input: MembersDob): Boolean = Try(LocalDate.of(input.year, input.month, input.day)).isSuccess
+
+  private def isFutureDate(input: MembersDob): Boolean =
+    if(isValidDate(input) && toLocalDate(input).isAfter(maxDate)){ true }
+    else { false }
 
   protected def toMembersDob(input: LocalDate): MembersDob = {
     MembersDob(input.getDayOfMonth, input.getMonthValue, input.getYear)
   }
+
 }
