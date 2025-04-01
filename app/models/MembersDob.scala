@@ -22,8 +22,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 case class MembersDob(day: Int, month: Int, year: Int) {
-  private val date: LocalDate = LocalDate.of(year, month, day)
-  val dob: String = date.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
+  private lazy val date: LocalDate = LocalDate.of(year, month, day)
+  lazy val dob: String = date.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
 }
 
 object MembersDob {
