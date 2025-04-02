@@ -24,7 +24,7 @@ h2: h2,
 govukTable: GovukTable
 )
 
-@(table: Seq[Seq[TableRow]], backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
+@(table: Seq[Seq[TableRow]], backLinkUrl: Option[String], formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("results.title")), backLinkUrl = backLinkUrl) {
 
@@ -33,5 +33,19 @@ govukTable: GovukTable
    @h2("results.memberDetails.heading")
 
    @govukTable(Table(table))
+
+    @h2("results.relatedContent")
+
+    <ul>
+        <li><a href="" class="govuk-link">@messages("results.mpsDashboard")</a></li>
+        <li><a href="" class="govuk-link">@messages("results.checkAnotherMpe")</a></li>
+        <li><a href="" class="govuk-link">@messages("results.moreInfo")</a></li>
+    </ul>
+
+    <p class="govuk-table__header">@messages("results.checkedOn")</p>
+
+    <p class="govuk-body" id="print-link">
+        <a class="govuk-link" href="#" data-module="hmrc-print-link" data-journey-click="mpe:click:print">@messages("site.print")</a>
+    </p>
 
 }

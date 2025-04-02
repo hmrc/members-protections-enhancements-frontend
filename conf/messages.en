@@ -11,6 +11,7 @@ site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
 site.acceptAndSubmit = Accept and submit
+site.print = Print this page
 
 date.day = Day
 date.month = Month
@@ -100,3 +101,8 @@ membersPsaCheckRef.error.invalid = Enter the member''s pension scheme administra
 results.title = Results of your protections and enhancements check
 results.heading = Results of your protections and enhancements check
 results.memberDetails.heading = Member''s details
+results.relatedContent = Related content
+results.mpsDashboard = MPS dashboard
+results.checkAnotherMpe = Check another member's protections and enhancements
+results.moreInfo = More information on pension protections
+results.checkedOn =  Checked on

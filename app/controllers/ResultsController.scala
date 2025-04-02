@@ -26,36 +26,45 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 import viewmodels.checkYourAnswers.ResultsSummary._
 import views.html.ResultsView
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import scala.concurrent.Future
 
 class ResultsController @Inject()(
-                                              override val messagesApi: MessagesApi,
-                                              identify: IdentifierAction,
-                                              getData: DataRetrievalAction,
-                                              val controllerComponents: MessagesControllerComponents,
-                                              view: ResultsView
-                                            ) extends MpeBaseController(identify, getData) {
+                                   override val messagesApi: MessagesApi,
+                                   identify: IdentifierAction,
+                                   getData: DataRetrievalAction,
+                                   val controllerComponents: MessagesControllerComponents,
+                                   view: ResultsView
+                                 ) extends MpeBaseController(identify, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle {
     implicit request =>
+
       (for {
         memberDetails <- request.userAnswers.get(WhatIsTheMembersNamePage)
         dob <- request.userAnswers.get(MembersDobPage)
         nino <- request.userAnswers.get(MembersNinoPage)
         psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
       } yield Future.successful(Ok(
-        view(resultsTable(memberDetails, dob, nino, psaRefCheck), Some(routes.CheckYourAnswersController.onPageLoad().url))
+        view(resultsTable(memberDetails, dob, nino, psaRefCheck), Some(routes.CheckYourAnswersController.onPageLoad().url), getFormattedTimestamp)
       )
       )).getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
   }
 
   private def resultsTable(memberDetails: MemberDetails, membersDob: MembersDob, membersNino: MembersNino,
-                   membersPsaCheckRef: MembersPsaCheckRef)(implicit messages: Messages): Seq[Seq[TableRow]] = {
+                           membersPsaCheckRef: MembersPsaCheckRef)(implicit messages: Messages): Seq[Seq[TableRow]] = {
     List(
       membersNameRow(memberDetails),
       membersDobRow(membersDob),
       membersNinoRow(membersNino),
       membersPsaCheckRefRow(membersPsaCheckRef)
     )
+  }
+
+  private def getFormattedTimestamp: String = {
+    val timeStamp = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
+    timeStamp.format(formatter)
   }
 }

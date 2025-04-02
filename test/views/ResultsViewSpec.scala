@@ -40,8 +40,11 @@ class ResultsViewSpec extends SpecBase {
       view.html.contains(messages(app)("membersName.name"))
       view.html.contains(messages(app)("membersDob.dob"))
       view.html.contains(messages(app)("membersNino.nino"))
-      view.html.contains(messages(app)("membersPsaCheckRef.pensionSchemeAdminCheckRef"))
-
+      view.html.contains(messages(app)("results.relatedContent"))
+      view.html.contains(messages(app)("results.mpsDashboard"))
+      view.html.contains(messages(app)("results.checkAnotherMpe"))
+      view.html.contains(messages(app)("results.moreInfo"))
+      view.html.contains(messages(app)("results.checkedOn"))
     }
   }
 
@@ -60,9 +63,11 @@ class ResultsViewSpec extends SpecBase {
 
     val backLinkUrl: String = routes.MembersPsaCheckRefController.onSubmit(NormalMode).url
 
+    val localDateTime: String = "02 April 2025 at 15:12"
+
     // Needs value for Backlink url when this page in Implementation
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[ResultsView].apply(memberDetails, Some(backLinkUrl)).body
+      Jsoup.parse(app.injector.instanceOf[ResultsView].apply(memberDetails, Some(backLinkUrl), localDateTime).body
       )
   }
 

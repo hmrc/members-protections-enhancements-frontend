@@ -55,9 +55,10 @@ class ResultsControllerSpec extends SpecBase {
         )
 
         val backLinkRoute = routes.CheckYourAnswersController.onPageLoad().url
+        val localDateTime: String = "02 April 2025 at 15:12"
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(memberDetails, Some(backLinkRoute))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(memberDetails, Some(backLinkRoute), localDateTime)(request, messages(application)).toString
       }
     }
 
