@@ -34,7 +34,7 @@ govukTable: GovukTable
 
    @govukTable(Table(table))
 
-    @h2("results.relatedContent")
+   @h2("results.relatedContent")
 
     <ul>
         <li><a href="" class="govuk-link">@messages("results.mpsDashboard")</a></li>
@@ -42,7 +42,15 @@ govukTable: GovukTable
         <li><a href="" class="govuk-link">@messages("results.moreInfo")</a></li>
     </ul>
 
-    <p class="govuk-table__header">@messages("results.checkedOn")</p>
+    <table class="govuk-table">
+        <tbody class="govuk-table__body">
+            <tr class="govuk-table__row">
+                <th scope="row" class="govuk-table__header">@messages("results.checkedOn")</th>
+                <td class="govuk-table__cell" style="text-align: right;">@formattedTimestamp</td>
+            </tr>
+        </tbody>
+    </table>
+
 
     <p class="govuk-body" id="print-link">
         <a class="govuk-link" href="#" data-module="hmrc-print-link" data-journey-click="mpe:click:print">@messages("site.print")</a>
