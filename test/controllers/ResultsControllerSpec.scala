@@ -26,6 +26,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 import viewmodels.checkYourAnswers.ResultsSummary._
 import views.html.ResultsView
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 class ResultsControllerSpec extends SpecBase {
 
   "Results Controller" - {
@@ -55,7 +58,9 @@ class ResultsControllerSpec extends SpecBase {
         )
 
         val backLinkRoute = routes.CheckYourAnswersController.onPageLoad().url
-        val localDateTime: String = "02 April 2025 at 15:12"
+        val localTime: LocalDateTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
+        val localDateTime = localTime.format(formatter)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(memberDetails, Some(backLinkRoute), localDateTime)(request, messages(application)).toString

@@ -34,14 +34,6 @@ govukTable: GovukTable
 
    @govukTable(Table(table))
 
-   @h2("results.relatedContent")
-
-    <ul>
-        <li><a href="" class="govuk-link">@messages("results.mpsDashboard")</a></li>
-        <li><a href="" class="govuk-link">@messages("results.checkAnotherMpe")</a></li>
-        <li><a href="" class="govuk-link">@messages("results.moreInfo")</a></li>
-    </ul>
-
     <table class="govuk-table">
         <tbody class="govuk-table__body">
             <tr class="govuk-table__row">
@@ -55,5 +47,20 @@ govukTable: GovukTable
     <p class="govuk-body" id="print-link">
         <a class="govuk-link" href="#" data-module="hmrc-print-link" data-journey-click="mpe:click:print">@messages("site.print")</a>
     </p>
+
+<!--</div>-->
+<!--<div class="govuk-grid-column-one-third">-->
+<!--    <aside class="app-related-items" role="complementary">-->
+<!--        <hr class="custom-hr custom-hr&#45;&#45;heavy govuk-!-margin-bottom-9">-->
+<!--        @h2("results.relatedContent")-->
+<!--        <nav role="navigation" aria-labelledby="subsection-title">-->
+<!--            <ul class="govuk-list govuk-!-font-size-16">-->
+<!--                <li><a href="" class="govuk-link">@messages("results.mpsDashboard")</a></li>-->
+<!--                <li><a href="/members-protections-and-enhancements" class="govuk-link">@messages("results.checkAnotherMpe")</a></li>-->
+<!--                <li><a href="https://www.gov.uk/guidance/taking-higher-tax-free-lump-sums-with-lifetime-allowance-protection" class="govuk-link">@messages("results.moreInfo")</a></li>-->
+<!--            </ul>-->
+<!--        </nav>-->
+<!--    </aside>-->
+<!--</div>-->
 
 }
