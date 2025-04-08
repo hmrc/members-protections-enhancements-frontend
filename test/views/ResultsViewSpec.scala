@@ -65,7 +65,6 @@ class ResultsViewSpec extends SpecBase {
 
     val localDateTime: String = "02 April 2025 at 15:12"
 
-    // Needs value for Backlink url when this page in Implementation
     val view: Document =
       Jsoup.parse(app.injector.instanceOf[ResultsView].apply(memberDetails, Some(backLinkUrl), localDateTime).body
       )
