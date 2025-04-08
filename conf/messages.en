@@ -11,6 +11,7 @@ site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
 site.acceptAndSubmit = Accept and submit
+site.print = Print this page
 
 date.day = Day
 date.month = Month
@@ -59,6 +60,7 @@ checkMembersProtectionEnhancements.pension_scheme_admin_check_ref = pension sche
 
 membersName.title = What is the member''s name?
 membersName.heading = What is the member''s name?
+membersName.name = Name
 membersName.firstName = First name
 membersName.lastName = Last name
 membersName.firstName.error.required = Enter the member''s first name
@@ -96,5 +98,11 @@ membersPsaCheckRef.pensionSchemeAdminCheckRef = Pension scheme administrator che
 membersPsaCheckRef.error.required = Enter a pension scheme administrator check reference
 membersPsaCheckRef.error.invalid = Enter the member''s pension scheme administrator check reference in a valid format
 
-results.title = Results
-results.heading = Results
+results.title = Results of your protections and enhancements check
+results.heading = Results of your protections and enhancements check
+results.memberDetails.heading = Member''s details
+results.relatedContent = Related content
+results.mpsDashboard = MPS dashboard
+results.checkAnotherMpe = Check another member''s protections and enhancements
+results.moreInfo = More information on pension protections
+results.checkedOn =  Checked on
