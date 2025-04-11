@@ -26,8 +26,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 import viewmodels.checkYourAnswers.ResultsSummary._
 import views.html.ResultsView
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.{OffsetDateTime, ZoneId}
 import scala.concurrent.Future
 
 class ResultsController @Inject()(
@@ -63,8 +63,9 @@ class ResultsController @Inject()(
   }
 
   private def getFormattedTimestamp: String = {
-    val timeStamp = LocalDateTime.now()
+    val dateTime = OffsetDateTime.now(ZoneId.of("Europe/London"))
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
-    timeStamp.format(formatter)
+    formatter.format(dateTime)
   }
+
 }

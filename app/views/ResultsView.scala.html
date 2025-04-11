@@ -44,20 +44,20 @@ govukTable: GovukTable
     </table>
 
 
-    <p class="govuk-body" id="print-link">
+    <p class="govuk-body govuk-!-margin-top-9" id="print-link">
         <a class="govuk-link" href="#" data-module="hmrc-print-link" data-journey-click="mpe:click:print">@messages("site.print")</a>
     </p>
 
     </div>
     <div class="govuk-grid-column-one-third">
         <aside class="app-related-items" role="complementary">
-            <hr class="custom-hr custom-hr--heavy govuk-!-margin-bottom-4 govuk-!-margin-top-9">
+            <hr class="custom-hr custom-hr--light govuk-!-margin-bottom-4 govuk-!-margin-top-9">
             @h2("results.relatedContent")
-            <nav role="navigation" aria-labelledby="subsection-title">
+            <nav role="navigation">
                 <ul class="govuk-list govuk-!-font-size-16">
-                    <li><a href="" class="govuk-link">@messages("results.mpsDashboard")</a></li>
-                    <li><a href="/members-protections-and-enhancements" class="govuk-link">@messages("results.checkAnotherMpe")</a></li>
-                    <li><a href="https://www.gov.uk/guidance/taking-higher-tax-free-lump-sums-with-lifetime-allowance-protection" class="govuk-link">@messages("results.moreInfo")</a></li>
+                    <li><a class="govuk-link" href="">@messages("results.mpsDashboard")</a></li>
+                    <li><a class="govuk-link" href="@routes.CheckMembersProtectionEnhancementsController.onPageLoad()">@messages("results.checkAnotherMpe")</a></li>
+                    <li><a class="govuk-link" href="@messages("results.takingHigherTaxFreeLumpSumsUrl")"> @messages("results.moreInfo")</a></li>
                 </ul>
             </nav>
         </aside>
