@@ -24,7 +24,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.ResultsView
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, OffsetDateTime, ZoneId}
+import java.time.{ZoneId, ZonedDateTime}
 import scala.concurrent.Future
 
 class ResultsController @Inject()(
@@ -49,16 +49,10 @@ class ResultsController @Inject()(
       )).getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
   }
 
-//  private def getFormattedTimestamp: String = {
-//    val dateTime = OffsetDateTime.now(ZoneId.of("Europe/London"))
-//    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
-//    formatter.format(dateTime)
-//  }
-
   private def getFormattedTimestamp: String = {
-    val dateTimeWithZone = LocalDateTime.now(ZoneId.of("Europe/London"))
+    val dateTimeWithZone = ZonedDateTime.now(ZoneId.of("Europe/London"))
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
     formatter.format(dateTimeWithZone)
   }
-  
+
 }
