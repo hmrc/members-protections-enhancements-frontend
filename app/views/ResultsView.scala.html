@@ -15,16 +15,19 @@
  *@
 
 @import views.html.components._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 
 @this(
 layout: templates.Layout,
 heading: h1,
-h2: h2,
-govukTable: GovukTable
+h2: h2
 )
 
-@(table: Seq[Seq[TableRow]], backLinkUrl: Option[String], formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
+@(memberDetails: MemberDetails,
+membersDob: MembersDob,
+membersNino: MembersNino,
+membersPsaCheckRef: MembersPsaCheckRef,
+backLinkUrl: Option[String],
+formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("results.title")), backLinkUrl = backLinkUrl) {
 
@@ -32,7 +35,26 @@ govukTable: GovukTable
 
    @h2("results.memberDetails.heading")
 
-   @govukTable(Table(table))
+    <table class="govuk-table">
+        <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">@messages("membersName.name")</th>
+            <td class="govuk-table__cell">@memberDetails.fullName</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">@messages("membersDob.dob")</th>
+            <td class="govuk-table__cell">@membersDob.dob</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">@messages("membersNino.nino")</th>
+            <td class="govuk-table__cell">@membersNino.nino</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">@messages("membersPsaCheckRef.pensionSchemeAdminCheckRef")</th>
+            <td class="govuk-table__cell">@membersPsaCheckRef.psaCheckRef</td>
+        </tr>
+        </tbody>
+    </table>
 
     <table class="govuk-table">
         <tbody class="govuk-table__body">
@@ -49,13 +71,13 @@ govukTable: GovukTable
     </p>
 
     </div>
-    <div class="govuk-grid-column-one-third">
+    <div class="govuk-grid-column-one-third govuk-grid-row">
         <aside class="app-related-items" role="complementary">
             <hr class="custom-hr custom-hr--light govuk-!-margin-bottom-4 govuk-!-margin-top-9">
             @h2("results.relatedContent")
             <nav role="navigation">
                 <ul class="govuk-list govuk-!-font-size-16">
-                    <li><a class="govuk-link" href="">@messages("results.mpsDashboard")</a></li>
+                    <li><a class="govuk-link" href="#">@messages("results.mpsDashboard")</a></li>
                     <li><a class="govuk-link" href="@routes.CheckMembersProtectionEnhancementsController.onPageLoad()">@messages("results.checkAnotherMpe")</a></li>
                     <li><a class="govuk-link" href="@messages("results.takingHigherTaxFreeLumpSumsUrl")"> @messages("results.moreInfo")</a></li>
                 </ul>

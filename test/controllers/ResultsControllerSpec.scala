@@ -22,8 +22,6 @@ import pages._
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
-import viewmodels.checkYourAnswers.ResultsSummary._
 import views.html.ResultsView
 
 import java.time.LocalDateTime
@@ -50,12 +48,10 @@ class ResultsControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[ResultsView]
 
-        val memberDetails: Seq[Seq[TableRow]] = Seq(
-          membersNameRow(MemberDetails("Pearl", "Harvey")),
-          membersDobRow(MembersDob(1, 1, 2022)),
-          membersNinoRow(MembersNino("AB123456A")),
-          membersPsaCheckRefRow(MembersPsaCheckRef("PSA12345678A"))
-        )
+        val memberDetails: MemberDetails = MemberDetails("Pearl", "Harvey")
+        val membersDob: MembersDob = MembersDob(1, 1, 2022)
+        val membersNino: MembersNino = MembersNino("AB123456A")
+        val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
 
         val backLinkRoute = routes.CheckYourAnswersController.onPageLoad().url
         val localTime: LocalDateTime = LocalDateTime.now()
@@ -63,7 +59,8 @@ class ResultsControllerSpec extends SpecBase {
         val localDateTime = localTime.format(formatter)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(memberDetails, Some(backLinkRoute), localDateTime)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(memberDetails, membersDob, membersNino, membersPsaCheckRef,
+          Some(backLinkRoute), localDateTime)(request, messages(application)).toString
       }
     }
 

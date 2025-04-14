@@ -25,8 +25,6 @@ import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
-import viewmodels.checkYourAnswers.ResultsSummary.{membersDobRow, membersNameRow, membersNinoRow, membersPsaCheckRefRow}
 import views.html.ResultsView
 
 class ResultsViewSpec extends SpecBase {
@@ -54,19 +52,18 @@ class ResultsViewSpec extends SpecBase {
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
-    val memberDetails: Seq[Seq[TableRow]] = Seq(
-      membersNameRow(MemberDetails("Pearl", "Harvey")),
-      membersDobRow(MembersDob(1, 1, 2022)),
-      membersNinoRow(MembersNino("AB123456A")),
-      membersPsaCheckRefRow(MembersPsaCheckRef("PSA12345678A"))
-    )
+    val memberDetails: MemberDetails = MemberDetails("Pearl", "Harvey")
+    val membersDob: MembersDob = MembersDob(1, 1, 2022)
+    val membersNino: MembersNino = MembersNino("AB123456A")
+    val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
 
     val backLinkUrl: String = routes.MembersPsaCheckRefController.onSubmit(NormalMode).url
 
     val localDateTime: String = "02 April 2025 at 15:12"
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[ResultsView].apply(memberDetails, Some(backLinkUrl), localDateTime).body
+      Jsoup.parse(app.injector.instanceOf[ResultsView].apply(memberDetails, membersDob, membersNino, membersPsaCheckRef,
+        Some(backLinkUrl), localDateTime).body
       )
   }
 
