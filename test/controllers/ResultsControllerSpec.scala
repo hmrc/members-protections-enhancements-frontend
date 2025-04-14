@@ -19,13 +19,12 @@ package controllers
 import base.SpecBase
 import models._
 import pages._
-import play.api.i18n.Messages
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.ResultsView
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.{ZoneId, ZonedDateTime}
 
 class ResultsControllerSpec extends SpecBase {
 
@@ -42,7 +41,6 @@ class ResultsControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
-        implicit val msgs: Messages = messages(application)
 
         val result = route(application, request).value
 
@@ -54,9 +52,10 @@ class ResultsControllerSpec extends SpecBase {
         val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
 
         val backLinkRoute = routes.CheckYourAnswersController.onPageLoad().url
-        val localTime: LocalDateTime = LocalDateTime.now()
+
+        val dateTimeWithZone = ZonedDateTime.now(ZoneId.of("Europe/London"))
         val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
-        val localDateTime = localTime.format(formatter)
+        val localDateTime = dateTimeWithZone.format(formatter)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(memberDetails, membersDob, membersNino, membersPsaCheckRef,
