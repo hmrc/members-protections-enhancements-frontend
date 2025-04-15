@@ -107,3 +107,11 @@ results.checkAnotherMpe = Check another member''s protections and enhancements
 results.moreInfo = More information on pension protections
 results.checkedOn =  Checked on
 results.takingHigherTaxFreeLumpSumsUrl=https://www.gov.uk/guidance/taking-higher-tax-free-lump-sums-with-lifetime-allowance-protection
+results.summaryCardIndividualProtection = Individual protection 2014
+results.statusKey=Status
+results.statusValue=- The protection is valid and can be used
+results.protectedAmountKey=Protected amount
+results.protectedAmountValue=£1,440,321
+results.protectionReferenceNumberKey=Protection reference number
+results.protectionReferenceNumberValue=IP141234567890A
+

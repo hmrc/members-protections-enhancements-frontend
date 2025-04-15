@@ -56,6 +56,34 @@ formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
         </tbody>
     </table>
 
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">@messages("results.summaryCardIndividualProtection")</h2>
+        </div>
+        <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">@messages("results.statusKey")</dt>
+                    <dd class="govuk-summary-list__value">
+                        <strong class="govuk-tag govuk-tag--green">@Active</strong>
+                        @messages("results.statusValue")
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">@messages("results.protectedAmountKey")</dt>
+                    <dd class="govuk-summary-list__value">
+                        @messages("results.protectedAmountValue")
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">@messages("results.protectionReferenceNumberKey")</dt>
+                    <dd class="govuk-summary-list__value">
+                        @messages("results.protectionReferenceNumberValue")
+                    </dd>
+                </div>
+        </div>
+    </div>
+
     <table class="govuk-table">
         <tbody class="govuk-table__body">
             <tr class="govuk-table__row">
