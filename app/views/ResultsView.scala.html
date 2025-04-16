@@ -58,31 +58,55 @@ formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
 
     <div class="govuk-summary-card">
         <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">@messages("results.summaryCardIndividualProtection")</h2>
+            <h2 class="govuk-summary-card__title">@messages("results.individualProtectionSummaryCard")</h2>
         </div>
         <div class="govuk-summary-card__content">
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">@messages("results.statusKey")</dt>
-                    <dd class="govuk-summary-list__value">
+                    <dd class="govuk-summary-list__value" id="individualProtectionStatus">
                         <strong class="govuk-tag govuk-tag--green">@Active</strong>
-                        @messages("results.statusValue")
+                        @messages("results.individualProtectionStatusValue")
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">@messages("results.protectedAmountKey")</dt>
+                    <dt class="govuk-summary-list__key">@messages("results.protectedAmtKey")</dt>
                     <dd class="govuk-summary-list__value">
-                        @messages("results.protectedAmountValue")
+                        @messages("results.individualProtectedAmtValue")
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">@messages("results.protectionReferenceNumberKey")</dt>
+                    <dt class="govuk-summary-list__key">@messages("results.protectionRefNumKey")</dt>
                     <dd class="govuk-summary-list__value">
-                        @messages("results.protectionReferenceNumberValue")
+                        @messages("results.individualProtectionRefNumValue")
                     </dd>
                 </div>
+            </dl>
         </div>
     </div>
+
+<div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
+        <h2 class="govuk-summary-card__title">@messages("results.fixedProtectionSummaryCard")</h2>
+    </div>
+    <div class="govuk-summary-card__content">
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.statusKey")</dt>
+                <dd class="govuk-summary-list__value" id="fixedProtectionStatus">
+                    <strong class="govuk-tag govuk-tag--yellow">@Dormant</strong>
+                    @messages("results.fixedProtectionStatusValue")
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.protectionRefNumKey")</dt>
+                <dd class="govuk-summary-list__value">
+                    @messages("results.fixedProtectionRefNumValue")
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
 
     <table class="govuk-table">
         <tbody class="govuk-table__body">
