@@ -43,6 +43,28 @@ class ResultsViewSpec extends SpecBase {
       view.html.contains(messages(app)("results.checkAnotherMpe"))
       view.html.contains(messages(app)("results.moreInfo"))
       view.html.contains(messages(app)("results.checkedOn"))
+      view.html.contains(messages(app)("site.print"))
+
+      view.html.contains(messages(app)("results.takingHigherTaxFreeLumpSumsUrl"))
+      view.html.contains(messages(app)("results.statusKey"))
+      view.html.contains(messages(app)("results.protectedAmtKey"))
+      view.html.contains(messages(app)("results.protectionRefNumKey"))
+      view.html.contains(messages(app)("results.lumpSumKey"))
+      view.html.contains(messages(app)("results.factorKey"))
+
+      view.html.contains(messages(app)("results.individualProtectionSummaryCard"))
+      view.html.contains(messages(app)("results.individualProtectionStatusValue"))
+      view.html.contains(messages(app)("results.individualProtectedAmtValue"))
+      view.html.contains(messages(app)("results.individualProtectionRefNumValue"))
+
+      view.html.contains(messages(app)("results.fixedProtectionSummaryCard"))
+      view.html.contains(messages(app)("results.fixedProtectionStatusValue"))
+      view.html.contains(messages(app)("results.fixedProtectionRefNumValue"))
+
+      view.html.contains(messages(app)("results.primaryProtectionSummaryCard"))
+      view.html.contains(messages(app)("results.primaryProtectionStatusValue"))
+      view.html.contains(messages(app)("results.primaryProtectionLumpSumValue"))
+      view.html.contains(messages(app)("results.primaryProtectionFactorValue"))
     }
   }
 

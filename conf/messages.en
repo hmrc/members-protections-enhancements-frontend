@@ -114,7 +114,7 @@ results.protectionRefNumKey=Protection reference number
 results.lumpSumKey=Lump sum
 results.factorKey=Factor
 
-results.individualProtectionSummaryCard = Individual protection 2014
+results.individualProtectionSummaryCard=Individual protection 2014
 results.individualProtectionStatusValue=- The protection is valid and can be used
 results.individualProtectedAmtValue=£1,440,321
 results.individualProtectionRefNumValue=IP141234567890A
