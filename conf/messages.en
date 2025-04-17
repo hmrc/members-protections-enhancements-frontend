@@ -113,6 +113,7 @@ results.protectedAmtKey=Protected amount
 results.protectionRefNumKey=Protection reference number
 results.lumpSumKey=Lump sum
 results.factorKey=Factor
+results.enhancementFactorKey=Enhancement factor
 
 results.individualProtectionSummaryCard=Individual protection 2014
 results.individualProtectionStatusValue=- The protection is valid and can be used
@@ -127,4 +128,9 @@ results.primaryProtectionSummaryCard=Primary protection
 results.primaryProtectionStatusValue=- The protection has been lost, so it is not valid
 results.primaryProtectionLumpSumValue=£34,876
 results.primaryProtectionFactorValue=0.21
+
+results.nonResidentFactorEnhancementStatusCard=Non-residence factor for a transfer from an overseas pension scheme
+results.nonResidentFactorEnhancementStatusValue=- The enhancement is valid and can be used
+results.nonResidentFactorEnhancementFactorValue=0.12
+results.nonResidentFactorEnhancementProtectionRefNumValue=IE211234567890A
 
