@@ -51,6 +51,7 @@ class ResultsViewSpec extends SpecBase {
       view.html.contains(messages(app)("results.protectionRefNumKey"))
       view.html.contains(messages(app)("results.lumpSumKey"))
       view.html.contains(messages(app)("results.factorKey"))
+      view.html.contains(messages(app)("results.enhancementFactorKey"))
 
       view.html.contains(messages(app)("results.individualProtectionSummaryCard"))
       view.html.contains(messages(app)("results.individualProtectionStatusValue"))
@@ -65,6 +66,11 @@ class ResultsViewSpec extends SpecBase {
       view.html.contains(messages(app)("results.primaryProtectionStatusValue"))
       view.html.contains(messages(app)("results.primaryProtectionLumpSumValue"))
       view.html.contains(messages(app)("results.primaryProtectionFactorValue"))
+
+      view.html.contains(messages(app)("results.nonResidentFactorEnhancementStatusCard"))
+      view.html.contains(messages(app)("results.nonResidentFactorEnhancementStatusValue"))
+      view.html.contains(messages(app)("results.nonResidentFactorEnhancementFactorValue"))
+      view.html.contains(messages(app)("results.nonResidentFactorEnhancementProtectionRefNumValue"))
     }
   }
 
