@@ -18,16 +18,13 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef}
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
-import viewmodels.checkYourAnswers.ResultsSummary._
 import views.html.ResultsView
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.{ZoneId, ZonedDateTime}
 import scala.concurrent.Future
 
 class ResultsController @Inject()(
@@ -47,24 +44,15 @@ class ResultsController @Inject()(
         nino <- request.userAnswers.get(MembersNinoPage)
         psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
       } yield Future.successful(Ok(
-        view(resultsTable(memberDetails, dob, nino, psaRefCheck), Some(routes.CheckYourAnswersController.onPageLoad().url), getFormattedTimestamp)
+        view(memberDetails, dob, nino, psaRefCheck, Some(routes.CheckYourAnswersController.onPageLoad().url), getFormattedTimestamp)
       )
       )).getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
   }
 
-  private def resultsTable(memberDetails: MemberDetails, membersDob: MembersDob, membersNino: MembersNino,
-                           membersPsaCheckRef: MembersPsaCheckRef)(implicit messages: Messages): Seq[Seq[TableRow]] = {
-    List(
-      membersNameRow(memberDetails),
-      membersDobRow(membersDob),
-      membersNinoRow(membersNino),
-      membersPsaCheckRefRow(membersPsaCheckRef)
-    )
+  private def getFormattedTimestamp: String = {
+    val dateTimeWithZone = ZonedDateTime.now(ZoneId.of("Europe/London"))
+    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
+    formatter.format(dateTimeWithZone)
   }
 
-  private def getFormattedTimestamp: String = {
-    val timeStamp = LocalDateTime.now()
-    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
-    timeStamp.format(formatter)
-  }
 }

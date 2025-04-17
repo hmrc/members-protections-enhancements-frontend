@@ -106,3 +106,25 @@ results.mpsDashboard = MPS dashboard
 results.checkAnotherMpe = Check another member''s protections and enhancements
 results.moreInfo = More information on pension protections
 results.checkedOn =  Checked on
+results.takingHigherTaxFreeLumpSumsUrl=https://www.gov.uk/guidance/taking-higher-tax-free-lump-sums-with-lifetime-allowance-protection
+
+results.statusKey=Status
+results.protectedAmtKey=Protected amount
+results.protectionRefNumKey=Protection reference number
+results.lumpSumKey=Lump sum
+results.factorKey=Factor
+
+results.individualProtectionSummaryCard=Individual protection 2014
+results.individualProtectionStatusValue=- The protection is valid and can be used
+results.individualProtectedAmtValue=£1,440,321
+results.individualProtectionRefNumValue=IP141234567890A
+
+results.fixedProtectionSummaryCard=Fixed protection 2016
+results.fixedProtectionStatusValue=- The protection is approved, but a higher level of protection is currently in place, it cannot currently be used
+results.fixedProtectionRefNumValue=FP1612345678901A
+
+results.primaryProtectionSummaryCard=Primary protection
+results.primaryProtectionStatusValue=- The protection has been lost, so it is not valid
+results.primaryProtectionLumpSumValue=£34,876
+results.primaryProtectionFactorValue=0.21
+

@@ -15,16 +15,19 @@
  *@
 
 @import views.html.components._
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 
 @this(
 layout: templates.Layout,
 heading: h1,
-h2: h2,
-govukTable: GovukTable
+h2: h2
 )
 
-@(table: Seq[Seq[TableRow]], backLinkUrl: Option[String], formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
+@(memberDetails: MemberDetails,
+membersDob: MembersDob,
+membersNino: MembersNino,
+membersPsaCheckRef: MembersPsaCheckRef,
+backLinkUrl: Option[String],
+formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("results.title")), backLinkUrl = backLinkUrl) {
 
@@ -32,7 +35,113 @@ govukTable: GovukTable
 
    @h2("results.memberDetails.heading")
 
-   @govukTable(Table(table))
+    <table class="govuk-table">
+        <tbody class="govuk-table__body">
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">@messages("membersName.name")</th>
+            <td class="govuk-table__cell">@memberDetails.fullName</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">@messages("membersDob.dob")</th>
+            <td class="govuk-table__cell">@membersDob.dob</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">@messages("membersNino.nino")</th>
+            <td class="govuk-table__cell">@membersNino.nino</td>
+        </tr>
+        <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">@messages("membersPsaCheckRef.pensionSchemeAdminCheckRef")</th>
+            <td class="govuk-table__cell">@membersPsaCheckRef.psaCheckRef</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="govuk-summary-card">
+        <div class="govuk-summary-card__title-wrapper">
+            <h2 class="govuk-summary-card__title">@messages("results.individualProtectionSummaryCard")</h2>
+        </div>
+        <div class="govuk-summary-card__content">
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">@messages("results.statusKey")</dt>
+                    <dd class="govuk-summary-list__value" id="individualProtectionStatus">
+                        <strong class="govuk-tag govuk-tag--green">@Active</strong>
+                        @messages("results.individualProtectionStatusValue")
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">@messages("results.protectedAmtKey")</dt>
+                    <dd class="govuk-summary-list__value">
+                        @messages("results.individualProtectedAmtValue")
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">@messages("results.protectionRefNumKey")</dt>
+                    <dd class="govuk-summary-list__value">
+                        @messages("results.individualProtectionRefNumValue")
+                    </dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+<div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
+        <h2 class="govuk-summary-card__title">@messages("results.fixedProtectionSummaryCard")</h2>
+    </div>
+    <div class="govuk-summary-card__content">
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.statusKey")</dt>
+                <dd class="govuk-summary-list__value" id="fixedProtectionStatus">
+                    <strong class="govuk-tag govuk-tag--yellow">@Dormant</strong>
+                    @messages("results.fixedProtectionStatusValue")
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.protectionRefNumKey")</dt>
+                <dd class="govuk-summary-list__value">
+                    @messages("results.fixedProtectionRefNumValue")
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
+        <h2 class="govuk-summary-card__title">@messages("results.primaryProtectionSummaryCard")</h2>
+    </div>
+    <div class="govuk-summary-card__content">
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.statusKey")</dt>
+                <dd class="govuk-summary-list__value" id="primaryProtectionStatus">
+                    <strong class="govuk-tag govuk-tag--red">@Withdrawn</strong>
+                    @messages("results.primaryProtectionStatusValue")
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.lumpSumKey")</dt>
+                <dd class="govuk-summary-list__value">
+                    @messages("results.primaryProtectionLumpSumValue")
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.factorKey")</dt>
+                <dd class="govuk-summary-list__value">
+                    @messages("results.primaryProtectionFactorValue")
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.protectionRefNumKey")</dt>
+                <dd class="govuk-summary-list__value">
+                    @messages("results.individualProtectionRefNumValue")
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
 
     <table class="govuk-table">
         <tbody class="govuk-table__body">
@@ -44,20 +153,20 @@ govukTable: GovukTable
     </table>
 
 
-    <p class="govuk-body" id="print-link">
+    <p class="govuk-body govuk-!-margin-top-9" id="print-link">
         <a class="govuk-link" href="#" data-module="hmrc-print-link" data-journey-click="mpe:click:print">@messages("site.print")</a>
     </p>
 
     </div>
-    <div class="govuk-grid-column-one-third">
+    <div class="govuk-grid-column-one-third govuk-grid-row govuk-!-display-none-print">
         <aside class="app-related-items" role="complementary">
-            <hr class="custom-hr custom-hr--heavy govuk-!-margin-bottom-4 govuk-!-margin-top-9">
+            <hr class="custom-hr custom-hr--light govuk-!-margin-bottom-4 govuk-!-margin-top-9">
             @h2("results.relatedContent")
-            <nav role="navigation" aria-labelledby="subsection-title">
+            <nav role="navigation">
                 <ul class="govuk-list govuk-!-font-size-16">
-                    <li><a href="" class="govuk-link">@messages("results.mpsDashboard")</a></li>
-                    <li><a href="/members-protections-and-enhancements" class="govuk-link">@messages("results.checkAnotherMpe")</a></li>
-                    <li><a href="https://www.gov.uk/guidance/taking-higher-tax-free-lump-sums-with-lifetime-allowance-protection" class="govuk-link">@messages("results.moreInfo")</a></li>
+                    <li><a class="govuk-link" href="#">@messages("results.mpsDashboard")</a></li>
+                    <li><a class="govuk-link" href="@routes.CheckMembersProtectionEnhancementsController.onPageLoad()">@messages("results.checkAnotherMpe")</a></li>
+                    <li><a class="govuk-link" href="@messages("results.takingHigherTaxFreeLumpSumsUrl")"> @messages("results.moreInfo")</a></li>
                 </ul>
             </nav>
         </aside>
