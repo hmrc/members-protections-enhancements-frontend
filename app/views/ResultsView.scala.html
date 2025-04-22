@@ -87,6 +87,35 @@ formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
 
 <div class="govuk-summary-card">
     <div class="govuk-summary-card__title-wrapper">
+        <h2 class="govuk-summary-card__title">@messages("results.nonResidentFactorEnhancementStatusCard")</h2>
+    </div>
+    <div class="govuk-summary-card__content">
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.statusKey")</dt>
+                <dd class="govuk-summary-list__value" id="nonResidentFactorEnhancementStatus">
+                    <strong class="govuk-tag govuk-tag--green">@Active</strong>
+                    @messages("results.nonResidentFactorEnhancementStatusValue")
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.enhancementFactorKey")</dt>
+                <dd class="govuk-summary-list__value">
+                    @messages("results.nonResidentFactorEnhancementFactorValue")
+                </dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">@messages("results.protectionRefNumKey")</dt>
+                <dd class="govuk-summary-list__value">
+                    @messages("results.nonResidentFactorEnhancementProtectionRefNumValue")
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<div class="govuk-summary-card">
+    <div class="govuk-summary-card__title-wrapper">
         <h2 class="govuk-summary-card__title">@messages("results.fixedProtectionSummaryCard")</h2>
     </div>
     <div class="govuk-summary-card__content">
