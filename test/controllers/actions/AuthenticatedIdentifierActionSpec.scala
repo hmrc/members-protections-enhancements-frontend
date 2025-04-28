@@ -20,6 +20,7 @@ import base.SpecBase
 import config.{Constants, FrontendAppConfig}
 import controllers.routes
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
+import models.requests.UserDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
@@ -30,6 +31,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubPlayBodyParsersFactory}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.SessionKeys
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,11 +47,11 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
   class Handler(appConfig: FrontendAppConfig) {
     def run: Action[AnyContent] = authAction(appConfig) { request =>
       request match {
-        case AdministratorRequest(userId, _, psaId) =>
-          Ok(Json.obj("userId" -> userId, "psaId" -> psaId.value))
+        case AdministratorRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
+          Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "psaId" -> psrUserId, "affinityGroup" -> affinityGroup))
 
-        case PractitionerRequest(userId, _, pspId) =>
-          Ok(Json.obj("userId" -> userId, "pspId" -> pspId.value))
+        case PractitionerRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
+          Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "pspId" -> psrUserId, "affinityGroup" -> affinityGroup))
       }
     }
   }
@@ -58,8 +60,8 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
   def handler(implicit app: Application): Handler = new Handler(appConfig)
 
-  def authResult(internalId: Option[String], enrolments: Enrolment*) =
-    new~(internalId, Enrolments(enrolments.toSet))
+  def authResult(affinityGroup: Option[AffinityGroup], internalId: Option[String], enrolments: Enrolment*)=
+    internalId and affinityGroup and Enrolments(enrolments.toSet)
 
   val psaEnrolment: Enrolment =
     Enrolment(Constants.psaEnrolmentKey, Seq(EnrolmentIdentifier(Constants.psaIdKey, "A2100001")), "Activated")
@@ -70,7 +72,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
   private val bodyParsers: BodyParsers.Default = mock[BodyParsers.Default]
 
-  def setAuthValue(value: Option[String] ~ Enrolments): Unit =
+  def setAuthValue(value: Option[String] ~ Option[AffinityGroup] ~ Enrolments): Unit =
     setAuthValue(Future.successful(value))
 
   def setAuthValue[A](value: Future[A]): Unit =
@@ -100,7 +102,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
       }
 
       "Redirect to Unauthorised page when user does not have an Internal Id" in runningApplication { implicit app =>
-        setAuthValue(authResult(None, psaEnrolment))
+        setAuthValue(authResult(Some(AffinityGroup.Individual), None, psaEnrolment))
 
         val result = handler.run(FakeRequest())
         val expectedUrl = routes.UnauthorisedController.onPageLoad().url
@@ -110,7 +112,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
       "Redirect user to Login page when user does not have psa or psp enrolment" in runningApplication {
         implicit app =>
-          setAuthValue(authResult(Some("internalId")))
+          setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId")))
 
           val result = handler.run(FakeRequest())
           val expectedUrl = appConfig.loginUrl
@@ -121,7 +123,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
     "return an IdentifierRequest" - {
       "User has a psa enrolment and has a valid session" in runningApplication { implicit app =>
-        setAuthValue(authResult(Some("internalId"), psaEnrolment))
+        setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
 
         val result = handler.run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
 
@@ -132,7 +134,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
       }
 
       "User has a psp enrolment and has a valid session" in runningApplication { implicit app =>
-        setAuthValue(authResult(Some("internalId"), pspEnrolment))
+        setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), pspEnrolment))
 
         val result = handler.run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
 
@@ -145,7 +147,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
     "Redirect user to protection enhancement" - {
       "User has a psa enrolment but has a no valid session" in runningApplication { implicit app =>
-        setAuthValue(authResult(Some("internalId"), psaEnrolment))
+        setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
 
         val result = handler.run(FakeRequest())
 
@@ -156,7 +158,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
       }
 
       "User has a psp enrolment but has a no valid session" in runningApplication { implicit app =>
-        setAuthValue(authResult(Some("internalId"), pspEnrolment))
+        setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), pspEnrolment))
 
         val result = handler.run(FakeRequest())
 

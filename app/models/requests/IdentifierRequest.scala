@@ -16,30 +16,28 @@
 
 package models.requests
 
-import models.PensionSchemeId.{PsaId, PspId}
 import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.auth.core.AffinityGroup
 
 sealed abstract class IdentifierRequest[A] (request: Request[A]) extends WrappedRequest[A](request) { self =>
-  val userId: String
+  val userDetails: UserDetails
 }
 
 object IdentifierRequest {
-  case class AdministratorRequest[A](userId: String,
-                                     request: Request[A],
-                                     psaId: PsaId) extends IdentifierRequest[A](request)
+  case class AdministratorRequest[A](userDetails: UserDetails,
+                                     request: Request[A]) extends IdentifierRequest[A](request)
 
   object AdministratorRequest {
-    def apply[A](userId: String, request: Request[A], psaId: String): IdentifierRequest[A] =
-      AdministratorRequest(userId, request, PsaId(psaId))
+    def apply[A](affGroup: AffinityGroup, userId: String, psaId: String, psrUserType: UserType, request: Request[A]): IdentifierRequest[A] =
+      AdministratorRequest(UserDetails(psrUserType, psaId, userId, affGroup), request)
   }
 
-  case class PractitionerRequest[A](userId: String,
-                                    request: Request[A],
-                                    pspId: PspId) extends IdentifierRequest[A](request)
+  case class PractitionerRequest[A](userDetails: UserDetails,
+                                    request: Request[A]) extends IdentifierRequest[A](request)
 
   object PractitionerRequest {
-    def apply[A](userId: String, request: Request[A], pspId: String): IdentifierRequest[A] =
-      PractitionerRequest(userId, request, PspId(pspId))
+    def apply[A](affGroup: AffinityGroup, userId: String, pspId: String, psrUserType: UserType, request: Request[A]): IdentifierRequest[A] =
+      PractitionerRequest(UserDetails(psrUserType, pspId, userId, affGroup), request)
   }
 
 }

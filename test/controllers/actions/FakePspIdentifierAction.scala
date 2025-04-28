@@ -17,10 +17,11 @@
 package controllers.actions
 
 import generators.ModelGenerators
-import models.PensionSchemeId.PspId
 import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.PractitionerRequest
+import models.requests.UserType.PSP
 import play.api.mvc._
+import uk.gov.hmrc.auth.core.AffinityGroup
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakePspIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifierAction with ModelGenerators {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-    block(PractitionerRequest(userId = "id", request, pspId = PspId("21000002")))
+    block(PractitionerRequest(AffinityGroup.Individual, "id","21000002", PSP, request))
   }
 
   override def parser: BodyParser[AnyContent] =
