@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package models.requests
 
-import models.UserAnswers
-import models.requests.{DataRequest, IdentifierRequest}
+import play.api.libs.json.Format
+import utils.enums.Enums
 
-import scala.concurrent.{ExecutionContext, Future}
+sealed trait UserType
 
-class FakeDataRetrievalAction(dataToReturn: UserAnswers) extends DataRetrievalAction {
+object UserType extends Enumeration {
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] =
-    Future(DataRequest(request, dataToReturn))
+  case object PSA extends UserType
+  case object PSP extends UserType
 
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  implicit val formatApiVersion: Format[UserType] = Enums.format[UserType]
+  val parser: PartialFunction[String, UserType] = Enums.parser[UserType]
 }

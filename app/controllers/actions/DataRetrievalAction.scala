@@ -17,12 +17,11 @@
 package controllers.actions
 
 import models.UserAnswers
-
-import javax.inject.Inject
 import models.requests.{DataRequest, IdentifierRequest}
 import play.api.mvc.ActionTransformer
 import repositories.SessionRepository
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DataRetrievalActionImpl @Inject()(
@@ -31,10 +30,9 @@ class DataRetrievalActionImpl @Inject()(
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] = {
 
-    sessionRepository.get(request.userId).map {
-      case Some(value) => DataRequest(request, request.userId, value)
-      case None => DataRequest(request, request.userId, UserAnswers(request.userId))
-
+    sessionRepository.get(request.userDetails.userId).map {
+      case Some(value) => DataRequest(request, value)
+      case None => DataRequest(request, UserAnswers(request.userDetails.userId))
     }
   }
 }

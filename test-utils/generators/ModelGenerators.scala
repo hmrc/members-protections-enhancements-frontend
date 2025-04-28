@@ -17,10 +17,12 @@
 package generators
 
 import models.PensionSchemeId.{PsaId, PspId}
-import models.requests.IdentifierRequest
+import models.requests.{IdentifierRequest, UserDetails}
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
+import models.requests.UserType.PSA
 import org.scalacheck.Gen
 import play.api.mvc.Request
+import uk.gov.hmrc.auth.core.AffinityGroup
 
 trait ModelGenerators extends Generators {
 
@@ -31,14 +33,14 @@ trait ModelGenerators extends Generators {
     for {
       userId <- nonEmptyString
       psaId <- psaIdGen
-    } yield AdministratorRequest(userId, request, psaId)
+    } yield AdministratorRequest(UserDetails(PSA, psaId.value, userId, AffinityGroup.Individual), request)
   }
 
   def practitionerRequestGen[A](request: Request[A]): Gen[PractitionerRequest[A]] = {
     for {
       userId <- nonEmptyString
-      psaId <- pspIdGen
-    } yield PractitionerRequest(userId, request, psaId)
+      pspId <- pspIdGen
+    } yield PractitionerRequest(UserDetails(PSA, pspId.value, userId, AffinityGroup.Individual), request)
   }
 
   def identifierRequestGen[A](request: Request[A]): Gen[IdentifierRequest[A]] =

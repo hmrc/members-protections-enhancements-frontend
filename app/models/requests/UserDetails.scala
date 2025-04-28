@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package models.requests
 
-import models.UserAnswers
-import models.requests.{DataRequest, IdentifierRequest}
+import uk.gov.hmrc.auth.core.AffinityGroup
 
-import scala.concurrent.{ExecutionContext, Future}
+case class UserDetails(psrUserType: UserType,
+                       psrUserId: String,
+                       userId: String,
+                       affinityGroup: AffinityGroup)
 
-class FakeDataRetrievalAction(dataToReturn: UserAnswers) extends DataRetrievalAction {
-
-  override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] =
-    Future(DataRequest(request, dataToReturn))
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
-}

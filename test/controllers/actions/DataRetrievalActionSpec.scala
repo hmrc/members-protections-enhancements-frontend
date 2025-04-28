@@ -19,12 +19,14 @@ package controllers.actions
 import base.SpecBase
 import models.UserAnswers
 import models.requests.IdentifierRequest.AdministratorRequest
+import models.requests.UserType.PSA
 import models.requests.{DataRequest, IdentifierRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import repositories.SessionRepository
+import uk.gov.hmrc.auth.core.AffinityGroup
 
 import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -48,7 +50,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get(any())) thenReturn Future(Some(userAnswers))
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(AdministratorRequest.apply("id", FakeRequest(), "A2100001")).futureValue
+        val result = action.callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id","A2100001", PSA, FakeRequest())).futureValue
 
         result.userAnswers mustBe userAnswers
       }
@@ -63,7 +65,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get(any())) thenReturn Future(Some(userAnswers))
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(AdministratorRequest.apply("id", FakeRequest(), "A2100001")).futureValue
+        val result = action.callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id","A2100001", PSA, FakeRequest())).futureValue
 
         result.userAnswers mustBe userAnswers
       }

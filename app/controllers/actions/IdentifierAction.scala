@@ -19,12 +19,12 @@ package controllers.actions
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.{Constants, FrontendAppConfig}
 import controllers.routes
-import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
+import models.requests.{IdentifierRequest, UserType}
 import play.api.mvc.Results._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, authorisedEnrolments, internalId}
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -45,11 +45,13 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised(Enrolment(Constants.psaEnrolmentKey).or(Enrolment(Constants.pspEnrolmentKey)))
-      .retrieve(Retrievals.internalId.and(Retrievals.authorisedEnrolments)) {
+      .retrieve(internalId and affinityGroup and authorisedEnrolments) {
 
-        case Some(internalId) ~ IsPSA(psaId) if hasValidSession(hc) => block(AdministratorRequest(internalId, request, psaId.value))
-        case Some(internalId) ~ IsPSP(pspId) if hasValidSession(hc) => block(PractitionerRequest(internalId, request, pspId.value))
-        case Some(_) ~ _ => Future.successful(Redirect(config.loginUrl))
+        case Some(internalId) ~ Some(affGroup) ~ IsPSA(psaId) if hasValidSession(hc) =>
+          block(AdministratorRequest(affGroup, internalId, psaId.value, UserType.PSA, request))
+        case Some(internalId) ~ Some(affGroup) ~ IsPSP(pspId) if hasValidSession(hc) =>
+          block(PractitionerRequest(affGroup, internalId, pspId.value, UserType.PSP, request))
+        case Some(_) ~ Some(_) ~ _ => Future.successful(Redirect(config.loginUrl))
         case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       } recover {
       case _ =>
