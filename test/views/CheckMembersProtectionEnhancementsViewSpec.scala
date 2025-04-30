@@ -17,6 +17,7 @@
 package views
 
 import base.SpecBase
+import controllers.routes
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
@@ -47,8 +48,10 @@ class CheckMembersProtectionEnhancementsViewSpec extends SpecBase {
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
+    val backLinkUrl: String = routes.MpsDashboardController.redirectToMps().url
+
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[CheckMembersProtectionEnhancementsView].apply().body
+      Jsoup.parse(app.injector.instanceOf[CheckMembersProtectionEnhancementsView].apply(Some(backLinkUrl)).body
       )
   }
 

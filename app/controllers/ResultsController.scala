@@ -54,5 +54,4 @@ class ResultsController @Inject()(
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
     formatter.format(dateTimeWithZone)
   }
-
 }

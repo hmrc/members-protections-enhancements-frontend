@@ -25,6 +25,8 @@ import views.html.CheckMembersProtectionEnhancementsView
 
 class CheckMembersProtectionEnhancementsControllerSpec extends SpecBase {
 
+  private lazy val backLinkUrl = routes.MpsDashboardController.redirectToMps().url
+
   "Check Members Protection Enhancements Controller" - {
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
@@ -40,7 +42,7 @@ class CheckMembersProtectionEnhancementsControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[CheckMembersProtectionEnhancementsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view().toString
+        contentAsString(result) mustEqual view(Some(backLinkUrl)).toString
       }
     }
 

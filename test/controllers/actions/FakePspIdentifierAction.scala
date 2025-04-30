@@ -26,14 +26,13 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakePspIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifierAction with ModelGenerators {
+class FakePspIdentifierAction @Inject()(bodyParsers: BodyParsers.Default) extends IdentifierAction with ModelGenerators {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
     block(PractitionerRequest(AffinityGroup.Individual, "id","21000002", PSP, request))
   }
 
-  override def parser: BodyParser[AnyContent] =
-    bodyParsers.default
+  override def parser: BodyParser[AnyContent] = bodyParsers
 
   override protected def executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global

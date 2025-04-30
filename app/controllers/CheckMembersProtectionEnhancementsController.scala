@@ -18,9 +18,8 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.CheckMembersProtectionEnhancementsView
 
 class CheckMembersProtectionEnhancementsController @Inject()(
@@ -29,10 +28,10 @@ class CheckMembersProtectionEnhancementsController @Inject()(
                                                               getData: DataRetrievalAction,
                                                               val controllerComponents: MessagesControllerComponents,
                                                               view: CheckMembersProtectionEnhancementsView
-                                                            ) extends FrontendBaseController with I18nSupport {
+                                                            )  extends MpeBaseController(identify, getData) {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
-      Ok(view())
+      Ok(view(Some(routes.MpsDashboardController.redirectToMps().url)))
   }
 }

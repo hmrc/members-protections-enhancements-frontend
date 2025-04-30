@@ -73,10 +73,10 @@ trait SpecBase
 
   private val fakePsaIdentifierAction: FakePsaIdentifierAction = new FakePsaIdentifierAction(parsers)
 
-  protected def applicationBuilder(userAnswers: UserAnswers): GuiceApplicationBuilder =
+  protected def applicationBuilder(userAnswers: UserAnswers, identifierAction: IdentifierAction = fakePsaIdentifierAction): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
-        bind[IdentifierAction].toInstance(fakePsaIdentifierAction),
+        bind[IdentifierAction].toInstance(identifierAction),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
 
