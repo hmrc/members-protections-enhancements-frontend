@@ -193,7 +193,7 @@ formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
             @h2("results.relatedContent")
             <nav role="navigation">
                 <ul class="govuk-list govuk-!-font-size-16">
-                    <li><a class="govuk-link" href="#">@messages("results.mpsDashboard")</a></li>
+                    <li><a class="govuk-link" href="@routes.MpsDashboardController.redirectToMps()">@messages("results.mpsDashboard")</a></li>
                     <li><a class="govuk-link" href="@routes.CheckMembersProtectionEnhancementsController.onPageLoad()">@messages("results.checkAnotherMpe")</a></li>
                     <li><a class="govuk-link" href="@messages("results.takingHigherTaxFreeLumpSumsUrl")"> @messages("results.moreInfo")</a></li>
                 </ul>
@@ -202,3 +202,4 @@ formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
     </div>
 
 }
+

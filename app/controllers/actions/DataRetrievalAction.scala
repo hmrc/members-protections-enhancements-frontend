@@ -31,8 +31,8 @@ class DataRetrievalActionImpl @Inject()(
   override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] = {
 
     sessionRepository.get(request.userDetails.userId).map {
-      case Some(value) => DataRequest(request, value)
-      case None => DataRequest(request, UserAnswers(request.userDetails.userId))
+      case Some(value) => DataRequest(request, request.userDetails, value)
+      case None => DataRequest(request, request.userDetails, UserAnswers(request.userDetails.userId))
     }
   }
 }
