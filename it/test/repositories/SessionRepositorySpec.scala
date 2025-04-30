@@ -45,6 +45,7 @@ class SessionRepositorySpec
     with OptionValues
     with MockitoSugar {
 
+  //to test commit signing
   private val instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
