@@ -31,7 +31,9 @@ formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("results.title")), backLinkUrl = backLinkUrl) {
 
-   @heading("results.heading", headerSize = "xl")
+<div class="govuk-grid-column-full">
+        @heading("results.heading", headerSize = "xl")
+</div>
 
    @h2("results.memberDetails.heading")
 
