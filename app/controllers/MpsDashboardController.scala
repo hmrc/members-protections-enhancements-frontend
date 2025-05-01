@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import config.FrontendAppConfig
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import models.requests.UserType.PSA
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
 import scala.concurrent.Future
 
@@ -33,13 +33,11 @@ class MpsDashboardController @Inject()(
 
   def redirectToMps(): Action[AnyContent] = handle {
     implicit request =>
-      val mpsUrl = Call("GET", s"${
+      val mpsUrl =
         request.userDetails.psrUserType match {
           case PSA => appConfig.psaOverviewUrl
           case _ => appConfig.pspDashboardUrl
         }
-      }")
-
       Future.successful(Redirect(mpsUrl))
   }
 }
