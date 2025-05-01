@@ -35,10 +35,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/members-protections-and-enhancements"
 
-  private lazy val managePensionsFrontendUrl: String = configuration.get[Service]("microservice.services.manage-pensions-frontend")
-
-  lazy val psaOverviewUrl: String = s"$managePensionsFrontendUrl${loadConfig("urls.psaOverview")}"
-  lazy val pspDashboardUrl: String = s"$managePensionsFrontendUrl${loadConfig("urls.pspDashboard")}"
+  lazy val psaOverviewUrl: String = loadConfig("urls.psaOverview")
+  lazy val pspDashboardUrl: String = loadConfig("urls.pspDashboard")
 
   val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
