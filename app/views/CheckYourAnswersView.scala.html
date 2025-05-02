@@ -32,12 +32,9 @@
 
     @govukSummaryList(SummaryList(summaryList))
 
-    <p class="govuk-body">
         @govukButton(
         ButtonViewModel(messages("site.acceptAndSubmit"))
         .asLink(routes.ResultsController.onPageLoad().url)
-        .withCssClass("govuk-!-margin-top-6")
         )
-    </p>
 
 }
