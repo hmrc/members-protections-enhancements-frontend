@@ -17,9 +17,9 @@
 package controllers
 
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import models.requests.DataRequest
-import models.{MemberDetails, Mode, NormalMode}
-import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, Page, WhatIsTheMembersNamePage}
+import models.requests.{DataRequest, PensionSchemeMemberRequest}
+import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, Mode, NormalMode}
+import pages._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -73,4 +73,23 @@ abstract class MpeBaseController @Inject()(
     case MembersPsaCheckRefPage => routes.MembersNinoController.onPageLoad(mode).url
     case _ => routes.CheckMembersProtectionEnhancementsController.onPageLoad().url
   }
+
+  def getUserData[A](request: DataRequest[A]): Option[(MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef)] =
+    for {
+      memberDetails <- request.userAnswers.get(WhatIsTheMembersNamePage)
+      dob <- request.userAnswers.get(MembersDobPage)
+      nino <- request.userAnswers.get(MembersNinoPage)
+      psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
+    } yield (memberDetails, dob, nino, psaRefCheck)
+
+  def retrieveMembersRequest[A](request: DataRequest[A]): Option[PensionSchemeMemberRequest] = getUserData(request) match {
+    case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
+      Some(PensionSchemeMemberRequest(memberDetails.firstName,
+        memberDetails.lastName,
+        membersDob.dateOfBirth,
+        membersNino.nino,
+        membersPsaCheckRef.psaCheckRef))
+    case None => None
+  }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package models
+package models.requests
 
-import play.api.libs.json.{Format, Json}
-import utils.DateTimeFormats
+import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+case class PensionSchemeMemberRequest(
+  firstName: String,
+  lastName: String,
+  dateOfBirth: String,
+  nino: String,
+  psaCheckRef: String
+)
 
-case class MembersDob(day: Int, month: Int, year: Int) {
-  lazy val date: LocalDate = LocalDate.of(year, month, day)
-  lazy val dob: String = date.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
-  lazy val dateOfBirth = date.format(DateTimeFormats.apiDateTimeFormat)
-}
-
-object MembersDob {
-  implicit val format: Format[MembersDob] = Json.format[MembersDob]
+object PensionSchemeMemberRequest {
+  implicit val format: OFormat[PensionSchemeMemberRequest] = Json.format[PensionSchemeMemberRequest]
 }

@@ -75,5 +75,55 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+//
+//    "must return to ResultsController page when a valid data is submitted" in {
+//
+//      implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+//
+//      val userAnswers = emptyUserAnswers
+//        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+//        .set(page = MembersDobPage, value = MembersDob(1, 1, 2000)).success.value
+//        .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
+//        .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
+//
+//      val pensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2000-1-1", "AB123456A", "PSA12345678A")
+//      def messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+//
+//      def controllerComponents: MessagesControllerComponents =
+//        app.injector.instanceOf[MessagesControllerComponents]
+//      val view = app.injector.instanceOf[CheckYourAnswersView]
+//      val mockMembersCheckAndRetrieveService: MembersCheckAndRetrieveService = mock[MembersCheckAndRetrieveService]
+//
+//      def controller(): CheckYourAnswersController =
+//        new CheckYourAnswersController(
+//          messagesApi, fakePsaIdentifierAction, new FakeDataRetrievalAction(userAnswers), controllerComponents, view, mockMembersCheckAndRetrieveService)
+//
+//      when(mockMembersCheckAndRetrieveService.checkAndRetrieve(Some(pensionSchemeMemberRequest))).thenReturn(Future.successful("Passed"))
+//
+//      val onSubmit = routes.CheckYourAnswersController.onSubmit()
+//
+//      val request = FakeRequest(GET, onSubmit.url)
+//      val result = controller().onSubmit(request)
+//
+//        status(result) mustEqual SEE_OTHER
+//        redirectLocation(result).value mustEqual routes.ResultsController.onPageLoad().url
+//
+//    }
+
+    "must return the same page when invalid data is submitted" in {
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+
+      val application = applicationBuilder(userAnswers).build()
+      val onSubmit = routes.CheckYourAnswersController.onSubmit()
+
+      running(application) {
+        val request = FakeRequest(GET, onSubmit.url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.CheckYourAnswersController.onPageLoad().url
+      }
+    }
   }
 }

@@ -21,10 +21,9 @@ import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import utils.DateTimeFormats
 import views.html.ResultsView
 
-import java.time.format.DateTimeFormatter
-import java.time.{ZoneId, ZonedDateTime}
 import scala.concurrent.Future
 
 class ResultsController @Inject()(
@@ -44,14 +43,9 @@ class ResultsController @Inject()(
         nino <- request.userAnswers.get(MembersNinoPage)
         psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
       } yield Future.successful(Ok(
-        view(memberDetails, dob, nino, psaRefCheck, Some(routes.CheckYourAnswersController.onPageLoad().url), getFormattedTimestamp)
+        view(memberDetails, dob, nino, psaRefCheck, Some(routes.CheckYourAnswersController.onPageLoad().url),
+          DateTimeFormats.getCurrentDateTimestamp())
       )
       )).getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
-  }
-
-  private def getFormattedTimestamp: String = {
-    val dateTimeWithZone = ZonedDateTime.now(ZoneId.of("Europe/London"))
-    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
-    formatter.format(dateTimeWithZone)
   }
 }

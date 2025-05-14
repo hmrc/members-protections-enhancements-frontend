@@ -32,6 +32,8 @@
 
 package base
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import controllers.actions._
 import models.UserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -63,6 +65,8 @@ trait SpecBase
     with BeforeAndAfterEach
     with GuiceOneAppPerSuite {
 
+  val server: WireMockServer = new WireMockServer(wireMockConfig().dynamicPort())
+
   val userAnswersId: String = "id"
 
   def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
@@ -71,7 +75,7 @@ trait SpecBase
 
   val parsers = app.injector.instanceOf[BodyParsers.Default]
 
-  private val fakePsaIdentifierAction: FakePsaIdentifierAction = new FakePsaIdentifierAction(parsers)
+  val fakePsaIdentifierAction: FakePsaIdentifierAction = new FakePsaIdentifierAction(parsers)
 
   protected def applicationBuilder(userAnswers: UserAnswers, identifierAction: IdentifierAction = fakePsaIdentifierAction): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()

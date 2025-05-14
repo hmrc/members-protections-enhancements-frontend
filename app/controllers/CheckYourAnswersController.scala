@@ -19,34 +19,33 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import models._
-import pages._
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.MembersCheckAndRetrieveService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import views.html.CheckYourAnswersView
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             identify: IdentifierAction,
                                             getData: DataRetrievalAction,
                                             implicit val controllerComponents: MessagesControllerComponents,
-                                            view: CheckYourAnswersView
-                                          ) extends MpeBaseController(identify, getData) {
+                                            view: CheckYourAnswersView,
+                                            checkAndRetrieveService: MembersCheckAndRetrieveService
+                                          )(implicit ec: ExecutionContext) extends MpeBaseController(identify, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle {
     implicit request =>
-      (for {
-        memberDetails <- request.userAnswers.get(WhatIsTheMembersNamePage)
-        dob <- request.userAnswers.get(MembersDobPage)
-        nino <- request.userAnswers.get(MembersNinoPage)
-        psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
-      } yield Future.successful(Ok(
-        view(rows(memberDetails, dob, nino, psaRefCheck), memberDetails.fullName, Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))
-      )
-      )).getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
+
+      getUserData(request) match {
+        case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) => Future.successful(Ok(
+          view(rows(memberDetails, membersDob, membersNino, membersPsaCheckRef), memberDetails.fullName,
+            Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))))
+        case None => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      }
   }
 
   private def rows(memberDetails: MemberDetails, membersDob: MembersDob, membersNino: MembersNino,
@@ -58,5 +57,16 @@ class CheckYourAnswersController @Inject()(
       membersNinoRow(membersNino),
       membersPsaCheckRefRow(membersPsaCheckRef)
     )
+  }
+
+  def onSubmit: Action[AnyContent] = handle {
+    implicit request =>
+
+      checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(request)).map {
+        case str if str == null || str == "" => Redirect(routes.CheckYourAnswersController.onPageLoad())
+        case _ => Redirect(routes.ResultsController.onPageLoad())
+      }
+
+
   }
 }
