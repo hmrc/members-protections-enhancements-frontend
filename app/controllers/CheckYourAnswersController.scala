@@ -63,7 +63,7 @@ class CheckYourAnswersController @Inject()(
     implicit request =>
 
       checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(request)).map {
-        case str if str == null || str == "" => Redirect(routes.CheckYourAnswersController.onPageLoad())
+        case str if str == null || str == "error" => Redirect(routes.CheckYourAnswersController.onPageLoad())
         case _ => Redirect(routes.ResultsController.onPageLoad())
       }
 

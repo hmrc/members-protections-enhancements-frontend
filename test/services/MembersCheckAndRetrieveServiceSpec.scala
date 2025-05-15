@@ -61,7 +61,7 @@ class MembersCheckAndRetrieveServiceSpec extends SpecBase with ScalaCheckPropert
 
     "return an empty response body for invalid or no data submission" in {
 
-      val response = ""
+      val response = "error"
 
       val result = service.checkAndRetrieve(None)
       await(result) mustBe response

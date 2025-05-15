@@ -31,7 +31,7 @@ class MembersCheckAndRetrieveServiceImpl @Inject()(checkAndRetrieveConnector: Me
                                (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] =
     pensionSchemeMemberRequest match {
       case Some(data) => checkAndRetrieveConnector.checkAndRetrieve(data)
-      case _ => Future("")
+      case _ => Future("error")
     }
 }
 

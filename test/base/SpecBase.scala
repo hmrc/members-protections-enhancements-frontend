@@ -39,13 +39,14 @@ import models.UserAnswers
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatest.{BeforeAndAfterEach, OptionValues, TryValues}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, OptionValues, TryValues}
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.ws.WSClient
 import play.api.mvc.{BodyParsers, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
@@ -63,7 +64,9 @@ trait SpecBase
     with IntegrationPatience
     with MockitoSugar
     with BeforeAndAfterEach
-    with GuiceOneAppPerSuite {
+    with WireMockHelper
+    with GuiceOneServerPerSuite
+    with BeforeAndAfterAll {
 
   val server: WireMockServer = new WireMockServer(wireMockConfig().dynamicPort())
 
@@ -79,6 +82,7 @@ trait SpecBase
 
   protected def applicationBuilder(userAnswers: UserAnswers, identifierAction: IdentifierAction = fakePsaIdentifierAction): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
+      .configure(servicesConfig)
       .overrides(
         bind[IdentifierAction].toInstance(identifierAction),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
@@ -93,4 +97,29 @@ trait SpecBase
 
   def getFormPageViewModel(onSubmit: Call, backLinkUrl: String): FormPageViewModel =
     FormPageViewModel(onSubmit = onSubmit, backLinkUrl = Some(backLinkUrl))
+
+  val mockHost: String = WireMockHelper.host
+  val mockPort: String = WireMockHelper.wireMockPort.toString
+
+  lazy val client: WSClient = app.injector.instanceOf[WSClient]
+
+  def servicesConfig: Map[String, String] = Map(
+    "microservice.services.mpe-backend.host"           -> mockHost,
+    "microservice.services.mpe-backend.port"           -> mockPort
+  )
+
+  override def beforeAll(): Unit = {
+    super.beforeAll()
+    startWireMock()
+  }
+
+  override def afterAll(): Unit = {
+    stopWireMock()
+    super.afterAll()
+  }
+
+  override def beforeEach(): Unit = {
+    resetWireMock()
+    super.beforeEach()
+  }
 }
