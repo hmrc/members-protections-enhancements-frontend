@@ -87,8 +87,8 @@ abstract class MpeBaseController @Inject()(
       Some(PensionSchemeMemberRequest(memberDetails.firstName,
         memberDetails.lastName,
         membersDob.dateOfBirth,
-        membersNino.nino,
-        membersPsaCheckRef.psaCheckRef))
+        membersNino.nino.filterNot(_.isWhitespace),
+        membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)))
     case None => None
   }
 

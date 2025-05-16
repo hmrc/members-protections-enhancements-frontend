@@ -82,7 +82,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
 
     "must return to ResultsController page when a valid data is submitted" in {
 
-      val pensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2000-01-01", "AB 12 34 56 A", "PSA 12 34 56 78 A")
+      val pensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2000-01-01", "AB123456A", "PSA12345678A")
 
       val checkAndRetrieveUrl = "/members-protections-and-enhancements/check-and-retrieve"
       val application = applicationBuilder(userAnswers = userAnswers).build()
