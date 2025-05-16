@@ -34,6 +34,12 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.CheckMembersProtectionEnhancementsController.onPageLoad()
       }
+
+      "must go to WhatIsTheMembersNameController page" in {
+
+        navigator.nextPage(CheckMembersProtectionEnhancementsPage, NormalMode, UserAnswers("id")) mustBe
+          routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)
+      }
     }
 
     "in Check mode" - {

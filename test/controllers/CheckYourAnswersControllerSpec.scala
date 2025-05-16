@@ -16,10 +16,13 @@
 
 package controllers
 
-import base.SpecBase
+import base.{MpeBackendStub, SpecBase}
 import models._
+import models.requests.PensionSchemeMemberRequest
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
+import play.api.http.Status.OK
 import play.api.i18n.Messages
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -27,17 +30,18 @@ import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
 
-class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
+class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
+
+
+  val userAnswers = emptyUserAnswers
+    .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+    .set(page = MembersDobPage, value = MembersDob(1, 1, 2000)).success.value
+    .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
+    .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
 
   "Check Your Answers Controller" - {
 
     "must return OK and the correct view for a GET when userAnswers are present" in {
-
-      val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        .set(page = MembersDobPage, value = MembersDob(1, 1, 2000)).success.value
-        .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
-        .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
 
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
@@ -73,6 +77,43 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must return to ResultsController page when a valid data is submitted" in {
+
+      val pensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2000-01-01", "AB123456A", "PSA12345678A")
+
+      val checkAndRetrieveUrl = "/members-protections-and-enhancements/check-and-retrieve"
+      val application = applicationBuilder(userAnswers = userAnswers).build()
+      MpeBackendStub
+        .when(method = MpeBackendStub.POST, uri = checkAndRetrieveUrl)
+        .withRequestBody(Json.toJson(pensionSchemeMemberRequest))
+        .thenReturn(status = OK, "Success")
+
+      val onSubmit = routes.CheckYourAnswersController.onSubmit()
+      running(application) {
+        val request = FakeRequest(GET, onSubmit.url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ResultsController.onPageLoad().url
+      }
+    }
+
+    "must return the same page when invalid data is submitted" in {
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+
+      val application = applicationBuilder(userAnswers).build()
+      val onSubmit = routes.CheckYourAnswersController.onSubmit()
+
+      running(application) {
+        val request = FakeRequest(GET, onSubmit.url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.CheckYourAnswersController.onPageLoad().url
       }
     }
   }

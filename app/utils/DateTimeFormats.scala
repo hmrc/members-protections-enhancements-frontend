@@ -19,21 +19,28 @@ package utils
 import play.api.i18n.Lang
 
 import java.time.format.DateTimeFormatter
+import java.time.{ZoneId, ZonedDateTime}
 import java.util.Locale
 
 object DateTimeFormats {
 
-  private val dateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
+  val dateTimeHintFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d M yyyy")
+  val apiDateTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-  private val localisedDateTimeFormatters = Map(
-    "en" -> dateTimeFormatter,
-    "cy" -> dateTimeFormatter.withLocale(new Locale("cy"))
+  private val localisedDateFormatters = Map(
+    "en" -> dateFormatter,
+    "cy" -> dateFormatter.withLocale(new Locale("cy"))
   )
 
   def dateTimeFormat()(implicit lang: Lang): DateTimeFormatter = {
-    localisedDateTimeFormatters.getOrElse(lang.code, dateTimeFormatter)
+    localisedDateFormatters.getOrElse(lang.code, dateFormatter)
   }
 
-  val dateTimeHintFormat: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("d M yyyy")
+  def getCurrentDateTimestamp(formatter: DateTimeFormatter = dateTimeFormatter): String = {
+    val dateTimeWithZone = ZonedDateTime.now(ZoneId.of("Europe/London"))
+    formatter.format(dateTimeWithZone)
+  }
+
 }

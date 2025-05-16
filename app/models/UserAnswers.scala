@@ -63,6 +63,10 @@ final case class UserAnswers(
         page.cleanup(None, updatedAnswers)
     }
   }
+
+  def toApiJson = (
+    (__ \ "data").write[String]
+  )
 }
 
 object UserAnswers {

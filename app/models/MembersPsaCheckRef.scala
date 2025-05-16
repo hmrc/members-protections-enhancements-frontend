@@ -16,12 +16,12 @@
 
 package models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Json, OFormat}
 
 case class MembersPsaCheckRef(psaCheckRef: String)
 
 object MembersPsaCheckRef {
-  implicit val format: Format[MembersPsaCheckRef] = Json.format[MembersPsaCheckRef]
+  implicit val format: OFormat[MembersPsaCheckRef] = Json.format[MembersPsaCheckRef]
 
   def apply(psaCheckRef: String): MembersPsaCheckRef = {
     val ref = psaCheckRef.filterNot(_.isWhitespace).splitAt(3)

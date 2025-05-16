@@ -33,6 +33,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val signOutUrl: String = loadConfig("urls.signOut")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
+  val backendUrl: String = configuration.get[Service]("microservice.services.mpe-backend").baseUrl
+  val checkAndRetrieveUrl = s"$backendUrl/${loadConfig("urls.checkAndRetrieve")}"
   val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/members-protections-and-enhancements"
 
   lazy val psaOverviewUrl: String = loadConfig("urls.psaOverview")
