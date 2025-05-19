@@ -16,12 +16,12 @@
 
 package models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Json, OFormat}
 
 case class MembersNino(nino: String)
 
 object MembersNino {
-  implicit val format: Format[MembersNino] = Json.format[MembersNino]
+  implicit val format: OFormat[MembersNino] = Json.format[MembersNino]
 
   def apply(nino: String): MembersNino = new MembersNino(nino.filterNot(_.isWhitespace).replaceAll("..(?!$)", "$0 "))
 }
