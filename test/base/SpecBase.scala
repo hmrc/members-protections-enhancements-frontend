@@ -46,6 +46,7 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.{JsResult, JsString, JsSuccess, Reads}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{BodyParsers, Call}
 import play.api.test.FakeRequest
@@ -76,7 +77,7 @@ trait SpecBase
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  val parsers = app.injector.instanceOf[BodyParsers.Default]
+  val parsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
 
   val fakePsaIdentifierAction: FakePsaIdentifierAction = new FakePsaIdentifierAction(parsers)
 
@@ -122,4 +123,11 @@ trait SpecBase
     resetWireMock()
     super.beforeEach()
   }
+
+  def enumRoundTest[ModelType: Reads](stringValue: String, expectedModel: ModelType): Unit =
+    s"when provided with valid string '$stringValue' should read and map to the correct model" in {
+      val result: JsResult[ModelType] = JsString(stringValue).validate[ModelType]
+      result mustBe a[JsSuccess[_]]
+      result.get mustBe expectedModel
+    }
 }
