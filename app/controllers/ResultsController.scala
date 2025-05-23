@@ -26,26 +26,34 @@ import views.html.ResultsView
 
 import scala.concurrent.Future
 
-class ResultsController @Inject()(
-                                   override val messagesApi: MessagesApi,
-                                   identify: IdentifierAction,
-                                   getData: DataRetrievalAction,
-                                   val controllerComponents: MessagesControllerComponents,
-                                   view: ResultsView
-                                 ) extends MpeBaseController(identify, getData) {
+class ResultsController @Inject()(override val messagesApi: MessagesApi,
+                                  identify: IdentifierAction,
+                                  getData: DataRetrievalAction,
+                                  val controllerComponents: MessagesControllerComponents,
+                                  view: ResultsView)
+  extends MpeBaseController(identify, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle {
     implicit request =>
 
-      (for {
+      val result = for {
         memberDetails <- request.userAnswers.get(WhatIsTheMembersNamePage)
         dob <- request.userAnswers.get(MembersDobPage)
         nino <- request.userAnswers.get(MembersNinoPage)
         psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
       } yield Future.successful(Ok(
-        view(memberDetails, dob, nino, psaRefCheck, Some(routes.CheckYourAnswersController.onPageLoad().url),
-          DateTimeFormats.getCurrentDateTimestamp())
+        view(
+          memberDetails = memberDetails,
+          membersDob = dob,
+          membersNino = nino,
+          membersPsaCheckRef = psaRefCheck,
+          backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
+          formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp()
+        )
+      ))
+
+      result.getOrElse(
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
       )
-      )).getOrElse(Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad())))
   }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package viewmodels.models
+package viewmodels.formPage
 
 import models.{Mode, NormalMode}
 import play.api.mvc.Call

@@ -23,7 +23,7 @@ import pages.{MembersNinoPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import viewmodels.models.FormPageViewModel
+import viewmodels.formPage.FormPageViewModel
 import views.html.MembersNinoView
 
 class MembersNinoControllerSpec extends SpecBase {

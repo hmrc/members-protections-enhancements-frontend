@@ -32,7 +32,20 @@
     hmrcStandardPage: HmrcStandardPage
 )
 
-@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = false, showHmrcBanner: Boolean = false, backLinkUrl: Option[String] = None)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+@(
+    pageTitle: String,
+    showBackLink: Boolean = true,
+    timeout: Boolean = true,
+    showSignOut: Boolean = false,
+    showHmrcBanner: Boolean = false,
+    backLinkUrl: Option[String] = None,
+    beforeContent: Option[Html] = None
+)(
+    contentBlock: Html
+)(
+    implicit rh: RequestHeader,
+    messages: Messages
+)
 
 @head = {
 <link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" />
@@ -58,7 +71,8 @@
 @hmrcStandardPage(HmrcStandardPageParams(
     pageTitle = Some(pageTitle),
     templateOverrides = TemplateOverrides(
-        additionalHeadBlock = Some(head)
+        additionalHeadBlock = Some(head),
+        beforeContentBlock = beforeContent
     ),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(routes.CheckMembersProtectionEnhancementsController.onPageLoad().url),

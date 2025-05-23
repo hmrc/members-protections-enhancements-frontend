@@ -22,7 +22,7 @@ import models.{MemberDetails, NormalMode}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import viewmodels.models.FormPageViewModel
+import viewmodels.formPage.FormPageViewModel
 import views.html.WhatIsTheMembersNameView
 
 class WhatIsTheMembersNameControllerSpec extends SpecBase {

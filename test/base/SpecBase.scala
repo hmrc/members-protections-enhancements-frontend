@@ -51,7 +51,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.{BodyParsers, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
-import viewmodels.models.FormPageViewModel
+import viewmodels.formPage.FormPageViewModel
 
 import java.net.URLEncoder
 import scala.reflect.ClassTag
