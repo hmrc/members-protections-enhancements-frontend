@@ -98,12 +98,12 @@ membersPsaCheckRef.pensionSchemeAdminCheckRef = Pension scheme administrator che
 membersPsaCheckRef.error.required = Enter a pension scheme administrator check reference
 membersPsaCheckRef.error.invalid = Enter the member''s pension scheme administrator check reference in a valid format
 
-results.title = Results of your protections and enhancements check
-results.heading = Results of your protections and enhancements check
+results.title = Results of protections and enhancements check
+results.heading = Results of protections and enhancements check
 results.memberDetails.heading = Member''s details
-results.relatedContent = Related content
-results.mpsDashboard = MPS dashboard
-results.checkAnotherMpe = Check another member''s protections and enhancements
+results.relatedContent = What you can do next
+results.mpsDashboard = Return to Managing Pension Schemes dashboard
+results.checkAnotherMpe = Check another pension scheme member''s protections and enhancements
 results.moreInfo = More information on pension protections
 results.checkedOn =  Checked on
 results.takingHigherTaxFreeLumpSumsUrl=https://www.gov.uk/guidance/taking-higher-tax-free-lump-sums-with-lifetime-allowance-protection
@@ -122,7 +122,7 @@ results.individualProtectedAmtValue=£1,440,321
 results.individualProtectionRefNumValue=IP141234567890A
 
 results.fixedProtectionSummaryCard=Fixed protection 2016
-results.fixedProtectionStatusValue=- The protection is approved, but a higher level of protection is currently in place, it cannot currently be used
+results.fixedProtectionStatusValue=- The protection is approved, but a higher level of protection is currently in place, so it is not active
 results.fixedProtectionRefNumValue=FP1612345678901A
 
 results.primaryProtectionSummaryCard=Primary protection

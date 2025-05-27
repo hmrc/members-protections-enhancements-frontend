@@ -18,12 +18,11 @@
 
 @(
  msgKey: String,
- id: Option[String] = None,
  headingArgs: Option[String] = None,
- extraHeadingClasses: String = "",
- headerSize: String = "l"
+ headerSize: String = "l",
+ marginBottom: String = "12"
 )(implicit messages: Messages)
 
-<h1 class=@{s"govuk-heading-$headerSize $extraHeadingClasses"}>
+<h1 class="govuk-heading-@{headerSize} govuk-!-margin-bottom-@{marginBottom}">
  @{headingArgs.fold(messages(msgKey))(messages(msgKey, _))}
 </h1>

@@ -1,3 +1,5 @@
+@import "_print-button.scss";
+
 $custom-blue-dark: #005ea5;
 $custom-blue-light: #2b8cc4;
 
@@ -6,11 +8,6 @@ $custom-blue-light: #2b8cc4;
 }
 .js-enabled .js-visible {
   display: inline-block !important;
-}
-
-#print-link {
-    margin: 3rem 0;
-    line-height: 1.5;
 }
 
 .custom {
