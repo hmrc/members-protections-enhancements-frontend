@@ -30,14 +30,17 @@ class H1Spec extends SpecBase {
       val app = applicationBuilder(emptyUserAnswers).build()
       implicit lazy val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(Seq.empty)
 
-      val view: Html = new h1()("test-id", Some("Test heading"))
+      val view: Html = new h1()(
+        "test-id",
+        Some("Test heading")
+      )
 
       val doc: Document = Jsoup.parse(view.toString)
 
       val element = doc.select("h1")
       element.size mustBe 1
 
-      element.attr("class").split(" ") must contain("govuk-heading-l")
+      element.attr("class").split(" ") must contain.allOf("govuk-heading-l", "govuk-!-margin-bottom-12")
       element.text() mustBe "test-id"
     }
   }

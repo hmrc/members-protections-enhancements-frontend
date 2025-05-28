@@ -37,7 +37,7 @@ class H2Spec extends SpecBase {
       val element = doc.select("h2")
       element.size mustBe 1
 
-      element.attr("class").split(" ") must contain("govuk-heading-m")
+      element.attr("class").split(" ") must contain.allOf("govuk-heading-m", "govuk-!-margin-bottom-12")
       element.text() mustBe "test-id"
     }
   }
