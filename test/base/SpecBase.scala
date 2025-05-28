@@ -36,6 +36,9 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import controllers.actions._
 import models.UserAnswers
+import models.response.ProtectionStatusMapped.{Active, Dormant, Withdrawn}
+import models.response.ProtectionTypeMapped.{FixedProtection2016, IndividualProtection2014, InternationalEnhancementTransfer, PrimaryProtection}
+import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -130,4 +133,45 @@ trait SpecBase
       result mustBe a[JsSuccess[_]]
       result.get mustBe expectedModel
     }
+
+  val dummyProtectionRecords: ProtectionRecordDetails = ProtectionRecordDetails(
+    Seq(
+      ProtectionRecord(
+        protectionReference = Some("IP141234567890A"),
+        `type` = IndividualProtection2014,
+        status = Active,
+        protectedAmount = Some(1440321),
+        lumpSumAmount = None,
+        lumpSumPercentage = None,
+        enhancementFactor = None
+      ),
+      ProtectionRecord(
+        protectionReference = Some("FP1612345678901A"),
+        `type` = FixedProtection2016,
+        status = Dormant,
+        protectedAmount = None,
+        lumpSumAmount = None,
+        lumpSumPercentage = None,
+        enhancementFactor = None
+      ),
+      ProtectionRecord(
+        protectionReference = None,
+        `type` = PrimaryProtection,
+        status = Withdrawn,
+        protectedAmount = None,
+        lumpSumAmount = Some(34876),
+        lumpSumPercentage = Some(21),
+        enhancementFactor = None
+      ),
+      ProtectionRecord(
+        protectionReference = Some("IE211234567890A"),
+        `type` = InternationalEnhancementTransfer,
+        status = Active,
+        protectedAmount = Some(1440321),
+        lumpSumAmount = None,
+        lumpSumPercentage = None,
+        enhancementFactor = Some(0.12)
+      )
+    )
+  )
 }

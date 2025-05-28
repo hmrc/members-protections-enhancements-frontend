@@ -18,21 +18,56 @@ package models.response
 
 import play.api.libs.json.Reads
 
+sealed trait ProtectionTypeMapped {
+  val messagesKey: String
 
-sealed trait ProtectionTypeMapped
+  lazy val toContentString: String = s"results.protection.$messagesKey"
+}
 
 object ProtectionTypeMapped {
-  case object FixedProtection extends ProtectionTypeMapped
-  case object FixedProtection2014  extends ProtectionTypeMapped
-  case object FixedProtection2016 extends ProtectionTypeMapped
-  case object IndividualProtection2014 extends ProtectionTypeMapped
-  case object IndividualProtection2016 extends ProtectionTypeMapped
-  case object PrimaryProtection extends ProtectionTypeMapped
-  case object EnhancedProtection extends ProtectionTypeMapped
-  case object PensionCreditRightsPreCommencement extends ProtectionTypeMapped
-  case object PensionCreditRightsPreviouslyCrystallised extends ProtectionTypeMapped
-  case object InternationalEnhancementRelevantIndividual extends ProtectionTypeMapped
-  case object InternationalEnhancementTransfer extends ProtectionTypeMapped
+  case object FixedProtection extends ProtectionTypeMapped {
+    override val messagesKey: String = "FP"
+  }
+
+  case object FixedProtection2014  extends ProtectionTypeMapped {
+    override val messagesKey: String = "FP.2014"
+  }
+
+  case object FixedProtection2016 extends ProtectionTypeMapped {
+    override val messagesKey: String = "FP.2016"
+  }
+
+  case object IndividualProtection2014 extends ProtectionTypeMapped {
+    override val messagesKey: String = "IP.2014"
+  }
+
+  case object IndividualProtection2016 extends ProtectionTypeMapped {
+    override val messagesKey: String = "IP.2016"
+  }
+
+  case object PrimaryProtection extends ProtectionTypeMapped {
+    override val messagesKey: String = "PP"
+  }
+
+  case object EnhancedProtection extends ProtectionTypeMapped {
+    override val messagesKey: String = "EP"
+  }
+
+  case object PensionCreditRightsPreCommencement extends ProtectionTypeMapped {
+    override val messagesKey: String = "PCR.COM"
+  }
+
+  case object PensionCreditRightsPreviouslyCrystallised extends ProtectionTypeMapped {
+    override val messagesKey: String = "PCR.CRY"
+  }
+
+  case object InternationalEnhancementRelevantIndividual extends ProtectionTypeMapped {
+    override val messagesKey: String = "IE.RI"
+  }
+
+  case object InternationalEnhancementTransfer extends ProtectionTypeMapped {
+    override val messagesKey: String = "IE.T"
+  }
 
   implicit val reads: Reads[ProtectionTypeMapped] = ProtectionType.reads.map(_.toMapped)
 }

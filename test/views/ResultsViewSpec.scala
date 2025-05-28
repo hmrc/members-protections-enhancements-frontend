@@ -91,7 +91,7 @@ class ResultsViewSpec extends SpecBase {
 
     val view: Document =
       Jsoup.parse(app.injector.instanceOf[ResultsView].apply(memberDetails, membersDob, membersNino, membersPsaCheckRef,
-        Some(backLinkUrl), localDateTime).body
+        Some(backLinkUrl), localDateTime, dummyProtectionRecords).body
       )
   }
 

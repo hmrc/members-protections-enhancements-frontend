@@ -59,7 +59,7 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(memberDetails, membersDob, membersNino, membersPsaCheckRef,
-          Some(backLinkRoute), localDateTime)(request, messages(application)).toString
+          Some(backLinkRoute), localDateTime, dummyProtectionRecords)(request, messages(application)).toString
       }
     }
 

@@ -25,7 +25,15 @@ case class ProtectionRecord(protectionReference: Option[String],
                             protectedAmount: Option[Int],
                             lumpSumAmount: Option[Int],
                             lumpSumPercentage: Option[Int],
-                            enhancementFactor: Option[Double])
+                            enhancementFactor: Option[Double]) {
+  private def toOptString[A](valOpt: Option[A]): Option[String] = valOpt.map(_.toString)
+
+  lazy val lumpSumPercentageContentStringOpt: Option[String] = lumpSumPercentage.map(
+    amnt => amnt.toString + "%"
+  )
+
+  lazy val enhancementFactorContentStringOpt: Option[String] = toOptString(enhancementFactor)
+}
 
 object ProtectionRecord {
   implicit val reads: Reads[ProtectionRecord] = (
