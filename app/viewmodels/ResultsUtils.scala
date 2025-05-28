@@ -42,23 +42,23 @@ object ResultsUtils {
       value = Value(HtmlContent(
         s"""
            |<strong class="govuk-tag govuk-tag--${status.colourString}">
-           |  ${messages(status.toNameContentString)}
+           |  ${messages(status.toNameMessagesString)}
            |</strong>
-           |${messages(status.toMessageContentString)}
+           |${messages(status.toDescriptionMessagesString)}
         """.stripMargin
       ))
     )) ++
       optValueToSummaryListRow(protectionReference, "results.protectionRefNumKey") ++
       optValueToSummaryListRow(CurrencyFormats.formatOptInt(protectedAmount), "results.protectionRefNumKey") ++
       optValueToSummaryListRow(CurrencyFormats.formatOptInt(lumpSumAmount), "results.protectionRefNumKey") ++
-      optValueToSummaryListRow(lumpSumPercentageContentStringOpt, "results.protectionRefNumKey") ++
-      optValueToSummaryListRow(enhancementFactorContentStringOpt, "results.protectionRefNumKey")
+      optValueToSummaryListRow(lumpSumPercentHtmlStringOpt, "results.protectionRefNumKey") ++
+      optValueToSummaryListRow(enhancementFactorHtmlStringOpt, "results.protectionRefNumKey")
 
     SummaryList(
       rows = summaryListRows,
       card = Some(Card(
         title = Some(CardTitle(
-          content = HtmlContent(messages(`type`.toContentString)),
+          content = HtmlContent(messages(`type`.toMessagesString)),
           headingLevel = Some(2)
         ))
       ))

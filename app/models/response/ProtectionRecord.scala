@@ -26,13 +26,9 @@ case class ProtectionRecord(protectionReference: Option[String],
                             lumpSumAmount: Option[Int],
                             lumpSumPercentage: Option[Int],
                             enhancementFactor: Option[Double]) {
-  private def toOptString[A](valOpt: Option[A]): Option[String] = valOpt.map(_.toString)
 
-  lazy val lumpSumPercentageContentStringOpt: Option[String] = lumpSumPercentage.map(
-    amnt => amnt.toString + "%"
-  )
-
-  lazy val enhancementFactorContentStringOpt: Option[String] = toOptString(enhancementFactor)
+  lazy val lumpSumPercentHtmlStringOpt: Option[String] = lumpSumPercentage.map(_.toString + "%")
+  lazy val enhancementFactorHtmlStringOpt: Option[String] = enhancementFactor.map(_.toString)
 }
 
 object ProtectionRecord {

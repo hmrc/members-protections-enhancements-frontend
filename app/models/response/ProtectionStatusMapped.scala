@@ -18,29 +18,17 @@ package models.response
 
 import play.api.libs.json.Reads
 
-sealed trait ProtectionStatusMapped {
-  val messagesKey: String
-  val colourString: String
+sealed abstract case class ProtectionStatusMapped(messagesKey: String, colourString: String) {
+  private val baseMessagesString: String = "results.status"
 
-  lazy val toNameContentString: String = messagesKey + ".name"
-  lazy val toMessageContentString: String = messagesKey + ".message"
+  val toNameMessagesString: String = baseMessagesString + messagesKey + ".name"
+  val toDescriptionMessagesString: String = baseMessagesString + messagesKey + ".message"
 }
 
 object ProtectionStatusMapped {
-  case object Active extends ProtectionStatusMapped {
-    override val messagesKey: String = "results.status.active"
-    override val colourString: String = "green"
-  }
-
-  case object Dormant extends ProtectionStatusMapped {
-    override val messagesKey: String = "results.status.dormant"
-    override val colourString: String = "yellow"
-  }
-
-  case object Withdrawn extends ProtectionStatusMapped {
-    override val messagesKey: String = "results.status.withdrawn"
-    override val colourString: String = "red"
-  }
+  object Active extends ProtectionStatusMapped(messagesKey = "active", colourString = "green")
+  object Dormant extends ProtectionStatusMapped(messagesKey = "dormant", colourString = "yellow")
+  object Withdrawn extends ProtectionStatusMapped(messagesKey = "withdrawn", colourString = "red")
 
   implicit val reads: Reads[ProtectionStatusMapped] = ProtectionStatus.reads.map(_.toMapped)
 }
