@@ -104,9 +104,7 @@ results.memberDetails.heading = Member''s details
 results.relatedContent = What you can do next
 results.mpsDashboard = Return to Managing Pension Schemes dashboard
 results.checkAnotherMpe = Check another pension scheme member''s protections and enhancements
-results.moreInfo = More information on pension protections
 results.checkedOn =  Checked on
-results.takingHigherTaxFreeLumpSumsUrl = https://www.gov.uk/guidance/taking-higher-tax-free-lump-sums-with-lifetime-allowance-protection
 results.mpsDashboardLink = http://localhost:8204/manage-pension-schemes/overview
 
 results.statusKey = Status

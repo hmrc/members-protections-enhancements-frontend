@@ -26,7 +26,7 @@ object CurrencyFormats {
     f
   }
 
-  private def format(value: Number): String =
+  def format(value: Number): String =
     currencyFormatter
       .format(value)
       .replace("GBP", "£")

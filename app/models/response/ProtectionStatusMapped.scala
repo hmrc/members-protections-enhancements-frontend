@@ -19,7 +19,7 @@ package models.response
 import play.api.libs.json.Reads
 
 sealed abstract case class ProtectionStatusMapped(messagesKey: String, colourString: String) {
-  private val baseMessagesString: String = "results.status"
+  private val baseMessagesString: String = "results.status."
 
   val toNameMessagesString: String = baseMessagesString + messagesKey + ".name"
   val toDescriptionMessagesString: String = baseMessagesString + messagesKey + ".message"

@@ -30,7 +30,6 @@ class ResultsControllerSpec extends SpecBase {
 
   "Results Controller" - {
     "must return OK and the correct view for a GET" in {
-
       val userAnswers = emptyUserAnswers
         .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
         .set(page = MembersDobPage, value = MembersDob(1, 1, 2022)).success.value
@@ -41,9 +40,7 @@ class ResultsControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
-
         val result = route(application, request).value
-
         val view = application.injector.instanceOf[ResultsView]
 
         val memberDetails: MemberDetails = MemberDetails("Pearl", "Harvey")
@@ -58,18 +55,23 @@ class ResultsControllerSpec extends SpecBase {
         val localDateTime = dateTimeWithZone.format(formatter)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(memberDetails, membersDob, membersNino, membersPsaCheckRef,
-          Some(backLinkRoute), localDateTime, dummyProtectionRecords)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          memberDetails,
+          membersDob,
+          membersNino,
+          membersPsaCheckRef,
+          Some(backLinkRoute),
+          localDateTime,
+          dummyProtectionRecords
+        )(request, messages(application)).toString
       }
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

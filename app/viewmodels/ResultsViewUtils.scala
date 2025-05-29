@@ -22,10 +22,10 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import utils.CurrencyFormats
 
-object ResultsUtils {
+object ResultsViewUtils {
 
-  private def optValueToSummaryListRow(valueOpt: Option[String], keyString: String)
-                                      (implicit messages: Messages): Seq[SummaryListRow] =
+  protected[viewmodels] def optValueToSummaryListRow(valueOpt: Option[String], keyString: String)
+                                                    (implicit messages: Messages): Seq[SummaryListRow] =
     valueOpt.fold(Seq.empty[SummaryListRow])(value =>
       Seq(SummaryListRow(
         key = Key(HtmlContent(messages(keyString))),
@@ -33,8 +33,8 @@ object ResultsUtils {
       ))
     )
 
-  private def protectionRecordToSummaryList(protectionRecord: ProtectionRecord)
-                                           (implicit messages: Messages): SummaryList = {
+  def protectionRecordToSummaryList(protectionRecord: ProtectionRecord)
+                                   (implicit messages: Messages): SummaryList = {
     import protectionRecord._
 
     val summaryListRows: Seq[SummaryListRow] = Seq(SummaryListRow(
@@ -45,14 +45,14 @@ object ResultsUtils {
            |  ${messages(status.toNameMessagesString)}
            |</strong>
            |${messages(status.toDescriptionMessagesString)}
-        """.stripMargin
+           |""".stripMargin
       ))
     )) ++
       optValueToSummaryListRow(protectionReference, "results.protectionRefNumKey") ++
-      optValueToSummaryListRow(CurrencyFormats.formatOptInt(protectedAmount), "results.protectionRefNumKey") ++
-      optValueToSummaryListRow(CurrencyFormats.formatOptInt(lumpSumAmount), "results.protectionRefNumKey") ++
-      optValueToSummaryListRow(lumpSumPercentHtmlStringOpt, "results.protectionRefNumKey") ++
-      optValueToSummaryListRow(enhancementFactorHtmlStringOpt, "results.protectionRefNumKey")
+      optValueToSummaryListRow(CurrencyFormats.formatOptInt(protectedAmount), "results.protectedAmtKey") ++
+      optValueToSummaryListRow(CurrencyFormats.formatOptInt(lumpSumAmount), "results.lumpSumKey") ++
+      optValueToSummaryListRow(lumpSumPercentHtmlStringOpt, "results.lumpSumPercentKey") ++
+      optValueToSummaryListRow(enhancementFactorHtmlStringOpt, "results.enhancementFactorKey")
 
     SummaryList(
       rows = summaryListRows,
@@ -60,7 +60,8 @@ object ResultsUtils {
         title = Some(CardTitle(
           content = HtmlContent(messages(`type`.toMessagesString)),
           headingLevel = Some(2)
-        ))
+        )),
+        attributes = Map("id" -> `type`.getClass.getSimpleName.dropRight(1))
       ))
     )
   }
