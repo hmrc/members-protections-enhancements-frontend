@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,22 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package models.response
 
-@(
- msgKey: String,
- headingArgs: Option[String] = None,
- headerSize: String = "l",
- marginBottom: String = "12"
-)(implicit messages: Messages)
+import base.SpecBase
+import models.response.ProtectionStatusMapped.{Active, Dormant, Withdrawn}
 
-<h1 class="govuk-heading-@{headerSize} govuk-!-margin-bottom-@{marginBottom}">
- @{headingArgs.fold(messages(msgKey))(messages(msgKey, _))}
-</h1>
+class ProtectionStatusMappedSpec extends SpecBase {
+  "round test" -> {
+    val values: Seq[(String, ProtectionStatusMapped)] = Seq(
+      "OPEN" -> Active,
+      "DORMANT" -> Dormant,
+      "WITHDRAWN" -> Withdrawn
+    )
+
+    for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, expectedModel)
+  }
+
+}

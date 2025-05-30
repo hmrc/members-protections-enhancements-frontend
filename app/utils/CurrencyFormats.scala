@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package utils
 
-@(
- msgKey: String,
- headingArgs: Option[String] = None,
- headerSize: String = "l",
- marginBottom: String = "12"
-)(implicit messages: Messages)
+import java.text.NumberFormat
+import java.util.{Currency, Locale}
 
-<h1 class="govuk-heading-@{headerSize} govuk-!-margin-bottom-@{marginBottom}">
- @{headingArgs.fold(messages(msgKey))(messages(msgKey, _))}
-</h1>
+object CurrencyFormats {
+  private val currencyFormatter = {
+    val f: NumberFormat = NumberFormat.getCurrencyInstance
+    f.setCurrency(Currency.getInstance(Locale.UK))
+    f
+  }
+
+  def format(value: Number): String =
+    currencyFormatter
+      .format(value)
+      .replace("GBP", "£")
+      .replace(".00", "")
+
+  def formatOptInt(valueOpt: Option[Int]): Option[String] = valueOpt.map(intVal =>
+    format(Integer.valueOf(intVal))
+  )
+}

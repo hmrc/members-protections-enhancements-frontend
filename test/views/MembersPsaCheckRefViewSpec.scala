@@ -27,7 +27,7 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import viewmodels.models.FormPageViewModel
+import viewmodels.formPage.FormPageViewModel
 import views.html.MembersPsaCheckRefView
 
 class MembersPsaCheckRefViewSpec extends SpecBase {

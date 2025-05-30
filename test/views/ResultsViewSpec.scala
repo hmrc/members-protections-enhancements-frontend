@@ -18,6 +18,7 @@ package views
 
 import base.SpecBase
 import controllers.routes
+import models.response.ProtectionRecord
 import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, NormalMode}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -26,56 +27,56 @@ import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import views.html.ResultsView
+import uk.gov.hmrc.govukfrontend.views.html.components.GovukSummaryList
+import viewmodels.ResultsViewUtils
 
 class ResultsViewSpec extends SpecBase {
 
   "view" - {
-    "display correct guidance and text" in new Setup {
+    "display correctly" - {
+      "with correct top level header and title" in new Setup {
+        view.html must include (messages(app)("results.title"))
+        view.getElementsByTag("h1").text() mustBe messages(app)("results.heading")
+      }
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("results.heading")
-      view.html.contains(messages(app)("results.title"))
-      view.html.contains(messages(app)("results.memberDetails.heading"))
-      view.html.contains(messages(app)("membersName.name"))
-      view.html.contains(messages(app)("membersDob.dob"))
-      view.html.contains(messages(app)("membersNino.nino"))
-      view.html.contains(messages(app)("results.relatedContent"))
-      view.html.contains(messages(app)("results.mpsDashboard"))
-      view.html.contains(messages(app)("results.checkAnotherMpe"))
-      view.html.contains(messages(app)("results.moreInfo"))
-      view.html.contains(messages(app)("results.checkedOn"))
-      view.html.contains(messages(app)("site.print"))
+      "with expected user details section" in new Setup {
+        view.html must include (messages(app)("results.memberDetails.heading"))
+        view.html must include (messages(app)("membersName.name"))
+        view.html must include (messages(app)("membersDob.dob"))
+        view.html must include (messages(app)("membersNino.nino"))
+        view.html must include (messages(app)("membersPsaCheckRef.pensionSchemeAdminCheckRef"))
+      }
 
-      view.html.contains(messages(app)("results.takingHigherTaxFreeLumpSumsUrl"))
-      view.html.contains(messages(app)("results.statusKey"))
-      view.html.contains(messages(app)("results.protectedAmtKey"))
-      view.html.contains(messages(app)("results.protectionRefNumKey"))
-      view.html.contains(messages(app)("results.lumpSumKey"))
-      view.html.contains(messages(app)("results.factorKey"))
-      view.html.contains(messages(app)("results.enhancementFactorKey"))
+      "with expected protection details" - {
+        def checkContainsSummaryList(protection: ProtectionRecord): Unit = {
+          val typeString = protection.`type`.getClass.getSimpleName.dropRight(1)
 
-      view.html.contains(messages(app)("results.individualProtectionSummaryCard"))
-      view.html.contains(messages(app)("results.individualProtectionStatusValue"))
-      view.html.contains(messages(app)("results.individualProtectedAmtValue"))
-      view.html.contains(messages(app)("results.individualProtectionRefNumValue"))
+          s"for summary list item: $typeString" in new Setup {
+            val summaryListContent: Document = Jsoup.parse(
+              app.injector.instanceOf[GovukSummaryList].apply(
+                ResultsViewUtils.protectionRecordToSummaryList(protection)
+              ).body
+            )
 
-      view.html.contains(messages(app)("results.fixedProtectionSummaryCard"))
-      view.html.contains(messages(app)("results.fixedProtectionStatusValue"))
-      view.html.contains(messages(app)("results.fixedProtectionRefNumValue"))
+            view.getElementById(typeString).html() mustBe
+              summaryListContent.getElementById(typeString).html()
+          }
+        }
 
-      view.html.contains(messages(app)("results.primaryProtectionSummaryCard"))
-      view.html.contains(messages(app)("results.primaryProtectionStatusValue"))
-      view.html.contains(messages(app)("results.primaryProtectionLumpSumValue"))
-      view.html.contains(messages(app)("results.primaryProtectionFactorValue"))
+        dummyProtectionRecords.protectionRecords.map(record => checkContainsSummaryList(record))
+      }
 
-      view.html.contains(messages(app)("results.nonResidentFactorEnhancementStatusCard"))
-      view.html.contains(messages(app)("results.nonResidentFactorEnhancementStatusValue"))
-      view.html.contains(messages(app)("results.nonResidentFactorEnhancementFactorValue"))
-      view.html.contains(messages(app)("results.nonResidentFactorEnhancementProtectionRefNumValue"))
+      "with expected footer content" in new Setup {
+        view.html must include (messages(app)("results.checkedOn"))
+        view.html must include (messages(app)("site.print"))
+        view.html must include (messages(app)("results.relatedContent"))
+        view.html must include (messages(app)("results.mpsDashboard"))
+        view.html must include (messages(app)("results.checkAnotherMpe"))
+      }
     }
   }
 
   trait Setup {
-
     val app: Application = applicationBuilder(emptyUserAnswers).build()
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
@@ -89,10 +90,17 @@ class ResultsViewSpec extends SpecBase {
 
     val localDateTime: String = "02 April 2025 at 15:12"
 
-    val view: Document =
-      Jsoup.parse(app.injector.instanceOf[ResultsView].apply(memberDetails, membersDob, membersNino, membersPsaCheckRef,
-        Some(backLinkUrl), localDateTime).body
-      )
+    val view: Document = Jsoup.parse(
+      app.injector.instanceOf[ResultsView].apply(
+        memberDetails = memberDetails,
+        membersDob = membersDob,
+        membersNino = membersNino,
+        membersPsaCheckRef = membersPsaCheckRef,
+        backLinkUrl = Some(backLinkUrl),
+        formattedTimestamp = localDateTime,
+        protectionRecordDetails = dummyProtectionRecords
+      ).body
+    )
   }
 
 }

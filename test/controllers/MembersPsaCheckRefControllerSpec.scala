@@ -23,7 +23,7 @@ import pages.{MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import viewmodels.models.FormPageViewModel
+import viewmodels.formPage.FormPageViewModel
 import views.html.MembersPsaCheckRefView
 
 class MembersPsaCheckRefControllerSpec extends SpecBase {

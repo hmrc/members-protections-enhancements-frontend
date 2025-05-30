@@ -15,7 +15,7 @@
  *@
 
 @import config.FrontendAppConfig
-@import uk.gov.hmrc.hmrcfrontend.views.config.StandardAlphaBanner
+@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers._
 @import uk.gov.hmrc.hmrcfrontend.views.html.components._
@@ -28,11 +28,25 @@
     hmrcTimeoutDialog: HmrcTimeoutDialog,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     hmrcScripts: HmrcScripts,
-    alphaBanner: StandardAlphaBanner,
+    standardBetaBanner: StandardBetaBanner,
     hmrcStandardPage: HmrcStandardPage
 )
 
-@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = false, showHmrcBanner: Boolean = false, backLinkUrl: Option[String] = None)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+@(
+    pageTitle: String,
+    showBackLink: Boolean = true,
+    timeout: Boolean = true,
+    showSignOut: Boolean = false,
+    showHmrcBanner: Boolean = false,
+    backLinkUrl: Option[String] = None,
+    beforeContent: Option[Html] = None,
+    fullWidthContent: Boolean = false
+)(
+    contentBlock: Html
+)(
+    implicit rh: RequestHeader,
+    messages: Messages
+)
 
 @head = {
 <link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" />
@@ -51,6 +65,18 @@
     }
 }
 
+@mainTemplateClass = {
+    @if(fullWidthContent) { "govuk-grid-column-full" } else { "govuk-grid-column-two-thirds" }
+}
+
+@mainContentLayout = {
+<div class="govuk-grid-row">
+    <div class=@mainTemplateClass>
+        @content
+    </div>
+</div>
+}
+
 @content = {
     @contentBlock
 }
@@ -58,14 +84,17 @@
 @hmrcStandardPage(HmrcStandardPageParams(
     pageTitle = Some(pageTitle),
     templateOverrides = TemplateOverrides(
-        additionalHeadBlock = Some(head)
+        additionalHeadBlock = Some(head),
+        beforeContentBlock = beforeContent,
+        mainContentLayout = Some(_ => mainContentLayout)
     ),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(routes.CheckMembersProtectionEnhancementsController.onPageLoad().url),
         signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
     ),
     banners = Banners(
-        displayHmrcBanner = showHmrcBanner
+        displayHmrcBanner = showHmrcBanner,
+        phaseBanner = if (appConfig.betaBannerEnabled) Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)) else None
     ),
     backLink = if (showBackLink && backLinkUrl != None) Some(BackLink.withDefaultText(backLinkUrl.get)) else None
 ))(content)

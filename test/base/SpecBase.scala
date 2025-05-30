@@ -36,6 +36,9 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import controllers.actions._
 import models.UserAnswers
+import models.response.ProtectionStatusMapped.{Active, Dormant, Withdrawn}
+import models.response.ProtectionTypeMapped.{FixedProtection2016, IndividualProtection2014, InternationalEnhancementTransfer, PrimaryProtection}
+import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -46,11 +49,12 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.{JsResult, JsString, JsSuccess, Reads}
 import play.api.libs.ws.WSClient
 import play.api.mvc.{BodyParsers, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
-import viewmodels.models.FormPageViewModel
+import viewmodels.formPage.FormPageViewModel
 
 import java.net.URLEncoder
 import scala.reflect.ClassTag
@@ -76,7 +80,7 @@ trait SpecBase
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  val parsers = app.injector.instanceOf[BodyParsers.Default]
+  val parsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
 
   val fakePsaIdentifierAction: FakePsaIdentifierAction = new FakePsaIdentifierAction(parsers)
 
@@ -122,4 +126,52 @@ trait SpecBase
     resetWireMock()
     super.beforeEach()
   }
+
+  def enumRoundTest[ModelType: Reads](stringValue: String, expectedModel: ModelType): Unit =
+    s"when provided with valid string '$stringValue' should read and map to the correct model" in {
+      val result: JsResult[ModelType] = JsString(stringValue).validate[ModelType]
+      result mustBe a[JsSuccess[_]]
+      result.get mustBe expectedModel
+    }
+
+  val dummyProtectionRecords: ProtectionRecordDetails = ProtectionRecordDetails(
+    Seq(
+      ProtectionRecord(
+        protectionReference = Some("IP141234567890A"),
+        `type` = IndividualProtection2014,
+        status = Active,
+        protectedAmount = Some(1440321),
+        lumpSumAmount = None,
+        lumpSumPercentage = None,
+        enhancementFactor = None
+      ),
+      ProtectionRecord(
+        protectionReference = Some("FP1612345678901A"),
+        `type` = FixedProtection2016,
+        status = Dormant,
+        protectedAmount = None,
+        lumpSumAmount = None,
+        lumpSumPercentage = None,
+        enhancementFactor = None
+      ),
+      ProtectionRecord(
+        protectionReference = None,
+        `type` = PrimaryProtection,
+        status = Withdrawn,
+        protectedAmount = None,
+        lumpSumAmount = Some(34876),
+        lumpSumPercentage = Some(21),
+        enhancementFactor = None
+      ),
+      ProtectionRecord(
+        protectionReference = Some("IE211234567890A"),
+        `type` = InternationalEnhancementTransfer,
+        status = Active,
+        protectedAmount = Some(1440321),
+        lumpSumAmount = None,
+        lumpSumPercentage = None,
+        enhancementFactor = Some(0.12)
+      )
+    )
+  )
 }

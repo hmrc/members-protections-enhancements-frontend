@@ -98,40 +98,43 @@ membersPsaCheckRef.pensionSchemeAdminCheckRef = Pension scheme administrator che
 membersPsaCheckRef.error.required = Enter a pension scheme administrator check reference
 membersPsaCheckRef.error.invalid = Enter the member''s pension scheme administrator check reference in a valid format
 
-results.title = Results of your protections and enhancements check
-results.heading = Results of your protections and enhancements check
+results.title = Results of protections and enhancements check
+results.heading = Results of protections and enhancements check
 results.memberDetails.heading = Member''s details
-results.relatedContent = Related content
-results.mpsDashboard = MPS dashboard
-results.checkAnotherMpe = Check another member''s protections and enhancements
-results.moreInfo = More information on pension protections
+results.relatedContent = What you can do next
+results.mpsDashboard = Return to Managing Pension Schemes dashboard
+results.checkAnotherMpe = Check another pension scheme member''s protections and enhancements
 results.checkedOn =  Checked on
-results.takingHigherTaxFreeLumpSumsUrl=https://www.gov.uk/guidance/taking-higher-tax-free-lump-sums-with-lifetime-allowance-protection
-results.mpsDashboardLink=http://localhost:8204/manage-pension-schemes/overview
+results.mpsDashboardLink = http://localhost:8204/manage-pension-schemes/overview
 
-results.statusKey=Status
-results.protectedAmtKey=Protected amount
-results.protectionRefNumKey=Protection reference number
-results.lumpSumKey=Lump sum
-results.factorKey=Factor
-results.enhancementFactorKey=Enhancement factor
+results.statusKey = Status
+results.protectedAmtKey = Protected amount
+results.protectionRefNumKey = Protection reference number
+results.lumpSumKey = Lump sum
+results.lumpSumPercentKey = Lump Sum %
+results.enhancementFactorKey = Enhancement factor
+results.poundSign = £
+results.percentSign = %
 
-results.individualProtectionSummaryCard=Individual protection 2014
-results.individualProtectionStatusValue=- The protection is valid and can be used
-results.individualProtectedAmtValue=£1,440,321
-results.individualProtectionRefNumValue=IP141234567890A
+results.status.active.name = Active
+results.status.dormant.name = Dormant
+results.status.withdrawn.name = Withdrawn
 
-results.fixedProtectionSummaryCard=Fixed protection 2016
-results.fixedProtectionStatusValue=- The protection is approved, but a higher level of protection is currently in place, it cannot currently be used
-results.fixedProtectionRefNumValue=FP1612345678901A
+results.status.active.message = - The protection is valid and can be used
+results.status.dormant.message = - The protection is approved, but a higher level of protection is currently in place, so it is not active
+results.status.withdrawn.message = - The protection has been lost, so it is not valid
 
-results.primaryProtectionSummaryCard=Primary protection
-results.primaryProtectionStatusValue=- The protection has been lost, so it is not valid
-results.primaryProtectionLumpSumValue=£34,876
-results.primaryProtectionFactorValue=0.21
+results.protection.IP.2014 = Individual Protection 2014
+results.protection.IP.2016 = Individual Protection 2016
+results.protection.FP = Fixed Protection
+results.protection.FP.2014 = Fixed Protection 2014
+results.protection.FP.2016 = Fixed Protection 2016
+results.protection.PP = Primary Protection
+results.protection.EP = Enhanced Protection
+results.protection.PCR.COM = Pension Credit (pre-commencement)
+results.protection.PCR.CRY = Pension Credit (from previously crystallised rights)
+results.protection.IE.RI = International Enhancement (individuals who are relevant overseas individuals)
+results.protection.IE.T = International Enhancement (transfer from a recognised overseas pension scheme)
 
-results.nonResidentFactorEnhancementStatusCard=Non-residence factor for a transfer from an overseas pension scheme
-results.nonResidentFactorEnhancementStatusValue=- The enhancement is valid and can be used
-results.nonResidentFactorEnhancementFactorValue=0.12
-results.nonResidentFactorEnhancementProtectionRefNumValue=IE211234567890A
-
+results.breadcrumbs.mps = Managing Pension Schemes
+results.breadcrumbs.mpe = Check a member''s protections and enhancements

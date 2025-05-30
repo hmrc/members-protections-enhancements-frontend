@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,17 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this()
+package viewmodels.formPage
 
-@(
- msgKey: String,
- headingArgs: Option[String] = None,
- headerSize: String = "l",
- marginBottom: String = "12"
-)(implicit messages: Messages)
+import models.{Mode, NormalMode}
+import play.api.mvc.Call
+import viewmodels.DisplayMessage.Message
 
-<h1 class="govuk-heading-@{headerSize} govuk-!-margin-bottom-@{marginBottom}">
- @{headingArgs.fold(messages(msgKey))(messages(msgKey, _))}
-</h1>
+case class FormPageViewModel(
+                              mode: Mode = NormalMode,
+                              buttonText: Message = Message("site.continue"),
+                              onSubmit: Call,
+                              backLinkUrl: Option[String] = None,
+                              showBackLink: Boolean = true
+                            )

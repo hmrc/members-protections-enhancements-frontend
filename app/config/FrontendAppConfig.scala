@@ -18,15 +18,26 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
+import play.api.mvc.RequestHeader
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   private def loadConfig(key: String): String = configuration.get[String](key)
 
+  //Application config
   val host: String    = loadConfig("host")
   val appName: String = loadConfig("appName")
 
+  //Timeout config
+  val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
+  val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
+
+  //MongoDB config
+  val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+
+  //URLs
   val loginUrl: String         = loadConfig("urls.login")
   val loginContinueUrl: String = loadConfig("urls.loginContinue")
   //val redirectUrl = s"$loginUrl?continue=http%3A%2F%2Flocalhost%3A6741$loginContinueUrl"
@@ -40,9 +51,15 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   lazy val psaOverviewUrl: String = loadConfig("urls.psaOverview")
   lazy val pspDashboardUrl: String = loadConfig("urls.pspDashboard")
 
-  val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
-  val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
+  //Beta feedback config
+  private def redirectUrl(implicit request: RequestHeader) = SafeRedirectUrl(host + request.uri).encodedUrl
+  private val contactFormServiceIdentifier: String = appName
+  private val contactFrontendUrl: String = configuration.get[Service]("microservice.services.contact-frontend").baseUrl
 
-  val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+  def betaFeedbackUrl(implicit request: RequestHeader): String =
+    s"$contactFrontendUrl/contact/beta-feedback" +
+      s"?service=$contactFormServiceIdentifier&backUrl=$redirectUrl"
 
+  //Feature switches
+  val betaBannerEnabled: Boolean = configuration.get[Boolean]("feature-switch.betaBannerEnabled")
 }

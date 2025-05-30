@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package viewmodels.models
+package models.response
 
-import models.{Mode, NormalMode}
-import play.api.mvc.Call
-import viewmodels.DisplayMessage.Message
+import play.api.libs.json.{Json, Reads}
 
-case class FormPageViewModel(
-                              mode: Mode = NormalMode,
-                              buttonText: Message = Message("site.continue"),
-                              onSubmit: Call,
-                              backLinkUrl: Option[String] = None,
-                              showBackLink: Boolean = true
-                            )
+case class ProtectionRecordDetails(protectionRecords: Seq[ProtectionRecord])
+
+object ProtectionRecordDetails {
+  implicit val reads: Reads[ProtectionRecordDetails] = Json.reads[ProtectionRecordDetails]
+}
