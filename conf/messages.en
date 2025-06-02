@@ -50,6 +50,12 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
+sessionTimeout.title = You''ve been signed out due to inactivity
+sessionTimeout.heading = You''ve been signed out due to inactivity
+sessionTimeout.body.1 = You''ll need to
+sessionTimeout.body.signInLink = sign in
+sessionTimeout.body.2 = again.
+
 whatYouWillNeed.title = What you''ll need
 whatYouWillNeed.heading = What you''ll need
 whatYouWillNeed.p1 = You''ll need the member''s:

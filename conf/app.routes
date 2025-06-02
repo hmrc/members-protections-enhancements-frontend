@@ -15,9 +15,11 @@ GET         /submit-check-your-answers                                          
 
 GET         /account/sign-out-survey                                            controllers.auth.AuthController.signOut()
 GET         /account/sign-out                                                   controllers.auth.AuthController.signOutNoSurvey()
+GET         /account/timeout                                                    controllers.auth.AuthController.sessionTimeout()
 GET         /account/signed-out                                                 controllers.auth.SignedOutController.onPageLoad()
 
 GET         /unauthorised                                                       controllers.UnauthorisedController.onPageLoad()
+GET         /timeout-idle                                                       controllers.auth.SessionTimeoutController.onPageLoad()
 
 GET         /members-name                                                       controllers.WhatIsTheMembersNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /members-name                                                       controllers.WhatIsTheMembersNameController.onSubmit(mode: Mode = NormalMode)

@@ -52,12 +52,13 @@
 <link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet" type="text/css" />
     @if(timeout) {
         @hmrcTimeoutDialog(TimeoutDialog(
-            timeout             = Some(appConfig.timeout),
-            countdown           = Some(appConfig.countdown),
+            timeout             = Some(1),
+            countdown           = Some(2),
             keepAliveUrl        = Some(routes.KeepAliveController.keepAlive().url),
             keepAliveButtonText = Some(messages("timeout.keepAlive")),
             signOutUrl          = Some(controllers.auth.routes.AuthController.signOut().url),
             signOutButtonText   = Some(messages("timeout.signOut")),
+            timeoutUrl          = Some(controllers.auth.routes.AuthController.sessionTimeout().url),
             title               = Some(messages("timeout.title")),
             message             = Some(messages("timeout.message")),
             language            = Some(messages.lang.code)

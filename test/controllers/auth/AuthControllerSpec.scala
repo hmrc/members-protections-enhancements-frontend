@@ -89,4 +89,30 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
   }
+
+  "sessionTimeout" - {
+    "must clear users answers and redirect to sign out, specifying SessionTimeout as the continue URL" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(emptyUserAnswers)
+          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .build()
+
+      running(application) {
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val request   = FakeRequest(GET, routes.AuthController.sessionTimeout().url)
+
+        val result = route(application, request).value
+
+        val encodedContinueUrl  = URLEncoder.encode(appConfig.host + routes.SessionTimeoutController.onPageLoad().url, "UTF-8")
+        val expectedRedirectUrl = s"${appConfig.signOutUrl}?continue=$encodedContinueUrl&origin=${appConfig.appName}"
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual expectedRedirectUrl
+        verify(mockSessionRepository, times(1)).clear(eqTo(userAnswersId))
+      }
+    }
+  }
 }
