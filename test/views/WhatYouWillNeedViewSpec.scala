@@ -24,20 +24,20 @@ import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import views.html.CheckMembersProtectionEnhancementsView
+import views.html.WhatYouWillNeedView
 
-class CheckMembersProtectionEnhancementsViewSpec extends SpecBase {
+class WhatYouWillNeedViewSpec extends SpecBase {
 
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("checkMembersProtectionEnhancements.heading")
+      view.getElementsByTag("h1").text() mustBe messages(app)("whatYouWillNeed.heading")
 
-      view.html.contains(messages(app)("checkMembersProtectionEnhancements.p1"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.full-name"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.dob"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.nino"))
-      view.text.contains(messages(app)("checkMembersProtectionEnhancements.pension-scheme-admin-check-ref"))
+      view.html.contains(messages(app)("whatYouWillNeed.p1"))
+      view.text.contains(messages(app)("whatYouWillNeed.full-name"))
+      view.text.contains(messages(app)("whatYouWillNeed.dob"))
+      view.text.contains(messages(app)("whatYouWillNeed.nino"))
+      view.text.contains(messages(app)("whatYouWillNeed.pension-scheme-admin-check-ref"))
     }
   }
 
@@ -51,8 +51,7 @@ class CheckMembersProtectionEnhancementsViewSpec extends SpecBase {
     val backLinkUrl: String = routes.MpsDashboardController.redirectToMps().url
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[CheckMembersProtectionEnhancementsView].apply(Some(backLinkUrl)).body
-      )
+      Jsoup.parse(app.injector.instanceOf[WhatYouWillNeedView].apply(Some(backLinkUrl)).body)
   }
 
 }

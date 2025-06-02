@@ -18,8 +18,8 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import pages._
 import models._
+import pages._
 
 class NavigatorSpec extends SpecBase {
 
@@ -32,12 +32,12 @@ class NavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the route map to Index" in {
 
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.CheckMembersProtectionEnhancementsController.onPageLoad()
+        navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.WhatYouWillNeedController.onPageLoad()
       }
 
       "must go to WhatIsTheMembersNameController page" in {
 
-        navigator.nextPage(CheckMembersProtectionEnhancementsPage, NormalMode, UserAnswers("id")) mustBe
+        navigator.nextPage(WhatYouWillNeedPage, NormalMode, UserAnswers("id")) mustBe
           routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)
       }
     }

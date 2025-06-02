@@ -52,7 +52,7 @@ class WhatIsTheMembersNameViewSpec extends SpecBase {
     private val formProvider = new WhatIsTheMembersNameFormProvider()
     private val form: Form[MemberDetails] = formProvider()
     private val onSubmit = routes.WhatIsTheMembersNameController.onSubmit(NormalMode)
-    private val backLinkUrl = routes.CheckMembersProtectionEnhancementsController.onPageLoad().url
+    private val backLinkUrl = routes.WhatYouWillNeedController.onPageLoad().url
     val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
     val view: Document =
       Jsoup.parse(app.injector.instanceOf[WhatIsTheMembersNameView].apply(form, viewModel).body

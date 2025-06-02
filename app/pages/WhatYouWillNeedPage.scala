@@ -16,4 +16,4 @@
 
 package pages
 
-case object CheckMembersProtectionEnhancementsPage extends Page
+case object WhatYouWillNeedPage extends Page

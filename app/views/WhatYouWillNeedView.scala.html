@@ -25,24 +25,24 @@ heading: h1
 
 @(backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("checkMembersProtectionEnhancements.title")), backLinkUrl = backLinkUrl) {
+@layout(pageTitle = titleNoForm(messages("whatYouWillNeed.title")), backLinkUrl = backLinkUrl) {
 
-    @heading("checkMembersProtectionEnhancements.heading", headerSize = "xl")
+    @heading("whatYouWillNeed.heading", headerSize = "xl")
 
     <div class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-5">
-        <p>@messages("checkMembersProtectionEnhancements.p1")</p>
+        <p>@messages("whatYouWillNeed.p1")</p>
 
         <ul class="govuk-list govuk-list--bullet govuk-!-margin-top-1">
-            <li>@messages("checkMembersProtectionEnhancements.full_name")</li>
-            <li>@messages("checkMembersProtectionEnhancements.dob")</li>
-            <li>@messages("checkMembersProtectionEnhancements.nino")</li>
-            <li>@messages("checkMembersProtectionEnhancements.pension_scheme_admin_check_ref")</li>
+            <li>@messages("whatYouWillNeed.full_name")</li>
+            <li>@messages("whatYouWillNeed.dob")</li>
+            <li>@messages("whatYouWillNeed.nino")</li>
+            <li>@messages("whatYouWillNeed.pension_scheme_admin_check_ref")</li>
         </ul>
     </div>
 
     <p class="govuk-body">
         @govukButton(
-        ButtonViewModel(messages("site.start"))
+        ButtonViewModel(messages("site.continue"))
         .asLink(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url)
         )
     </p>

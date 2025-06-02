@@ -21,9 +21,9 @@ import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.CheckMembersProtectionEnhancementsView
+import views.html.WhatYouWillNeedView
 
-class CheckMembersProtectionEnhancementsControllerSpec extends SpecBase {
+class WhatYouWillNeedPage extends SpecBase {
 
   private lazy val backLinkUrl = routes.MpsDashboardController.redirectToMps().url
 
@@ -33,13 +33,13 @@ class CheckMembersProtectionEnhancementsControllerSpec extends SpecBase {
 
       running(application) {
         implicit val request: FakeRequest[AnyContentAsEmpty.type] =
-          FakeRequest(GET, routes.CheckMembersProtectionEnhancementsController.onPageLoad().url)
+          FakeRequest(GET, routes.WhatYouWillNeedController.onPageLoad().url)
 
         implicit val msg: Messages = messages(application)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[CheckMembersProtectionEnhancementsView]
+        val view = application.injector.instanceOf[WhatYouWillNeedView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(Some(backLinkUrl)).toString

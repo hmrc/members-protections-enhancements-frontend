@@ -1,4 +1,4 @@
-service.name = Check a member's protections and enhancements
+service.name = Check a member''s protections and enhancements
 
 site.back = Back
 site.remove = Remove
@@ -10,7 +10,7 @@ site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
 site.govuk = GOV.UK
-site.acceptAndSubmit = Accept and submit
+site.acceptAndSubmit = Submit
 site.print = Print this page
 
 date.day = Day
@@ -33,7 +33,7 @@ index.title = members-protections-and-enhancements
 index.heading = members-protections-and-enhancements
 index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
 
-checkYourAnswers.title = Check {0}'''s details
+checkYourAnswers.title = Check the member''s details
 checkYourAnswers.heading = Check {0}'''s details
 
 journeyRecovery.continue.title = Sorry, there is a problem with the service
@@ -50,16 +50,16 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
-checkMembersProtectionEnhancements.title = Check a member''s protections and enhancements
-checkMembersProtectionEnhancements.heading = Check a member''s protections and enhancements
-checkMembersProtectionEnhancements.p1 = You will need the member's:
-checkMembersProtectionEnhancements.full_name = full name
-checkMembersProtectionEnhancements.dob = date of birth
-checkMembersProtectionEnhancements.nino = National Insurance number
-checkMembersProtectionEnhancements.pension_scheme_admin_check_ref = pension scheme administrator check reference
+whatYouWillNeed.title = What you''ll need
+whatYouWillNeed.heading = What you''ll need
+whatYouWillNeed.p1 = You''ll need the member''s:
+whatYouWillNeed.full_name = full name
+whatYouWillNeed.dob = date of birth
+whatYouWillNeed.nino = National Insurance number
+whatYouWillNeed.pension_scheme_admin_check_ref = pension scheme administrator check reference
 
-membersName.title = What is the member''s name?
-membersName.heading = What is the member''s name?
+membersName.title = Member name
+membersName.heading = Member name
 membersName.name = Name
 membersName.firstName = First name
 membersName.lastName = Last name
@@ -70,9 +70,9 @@ membersName.lastName.error.invalid = Enter the member''s last name in a valid fo
 membersName.firstName.error.length = The member''s first name must be 35 characters or fewer
 membersName.lastName.error.length = The member''s last name must be 35 characters or fewer
 
-membersDob.title = What is {0}''s date of birth?
+membersDob.title = What is the member''s date of birth?
 membersDob.heading = What is {0}''s date of birth?
-membersDob.hint = For example, 27 03 2007
+membersDob.hint = For example, 27 03 1970
 membersDob.dob = Date of birth
 membersDob.error.invalid = Enter a valid member''s date of birth
 membersDob.error.required.day = Enter a day of birth
@@ -84,14 +84,14 @@ membersDob.error.invalid.year = Enter a valid year. A year should be in between 
 membersDob.error.dateOfBirth.maxDate = The date of birth must be before the current date
 membersDob.error.dateOfBirth.startYear = The date of birth must be after 1900
 
-membersNino.title = What is {0}''s National Insurance number?
+membersNino.title = What is the member''s National Insurance number?
 membersNino.heading = What is {0}''s National Insurance number?
 membersNino.hint = For example, QQ 12 34 56 C
 membersNino.nino = National Insurance number
 membersNino.error.required = Enter a National Insurance number
 membersNino.error.invalid = Enter the member''s National Insurance number in a valid format
 
-membersPsaCheckRef.title = What is {0}''s pension scheme administrator check reference?
+membersPsaCheckRef.title = What is the member''s  pension scheme administrator check reference?
 membersPsaCheckRef.heading = What is {0}''s pension scheme administrator check reference?
 membersPsaCheckRef.hint = For example, PSA 12 34 56 78 A
 membersPsaCheckRef.pensionSchemeAdminCheckRef = Pension scheme administrator check reference

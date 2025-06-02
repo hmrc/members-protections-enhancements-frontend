@@ -2,7 +2,7 @@
 
 ->          /hmrc-frontend                                                      hmrcfrontend.Routes
 
-GET         /                                                                   controllers.CheckMembersProtectionEnhancementsController.onPageLoad()
+GET         /                                                                   controllers.WhatYouWillNeedController.onPageLoad()
 
 GET         /assets/*file                                                       controllers.Assets.versioned(path="/public", file: Asset)
 
