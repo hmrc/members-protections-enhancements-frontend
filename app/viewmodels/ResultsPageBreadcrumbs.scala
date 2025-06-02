@@ -27,7 +27,7 @@ object ResultsPageBreadcrumbs {
 
   private def checkMpeBreadcrumb(implicit messages: Messages) = BreadcrumbsItem(
     content = Text(messages("results.breadcrumbs.mpe")),
-    href = Some(controllers.routes.CheckMembersProtectionEnhancementsController.onPageLoad().url)
+    href = Some(controllers.routes.WhatYouWillNeedController.onPageLoad().url)
   )
 
   def resultsPageBreadcrumbs(implicit messages: Messages): Seq[BreadcrumbsItem] = Seq(

@@ -18,10 +18,6 @@ package utils
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.i18n.Lang
-import utils.DateTimeFormats.dateTimeFormat
-
-import java.time.LocalDate
 
 class CurrencyFormatsSpec extends AnyFreeSpec with Matchers {
   "format" -> {

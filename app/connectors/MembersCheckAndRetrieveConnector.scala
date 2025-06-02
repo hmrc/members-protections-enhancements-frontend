@@ -50,6 +50,7 @@ class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2,
       .execute[HttpResponse].map { response =>
         response.status match {
             case OK =>
+              logger.info(s"Response from the NPS: ${Json.prettyPrint(response.json)}")
               response.body
             case _ => handleErrorResponse("POST", checkAndRetrieveUrl.toString)(response)
           }

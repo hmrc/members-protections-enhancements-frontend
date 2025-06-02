@@ -29,7 +29,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
 
   private lazy val onPageLoad = routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
   private lazy val onSubmit = routes.WhatIsTheMembersNameController.onSubmit(NormalMode)
-  private lazy val backLinkUrl = routes.CheckMembersProtectionEnhancementsController.onPageLoad().url
+  private lazy val backLinkUrl = routes.WhatYouWillNeedController.onPageLoad().url
 
   private val formProvider = new WhatIsTheMembersNameFormProvider()
   private val form: Form[MemberDetails] = formProvider()

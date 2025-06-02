@@ -20,14 +20,14 @@ import com.google.inject.Inject
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.CheckMembersProtectionEnhancementsView
+import views.html.WhatYouWillNeedView
 
-class CheckMembersProtectionEnhancementsController @Inject()(
+class WhatYouWillNeedController @Inject()(
                                                               override val messagesApi: MessagesApi,
                                                               identify: IdentifierAction,
                                                               getData: DataRetrievalAction,
                                                               val controllerComponents: MessagesControllerComponents,
-                                                              view: CheckMembersProtectionEnhancementsView
+                                                              view: WhatYouWillNeedView
                                                             )  extends MpeBaseController(identify, getData) {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen getData) {

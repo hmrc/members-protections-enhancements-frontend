@@ -63,15 +63,15 @@ abstract class MpeBaseController @Inject()(
     case MembersDobPage => routes.MembersDobController.onSubmit(mode)
     case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
     case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
-    case _ => routes.CheckMembersProtectionEnhancementsController.onPageLoad()
+    case _ => routes.WhatYouWillNeedController.onPageLoad()
   }
 
   private def backLinkUrl(mode: Mode, page: Page): String = page match {
-    case WhatIsTheMembersNamePage => routes.CheckMembersProtectionEnhancementsController.onPageLoad().url
+    case WhatIsTheMembersNamePage => routes.WhatYouWillNeedController.onPageLoad().url
     case MembersDobPage => routes.WhatIsTheMembersNameController.onPageLoad(mode).url
     case MembersNinoPage => routes.MembersDobController.onPageLoad(mode).url
     case MembersPsaCheckRefPage => routes.MembersNinoController.onPageLoad(mode).url
-    case _ => routes.CheckMembersProtectionEnhancementsController.onPageLoad().url
+    case _ => routes.WhatYouWillNeedController.onPageLoad().url
   }
 
   def getUserData[A](request: DataRequest[A]): Option[(MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef)] =
