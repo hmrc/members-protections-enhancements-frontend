@@ -17,11 +17,12 @@
 package models.response
 
 import base.SpecBase
-import models.response.ProtectionType._
+import models.response.RecordType._
+import play.api.libs.json.{JsError, JsResult, JsString, JsonValidationError}
 
-class ProtectionTypeSpec extends SpecBase {
+class RecordTypeSpec extends SpecBase {
   "round test" -> {
-    val values: Seq[(String, ProtectionType)] = Seq(
+    val values: Seq[(String, RecordType)] = Seq(
       "FIXED PROTECTION" -> `FIXED PROTECTION`,
       "FIXED PROTECTION 2014" -> `FIXED PROTECTION 2014`,
       "FIXED PROTECTION 2016" -> `FIXED PROTECTION 2016`,
@@ -32,10 +33,24 @@ class ProtectionTypeSpec extends SpecBase {
       "PENSION CREDIT RIGHTS P18" -> `PENSION CREDIT RIGHTS P18`,
       "PENSION CREDIT RIGHTS S220" -> `PENSION CREDIT RIGHTS S220`,
       "INTERNATIONAL ENHANCEMENT S221" -> `INTERNATIONAL ENHANCEMENT S221`,
-      "INTERNATIONAL ENHANCEMENT S224" -> `INTERNATIONAL ENHANCEMENT S224`
+      "INTERNATIONAL ENHANCEMENT S224" -> `INTERNATIONAL ENHANCEMENT S224`,
+      // Also check that LTA protections are correctly read and mapped
+      "FIXED PROTECTION LTA" -> `FIXED PROTECTION`,
+      "FIXED PROTECTION 2014 LTA" -> `FIXED PROTECTION 2014`,
+      "FIXED PROTECTION 2016 LTA" -> `FIXED PROTECTION 2016`,
+      "INDIVIDUAL PROTECTION 2014 LTA" -> `INDIVIDUAL PROTECTION 2014`,
+      "INDIVIDUAL PROTECTION 2016 LTA" -> `INDIVIDUAL PROTECTION 2016`,
+      "ENHANCED PROTECTION LTA" -> `ENHANCED PROTECTION`,
+      "PRIMARY PROTECTION LTA" -> `PRIMARY PROTECTION`
     )
 
     for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, expectedModel)
+  }
+
+  "should not read an enhancement with the LTA suffix" in {
+    val result: JsResult[RecordType] = JsString("PENSION CREDIT RIGHTS P18 LTA").validate[RecordType]
+    result mustBe a[JsError]
+    result mustBe JsError(JsonValidationError("error.expected.RecordType"))
   }
 
 }

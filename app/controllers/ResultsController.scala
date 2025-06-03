@@ -19,12 +19,13 @@ package controllers
 import com.google.inject.Inject
 import controllers.ResultsController.tempStaticData
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import models.response.ProtectionStatusMapped.{Active, Dormant, Withdrawn}
-import models.response.ProtectionTypeMapped.{FixedProtection2016, IndividualProtection2014, InternationalEnhancementTransfer, PrimaryProtection}
+import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
+import models.response.RecordTypeMapped._
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import providers.DateTimeProvider
 import utils.DateTimeFormats
 import views.html.ResultsView
 
@@ -34,7 +35,8 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   identify: IdentifierAction,
                                   getData: DataRetrievalAction,
                                   val controllerComponents: MessagesControllerComponents,
-                                  view: ResultsView)
+                                  view: ResultsView,
+                                  dateTimeProvider: DateTimeProvider)
   extends MpeBaseController(identify, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle {
@@ -52,7 +54,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
           membersNino = nino,
           membersPsaCheckRef = psaRefCheck,
           backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
-          formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(),
+          formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
           protectionRecordDetails = tempStaticData
         )
       ))

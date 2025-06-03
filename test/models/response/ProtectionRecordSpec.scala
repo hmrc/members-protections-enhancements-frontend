@@ -17,8 +17,8 @@
 package models.response
 
 import base.SpecBase
-import models.response.ProtectionStatusMapped.Active
-import models.response.ProtectionTypeMapped.FixedProtection2016
+import models.response.RecordStatusMapped.Active
+import models.response.RecordTypeMapped.FixedProtection2016
 import play.api.libs.json._
 
 class ProtectionRecordSpec extends SpecBase {

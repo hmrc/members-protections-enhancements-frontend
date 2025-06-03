@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package models.response
+package providers
 
-import base.SpecBase
-import models.response.ProtectionStatus._
+import com.google.inject.Singleton
 
-class ProtectionStatusSpec extends SpecBase {
-  "round test" -> {
-    val values: Seq[(String, ProtectionStatus)] = Seq(
-      "OPEN" -> OPEN,
-      "DORMANT" -> DORMANT,
-      "WITHDRAWN" -> WITHDRAWN
-    )
+import java.time.{ZoneId, ZonedDateTime}
 
-    for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, expectedModel)
-  }
-
+@Singleton
+class DateTimeProvider {
+  def now(zoneId: ZoneId = ZoneId.of("Europe/London")): ZonedDateTime =  ZonedDateTime.now(zoneId)
 }

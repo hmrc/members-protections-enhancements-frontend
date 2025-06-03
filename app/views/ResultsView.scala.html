@@ -19,13 +19,15 @@
 @import viewmodels.ResultsViewUtils._
 @import models.response._
 @import utils.CurrencyFormats
+@import views.html.helper.CSPNonce
 
 @this(
     layout: templates.Layout,
     heading: h1,
     h2: h2,
     govukBreadcrumbs: GovukBreadcrumbs,
-    govukSummaryList: GovukSummaryList
+    govukSummaryList: GovukSummaryList,
+    printButton: print_button
 )
 
 @(
@@ -81,17 +83,13 @@
         @messages("results.checkedOn") @formattedTimestamp
     </p>
 
-    <a class="govuk-link govuk-body-s gem-c-print-link__button"
-       data-module="hmrc-print-link"
-       data-journey-click="mpe:click:print">
-        @messages("site.print")
-    </a>
+    @printButton()
 
     <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
     <nav role="navigation">
+        @h2("results.relatedContent", marginBottom = "6")
         <ul class="govuk-list govuk-!-margin-bottom-6">
-            <h2>@messages("results.relatedContent")</h2>
             <li>
                 <a class="govuk-link" href="@routes.WhatYouWillNeedController.onPageLoad()">
                     @messages("results.checkAnotherMpe")
