@@ -38,6 +38,9 @@ object DateTimeFormats {
   }
 
   def getCurrentDateTimestamp(time: ZonedDateTime,
-                              formatter: DateTimeFormatter = dateTimeFormatter): String = formatter.format(time)
+                              formatter: DateTimeFormatter = dateTimeFormatter): String =
+    formatter
+      .withLocale(Locale.UK)
+      .format(time)
 
 }
