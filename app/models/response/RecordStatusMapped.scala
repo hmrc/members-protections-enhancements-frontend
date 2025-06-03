@@ -22,7 +22,11 @@ sealed abstract case class RecordStatusMapped(messagesKey: String, colourString:
   private val baseMessagesString: String = "results.status."
 
   val toNameMessagesString: String = baseMessagesString + messagesKey + ".name"
-  val toDescriptionMessagesString: String = baseMessagesString + messagesKey + ".message"
+
+  def toDescriptionMessagesString(recordTypeMapped: RecordTypeMapped): String = recordTypeMapped match {
+    case ProtectionTypeMapped(_) => baseMessagesString + messagesKey + ".message.protection"
+    case EnhancementTypeMapped(_) => baseMessagesString + messagesKey + ".message.enhancement"
+  }
 }
 
 object RecordStatusMapped {

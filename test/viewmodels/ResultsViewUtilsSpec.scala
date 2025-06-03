@@ -18,6 +18,7 @@ package viewmodels
 
 import base.SpecBase
 import models.response.ProtectionRecordDetails
+import models.response.RecordTypeMapped.InternationalEnhancementTransfer
 import play.api.Application
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
@@ -31,16 +32,20 @@ class ResultsViewUtilsSpec extends SpecBase {
     val app: Application = applicationBuilder(emptyUserAnswers).build()
     implicit val msg: Messages = messages(app)
 
-    val expectedResult: SummaryList = SummaryList(
+    val recordType: String = "protection"
+    val recordName: String = "Individual Protection 2014"
+    val recordId: String = "IndividualProtection2014"
+
+    lazy val expectedResult: SummaryList = SummaryList(
       rows = Seq(
         SummaryListRow(
           Key(HtmlContent("Status")),
           Value(HtmlContent(
             s"""
                |<strong class="govuk-tag govuk-tag--green">
-               |  Active
+               |Active
                |</strong>
-               |- The protection is valid and can be used
+               |- the $recordType is valid and can be used
                |""".stripMargin
           ))
         ),
@@ -49,10 +54,10 @@ class ResultsViewUtilsSpec extends SpecBase {
       ),
       card = Some(Card(
         title = Some(CardTitle(
-          content = HtmlContent("Individual Protection 2014"),
+          content = HtmlContent(recordName),
           headingLevel = Some(2)
         )),
-        attributes = Map("id" -> "IndividualProtection2014")
+        attributes = Map("id" -> recordId)
       ))
     )
   }
@@ -73,9 +78,25 @@ class ResultsViewUtilsSpec extends SpecBase {
   }
 
   "protectionRecordToSummaryList" -> {
-    "should return the expected SummaryList model for a given set of protection details" in new Test {
+    "should return the expected SummaryList model for a protection" in new Test {
       val result: SummaryList = protectionRecordToSummaryList(
         protectionRecord = dummyProtectionRecords.protectionRecords.head
+      )
+
+      result.card mustBe expectedResult.card
+      result.attributes mustBe expectedResult.attributes
+      result.rows mustBe expectedResult.rows
+    }
+
+    "should return the expected SummaryList model for an enhancement" in new Test {
+      override val recordType: String = "enhancement"
+      override val recordName: String = "International Enhancement (transfer from a recognised overseas pension scheme)"
+      override val recordId: String = "InternationalEnhancementTransfer"
+
+      val result: SummaryList = protectionRecordToSummaryList(
+        protectionRecord = dummyProtectionRecords.protectionRecords.head.copy(
+          `type` = InternationalEnhancementTransfer
+        )
       )
 
       result.card mustBe expectedResult.card

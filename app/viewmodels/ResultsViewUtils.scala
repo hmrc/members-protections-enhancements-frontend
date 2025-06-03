@@ -42,9 +42,9 @@ object ResultsViewUtils {
       value = Value(HtmlContent(
         s"""
            |<strong class="govuk-tag govuk-tag--${status.colourString}">
-           |  ${messages(status.toNameMessagesString)}
+           |${messages(status.toNameMessagesString)}
            |</strong>
-           |${messages(status.toDescriptionMessagesString)}
+           |${messages(status.toDescriptionMessagesString(`type`))}
            |""".stripMargin
       ))
     )) ++

@@ -18,6 +18,7 @@ package models.response
 
 import base.SpecBase
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
+import models.response.RecordTypeMapped.{FixedProtection2014, PensionCreditRightsPreCommencement}
 
 class RecordStatusMappedSpec extends SpecBase {
   "round test" -> {
@@ -28,6 +29,18 @@ class RecordStatusMappedSpec extends SpecBase {
     )
 
     for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, expectedModel)
+  }
+
+  "toDescriptionMessagesString" -> {
+    "should return the correct string for a protection" in {
+      Active.toDescriptionMessagesString(FixedProtection2014) mustBe "results.status.active.message.protection"
+    }
+
+    "should return the correct string for an enhancement" in {
+      Dormant.toDescriptionMessagesString(PensionCreditRightsPreCommencement) mustBe
+        "results.status.dormant.message.enhancement"
+
+    }
   }
 
 }
