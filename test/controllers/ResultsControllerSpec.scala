@@ -25,6 +25,7 @@ import views.html.ResultsView
 
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
+import java.util.Locale
 
 class ResultsControllerSpec extends SpecBase {
 
@@ -52,7 +53,7 @@ class ResultsControllerSpec extends SpecBase {
 
         val dateTimeWithZone = ZonedDateTime.now(ZoneId.of("Europe/London"))
         val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' h:mma")
-        val localDateTime = dateTimeWithZone.format(formatter)
+        val localDateTime = dateTimeWithZone.format(formatter.withLocale(Locale.UK))
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
