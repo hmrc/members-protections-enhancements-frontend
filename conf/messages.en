@@ -1,4 +1,4 @@
-service.name = Check a member''s protections and enhancements
+service.name = Check a pension scheme member'’s protections and enhancements
 
 site.back = Back
 site.remove = Remove
@@ -102,10 +102,9 @@ results.title = Results of protections and enhancements check
 results.heading = Results of protections and enhancements check
 results.memberDetails.heading = Member''s details
 results.relatedContent = What you can do next
-results.mpsDashboard = Return to Managing Pension Schemes dashboard
+results.mpsDashboard = Managing pension schemes dashboard
 results.checkAnotherMpe = Check another pension scheme member''s protections and enhancements
 results.checkedOn =  Checked on
-results.mpsDashboardLink = http://localhost:8204/manage-pension-schemes/overview
 
 results.statusKey = Status
 results.protectedAmtKey = Protected amount
@@ -120,9 +119,13 @@ results.status.active.name = Active
 results.status.dormant.name = Dormant
 results.status.withdrawn.name = Withdrawn
 
-results.status.active.message = - The protection is valid and can be used
-results.status.dormant.message = - The protection is approved, but a higher level of protection is currently in place, so it is not active
-results.status.withdrawn.message = - The protection has been lost, so it is not valid
+results.status.active.message.protection = - the protection is valid and can be used
+results.status.dormant.message.protection = - the protection is approved, but a higher level of protection is currently in place, so it is not active
+results.status.withdrawn.message.protection = - the protection has been lost, so it is not valid
+
+results.status.active.message.enhancement = - the enhancement is valid and can be used
+results.status.dormant.message.enhancement = - the enhancement is approved, but a higher level of enhancement is currently in place, so it is not active
+results.status.withdrawn.message.enhancement = - the enhancement has been lost, so it is not valid
 
 results.protection.IP.2014 = Individual Protection 2014
 results.protection.IP.2016 = Individual Protection 2016

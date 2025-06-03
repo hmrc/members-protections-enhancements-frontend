@@ -19,14 +19,13 @@ package utils
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.i18n.Lang
-import utils.DateTimeFormats.dateTimeFormat
+import utils.DateTimeFormats.{dateTimeFormat, getCurrentDateTimestamp}
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneId, ZonedDateTime}
 
 class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
 
   ".dateTimeFormat" - {
-
     "must format dates in English" in {
       val formatter = dateTimeFormat()(Lang("en"))
       val result = LocalDate.of(2023, 1, 1).format(formatter)
@@ -43,6 +42,15 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
       val formatter = dateTimeFormat()(Lang("de"))
       val result = LocalDate.of(2023, 1, 1).format(formatter)
       result mustEqual "1 January 2023"
+    }
+  }
+
+  ".getCurrentDateTimestamp" - {
+    "must format dates in English" in {
+      val result: String = getCurrentDateTimestamp(
+        ZonedDateTime.of(2025, 11, 11, 11, 11, 11, 11, ZoneId.of("Europe/London"))
+      )
+      result mustEqual "11 November 2025 at 11:11am"
     }
   }
 }

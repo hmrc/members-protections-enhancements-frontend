@@ -17,56 +17,75 @@
 package models.response
 
 import models.response.RecordTypeMapped._
-import play.api.libs.json.Reads
+import play.api.libs.json.{JsError, JsResult, JsString, JsValue, JsonValidationError, Reads}
 import utils.enums.Enums
 
 sealed trait RecordType {
   def toMapped: RecordTypeMapped
 }
 
+sealed trait Protection extends RecordType
+sealed trait Enhancement extends RecordType
+
 object RecordType {
-  case object `FIXED PROTECTION` extends RecordType {
+  case object `FIXED PROTECTION` extends Protection {
     override def toMapped: RecordTypeMapped = FixedProtection
   }
 
-  case object `FIXED PROTECTION 2014` extends RecordType {
+  case object `FIXED PROTECTION 2014` extends Protection {
     override def toMapped: RecordTypeMapped = FixedProtection2014
   }
-  case object `FIXED PROTECTION 2016` extends RecordType {
+  case object `FIXED PROTECTION 2016` extends Protection {
     override def toMapped: RecordTypeMapped = FixedProtection2016
   }
 
-  case object `INDIVIDUAL PROTECTION 2014` extends RecordType {
+  case object `INDIVIDUAL PROTECTION 2014` extends Protection {
     override def toMapped: RecordTypeMapped = IndividualProtection2014
   }
 
-  case object `INDIVIDUAL PROTECTION 2016` extends RecordType {
+  case object `INDIVIDUAL PROTECTION 2016` extends Protection {
     override def toMapped: RecordTypeMapped = IndividualProtection2016
   }
 
-  case object `PRIMARY PROTECTION` extends RecordType {
+  case object `PRIMARY PROTECTION` extends Protection {
     override def toMapped: RecordTypeMapped = PrimaryProtection
   }
 
-  case object `ENHANCED PROTECTION` extends RecordType {
+  case object `ENHANCED PROTECTION` extends Protection {
     override def toMapped: RecordTypeMapped = EnhancedProtection
   }
 
-  case object `PENSION CREDIT RIGHTS P18` extends RecordType {
+  case object `PENSION CREDIT RIGHTS P18` extends Enhancement {
     override def toMapped: RecordTypeMapped = PensionCreditRightsPreCommencement
   }
 
-  case object `PENSION CREDIT RIGHTS S220` extends RecordType {
+  case object `PENSION CREDIT RIGHTS S220` extends Enhancement {
     override def toMapped: RecordTypeMapped = PensionCreditRightsPreviouslyCrystallised
   }
 
-  case object `INTERNATIONAL ENHANCEMENT S221` extends RecordType {
+  case object `INTERNATIONAL ENHANCEMENT S221` extends Enhancement {
     override def toMapped: RecordTypeMapped = InternationalEnhancementRelevantIndividual
   }
 
-  case object `INTERNATIONAL ENHANCEMENT S224` extends RecordType {
+  case object `INTERNATIONAL ENHANCEMENT S224` extends Enhancement {
     override def toMapped: RecordTypeMapped = InternationalEnhancementTransfer
   }
 
-  implicit val reads: Reads[RecordType] = Enums.reads[RecordType]
+  implicit val reads: Reads[RecordType] = (json: JsValue) => {
+    val enumReadsProtection: Reads[Protection] = Enums.reads[Protection]
+    val enumReadsEnhancement: Reads[Enhancement] = Enums.reads[Enhancement]
+
+    val protectionCombinedReads: JsResult[Protection] =
+      json
+        .validate[Protection](enumReadsProtection)
+        .orElse(
+          json.validate[JsString]
+            .map(jsString => JsString(jsString.value.replace(" LTA", "")))
+            .flatMap(_.validate[Protection](enumReadsProtection))
+        )
+
+    json.validate[Enhancement](enumReadsEnhancement)
+      .orElse(protectionCombinedReads)
+      .orElse(JsError(JsonValidationError("error.expected.RecordType")))
+  }
 }

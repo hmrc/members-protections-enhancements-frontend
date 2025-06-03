@@ -51,7 +51,7 @@ class ResultsControllerSpec extends SpecBase {
         val backLinkRoute = routes.CheckYourAnswersController.onPageLoad().url
 
         val dateTimeWithZone = ZonedDateTime.now(ZoneId.of("Europe/London"))
-        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
+        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' h:mma")
         val localDateTime = dateTimeWithZone.format(formatter)
 
         status(result) mustEqual OK

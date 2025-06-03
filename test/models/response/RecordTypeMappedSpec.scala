@@ -18,6 +18,7 @@ package models.response
 
 import base.SpecBase
 import models.response.RecordTypeMapped._
+import play.api.libs.json.{JsError, JsResult, JsString, JsonValidationError}
 
 class RecordTypeMappedSpec extends SpecBase {
   "round test" -> {
@@ -32,9 +33,23 @@ class RecordTypeMappedSpec extends SpecBase {
       "PENSION CREDIT RIGHTS P18" -> PensionCreditRightsPreCommencement,
       "PENSION CREDIT RIGHTS S220" -> PensionCreditRightsPreviouslyCrystallised,
       "INTERNATIONAL ENHANCEMENT S221" -> InternationalEnhancementRelevantIndividual,
-      "INTERNATIONAL ENHANCEMENT S224" -> InternationalEnhancementTransfer
+      "INTERNATIONAL ENHANCEMENT S224" -> InternationalEnhancementTransfer,
+      // Also check that LTA protections are correctly read and mapped
+      "FIXED PROTECTION LTA" -> FixedProtection,
+      "FIXED PROTECTION 2014 LTA" -> FixedProtection2014,
+      "FIXED PROTECTION 2016 LTA" -> FixedProtection2016,
+      "INDIVIDUAL PROTECTION 2014 LTA" -> IndividualProtection2014,
+      "INDIVIDUAL PROTECTION 2016 LTA" -> IndividualProtection2016,
+      "ENHANCED PROTECTION LTA" -> EnhancedProtection,
+      "PRIMARY PROTECTION LTA" -> PrimaryProtection,
     )
 
     for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, expectedModel)
+  }
+
+  "should not read an enhancement with the LTA suffix" in {
+    val result: JsResult[RecordType] = JsString("PENSION CREDIT RIGHTS P18 LTA").validate[RecordType]
+    result mustBe a[JsError]
+    result mustBe JsError(JsonValidationError("error.expected.RecordType"))
   }
 }

@@ -34,8 +34,8 @@ case class ProtectionRecord(protectionReference: Option[String],
 object ProtectionRecord {
   implicit val reads: Reads[ProtectionRecord] = (
     (JsPath \ "protectionReference").readNullable[String] and
-      (JsPath \ "type").read[RecordType].map(_.toMapped) and
-      (JsPath \ "status").read[RecordStatus].map(_.toMapped) and
+      (JsPath \ "type").read[RecordTypeMapped] and
+      (JsPath \ "status").read[RecordStatusMapped] and
       (JsPath \ "protectedAmount").readNullable[Int] and
       (JsPath \ "lumpSumAmount").readNullable[Int] and
       (JsPath \ "lumpSumPercentage").readNullable[Int] and
