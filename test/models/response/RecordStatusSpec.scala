@@ -17,14 +17,14 @@
 package models.response
 
 import base.SpecBase
-import models.response.ProtectionStatusMapped.{Active, Dormant, Withdrawn}
+import models.response.RecordStatus._
 
-class ProtectionStatusMappedSpec extends SpecBase {
+class RecordStatusSpec extends SpecBase {
   "round test" -> {
-    val values: Seq[(String, ProtectionStatusMapped)] = Seq(
-      "OPEN" -> Active,
-      "DORMANT" -> Dormant,
-      "WITHDRAWN" -> Withdrawn
+    val values: Seq[(String, RecordStatus)] = Seq(
+      "OPEN" -> OPEN,
+      "DORMANT" -> DORMANT,
+      "WITHDRAWN" -> WITHDRAWN
     )
 
     for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, expectedModel)

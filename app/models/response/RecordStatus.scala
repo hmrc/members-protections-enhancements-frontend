@@ -16,26 +16,26 @@
 
 package models.response
 
-import models.response.ProtectionStatusMapped.{Active, Dormant, Withdrawn}
+import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import play.api.libs.json.Reads
 import utils.enums.Enums
 
-sealed trait ProtectionStatus {
-  def toMapped: ProtectionStatusMapped
+sealed trait RecordStatus {
+  def toMapped: RecordStatusMapped
 }
 
-object ProtectionStatus {
-  case object OPEN extends ProtectionStatus {
-    override def toMapped: ProtectionStatusMapped = Active
+object RecordStatus {
+  case object OPEN extends RecordStatus {
+    override def toMapped: RecordStatusMapped = Active
   }
 
-  case object DORMANT extends ProtectionStatus {
-    override def toMapped: ProtectionStatusMapped = Dormant
+  case object DORMANT extends RecordStatus {
+    override def toMapped: RecordStatusMapped = Dormant
   }
 
-  case object WITHDRAWN extends ProtectionStatus{
-    override def toMapped: ProtectionStatusMapped = Withdrawn
+  case object WITHDRAWN extends RecordStatus{
+    override def toMapped: RecordStatusMapped = Withdrawn
   }
 
-  implicit val reads: Reads[ProtectionStatus] = Enums.reads[ProtectionStatus]
+  implicit val reads: Reads[RecordStatus] = Enums.reads[RecordStatus]
 }

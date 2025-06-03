@@ -17,11 +17,11 @@
 package models.response
 
 import base.SpecBase
-import models.response.ProtectionType._
+import models.response.RecordType._
 
-class ProtectionTypeSpec extends SpecBase {
+class RecordTypeSpec extends SpecBase {
   "round test" -> {
-    val values: Seq[(String, ProtectionType)] = Seq(
+    val values: Seq[(String, RecordType)] = Seq(
       "FIXED PROTECTION" -> `FIXED PROTECTION`,
       "FIXED PROTECTION 2014" -> `FIXED PROTECTION 2014`,
       "FIXED PROTECTION 2016" -> `FIXED PROTECTION 2016`,

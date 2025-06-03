@@ -18,11 +18,14 @@ package models.response
 
 import play.api.libs.json.Reads
 
-sealed abstract case class ProtectionTypeMapped(messagesKey: String) {
+sealed abstract class RecordTypeMapped(messagesKey: String) {
   val toMessagesString: String = s"results.protection.$messagesKey"
 }
 
-object ProtectionTypeMapped {
+case class ProtectionTypeMapped(messagesKey: String) extends RecordTypeMapped(messagesKey)
+case class EnhancementTypeMapped(messagesKey: String) extends RecordTypeMapped(messagesKey)
+
+object RecordTypeMapped {
   object FixedProtection extends ProtectionTypeMapped("FP")
   object FixedProtection2014  extends ProtectionTypeMapped("FP.2014")
   object FixedProtection2016 extends ProtectionTypeMapped("FP.2016")
@@ -30,10 +33,10 @@ object ProtectionTypeMapped {
   object IndividualProtection2016 extends ProtectionTypeMapped("IP.2016")
   object PrimaryProtection extends ProtectionTypeMapped("PP")
   object EnhancedProtection extends ProtectionTypeMapped("EP")
-  object PensionCreditRightsPreCommencement extends ProtectionTypeMapped("PCR.COM")
-  object PensionCreditRightsPreviouslyCrystallised extends ProtectionTypeMapped("PCR.CRY")
-  object InternationalEnhancementRelevantIndividual extends ProtectionTypeMapped("IE.RI")
-  object InternationalEnhancementTransfer extends ProtectionTypeMapped("IE.T")
+  object PensionCreditRightsPreCommencement extends EnhancementTypeMapped("PCR.COM")
+  object PensionCreditRightsPreviouslyCrystallised extends EnhancementTypeMapped("PCR.CRY")
+  object InternationalEnhancementRelevantIndividual extends EnhancementTypeMapped("IE.RI")
+  object InternationalEnhancementTransfer extends EnhancementTypeMapped("IE.T")
 
-  implicit val reads: Reads[ProtectionTypeMapped] = ProtectionType.reads.map(_.toMapped)
+  implicit val reads: Reads[RecordTypeMapped] = RecordType.reads.map(_.toMapped)
 }

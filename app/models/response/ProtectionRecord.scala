@@ -20,8 +20,8 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.{JsPath, Reads}
 
 case class ProtectionRecord(protectionReference: Option[String],
-                            `type`: ProtectionTypeMapped,
-                            status: ProtectionStatusMapped,
+                            `type`: RecordTypeMapped,
+                            status: RecordStatusMapped,
                             protectedAmount: Option[Int],
                             lumpSumAmount: Option[Int],
                             lumpSumPercentage: Option[Int],
@@ -34,8 +34,8 @@ case class ProtectionRecord(protectionReference: Option[String],
 object ProtectionRecord {
   implicit val reads: Reads[ProtectionRecord] = (
     (JsPath \ "protectionReference").readNullable[String] and
-      (JsPath \ "type").read[ProtectionType].map(_.toMapped) and
-      (JsPath \ "status").read[ProtectionStatus].map(_.toMapped) and
+      (JsPath \ "type").read[RecordType].map(_.toMapped) and
+      (JsPath \ "status").read[RecordStatus].map(_.toMapped) and
       (JsPath \ "protectedAmount").readNullable[Int] and
       (JsPath \ "lumpSumAmount").readNullable[Int] and
       (JsPath \ "lumpSumPercentage").readNullable[Int] and

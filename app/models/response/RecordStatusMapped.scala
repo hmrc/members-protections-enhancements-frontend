@@ -18,17 +18,17 @@ package models.response
 
 import play.api.libs.json.Reads
 
-sealed abstract case class ProtectionStatusMapped(messagesKey: String, colourString: String) {
+sealed abstract case class RecordStatusMapped(messagesKey: String, colourString: String) {
   private val baseMessagesString: String = "results.status."
 
   val toNameMessagesString: String = baseMessagesString + messagesKey + ".name"
   val toDescriptionMessagesString: String = baseMessagesString + messagesKey + ".message"
 }
 
-object ProtectionStatusMapped {
-  object Active extends ProtectionStatusMapped(messagesKey = "active", colourString = "green")
-  object Dormant extends ProtectionStatusMapped(messagesKey = "dormant", colourString = "yellow")
-  object Withdrawn extends ProtectionStatusMapped(messagesKey = "withdrawn", colourString = "red")
+object RecordStatusMapped {
+  object Active extends RecordStatusMapped(messagesKey = "active", colourString = "green")
+  object Dormant extends RecordStatusMapped(messagesKey = "dormant", colourString = "yellow")
+  object Withdrawn extends RecordStatusMapped(messagesKey = "withdrawn", colourString = "red")
 
-  implicit val reads: Reads[ProtectionStatusMapped] = ProtectionStatus.reads.map(_.toMapped)
+  implicit val reads: Reads[RecordStatusMapped] = RecordStatus.reads.map(_.toMapped)
 }

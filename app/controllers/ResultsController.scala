@@ -19,8 +19,8 @@ package controllers
 import com.google.inject.Inject
 import controllers.ResultsController.tempStaticData
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import models.response.ProtectionStatusMapped.{Active, Dormant, Withdrawn}
-import models.response.ProtectionTypeMapped.{FixedProtection2016, IndividualProtection2014, InternationalEnhancementTransfer, PrimaryProtection}
+import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
+import models.response.RecordTypeMapped._
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.i18n.MessagesApi
