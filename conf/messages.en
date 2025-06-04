@@ -21,7 +21,7 @@ date.error.month = month
 date.error.year = year
 
 timeout.title = You’re about to be signed out
-timeout.message = For security reasons, you will be signed out of this service in
+timeout.message = For your security, we will sign you out in
 timeout.keepAlive = Stay signed in
 timeout.signOut = Sign out
 
@@ -49,6 +49,12 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+sessionTimeout.title = You''ve been signed out due to inactivity
+sessionTimeout.heading = You''ve been signed out due to inactivity
+sessionTimeout.body.1 = You''ll need to
+sessionTimeout.body.signInLink = sign in
+sessionTimeout.body.2 = again.
 
 whatYouWillNeed.title = What you''ll need
 whatYouWillNeed.heading = What you''ll need

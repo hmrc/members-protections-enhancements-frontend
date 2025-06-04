@@ -53,4 +53,19 @@ class AuthController @Inject()(
             Redirect(config.signOutUrl, Map("continue" -> Seq(routes.SignedOutController.onPageLoad().url)))
         }
   }
+
+  def sessionTimeout(): Action[AnyContent] = identify.async {
+    implicit request =>
+      sessionRepository
+        .clear(request.userDetails.userId)
+        .map { _ =>
+          Redirect(
+            url = config.signOutUrl,
+            queryStringParams = Map(
+              "continue" -> Seq(config.host + routes.SessionTimeoutController.onPageLoad().url),
+              "origin" -> Seq(config.appName)
+            )
+          ).withNewSession
+        }
+  }
 }
