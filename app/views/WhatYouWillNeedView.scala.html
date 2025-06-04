@@ -15,15 +15,19 @@
  *@
 
 @import views.html.components._
+@import config.FrontendAppConfig
 
 @this(
-layout: templates.Layout,
-govukButton : GovukButton,
-govukBackLink: GovukBackLink,
-heading: h1
+    layout: templates.Layout,
+    govukButton : GovukButton,
+    govukBackLink: GovukBackLink,
+    heading: h1,
+    appConfig: FrontendAppConfig
 )
 
-@(backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
+@(
+    backLinkUrl: Option[String]
+)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("whatYouWillNeed.title")), backLinkUrl = backLinkUrl) {
 
@@ -32,11 +36,26 @@ heading: h1
     <div class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-5">
         <p>@messages("whatYouWillNeed.p1")</p>
 
-        <ul class="govuk-list govuk-list--bullet govuk-!-margin-top-1">
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-top-1 govuk-!-margin-bottom-6">
             <li>@messages("whatYouWillNeed.full_name")</li>
             <li>@messages("whatYouWillNeed.dob")</li>
             <li>@messages("whatYouWillNeed.nino")</li>
             <li>@messages("whatYouWillNeed.pension_scheme_admin_check_ref")</li>
+        </ul>
+
+        <p>@messages("whatYouWillNeed.guidance.p1")</p>
+
+        <p>@messages("whatYouWillNeed.guidance.p2")</p>
+
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-top-1">
+            <li>@messages("whatYouWillNeed.guidance.li.1")</li>
+            <li>
+                @messages("whatYouWillNeed.guidance.li.2")
+                <a class="govuk-link" href="@appConfig.checkLtaGuidanceUrl">
+                    @messages("whatYouWillNeed.guidance.li.2.linkText")
+                </a>
+            </li>
+            <li>@messages("whatYouWillNeed.guidance.li.3")</li>
         </ul>
     </div>
 

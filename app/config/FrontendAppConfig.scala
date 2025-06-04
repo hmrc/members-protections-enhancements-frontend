@@ -62,6 +62,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
     s"$contactFrontendUrl/contact/beta-feedback" +
       s"?service=$contactFormServiceIdentifier&backUrl=$redirectUrl"
 
+  val checkLtaGuidanceUrl: String = loadConfig("urls.guidance.checkLta")
+
   //Feature switches
   val betaBannerEnabled: Boolean = configuration.get[Boolean]("feature-switch.betaBannerEnabled")
 }
