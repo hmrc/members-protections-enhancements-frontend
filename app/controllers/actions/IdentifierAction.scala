@@ -39,8 +39,7 @@ trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent]
 @Singleton
 class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthConnector,
                                               config: FrontendAppConfig,
-                                              playBodyParsers: BodyParsers.Default,
-                                              errorHandler: ErrorHandler)
+                                              playBodyParsers: BodyParsers.Default)
                                              (implicit override val executionContext: ExecutionContext)
   extends IdentifierAction with AuthorisedFunctions with Logging {
 
@@ -61,8 +60,6 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
       case err: AuthorisationException =>
         logger.warn(logContext + s"An authorisation error occurred with message: ${err.reason}")
         Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
-      case err: Throwable =>
-        errorHandler.onServerError(request, err)
     }
   }
 

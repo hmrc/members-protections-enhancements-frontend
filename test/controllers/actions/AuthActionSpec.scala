@@ -19,15 +19,13 @@ package controllers.actions
 import base.SpecBase
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import handlers.ErrorHandler
-import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
+import play.api.mvc.{Action, AnyContent, BodyParsers, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
-import views.html.ErrorTemplate
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,13 +44,11 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new MissingBearerToken),
             config = appConfig,
-            playBodyParsers = bodyParsers,
-            errorHandler = errorHandler
+            playBodyParsers = bodyParsers
           )
 
           val controller = new Harness(authAction)
@@ -71,13 +67,11 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new BearerTokenExpired),
             config = appConfig,
-            playBodyParsers = bodyParsers,
-            errorHandler = errorHandler
+            playBodyParsers = bodyParsers
           )
 
           val controller = new Harness(authAction)
@@ -96,13 +90,11 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new InsufficientEnrolments),
             config = appConfig,
-            playBodyParsers = bodyParsers,
-            errorHandler = errorHandler
+            playBodyParsers = bodyParsers
           )
 
           val controller = new Harness(authAction)
@@ -123,13 +115,11 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
           val authAction = new AuthenticatedIdentifierAction(
             new FakeFailingAuthConnector(new InsufficientConfidenceLevel),
             config = appConfig,
-            playBodyParsers = bodyParsers,
-            errorHandler = errorHandler
+            playBodyParsers = bodyParsers
           )
 
           val controller = new Harness(authAction)
@@ -150,13 +140,11 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new UnsupportedAuthProvider),
             config = appConfig,
-            playBodyParsers = bodyParsers,
-            errorHandler = errorHandler
+            playBodyParsers = bodyParsers
           )
 
           val controller = new Harness(authAction)
@@ -177,13 +165,11 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new UnsupportedAffinityGroup),
             config = appConfig,
-            playBodyParsers = bodyParsers,
-            errorHandler = errorHandler
+            playBodyParsers = bodyParsers
           )
 
           val controller = new Harness(authAction)
@@ -204,13 +190,11 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new UnsupportedCredentialRole),
             config = appConfig,
-            playBodyParsers = bodyParsers,
-            errorHandler = errorHandler
+            playBodyParsers = bodyParsers
           )
 
           val controller = new Harness(authAction)
@@ -225,29 +209,24 @@ class AuthActionSpec extends SpecBase {
     }
 
     "any unhandled exception occurs" - {
-      "must redirect the user to the default error page" in {
+      "must allow the exception to be thrown" in {
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new RuntimeException()),
             config = appConfig,
-            playBodyParsers = bodyParsers,
-            errorHandler = errorHandler
+            playBodyParsers = bodyParsers
           )
 
           val controller = new Harness(authAction)
-          val result = controller.onPageLoad()(FakeRequest())
+          val result: Future[Result] = controller.onPageLoad()(FakeRequest())
 
-          status(result) mustBe INTERNAL_SERVER_ERROR
-          contentAsString(result) must include(
-            "Sorry, there is a problem with the service - " +
-              "500 - " +
-              "Check a pension scheme member’s protections and enhancements"
+          assertThrows[RuntimeException](
+            await(result)
           )
         }
       }

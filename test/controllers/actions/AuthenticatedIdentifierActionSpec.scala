@@ -26,7 +26,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.Results.{ImATeapot, Ok, Status}
+import play.api.mvc.Results.{Ok, Status}
 import play.api.mvc.{Action, AnyContent, BodyParsers, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubPlayBodyParsersFactory}
@@ -43,8 +43,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
     new AuthenticatedIdentifierAction(
       authConnector = mockAuthConnector,
       config = appConfig,
-      playBodyParsers = bodyParsers,
-      errorHandler = mockErrorHandler
+      playBodyParsers = bodyParsers
     )(ExecutionContext.global)
 
   class Handler(appConfig: FrontendAppConfig) {
@@ -75,7 +74,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
     Enrolment(Constants.pspEnrolmentKey, Seq(EnrolmentIdentifier(Constants.pspIdKey, "21000002")), "Activated")
 
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  private val mockErrorHandler: ErrorHandler = mock[ErrorHandler]
   private val bodyParsers: BodyParsers.Default = mock[BodyParsers.Default]
 
   def setAuthValue(value: Option[String] ~ Option[AffinityGroup] ~ Enrolments): Unit =
@@ -128,17 +126,11 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
       "Redirect user to error page when non-auth exception is thrown" in runningApplication { implicit app =>
         setAuthValue(Future.failed(new RuntimeException("Some funky error")))
+        val result: Future[Result] = handler.run(FakeRequest())
 
-        when(
-          mockErrorHandler.onServerError(any(), any())
-        ).thenReturn(
-          Future.successful(new Status(IM_A_TEAPOT)(JsObject.empty))
+        assertThrows[RuntimeException](
+          await(result)
         )
-
-        val result = handler.run(FakeRequest())
-
-        status(result) mustBe IM_A_TEAPOT
-        contentAsJson(result) mustBe JsObject.empty
       }
     }
 
@@ -169,12 +161,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
     "handle exceptions during block invocation" in runningApplication { implicit app =>
       setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
 
-      when(
-        mockErrorHandler.onServerError(any(), any())
-      ).thenReturn(
-        Future.successful(new Status(IM_A_TEAPOT)(JsObject.empty))
-      )
-
       case class ExceptionHandler(appConfig: FrontendAppConfig) extends Handler(appConfig){
         override def run: Action[AnyContent] = authAction(appConfig) { _ =>
           throw new RuntimeException("An exception")
@@ -185,8 +171,9 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         FakeRequest().withSession(SessionKeys.sessionId -> "foo")
       )
 
-      status(result) mustBe IM_A_TEAPOT
-      contentAsJson(result) mustBe JsObject.empty
+      assertThrows[RuntimeException](
+        await(result)
+      )
     }
 
     "Redirect user to protection enhancement" - {
