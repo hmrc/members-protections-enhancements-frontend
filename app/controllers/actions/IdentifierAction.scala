@@ -19,7 +19,6 @@ package controllers.actions
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.{Constants, FrontendAppConfig}
 import controllers.routes
-import handlers.ErrorHandler
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.requests.{IdentifierRequest, UserType}
 import play.api.Logging
