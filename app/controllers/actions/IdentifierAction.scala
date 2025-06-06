@@ -19,8 +19,10 @@ package controllers.actions
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.{Constants, FrontendAppConfig}
 import controllers.routes
+import handlers.ErrorHandler
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.requests.{IdentifierRequest, UserType}
+import play.api.Logging
 import play.api.mvc.Results._
 import play.api.mvc._
 import uk.gov.hmrc.auth.core._
@@ -37,11 +39,13 @@ trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent]
 @Singleton
 class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthConnector,
                                               config: FrontendAppConfig,
-                                              playBodyParsers: BodyParsers.Default)
-                                             (implicit override val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions {
+                                              playBodyParsers: BodyParsers.Default,
+                                              errorHandler: ErrorHandler)
+                                             (implicit override val executionContext: ExecutionContext)
+  extends IdentifierAction with AuthorisedFunctions with Logging {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-
+    val logContext: String = "[AuthenticatedIdentifierAction][invokeBlock] - "
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised(Enrolment(Constants.psaEnrolmentKey).or(Enrolment(Constants.pspEnrolmentKey)))
@@ -53,9 +57,12 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
           block(PractitionerRequest(affGroup, internalId, pspId.value, UserType.PSP, request))
         case Some(_) ~ Some(_) ~ _ => Future.successful(Redirect(config.loginUrl))
         case _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
-      } recover {
-      case _ =>
-        Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+      } recoverWith {
+      case err: AuthorisationException =>
+        logger.warn(logContext + s"An authorisation error occurred with message: ${err.reason}")
+        Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
+      case err: Throwable =>
+        errorHandler.onServerError(request, err)
     }
   }
 
@@ -66,14 +73,14 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
 
   override def parser: BodyParser[AnyContent] = playBodyParsers
 
-  object IsPSA {
+  private object IsPSA {
     def unapply(enrolments: Enrolments): Option[EnrolmentIdentifier] =
       enrolments.enrolments
         .find(_.key == Constants.psaEnrolmentKey)
         .flatMap(_.getIdentifier(Constants.psaIdKey))
   }
 
-  object IsPSP {
+  private object IsPSP {
     def unapply(enrolments: Enrolments): Option[EnrolmentIdentifier] =
       enrolments.enrolments
         .find(_.key == Constants.pspEnrolmentKey)

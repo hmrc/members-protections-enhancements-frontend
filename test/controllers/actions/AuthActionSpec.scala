@@ -19,6 +19,7 @@ package controllers.actions
 import base.SpecBase
 import com.google.inject.Inject
 import config.FrontendAppConfig
+import handlers.ErrorHandler
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -26,6 +27,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
+import views.html.ErrorTemplate
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,19 +39,22 @@ class AuthActionSpec extends SpecBase {
   }
 
   "Auth Action" - {
-
     "when the user hasn't logged in" - {
-
       "must redirect the user to log in " in {
-
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
-          val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new MissingBearerToken),
-            appConfig, bodyParsers)
+          val authAction = new AuthenticatedIdentifierAction(
+            authConnector = new FakeFailingAuthConnector(new MissingBearerToken),
+            config = appConfig,
+            playBodyParsers = bodyParsers,
+            errorHandler = errorHandler
+          )
+
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
 
@@ -60,17 +65,21 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user's session has expired" - {
-
       "must redirect the user to log in " in {
-
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
-          val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new BearerTokenExpired),
-            appConfig, bodyParsers)
+          val authAction = new AuthenticatedIdentifierAction(
+            authConnector = new FakeFailingAuthConnector(new BearerTokenExpired),
+            config = appConfig,
+            playBodyParsers = bodyParsers,
+            errorHandler = errorHandler
+          )
+
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
 
@@ -81,17 +90,21 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user doesn't have sufficient enrolments" - {
-
       "must redirect the user to the sign in page" in {
-
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
-          val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new InsufficientEnrolments),
-            appConfig, bodyParsers)
+          val authAction = new AuthenticatedIdentifierAction(
+            authConnector = new FakeFailingAuthConnector(new InsufficientEnrolments),
+            config = appConfig,
+            playBodyParsers = bodyParsers,
+            errorHandler = errorHandler
+          )
+
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
           val continueUrl = urlEncode(appConfig.loginContinueUrl)
@@ -104,17 +117,21 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user doesn't have sufficient confidence level" - {
-
       "must redirect the user to the sign in page" in {
-
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
-          val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new InsufficientConfidenceLevel),
-            appConfig, bodyParsers)
+          val authAction = new AuthenticatedIdentifierAction(
+            new FakeFailingAuthConnector(new InsufficientConfidenceLevel),
+            config = appConfig,
+            playBodyParsers = bodyParsers,
+            errorHandler = errorHandler
+          )
+
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
           val continueUrl = urlEncode(appConfig.loginContinueUrl)
@@ -127,17 +144,21 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user used an unaccepted auth provider" - {
-
       "must redirect the user to the sign in page" in {
-
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
-          val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new UnsupportedAuthProvider),
-            appConfig, bodyParsers)
+          val authAction = new AuthenticatedIdentifierAction(
+            authConnector = new FakeFailingAuthConnector(new UnsupportedAuthProvider),
+            config = appConfig,
+            playBodyParsers = bodyParsers,
+            errorHandler = errorHandler
+          )
+
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
           val continueUrl = urlEncode(appConfig.loginContinueUrl)
@@ -150,17 +171,21 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user has an unsupported affinity group" - {
-
       "must redirect the user to the sign in page" in {
-
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
-          val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new UnsupportedAffinityGroup),
-            appConfig, bodyParsers)
+          val authAction = new AuthenticatedIdentifierAction(
+            authConnector = new FakeFailingAuthConnector(new UnsupportedAffinityGroup),
+            config = appConfig,
+            playBodyParsers = bodyParsers,
+            errorHandler = errorHandler
+          )
+
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
           val continueUrl = urlEncode(appConfig.loginContinueUrl)
@@ -173,17 +198,20 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user has an unsupported credential role" - {
-
       "must redirect the user to the sign in page" in {
-
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val errorHandler = application.injector.instanceOf[ErrorHandler]
 
-          val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new UnsupportedCredentialRole),
-            appConfig, bodyParsers)
+          val authAction = new AuthenticatedIdentifierAction(
+            authConnector = new FakeFailingAuthConnector(new UnsupportedCredentialRole),
+            config = appConfig,
+            playBodyParsers = bodyParsers,
+            errorHandler = errorHandler
+          )
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
@@ -192,6 +220,35 @@ class AuthActionSpec extends SpecBase {
 
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some(expectedUrl)
+        }
+      }
+    }
+
+    "any unhandled exception occurs" - {
+      "must redirect the user to the default error page" in {
+        val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+          val errorHandler = application.injector.instanceOf[ErrorHandler]
+
+          val authAction = new AuthenticatedIdentifierAction(
+            authConnector = new FakeFailingAuthConnector(new RuntimeException()),
+            config = appConfig,
+            playBodyParsers = bodyParsers,
+            errorHandler = errorHandler
+          )
+
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe INTERNAL_SERVER_ERROR
+          contentAsString(result) must include(
+            "Sorry, there is a problem with the service - " +
+              "500 - " +
+              "Check a pension scheme member’s protections and enhancements"
+          )
         }
       }
     }
