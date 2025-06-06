@@ -19,14 +19,13 @@ package controllers.actions
 import base.SpecBase
 import config.{Constants, FrontendAppConfig}
 import controllers.routes
-import handlers.ErrorHandler
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.requests.UserDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.Results.{Ok, Status}
+import play.api.libs.json.Json
+import play.api.mvc.Results.Ok
 import play.api.mvc.{Action, AnyContent, BodyParsers, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubPlayBodyParsersFactory}

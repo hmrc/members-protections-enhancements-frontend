@@ -109,7 +109,9 @@ trait SpecBase
 
   def servicesConfig: Map[String, String] = Map(
     "microservice.services.mpe-backend.host"           -> mockHost,
-    "microservice.services.mpe-backend.port"           -> mockPort
+    "microservice.services.mpe-backend.port"           -> mockPort,
+    "microservice.services.bas-gateway-frontend.host"  -> mockHost,
+    "microservice.services.bas-gateway-frontend.port"  -> mockPort
   )
 
   override def beforeAll(): Unit = {
