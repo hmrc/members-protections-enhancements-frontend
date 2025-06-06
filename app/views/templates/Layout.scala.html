@@ -56,7 +56,7 @@
             countdown           = Some(appConfig.countdown),
             keepAliveUrl        = Some(routes.KeepAliveController.keepAlive().url),
             keepAliveButtonText = Some(messages("timeout.keepAlive")),
-            signOutUrl          = Some(controllers.auth.routes.AuthController.signOut().url),
+            signOutUrl          = Some(appConfig.betaFeedbackUrl),
             signOutButtonText   = Some(messages("timeout.signOut")),
             timeoutUrl          = Some(controllers.auth.routes.AuthController.sessionTimeout().url),
             title               = Some(messages("timeout.title")),
@@ -91,7 +91,7 @@
     ),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(routes.WhatYouWillNeedController.onPageLoad().url),
-        signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
+        signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.sessionTimeout().url) else None
     ),
     banners = Banners(
         displayHmrcBanner = showHmrcBanner,
