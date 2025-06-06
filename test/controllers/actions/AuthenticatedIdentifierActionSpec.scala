@@ -19,14 +19,15 @@ package controllers.actions
 import base.SpecBase
 import config.{Constants, FrontendAppConfig}
 import controllers.routes
+import handlers.ErrorHandler
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.requests.UserDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
-import play.api.libs.json.Json
-import play.api.mvc.Results.Ok
-import play.api.mvc.{Action, AnyContent, BodyParsers}
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.Results.{Ok, Status}
+import play.api.mvc.{Action, AnyContent, BodyParsers, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, StubPlayBodyParsersFactory}
 import uk.gov.hmrc.auth.core._
@@ -40,9 +41,10 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
   def authAction(appConfig: FrontendAppConfig) =
     new AuthenticatedIdentifierAction(
-      mockAuthConnector,
-      appConfig,
-      bodyParsers)(ExecutionContext.global)
+      authConnector = mockAuthConnector,
+      config = appConfig,
+      playBodyParsers = bodyParsers
+    )(ExecutionContext.global)
 
   class Handler(appConfig: FrontendAppConfig) {
     def run: Action[AnyContent] = authAction(appConfig) { request =>
@@ -60,7 +62,9 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
   def handler(implicit app: Application): Handler = new Handler(appConfig)
 
-  def authResult(affinityGroup: Option[AffinityGroup], internalId: Option[String], enrolments: Enrolment*)=
+  def authResult(affinityGroup: Option[AffinityGroup],
+                 internalId: Option[String],
+                 enrolments: Enrolment*): Option[String] ~ Option[AffinityGroup] ~ Enrolments =
     internalId and affinityGroup and Enrolments(enrolments.toSet)
 
   val psaEnrolment: Enrolment =
@@ -119,6 +123,15 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
           redirectLocation(result) mustBe Some(expectedUrl)
       }
+
+      "Redirect user to error page when non-auth exception is thrown" in runningApplication { implicit app =>
+        setAuthValue(Future.failed(new RuntimeException("Some funky error")))
+        val result: Future[Result] = handler.run(FakeRequest())
+
+        assertThrows[RuntimeException](
+          await(result)
+        )
+      }
     }
 
     "return an IdentifierRequest" - {
@@ -143,6 +156,24 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         (contentAsJson(result) \ "pspId").asOpt[String] mustBe Some("21000002")
         (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
       }
+    }
+
+    "handle exceptions during block invocation" in runningApplication { implicit app =>
+      setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
+
+      case class ExceptionHandler(appConfig: FrontendAppConfig) extends Handler(appConfig){
+        override def run: Action[AnyContent] = authAction(appConfig) { _ =>
+          throw new RuntimeException("An exception")
+        }
+      }
+
+      val result: Future[Result] = ExceptionHandler(appConfig).run(
+        FakeRequest().withSession(SessionKeys.sessionId -> "foo")
+      )
+
+      assertThrows[RuntimeException](
+        await(result)
+      )
     }
 
     "Redirect user to protection enhancement" - {
