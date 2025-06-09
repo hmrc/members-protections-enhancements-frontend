@@ -40,17 +40,21 @@
         }
 
         @govukInput(
-           InputViewModel(
+            InputViewModel(
                 field = form("nino"),
-                label = LabelViewModel(s"${messages("membersNino.heading", name)}").asPageHeading().withCssClass("govuk-label--l")
-           )
-           .withWidth(Fixed10)
-           .withHint(HintViewModel(Text(messages("membersNino.hint"))))
-           .withAutocomplete("on")
-           )
+                label = LabelViewModel(
+                    s"${messages("membersNino.heading", name)}"
+                )
+                .asPageHeading()
+                .withCssClass("govuk-label--l govuk-!-margin-bottom-6")
+            )
+            .withWidth(Fixed10)
+            .withHint(HintViewModel(Text(messages("membersNino.hint"))))
+            .withAutocomplete("on")
+        )
 
         @govukButton(
-             ButtonViewModel(viewModel.buttonText.toMessage)
+            ButtonViewModel(viewModel.buttonText.toMessage)
         )
    }
 }

@@ -15,18 +15,18 @@
  *@
 
 @import views.html.components._
-@import viewmodels.InputWidth.Fixed20
+@import viewmodels.InputWidth.TwoThirds
 @import viewmodels.formPage._
 @import viewmodels.govuk._
 @import viewmodels._
 
 @this(
-layout: templates.Layout,
-heading: h1,
-formHelper: FormWithCSRF,
-govukErrorSummary: GovukErrorSummary,
-govukInput: GovukInput,
-govukButton: GovukButton
+    layout: templates.Layout,
+    heading: h1,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukInput: GovukInput,
+    govukButton: GovukButton
 )
 
 @(form: Form[MemberDetails], viewModel: FormPageViewModel)(implicit request: Request[_], messages: Messages)
@@ -36,7 +36,7 @@ govukButton: GovukButton
     @formHelper(action = viewModel.onSubmit, Symbol("autoComplete") -> "off") {
 
         @if(form.hasErrors) {
-        @govukErrorSummary(ErrorSummaryViewModel(form))
+            @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
         @heading("membersName.heading")
@@ -44,18 +44,18 @@ govukButton: GovukButton
          @govukInput(
              InputViewModel(
                field = form("firstName"),
-               label = LabelViewModel("membersName.firstName").withCssClass(LabelSize.Small.toString)
+               label = LabelViewModel("membersName.firstName").withCssClass("govuk-!-margin-bottom-2")
              )
-             .withWidth(Fixed20)
+             .withWidth(TwoThirds)
              .withAutocomplete("given-name")
          )
 
          @govukInput(
             InputViewModel(
               field = form("lastName"),
-              label = LabelViewModel("membersName.lastName").withCssClass(LabelSize.Small.toString)
+              label = LabelViewModel("membersName.lastName").withCssClass("govuk-!-margin-bottom-2")
            )
-           .withWidth(Fixed20)
+           .withWidth(TwoThirds)
            .withAutocomplete("family-name")
          )
 
