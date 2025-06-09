@@ -40,15 +40,17 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   //URLs
   val loginUrl: String         = loadConfig("urls.login")
   val loginContinueUrl: String = loadConfig("urls.loginContinue")
-  //val redirectUrl = s"$loginUrl?continue=http%3A%2F%2Flocalhost%3A6741$loginContinueUrl"
 
   private val basGatewayFrontendBaseUrl: String = configuration.get[Service]("microservice.services.bas-gateway-frontend").baseUrl
   lazy val signOutUrl: String = basGatewayFrontendBaseUrl + "/bas-gateway/sign-out-without-state"
 
+  // Feedback config
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
-  val backendUrl: String = configuration.get[Service]("microservice.services.mpe-backend").baseUrl
-  val checkAndRetrieveUrl = s"$backendUrl/${loadConfig("urls.checkAndRetrieve")}"
   val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/members-protections-and-enhancements"
+
+  private val backendUrl: String = configuration.get[Service]("microservice.services.mpe-backend").baseUrl
+  val checkAndRetrieveUrl = s"$backendUrl/${loadConfig("urls.checkAndRetrieve")}"
+
 
   lazy val psaOverviewUrl: String = loadConfig("urls.psaOverview")
   lazy val pspDashboardUrl: String = loadConfig("urls.pspDashboard")
