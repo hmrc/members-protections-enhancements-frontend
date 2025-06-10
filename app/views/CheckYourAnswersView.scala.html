@@ -30,11 +30,12 @@
 
     @heading(s"${messages("checkYourAnswers.heading", name)}", headerSize = "xl")
 
-    @govukSummaryList(SummaryList(summaryList))
+    @govukSummaryList(
+        SummaryList(summaryList).withCssClass("govuk-!-margin-bottom-9")
+    )
 
-        @govukButton(
-        ButtonViewModel(messages("site.acceptAndSubmit"))
-        .asLink(routes.CheckYourAnswersController.onSubmit().url)
-        )
+    @govukButton(
+        ButtonViewModel(messages("site.acceptAndSubmit")).asLink(routes.CheckYourAnswersController.onSubmit().url)
+    )
 
 }

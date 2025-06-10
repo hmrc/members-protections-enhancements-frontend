@@ -15,36 +15,64 @@
  *@
 
 @import views.html.components._
+@import config.FrontendAppConfig
 
 @this(
-layout: templates.Layout,
-govukButton : GovukButton,
-govukBackLink: GovukBackLink,
-heading: h1
+    layout: templates.Layout,
+    govukButton : GovukButton,
+    govukBackLink: GovukBackLink,
+    heading: h1,
+    appConfig: FrontendAppConfig
 )
 
-@(backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
+@(
+    backLinkUrl: Option[String]
+)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("whatYouWillNeed.title")), backLinkUrl = backLinkUrl) {
 
     @heading("whatYouWillNeed.heading", headerSize = "xl")
 
-    <div class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-5">
-        <p>@messages("whatYouWillNeed.p1")</p>
+    <p class="govuk-body">@messages("whatYouWillNeed.p1")</p>
 
-        <ul class="govuk-list govuk-list--bullet govuk-!-margin-top-1">
-            <li>@messages("whatYouWillNeed.full_name")</li>
-            <li>@messages("whatYouWillNeed.dob")</li>
-            <li>@messages("whatYouWillNeed.nino")</li>
-            <li>@messages("whatYouWillNeed.pension_scheme_admin_check_ref")</li>
-        </ul>
-    </div>
+    <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-6">
+        <li>@messages("whatYouWillNeed.full_name")</li>
+        <li>@messages("whatYouWillNeed.dob")</li>
+        <li>@messages("whatYouWillNeed.nino")</li>
+        <li>@messages("whatYouWillNeed.pension_scheme_admin_check_ref")</li>
+    </ul>
 
-    <p class="govuk-body">
-        @govukButton(
-        ButtonViewModel(messages("site.continue"))
-        .asLink(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url)
-        )
-    </p>
+    <p class="govuk-body">@messages("whatYouWillNeed.guidance.p1")</p>
+
+    <p class="govuk-body">@messages("whatYouWillNeed.guidance.p2")</p>
+
+    <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-6">
+        <li>@messages("whatYouWillNeed.guidance.li.1")</li>
+        <li>
+            @messages("whatYouWillNeed.guidance.li.2")
+            <a class="govuk-link" href="@appConfig.checkLtaGuidanceUrl">
+                @messages("whatYouWillNeed.guidance.li.2.linkText")
+            </a>
+        </li>
+        <li>@messages("whatYouWillNeed.guidance.li.3")</li>
+    </ul>
+
+    <a href="@routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)"
+       role="button"
+       draggable="false"
+       class="govuk-button govuk-button--start"
+       data-module="govuk-button" data-govuk-button-init=""
+       data-govuk-button-module-started="true">
+        @messages("site.continue")
+        <svg class="govuk-button__start-icon"
+             xmlns="http://www.w3.org/2000/svg"
+             width="17.5"
+             height="19"
+             viewBox="0 0 33 40"
+             aria-hidden="true"
+             focusable="false">
+            <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z"></path>
+        </svg>
+    </a>
 
 }

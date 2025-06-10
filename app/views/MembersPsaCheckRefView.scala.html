@@ -42,7 +42,11 @@
         @govukInput(
            InputViewModel(
                 field = form("psaCheckRef"),
-                label = LabelViewModel(s"${messages("membersPsaCheckRef.heading", name)}").asPageHeading().withCssClass("govuk-label--l")
+                label = LabelViewModel(
+                    s"${messages("membersPsaCheckRef.heading", name)}"
+                )
+                .asPageHeading()
+                .withCssClass("govuk-label--l govuk-!-margin-bottom-6")
            )
            .withWidth(Fixed10)
            .withHint(HintViewModel(Text(messages("membersPsaCheckRef.hint"))))

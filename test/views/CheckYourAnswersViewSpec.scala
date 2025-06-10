@@ -34,7 +34,7 @@ class CheckYourAnswersViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("Check Pearl Harvey's details")
+      view.getElementsByTag("h1").text() mustBe messages(app)("Check your answers")
 
       view.html.contains(messages(app)("checkYourAnswers.title"))
       view.html.contains(messages(app)("membersName.firstName"))
