@@ -56,7 +56,7 @@
             countdown           = Some(appConfig.countdown),
             keepAliveUrl        = Some(routes.KeepAliveController.keepAlive().url),
             keepAliveButtonText = Some(messages("timeout.keepAlive")),
-            signOutUrl          = Some(appConfig.exitSurveyUrl),
+            signOutUrl          = Some(appConfig.betaFeedbackUrl),
             signOutButtonText   = Some(messages("timeout.signOut")),
             timeoutUrl          = Some(controllers.auth.routes.AuthController.sessionTimeout().url),
             title               = Some(messages("timeout.title")),
@@ -91,11 +91,11 @@
     ),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(routes.WhatYouWillNeedController.onPageLoad().url),
-        signOutUrl = if(showSignOut) Some(appConfig.exitSurveyUrl) else None
+        signOutUrl = if(showSignOut) Some(appConfig.betaFeedbackUrl) else None
     ),
     banners = Banners(
         displayHmrcBanner = showHmrcBanner,
-        phaseBanner = if (appConfig.betaBannerEnabled) Some(standardBetaBanner(url = appConfig.exitSurveyUrl)) else None
+        phaseBanner = if (appConfig.betaBannerEnabled) Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)) else None
     ),
     backLink = if (showBackLink && backLinkUrl != None) Some(BackLink.withDefaultText(backLinkUrl.get)) else None
 ))(content)
