@@ -111,6 +111,16 @@ membersPsaCheckRef.pensionSchemeAdminCheckRef = Pension scheme administrator che
 membersPsaCheckRef.error.required = Enter a pension scheme administrator check reference
 membersPsaCheckRef.error.invalid = Enter the member''s pension scheme administrator check reference in a valid format
 
+noResults.title = Your search didn''t return any results
+noResults.heading = Your search didn''t return any results
+noResults.noMatch = The details you entered didn''t match an existing protection certificate
+noResults.lh = This could be because you''ve:
+noResults.li.1 = been given the wrong information by the member
+noResults.li.2 = entered one or more of the details incorrectly
+noResults.checkInformation = Check the information you''ve been given and
+noResults.tryAgain = try again
+noResults.period = .
+
 results.title = Results of protections and enhancements check
 results.heading = Results of protections and enhancements check
 results.memberDetails.heading = Member''s details
@@ -152,5 +162,5 @@ results.protection.PCR.CRY = Pension Credit (from previously crystallised rights
 results.protection.IE.RI = International Enhancement (individuals who are relevant overseas individuals)
 results.protection.IE.T = International Enhancement (transfer from a recognised overseas pension scheme)
 
-results.breadcrumbs.mps = Managing Pension Schemes
+results.breadcrumbs.mps = Managing pension schemes
 results.breadcrumbs.mpe = Check a pension scheme member'’s protections and enhancements
