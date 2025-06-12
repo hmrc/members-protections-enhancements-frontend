@@ -24,7 +24,7 @@ import play.api.data.Forms.mapping
 
 class MembersPsaCheckRefFormProvider @Inject() extends Mappings {
 
-  val psaCheckRefRegex: String = """[A-Za-z]{3}[0-9]{8}[A-Za-z]{1}"""
+  val psaCheckRefRegex: String = """^PSA[0-9]{8}[A-Z]$"""
   private val psaCheckRef = "psaCheckRef"
 
   def apply(): Form[MembersPsaCheckRef] =

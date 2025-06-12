@@ -62,7 +62,7 @@ class MembersNinoControllerSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
-            "nino" -> "QQ123456C")
+            "nino" -> "AA123456C")
 
         val result = route(application, request).value
 
@@ -75,7 +75,7 @@ class MembersNinoControllerSpec extends SpecBase {
     "must return OK and pre-fill the form when data is already present" in {
       val userAnswers = emptyUserAnswers
         .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey")).success.value
-        .set(MembersNinoPage, MembersNino("QQ123456C")).success.value
+        .set(MembersNinoPage, MembersNino("AA123456C")).success.value
 
       val application = applicationBuilder(userAnswers).build()
 
@@ -89,7 +89,7 @@ class MembersNinoControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(
-          MembersNino("QQ123456C")), viewModel, "Pearl Harvey")(request, messages(application)).toString
+          MembersNino("AA123456C")), viewModel, "Pearl Harvey")(request, messages(application)).toString
       }
     }
 
@@ -100,7 +100,7 @@ class MembersNinoControllerSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
-            "nino" -> "QQ 12 34 56 C")
+            "nino" -> "AA 12 34 56 C")
 
         val result = route(application, request).value
 
