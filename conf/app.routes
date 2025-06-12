@@ -42,4 +42,5 @@ GET         /change-members-pension-scheme-administrator-check-reference        
 POST        /change-members-pension-scheme-administrator-check-reference        controllers.MembersPsaCheckRefController.onSubmit(mode: Mode = CheckMode)
 
 GET         /results                                                            controllers.ResultsController.onPageLoad()
+GET         /no-results                                                         controllers.NoResultsController.onPageLoad()
 GET         /redirect-to-mps                                                    controllers.MpsDashboardController.redirectToMps()

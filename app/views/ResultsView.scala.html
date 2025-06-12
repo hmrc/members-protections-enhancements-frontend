@@ -27,7 +27,8 @@
     h2: h2,
     govukBreadcrumbs: GovukBreadcrumbs,
     govukSummaryList: GovukSummaryList,
-    printButton: print_button
+    printSection: print_section,
+    membersDetailsSection: members_details_section
 )
 
 @(
@@ -53,37 +54,13 @@
         @heading("results.heading", headerSize = "l", marginBottom = "8")
     </div>
 
-    <table class="govuk-table govuk-!-margin-bottom-8">
-        <caption class="govuk-table__caption govuk-table__caption--m">@messages("results.memberDetails.heading")</caption>
-        <tbody class="govuk-table__body">
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header">@messages("membersName.name")</th>
-                <td class="govuk-table__cell">@memberDetails.fullName</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header">@messages("membersDob.dob")</th>
-                <td class="govuk-table__cell">@membersDob.dob</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header">@messages("membersNino.nino")</th>
-                <td class="govuk-table__cell">@membersNino.nino</td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header">@messages("membersPsaCheckRef.pensionSchemeAdminCheckRef")</th>
-                <td class="govuk-table__cell">@membersPsaCheckRef.psaCheckRef</td>
-            </tr>
-        </tbody>
-    </table>
+    @membersDetailsSection(memberDetails, membersDob, membersNino, membersPsaCheckRef)
 
     @for(summaryList <- protectionRecordDetailsToSummaryLists(protectionRecordDetails)){
         @govukSummaryList(summaryList)
     }
 
-    <p class="govuk-body">
-        @messages("results.checkedOn") @formattedTimestamp
-    </p>
-
-    @printButton()
+    @printSection(formattedTimestamp)
 
     <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
