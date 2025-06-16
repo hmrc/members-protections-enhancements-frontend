@@ -1,0 +1,75 @@
+@*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.components._
+@import config.FrontendAppConfig
+@import models.response._
+@import viewmodels.ResultsPageBreadcrumbs._
+
+@this(
+    layout: templates.Layout,
+    govukBreadcrumbs: GovukBreadcrumbs,
+    header: h1,
+    header2: h2,
+    printSection: print_section,
+    membersDetailsSection: members_details_section
+)
+
+@(
+    memberDetails: MemberDetails,
+    membersDob: MembersDob,
+    membersNino: MembersNino,
+    membersPsaCheckRef: MembersPsaCheckRef,
+    formattedTimestamp: String
+)(implicit request: Request[_], messages: Messages)
+
+@layout(
+    pageTitle = titleNoForm(messages("noResults.title")),
+    beforeContent =Some(govukBreadcrumbs(Breadcrumbs(resultsPageBreadcrumbs))),
+    fullWidthContent = true
+) {
+
+    <div class="govuk-grid-row govuk-grid-column-two-thirds">
+        @header(msgKey = "noResults.heading", marginBottom = "8")
+    </div>
+
+    @membersDetailsSection(memberDetails, membersDob, membersNino, membersPsaCheckRef)
+
+    <div class="govuk-!-margin-bottom-6" id="no-results-footer">
+        @header2(msgKey = "noResults.noMatch")
+
+        <p class="govuk-body">
+            @messages("noResults.lh")
+        </p>
+
+        <ul class="govuk-list govuk-list--bullet">
+            <li>
+                @messages("noResults.li.1")
+            </li>
+            <li>
+                @messages("noResults.li.2")
+            </li>
+        </ul>
+
+        <p class="govuk-body govuk-!-margin-bottom-8">
+            @messages("noResults.checkInformation") <a href="@routes.CheckYourAnswersController.onPageLoad()">@messages("noResults.tryAgain")</a>@messages("noResults.period")
+        </p>
+
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+        @printSection(formattedTimestamp)
+    </div>
+}
