@@ -45,8 +45,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   lazy val signOutUrl: String = basGatewayFrontendBaseUrl + "/bas-gateway/sign-out-without-state"
 
   // Feedback config
-  private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
-  val exitSurveyUrl: String = s"$exitSurveyBaseUrl/feedback/members-protections-and-enhancements"
+  val exitSurveyUrl: String = loadConfig("urls.signOutWithFeedback")
 
   private val backendUrl: String = configuration.get[Service]("microservice.services.mpe-backend").baseUrl
   val checkAndRetrieveUrl = s"$backendUrl/${loadConfig("urls.checkAndRetrieve")}"
