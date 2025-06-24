@@ -33,7 +33,7 @@ object CheckYourAnswersSummary {
           ActionItem(
             href = routes.WhatIsTheMembersNameController.onPageLoad(CheckMode).url + "#firstName",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersName.firstName"),
+            visuallyHiddenText = Some("first name"),
             attributes = Map("id" -> "change-first-name")
           ),
         )
@@ -50,7 +50,7 @@ object CheckYourAnswersSummary {
           ActionItem(
             href = routes.WhatIsTheMembersNameController.onPageLoad(CheckMode).url + "#lastName",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersName.lastName"),
+            visuallyHiddenText = Some("last name"),
             attributes = Map("id" -> "change-last-name")
           )
         )
@@ -67,7 +67,7 @@ object CheckYourAnswersSummary {
           ActionItem(
             href = routes.MembersDobController.onPageLoad(CheckMode).url + "#dateOfBirth",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersDob.dob"),
+            visuallyHiddenText = Some("date of birth"),
             attributes = Map("id" -> "change-dob")
           )
         )
@@ -84,7 +84,7 @@ object CheckYourAnswersSummary {
           ActionItem(
             href = routes.MembersNinoController.onPageLoad(CheckMode).url + "#nino",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersNino.nino"),
+            visuallyHiddenText = Some("National Insurance number"),
             attributes = Map("id" -> "change-nino")
           )
         )
@@ -101,7 +101,7 @@ object CheckYourAnswersSummary {
           ActionItem(
             href = routes.MembersPsaCheckRefController.onPageLoad(CheckMode).url + "#psaCheckRef",
             content = Text(messages("site.change")),
-            visuallyHiddenText = Some("membersPsaCheckRef.pensionSchemeAdminCheckRef"),
+            visuallyHiddenText = Some("pension scheme administrator check reference"),
             attributes = Map("id" -> "change-pensionSchemeAdminCheckRef")
           )
         )
