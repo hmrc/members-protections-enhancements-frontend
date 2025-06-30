@@ -71,8 +71,8 @@ whatYouWillNeed.guidance.li.2 = when they
 whatYouWillNeed.guidance.li.2.linkText = check the protected allowances on their pension savings
 whatYouWillNeed.guidance.li.3 = by contacting HMRC if their protection or enhancement is from before 2014
 
-membersName.title = Member name
-membersName.heading = Member name
+membersName.title = What is the member''s name?
+membersName.heading = What is the member''s name?
 membersName.name = Name
 membersName.firstName = First name
 membersName.lastName = Last name
