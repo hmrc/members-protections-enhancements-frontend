@@ -18,7 +18,11 @@ package services
 
 import base.SpecBase
 import connectors.MembersCheckAndRetrieveConnector
+import models.errors.NotFoundError
 import models.requests.PensionSchemeMemberRequest
+import models.response.RecordStatusMapped.Active
+import models.response.RecordTypeMapped.FixedProtection2016
+import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import org.mockito.Mockito.when
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.test.Helpers._
@@ -38,32 +42,43 @@ class MembersCheckAndRetrieveServiceSpec extends SpecBase with ScalaCheckPropert
     super.beforeEach()
   }
 
+
+  val request = PensionSchemeMemberRequest(
+    firstName = "Naren",
+    lastName = "Vijay",
+    dateOfBirth = "2024-12-31",
+    nino = "QQ123456C",
+    psaCheckRef = "PSA12345678A"
+  )
+
   "checkAndRetrieve" - {
     "return a valid response body for a valid data" in {
 
-      val request = PensionSchemeMemberRequest(
-        firstName = "Naren",
-        lastName = "Vijay",
-        dateOfBirth = "2024-12-31",
-        nino = "QQ123456C",
-        psaCheckRef = "PSA12345678A"
-      )
+      val response: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
+        ProtectionRecord(
+          protectionReference = Some("some-id"),
+          `type` = FixedProtection2016,
+          status = Active,
+          protectedAmount = Some(1),
+          lumpSumAmount = Some(1),
+          lumpSumPercentage = Some(1),
+          enhancementFactor = Some(0.5)
+        )
+      ))
 
-      val response = """{
-                                  |"statusCode": "200",
-                                  |"message": "search successful, member details exists"
-                                  |}""".stripMargin
-      when(mockConnector.checkAndRetrieve(request)).thenReturn(Future.successful(response))
+      when(mockConnector.checkAndRetrieve(request)).thenReturn(Future.successful(Right(response)))
 
-      val result = service.checkAndRetrieve(Some(request))
-      await(result) mustBe response
+      val result = service.checkAndRetrieve(request)
+      await(result) mustBe Right(response)
     }
 
-    "return an empty response body for invalid or no data submission" in {
+    "return a NotFoundError for an invalid submission" in {
 
-      val response = "error"
+      val response = Left(NotFoundError)
 
-      val result = service.checkAndRetrieve(None)
+      when(mockConnector.checkAndRetrieve(request)).thenReturn(Future.successful(response))
+
+      val result = service.checkAndRetrieve(request)
       await(result) mustBe response
     }
   }

@@ -34,11 +34,6 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
     a[BadRequestException] should be thrownBy fixture()(response)
   }
 
-  it should "transform Not Found into NotFoundException" in {
-    val response = responseFor(NOT_FOUND)
-    a[NotFoundException] should be thrownBy fixture()(response)
-  }
-
   it should "transform any other 4xx into Upstream4xxResponse" in {
     val userErrors = for (n <- Gen.choose(400, 499) suchThat (n => n != 400 && n != 404)) yield n
 

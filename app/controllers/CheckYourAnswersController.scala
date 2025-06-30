@@ -21,21 +21,19 @@ import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import models._
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.MembersCheckAndRetrieveService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import views.html.CheckYourAnswersView
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class CheckYourAnswersController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             identify: IdentifierAction,
                                             getData: DataRetrievalAction,
                                             implicit val controllerComponents: MessagesControllerComponents,
-                                            view: CheckYourAnswersView,
-                                            checkAndRetrieveService: MembersCheckAndRetrieveService
-                                          )(implicit ec: ExecutionContext) extends MpeBaseController(identify, getData) {
+                                            view: CheckYourAnswersView
+                                          ) extends MpeBaseController(identify, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle {
     implicit request =>
@@ -59,14 +57,7 @@ class CheckYourAnswersController @Inject()(
     )
   }
 
-  def onSubmit: Action[AnyContent] = handle {
-    implicit request =>
-
-      checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(request)).map {
-        case str if str == null || str == "error" => Redirect(routes.CheckYourAnswersController.onPageLoad())
-        case _ => Redirect(routes.ResultsController.onPageLoad())
-      }
-
-
+  def onSubmit: Action[AnyContent] = handle { _ =>
+      Future.successful(Redirect(routes.ResultsController.onPageLoad()))
   }
 }

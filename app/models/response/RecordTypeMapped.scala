@@ -34,6 +34,7 @@ object RecordTypeMapped {
   object PrimaryProtection extends ProtectionTypeMapped("PP")
   object EnhancedProtection extends ProtectionTypeMapped("EP")
   object PensionCreditRightsPreCommencement extends EnhancementTypeMapped("PCR.COM")
+  object PensionCreditRights extends EnhancementTypeMapped("PCR")
   object PensionCreditRightsPreviouslyCrystallised extends EnhancementTypeMapped("PCR.CRY")
   object InternationalEnhancementRelevantIndividual extends EnhancementTypeMapped("IE.RI")
   object InternationalEnhancementTransfer extends EnhancementTypeMapped("IE.T")

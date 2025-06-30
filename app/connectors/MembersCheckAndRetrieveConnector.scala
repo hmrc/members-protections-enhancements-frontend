@@ -18,7 +18,9 @@ package connectors
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.FrontendAppConfig
+import models.errors.{MpeError, NotFoundError}
 import models.requests.PensionSchemeMemberRequest
+import models.response.ProtectionRecordDetails
 import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json._
@@ -32,7 +34,8 @@ import scala.util.Failure
 @ImplementedBy(classOf[MembersCheckAndRetrieveConnectorImpl])
 trait MembersCheckAndRetrieveConnector {
 
-  def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String]
+  def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
+                      (implicit hc: HeaderCarrier, ec: ExecutionContext):  Future[Either[MpeError, ProtectionRecordDetails]]
 }
 
 class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: FrontendAppConfig)
@@ -41,7 +44,8 @@ class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2,
 
   private val logger = Logger(classOf[MembersCheckAndRetrieveConnectorImpl])
 
-  override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
+  override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
+                               (implicit hc: HeaderCarrier, ec: ExecutionContext):  Future[Either[MpeError, ProtectionRecordDetails]] = {
 
     val checkAndRetrieveUrl = url"${config.checkAndRetrieveUrl}"
 
@@ -51,7 +55,8 @@ class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2,
         response.status match {
             case OK =>
               logger.info(s"Response from the NPS: ${Json.prettyPrint(response.json)}")
-              response.body
+              handleSuccessResponse(response.json)
+            case NOT_FOUND => Left(NotFoundError)
             case _ => handleErrorResponse("POST", checkAndRetrieveUrl.toString)(response)
           }
       } andThen {
