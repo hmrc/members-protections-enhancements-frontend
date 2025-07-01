@@ -68,7 +68,7 @@ class NoResultsControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.NoResultsController.onPageLoad().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

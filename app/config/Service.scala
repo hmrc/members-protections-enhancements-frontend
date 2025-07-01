@@ -25,9 +25,6 @@ final case class Service(host: String, port: String, protocol: String) {
   def baseUrl: String = {
     if (host.isBlank) "" else s"$protocol://$host:$port"
   }
-
-  override def toString: String =
-    baseUrl
 }
 
 object Service {
@@ -43,7 +40,4 @@ object Service {
 
         Service(host, port, protocol)
   }
-
-  implicit def convertToString(service: Service): String =
-    service.baseUrl
 }

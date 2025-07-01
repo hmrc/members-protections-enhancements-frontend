@@ -18,7 +18,9 @@ package services
 
 import com.google.inject.ImplementedBy
 import connectors.MembersCheckAndRetrieveConnector
+import models.errors.MpeError
 import models.requests.PensionSchemeMemberRequest
+import models.response.ProtectionRecordDetails
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.{Inject, Singleton}
@@ -27,15 +29,14 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class MembersCheckAndRetrieveServiceImpl @Inject()(checkAndRetrieveConnector: MembersCheckAndRetrieveConnector) extends MembersCheckAndRetrieveService {
 
-  override def checkAndRetrieve(pensionSchemeMemberRequest: Option[PensionSchemeMemberRequest])
-                               (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] =
-    pensionSchemeMemberRequest match {
-      case Some(data) => checkAndRetrieveConnector.checkAndRetrieve(data)
-      case _ => Future("error")
-    }
+  override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
+                               (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[MpeError, ProtectionRecordDetails]] = {
+    checkAndRetrieveConnector.checkAndRetrieve(pensionSchemeMemberRequest)
+  }
 }
 
 @ImplementedBy(classOf[MembersCheckAndRetrieveServiceImpl])
 trait MembersCheckAndRetrieveService {
-  def checkAndRetrieve(pensionSchemeMemberRequest: Option[PensionSchemeMemberRequest])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String]
+  def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
+                      (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[MpeError, ProtectionRecordDetails]]
 }

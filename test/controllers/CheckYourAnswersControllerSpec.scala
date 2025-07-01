@@ -16,13 +16,11 @@
 
 package controllers
 
-import base.{MpeBackendStub, SpecBase}
+import base.SpecBase
 import models._
-import models.requests.PensionSchemeMemberRequest
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.http.Status.OK
 import play.api.i18n.Messages
-import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -80,16 +78,9 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
       }
     }
 
-    "must return to ResultsController page when a valid data is submitted" in {
+    "must return to ResultsController page when submitted" in {
 
-      val pensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2000-01-01", "AB123456A", "PSA12345678A")
-
-      val checkAndRetrieveUrl = "/members-protections-and-enhancements/check-and-retrieve"
       val application = applicationBuilder(userAnswers = userAnswers).build()
-      MpeBackendStub
-        .when(method = MpeBackendStub.POST, uri = checkAndRetrieveUrl)
-        .withRequestBody(Json.toJson(pensionSchemeMemberRequest))
-        .thenReturn(status = OK, "Success")
 
       val onSubmit = routes.CheckYourAnswersController.onSubmit()
       running(application) {
@@ -98,22 +89,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.ResultsController.onPageLoad().url
-      }
-    }
-
-    "must return the same page when invalid data is submitted" in {
-      val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-
-      val application = applicationBuilder(userAnswers).build()
-      val onSubmit = routes.CheckYourAnswersController.onSubmit()
-
-      running(application) {
-        val request = FakeRequest(GET, onSubmit.url)
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.CheckYourAnswersController.onPageLoad().url
       }
     }
   }

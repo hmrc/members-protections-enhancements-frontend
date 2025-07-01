@@ -82,14 +82,14 @@ abstract class MpeBaseController @Inject()(
       psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
     } yield (memberDetails, dob, nino, psaRefCheck)
 
-  def retrieveMembersRequest[A](request: DataRequest[A]): Option[PensionSchemeMemberRequest] = getUserData(request) match {
-    case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
-      Some(PensionSchemeMemberRequest(memberDetails.firstName,
+  def retrieveMembersRequest(memberDetails: MemberDetails,
+                             membersDob:MembersDob,
+                             membersNino:MembersNino,
+                             membersPsaCheckRef: MembersPsaCheckRef): PensionSchemeMemberRequest =
+      PensionSchemeMemberRequest(memberDetails.firstName,
         memberDetails.lastName,
         membersDob.dateOfBirth,
         membersNino.nino.filterNot(_.isWhitespace),
-        membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)))
-    case None => None
-  }
+        membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace))
 
 }

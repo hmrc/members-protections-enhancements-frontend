@@ -16,8 +16,11 @@
 
 package utils
 
-import uk.gov.hmrc.http._
+import models.errors.MpeError
+import models.response.ProtectionRecordDetails
 import play.api.http.Status._
+import play.api.libs.json.{JsError, JsResultException, JsSuccess, JsValue}
+import uk.gov.hmrc.http._
 
 trait HttpResponseHelper extends HttpErrorFunctions {
 
@@ -27,8 +30,6 @@ trait HttpResponseHelper extends HttpErrorFunctions {
     response.status match {
       case BAD_REQUEST =>
         throw new BadRequestException(badRequestMessage(httpMethod, url, response.body))
-      case NOT_FOUND =>
-        throw new NotFoundException(notFoundMessage(httpMethod, url, response.body))
       case status if is4xx(status) =>
         throw UpstreamErrorResponse(upstreamResponseMessage(httpMethod, url, status, response.body), status, status, response.headers)
       case status if is5xx(status) =>
@@ -37,6 +38,11 @@ trait HttpResponseHelper extends HttpErrorFunctions {
         throw new UnrecognisedHttpResponseException(httpMethod, url, response)
     }
 
+  def handleSuccessResponse(response: JsValue): Either[MpeError, ProtectionRecordDetails] =
+    response.validate[ProtectionRecordDetails] match {
+      case JsSuccess(value, _) => Right(value)
+      case JsError(errors) => throw JsResultException(errors)
+    }
 }
 
 class UnrecognisedHttpResponseException(method: String, url: String, response: HttpResponse)

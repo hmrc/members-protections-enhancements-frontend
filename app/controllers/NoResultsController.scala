@@ -17,7 +17,6 @@
 package controllers
 
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
@@ -37,23 +36,18 @@ class NoResultsController @Inject()(
                                    ) extends MpeBaseController(identify, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
-    val result = for {
-      memberDetails <- request.userAnswers.get(WhatIsTheMembersNamePage)
-      dob <- request.userAnswers.get(MembersDobPage)
-      nino <- request.userAnswers.get(MembersNinoPage)
-      psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
-    } yield Future.successful(Ok(
-      view(
-        memberDetails = memberDetails,
-        membersDob = dob,
-        membersNino = nino,
-        membersPsaCheckRef = psaRefCheck,
-        formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now())
-      )
-    ))
 
-    result.getOrElse(
-      Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-    )
+    getUserData(request) match {
+      case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
+        Future.successful(Ok(
+          view(
+            memberDetails = memberDetails,
+            membersDob = membersDob,
+            membersNino = membersNino,
+            membersPsaCheckRef = membersPsaCheckRef,
+            formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now())
+          )))
+      case _ => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 }

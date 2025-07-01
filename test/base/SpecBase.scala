@@ -33,7 +33,11 @@
 package base
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
+import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
+import com.github.tomakehurst.wiremock.matching.StringValuePattern
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.actions._
 import models.UserAnswers
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
@@ -50,13 +54,14 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsResult, JsString, JsSuccess, Reads}
-import play.api.libs.ws.WSClient
 import play.api.mvc.{BodyParsers, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
+import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import viewmodels.formPage.FormPageViewModel
 
 import java.net.URLEncoder
+import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.reflect.ClassTag
 
 trait SpecBase
@@ -68,7 +73,8 @@ trait SpecBase
     with IntegrationPatience
     with MockitoSugar
     with BeforeAndAfterEach
-    with WireMockHelper
+    with WireMockSupport
+    with HttpClientV2Support
     with GuiceOneServerPerSuite
     with BeforeAndAfterAll {
 
@@ -102,32 +108,38 @@ trait SpecBase
   def getFormPageViewModel(onSubmit: Call, backLinkUrl: String): FormPageViewModel =
     FormPageViewModel(onSubmit = onSubmit, backLinkUrl = Some(backLinkUrl))
 
-  val mockHost: String = WireMockHelper.host
-  val mockPort: String = WireMockHelper.wireMockPort.toString
-
-  lazy val client: WSClient = app.injector.instanceOf[WSClient]
-
-  def servicesConfig: Map[String, String] = Map(
-    "microservice.services.mpe-backend.host"           -> mockHost,
-    "microservice.services.mpe-backend.port"           -> mockPort,
-    "microservice.services.bas-gateway-frontend.host"  -> mockHost,
-    "microservice.services.bas-gateway-frontend.port"  -> mockPort
+  def servicesConfig: Map[String, Any] = Map(
+    "microservice.services.mpe-backend.host"           -> wireMockHost,
+    "microservice.services.mpe-backend.port"           -> wireMockPort,
+    "microservice.services.bas-gateway-frontend.host"  -> wireMockHost,
+    "microservice.services.bas-gateway-frontend.port"  -> wireMockPort
   )
 
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-    startWireMock()
-  }
+  implicit val queryParamsToJava: Map[String, String] => java.util.Map[String, StringValuePattern] = _.map {
+    case (k, v) =>
+      k -> equalTo(v)
+  }.asJava
 
-  override def afterAll(): Unit = {
-    stopWireMock()
-    super.afterAll()
-  }
+  def stubGet(url: String, response: ResponseDefinitionBuilder): StubMapping =
+    wireMockServer.stubFor(
+      get(urlEqualTo(url))
+        .willReturn(response)
+    )
 
-  override def beforeEach(): Unit = {
-    resetWireMock()
-    super.beforeEach()
-  }
+  def stubGet(url: String, queryParams: Map[String, String], response: ResponseDefinitionBuilder): StubMapping =
+    wireMockServer.stubFor(
+      get(urlPathTemplate(url))
+        .withQueryParams(queryParams)
+        .willReturn(response)
+    )
+
+  def stubPost(url: String, requestBody: String, response: ResponseDefinitionBuilder): StubMapping =
+    wireMockServer.stubFor(
+      post(urlEqualTo(url))
+        .withHeader("Content-Type", equalTo("application/json"))
+        .withRequestBody(equalTo(requestBody))
+        .willReturn(response)
+    )
 
   def enumRoundTest[ModelType: Reads](stringValue: String, expectedModel: ModelType): Unit =
     s"when provided with valid string '$stringValue' should read and map to the correct model" in {
