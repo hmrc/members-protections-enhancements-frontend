@@ -101,8 +101,9 @@ membersNino.title = What is the member''s National Insurance number?
 membersNino.heading = What is {0}''s National Insurance number?
 membersNino.hint = For example, QQ 12 34 56 C
 membersNino.nino = National Insurance number
-membersNino.error.required = Enter a National Insurance number
-membersNino.error.invalid = Enter the member''s National Insurance number in a valid format
+membersNino.error.required = Enter the member''s National Insurance number
+membersNino.error.invalid.characters = The member''s National Insurance number must only include letters A to Z and numbers 0 to 9
+membersNino.error.invalid.format = Enter a real National Insurance number
 
 membersPsaCheckRef.title = What is the member''s  pension scheme administrator check reference?
 membersPsaCheckRef.heading = What is {0}''s pension scheme administrator check reference?

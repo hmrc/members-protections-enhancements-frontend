@@ -24,9 +24,11 @@ import play.api.data.Forms.mapping
 
 class MembersNinoFormProvider @Inject() extends Mappings {
 
-  private val ninoRegex: String = """^((([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT]" +
+  private val validCharsRegex = "^[a-zA-Z\\d]+$"
+
+  private val identifierRegex: String = """^((([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT]" +
     "[A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6})[A-D]?|([0-9]{2}[A-Z]{1}[0-9]{5}))$"""
-  private val trnRegex: String = """^[0-9]{2}[A-Za-z]{1}[0-9]{5}$"""
+
   private val nino = "nino"
 
   def apply(): Form[MembersNino] =
@@ -35,7 +37,10 @@ class MembersNinoFormProvider @Inject() extends Mappings {
         nino -> text("membersNino.error.required")
           .transform[String](_.filterNot(_.isWhitespace), identity)
           .verifying(
-            "membersNino.error.invalid", value => value.matches(ninoRegex) || value.matches(trnRegex)
+            "membersNino.error.invalid.characters", value => value.matches(validCharsRegex)
+          )
+          .verifying(
+            "membersNino.error.invalid.format", value => value.matches(identifierRegex)
           )
       )(MembersNino.apply)(MembersNino.unapply)
     )

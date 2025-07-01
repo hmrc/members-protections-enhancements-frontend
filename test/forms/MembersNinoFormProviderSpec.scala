@@ -21,20 +21,32 @@ import models.MembersNino
 import play.api.data.{Form, FormError}
 
 class MembersNinoFormProviderSpec extends FieldBehaviours {
-
   private val formProvider = new MembersNinoFormProvider()
-
   val form: Form[MembersNino] = formProvider()
 
   ".nino" must {
     behave.like(mandatoryField(form, "nino", FormError("nino", List("membersNino.error.required"))))
 
-    behave.like(
-      invalidAlphaField(
-        form,
-        fieldName = "nino",
-        errorMessage = "membersNino.error.invalid"
-      )
-    )
+    "return an error when invalid characters are present" in {
+      val result = form.bind(Map("nino" -> "A!£$%^&*1")).errors.head
+      result.key mustBe "nino"
+      result.message mustBe "membersNino.error.invalid.characters"
+    }
+
+    "return an error when format is invalid" in {
+      val result = form.bind(Map("nino" -> "AAAAAAAAAA")).errors.head
+      result.key mustBe "nino"
+      result.message mustBe "membersNino.error.invalid.format"
+    }
+
+    "return a success for a TRN" in {
+      val result = form.bind(Map("nino" -> "12A12345")).data
+      result mustBe Map("nino" -> "12A12345")
+    }
+
+    "return a success for a NINO" in {
+      val result = form.bind(Map("nino" -> "AA123456A")).data
+      result mustBe Map("nino" -> "AA123456A")
+    }
   }
 }
