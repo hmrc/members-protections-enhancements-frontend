@@ -35,7 +35,6 @@ class MembersNinoControllerSpec extends SpecBase {
   private val formProvider = new MembersNinoFormProvider()
   private val form: Form[MembersNino] = formProvider()
 
-
   "Members Nino Controller" - {
     "must return OK and the correct view for a GET" in {
 
@@ -62,7 +61,8 @@ class MembersNinoControllerSpec extends SpecBase {
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
           .withFormUrlEncodedBody(
-            "nino" -> "AA123456C")
+            "nino" -> "AA123456C"
+          )
 
         val result = route(application, request).value
 

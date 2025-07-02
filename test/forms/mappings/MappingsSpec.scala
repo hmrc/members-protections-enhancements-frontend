@@ -16,33 +16,20 @@
 
 package forms.mappings
 
+import models.MembersDob
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.data.{Form, FormError}
-import models.Enumerable
+import providers.DateTimeProvider
 
-object MappingsSpec {
-
-  sealed trait Foo
-  case object Bar extends Foo
-  case object Baz extends Foo
-
-  object Foo {
-
-    val values: Set[Foo] = Set(Bar, Baz)
-
-    implicit val fooEnumerable: Enumerable[Foo] =
-      Enumerable(values.toSeq.map(v => v.toString -> v): _*)
-  }
-}
+import java.time.{ZoneId, ZonedDateTime}
 
 class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mappings {
-
-  import MappingsSpec._
-
   "text" - {
-
     val testForm: Form[String] =
       Form(
         "value" -> text()
@@ -60,7 +47,7 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
     "must not bind a string of whitespace only" in {
       val result = testForm.bind(Map("value" -> " \t"))
-      result.errors must contain (FormError("value", "error.required"))
+      result.errors must contain(FormError("value", "error.required"))
     }
 
     "must not bind an empty map" in {
@@ -80,91 +67,89 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
     }
   }
 
-  "boolean" - {
+  "dateOfBirth" - {
+    trait DateOfBirthTest {
+      val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
 
-    val testForm: Form[Boolean] =
-      Form(
-        "value" -> boolean()
+      val mockYear: Int = 2025
+      val mockDateTimeVal: Int = 12
+
+      when(mockDateTimeProvider.now(any())).thenReturn(
+        ZonedDateTime.of(
+          mockYear,
+          mockDateTimeVal,
+          mockDateTimeVal,
+          mockDateTimeVal,
+          mockDateTimeVal,
+          mockDateTimeVal,
+          mockDateTimeVal,
+          ZoneId.of("Europe/London")
+        )
       )
 
-    "must bind true" in {
-      val result = testForm.bind(Map("value" -> "true"))
-      result.get mustEqual true
-    }
-
-    "must bind false" in {
-      val result = testForm.bind(Map("value" -> "false"))
-      result.get mustEqual false
-    }
-
-    "must not bind a non-boolean" in {
-      val result = testForm.bind(Map("value" -> "not a boolean"))
-      result.errors must contain(FormError("value", "error.boolean"))
-    }
-
-    "must not bind an empty value" in {
-      val result = testForm.bind(Map("value" -> ""))
-      result.errors must contain(FormError("value", "error.required"))
-    }
-
-    "must not bind an empty map" in {
-      val result = testForm.bind(Map.empty[String, String])
-      result.errors must contain(FormError("value", "error.required"))
-    }
-
-    "must unbind" in {
-      val result = testForm.fill(true)
-      result.apply("value").value.value mustEqual "true"
-    }
-  }
-
-  "int" - {
-
-    val testForm: Form[Int] =
-      Form(
-        "value" -> int()
+      val form: Form[MembersDob] = Form(
+        "dateOfBirth" -> dateOfBirth(mockDateTimeProvider)
       )
 
-    "must bind a valid integer" in {
-      val result = testForm.bind(Map("value" -> "1"))
-      result.get mustEqual 1
+      val dayString: Option[String] = None
+      val monthString: Option[String] = None
+      val yearString: Option[String] = None
+
+      def valToMapOpt(valName: String, valOpt: Option[String]): Map[String, String] = valOpt.fold(Map.empty[String, String])(
+        value => Map(valName -> value)
+      )
+
+      lazy val boundForm: Form[MembersDob] = form.bind(
+        valToMapOpt("dateOfBirth.day", dayString) ++
+          valToMapOpt("dateOfBirth.month", monthString) ++
+          valToMapOpt("dateOfBirth.year", yearString)
+      )
     }
 
-    "must not bind an empty value" in {
-      val result = testForm.bind(Map("value" -> ""))
-      result.errors must contain(FormError("value", "error.required"))
+    "must bind a valid submission" in new DateOfBirthTest {
+      val day: Int = 30
+      val month: Int = 1
+      val year: Int = 1902
+
+      override val dayString: Option[String] = Some(day.toString)
+      override val monthString: Option[String] = Some(month.toString)
+      override val yearString: Option[String] = Some(year.toString)
+
+      boundForm.errors must have length 0
+      boundForm.value mustBe Some(MembersDob(day, month, year))
     }
 
-    "must not bind an empty map" in {
-      val result = testForm.bind(Map.empty[String, String])
-      result.errors must contain(FormError("value", "error.required"))
+    "must return errors when fields are missing" in new DateOfBirthTest {
+      boundForm.errors must have length 3
+      boundForm.errors.flatMap(_.messages) mustBe Seq(
+        "membersDob.error.invalidOrMissing.day",
+        "membersDob.error.invalidOrMissing.month",
+        "membersDob.error.invalidOrMissing.year"
+      )
     }
 
-    "must unbind a valid value" in {
-      val result = testForm.fill(123)
-      result.apply("value").value.value mustEqual "123"
-    }
-  }
+    "must return errors when fields are present and invalid" in new DateOfBirthTest {
+      override val dayString: Option[String] = Some("32")
+      override val monthString: Option[String] = Some("13")
+      override val yearString: Option[String] = Some("1800")
 
-  "enumerable" - {
-
-    val testForm = Form(
-      "value" -> enumerable[Foo]()
-    )
-
-    "must bind a valid option" in {
-      val result = testForm.bind(Map("value" -> "Bar"))
-      result.get mustEqual Bar
+      boundForm.errors must have length 3
+      boundForm.errors.flatMap(_.messages) mustBe Seq(
+        "membersDob.error.invalidOrMissing.day",
+        "membersDob.error.invalidOrMissing.month",
+        "membersDob.error.invalidOrMissing.year"
+      )
     }
 
-    "must not bind an invalid option" in {
-      val result = testForm.bind(Map("value" -> "Not Bar"))
-      result.errors must contain(FormError("value", "error.invalid"))
-    }
+    "must enforce current year maximum" in new DateOfBirthTest {
+      override val dayString: Option[String] = Some("30")
+      override val monthString: Option[String] = Some("1")
+      override val yearString: Option[String] = Some("2026")
 
-    "must not bind an empty map" in {
-      val result = testForm.bind(Map.empty[String, String])
-      result.errors must contain(FormError("value", "error.required"))
+      boundForm.errors must have length 1
+      boundForm.errors.flatMap(_.messages) mustBe Seq(
+        "membersDob.error.invalidOrMissing.year"
+      )
     }
   }
 }
