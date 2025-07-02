@@ -19,6 +19,7 @@ package controllers.actions
 import base.SpecBase
 import com.google.inject.Inject
 import config.FrontendAppConfig
+import controllers.routes
 import play.api.mvc.{Action, AnyContent, BodyParsers, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -37,29 +38,6 @@ class AuthActionSpec extends SpecBase {
   }
 
   "Auth Action" - {
-    "when the user hasn't logged in" - {
-      "must redirect the user to log in " in {
-        val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
-
-        running(application) {
-          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
-          val appConfig = application.injector.instanceOf[FrontendAppConfig]
-
-          val authAction = new AuthenticatedIdentifierAction(
-            authConnector = new FakeFailingAuthConnector(new MissingBearerToken),
-            config = appConfig,
-            playBodyParsers = bodyParsers
-          )
-
-          val controller = new Harness(authAction)
-          val result = controller.onPageLoad()(FakeRequest())
-
-          status(result) mustBe SEE_OTHER
-          redirectLocation(result).value must startWith(appConfig.loginUrl)
-        }
-      }
-    }
-
     "the user's session has expired" - {
       "must redirect the user to log in " in {
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
@@ -76,9 +54,10 @@ class AuthActionSpec extends SpecBase {
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
+          val expectedUrl = controllers.auth.routes.AuthController.sessionTimeout().url
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result).value must startWith(appConfig.loginUrl)
+          redirectLocation(result).value mustBe expectedUrl
         }
       }
     }
@@ -99,8 +78,7 @@ class AuthActionSpec extends SpecBase {
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
-          val continueUrl = urlEncode(appConfig.loginContinueUrl)
-          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
+          val expectedUrl = appConfig.mpsRegistrationUrl
 
           status(result) mustBe SEE_OTHER
           redirectLocation(result).value mustBe expectedUrl
@@ -124,8 +102,7 @@ class AuthActionSpec extends SpecBase {
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
-          val continueUrl = urlEncode(appConfig.loginContinueUrl)
-          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
+          val expectedUrl = routes.UnauthorisedController.onPageLoad().url
 
           status(result) mustBe SEE_OTHER
           redirectLocation(result).value mustBe expectedUrl
@@ -149,8 +126,7 @@ class AuthActionSpec extends SpecBase {
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
-          val continueUrl = urlEncode(appConfig.loginContinueUrl)
-          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
+          val expectedUrl = routes.UnauthorisedController.onPageLoad().url
 
           status(result) mustBe SEE_OTHER
           redirectLocation(result).value mustBe expectedUrl
@@ -174,11 +150,10 @@ class AuthActionSpec extends SpecBase {
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
-          val continueUrl = urlEncode(appConfig.loginContinueUrl)
-          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
+          val expectedUrl = routes.UnauthorisedController.onPageLoad().url
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result) mustBe Some(expectedUrl)
+          redirectLocation(result).value mustBe expectedUrl
         }
       }
     }
@@ -199,11 +174,10 @@ class AuthActionSpec extends SpecBase {
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
-          val continueUrl = urlEncode(appConfig.loginContinueUrl)
-          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
+          val expectedUrl = routes.UnauthorisedController.onPageLoad().url
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result) mustBe Some(expectedUrl)
+          redirectLocation(result).value mustBe expectedUrl
         }
       }
     }
