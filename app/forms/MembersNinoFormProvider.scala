@@ -35,12 +35,12 @@ class MembersNinoFormProvider @Inject() extends Mappings {
     Form(
       mapping(
         nino -> text("membersNino.error.required")
-          .transform[String](_.filterNot(_.isWhitespace), identity)
+          .transform[String](_.filterNot(_.isWhitespace).toUpperCase, identity)
           .verifying(
-            "membersNino.error.invalid.characters", value => value.matches(validCharsRegex)
-          )
-          .verifying(
-            "membersNino.error.invalid.format", value => value.matches(identifierRegex)
+            firstError(
+              regexp(validCharsRegex, "membersNino.error.invalid.characters"),
+              regexp(identifierRegex, "membersNino.error.invalid.format")
+            )
           )
       )(MembersNino.apply)(MembersNino.unapply)
     )

@@ -40,13 +40,18 @@ class MembersNinoFormProviderSpec extends FieldBehaviours {
     }
 
     "return a success for a TRN" in {
-      val result = form.bind(Map("nino" -> "12A12345")).data
-      result mustBe Map("nino" -> "12A12345")
+      val result = form.bind(Map("nino" -> "12A12345")).value
+      result mustBe Some(MembersNino("12A12345"))
     }
 
     "return a success for a NINO" in {
-      val result = form.bind(Map("nino" -> "AA123456A")).data
-      result mustBe Map("nino" -> "AA123456A")
+      val result = form.bind(Map("nino" -> "AA123456A")).value
+      result mustBe Some(MembersNino("AA123456A"))
+    }
+
+    "return a success for a lower case NINO" in {
+      val result = form.bind(Map("nino" -> "aa123456a")).value
+      result mustBe Some(MembersNino("AA123456A"))
     }
   }
 }
