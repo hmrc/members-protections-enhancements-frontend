@@ -38,7 +38,7 @@ class AuthActionSpec extends SpecBase {
   }
 
   "Auth Action" - {
-    "the user's session has expired" - {
+    "when the user hasn't logged in" - {
       "must redirect the user to log in " in {
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
@@ -47,14 +47,38 @@ class AuthActionSpec extends SpecBase {
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
           val authAction = new AuthenticatedIdentifierAction(
-            authConnector = new FakeFailingAuthConnector(new BearerTokenExpired),
+            authConnector = new FakeFailingAuthConnector(InvalidBearerToken()),
             config = appConfig,
             playBodyParsers = bodyParsers
           )
 
           val controller = new Harness(authAction)
           val result = controller.onPageLoad()(FakeRequest())
-          val expectedUrl = controllers.auth.routes.AuthController.sessionTimeout().url
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).value must startWith(appConfig.loginUrl)
+        }
+      }
+    }
+
+    "the user's session has expired" - {
+      "must redirect the user to login page page" in {
+        val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+          val authAction = new AuthenticatedIdentifierAction(
+            authConnector = new FakeFailingAuthConnector(MissingBearerToken()),
+            config = appConfig,
+            playBodyParsers = bodyParsers
+          )
+
+          val controller = new Harness(authAction)
+          val result = controller.onPageLoad()(FakeRequest())
+          val continueUrl = urlEncode(appConfig.loginContinueUrl)
+          val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
           status(result) mustBe SEE_OTHER
           redirectLocation(result).value mustBe expectedUrl
@@ -63,7 +87,7 @@ class AuthActionSpec extends SpecBase {
     }
 
     "the user doesn't have sufficient enrolments" - {
-      "must redirect the user to the sign in page" in {
+      "must redirect the user to the registration page" in {
         val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {

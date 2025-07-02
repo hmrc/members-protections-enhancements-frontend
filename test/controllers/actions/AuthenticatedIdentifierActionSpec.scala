@@ -88,7 +88,8 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         setAuthValue(Future.failed(new NoActiveSession("No user signed in") {}))
 
         val result = handler.run(FakeRequest())
-        val expectedUrl = controllers.auth.routes.AuthController.sessionTimeout().url
+        val continueUrl = urlEncode(appConfig.loginContinueUrl)
+        val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
         redirectLocation(result) mustBe Some(expectedUrl)
       }

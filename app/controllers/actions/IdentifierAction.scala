@@ -60,11 +60,11 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
           logger.warn(logContext + s"Authorisation successful but no valid session ")
           throw InsufficientEnrolments("No sufficient enrolments found")
         case _ =>
-          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+          throw InternalError("Some internal error occurred")
       } recoverWith {
       case err: NoActiveSession =>
         logger.warn(logContext + s"An authorisation error due to no active session: ${err.reason}")
-        Future.successful(Redirect(controllers.auth.routes.AuthController.sessionTimeout()))
+        Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
       case err: InsufficientEnrolments =>
         logger.warn(logContext + s"An authorisation error occurred due to insufficient enrolments: ${err.reason}")
         Future.successful(Redirect(config.mpsRegistrationUrl))
