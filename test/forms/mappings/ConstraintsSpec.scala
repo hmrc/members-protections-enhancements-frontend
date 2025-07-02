@@ -26,7 +26,7 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.data.validation.{Invalid, Valid}
+import play.api.data.validation.{Invalid, Valid, ValidationResult}
 import providers.DateTimeProvider
 
 class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with Constraints {
@@ -88,6 +88,20 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     "must return Invalid for a string longer than the allowed length" in {
       val result = maxLength(10, "error.length")("a" * 11)
       result mustEqual Invalid("error.length", 10)
+    }
+  }
+
+  "validDate" - {
+    "should return Valid for a valid date" in {
+      val (day, month, year) = (1, 1, 2025)
+      val result: ValidationResult = validDate("some.error")(MembersDob(day, month, year))
+      result mustBe Valid
+    }
+
+    "should return Invalid for an invalid date" in {
+      val (day, month, year) = (30, 2, 2025)
+      val result: ValidationResult = validDate("some.error")(MembersDob(day, month, year))
+      result mustBe a[Invalid]
     }
   }
 
