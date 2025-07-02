@@ -20,13 +20,12 @@ import models.MembersDob
 
 import java.time.LocalDate
 import play.api.data.validation.{Constraint, Invalid, Valid}
+import providers.DateTimeProvider
 
 import scala.util.Try
 
 trait Constraints {
-
   val minYear: Int = 1900
-  val maxDate: LocalDate = LocalDate.now()
 
   protected def firstError[A](constraints: Constraint[A]*): Constraint[A] =
     Constraint {
@@ -35,45 +34,6 @@ trait Constraints {
           .map(_.apply(input))
           .find(_ != Valid)
           .getOrElse(Valid)
-    }
-
-  protected def minimumValue[A](minimum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[A] =
-    Constraint {
-      input =>
-
-        import ev._
-
-        if (input >= minimum) {
-          Valid
-        } else {
-          Invalid(errorKey, minimum)
-        }
-    }
-
-  protected def maximumValue[A](maximum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[A] =
-    Constraint {
-      input =>
-
-        import ev._
-
-        if (input <= maximum) {
-          Valid
-        } else {
-          Invalid(errorKey, maximum)
-        }
-    }
-
-  protected def inRange[A](minimum: A, maximum: A, errorKey: String)(implicit ev: Ordering[A]): Constraint[A] =
-    Constraint {
-      input =>
-
-        import ev._
-
-        if (input >= minimum && input <= maximum) {
-          Valid
-        } else {
-          Invalid(errorKey, minimum, maximum)
-        }
     }
 
   protected def regexp(regex: String, errorKey: String): Constraint[String] =
@@ -92,47 +52,27 @@ trait Constraints {
         Invalid(errorKey, maximum)
     }
 
-  protected def maxDate(errorKey: String, args: Any*): Constraint[MembersDob] =
-    Constraint {
-      case membersDob if isFutureDate(membersDob) =>
-        Invalid(errorKey, args: _*)
-      case _ =>
-        Valid
-    }
-
   protected def validDate(errorKey: String, args: Any*): Constraint[MembersDob] =
     Constraint {
       case membersDob if isValidDate(membersDob) => Valid
       case _ => Invalid(errorKey, args: _*)
     }
 
-  protected def minDate(minimum: Int, errorKey: String, args: Any*): Constraint[MembersDob] =
+  protected def futureDate(errorKey: String, dateTimeProvider: DateTimeProvider, args: Any*): Constraint[MembersDob] =
     Constraint {
-      case membersDob if toLocalDate(membersDob).getYear < minimum =>
+      case membersDob if isFutureDate(membersDob, dateTimeProvider) =>
         Invalid(errorKey, args: _*)
       case _ =>
         Valid
     }
 
-  protected def nonEmptySet(errorKey: String): Constraint[Set[_]] =
-    Constraint {
-      case set if set.nonEmpty =>
-        Valid
-      case _ =>
-        Invalid(errorKey)
-    }
-
-  private def toLocalDate(input: MembersDob): LocalDate =
+  private def isValidDate(input: MembersDob): Boolean = Try(
     LocalDate.of(input.year, input.month, input.day)
+  ).isSuccess
 
-  private def isValidDate(input: MembersDob): Boolean = Try(LocalDate.of(input.year, input.month, input.day)).isSuccess
+  private def toLocalDate(input: MembersDob): LocalDate = LocalDate.of(input.year, input.month, input.day)
 
-  private def isFutureDate(input: MembersDob): Boolean =
-    if(isValidDate(input) && toLocalDate(input).isAfter(maxDate)){ true }
-    else { false }
-
-  protected def toMembersDob(input: LocalDate): MembersDob = {
-    MembersDob(input.getDayOfMonth, input.getMonthValue, input.getYear)
-  }
+  private def isFutureDate(input: MembersDob, dateTimeProvider: DateTimeProvider): Boolean =
+    if (isValidDate(input) && toLocalDate(input).isAfter(dateTimeProvider.now().toLocalDate)) true else false
 
 }
