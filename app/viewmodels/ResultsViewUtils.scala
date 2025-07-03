@@ -16,6 +16,7 @@
 
 package viewmodels
 
+import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -23,7 +24,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 import utils.CurrencyFormats
 
 object ResultsViewUtils {
-
   protected[viewmodels] def optValueToSummaryListRow(valueOpt: Option[String], keyString: String)
                                                     (implicit messages: Messages): Seq[SummaryListRow] =
     valueOpt.fold(Seq.empty[SummaryListRow])(value =>
@@ -67,8 +67,7 @@ object ResultsViewUtils {
   }
 
   def protectionRecordDetailsToSummaryLists(protectionRecordDetails: ProtectionRecordDetails)
-                                           (implicit messages: Messages): Seq[SummaryList] = {
-    protectionRecordDetails.protectionRecords.map(protectionRecordToSummaryList)
-  }
+                                           (implicit messages: Messages): Seq[SummaryList] =
+    protectionRecordDetails.ordered.map(protectionRecordToSummaryList)
 
 }

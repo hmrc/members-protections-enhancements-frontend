@@ -16,9 +16,19 @@
 
 package models.response
 
+import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import play.api.libs.json.{Json, Reads}
 
-case class ProtectionRecordDetails(protectionRecords: Seq[ProtectionRecord])
+case class ProtectionRecordDetails(protectionRecords: Seq[ProtectionRecord]) {
+  def ordered: Seq[ProtectionRecord] = {
+    val groupedProtectionRecords = protectionRecords
+      .groupBy(_.status)
+
+      groupedProtectionRecords.getOrElse(Active, Nil) ++
+        groupedProtectionRecords.getOrElse(Dormant, Nil) ++
+        groupedProtectionRecords.getOrElse(Withdrawn, Nil)
+  }
+}
 
 object ProtectionRecordDetails {
   implicit val reads: Reads[ProtectionRecordDetails] = Json.reads[ProtectionRecordDetails]
