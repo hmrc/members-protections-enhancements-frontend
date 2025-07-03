@@ -57,7 +57,7 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
           logger.warn(logContext + s"Authorisation successful but no valid session ")
           Future.successful(Redirect(controllers.auth.routes.AuthController.sessionTimeout()))
         case Some(_) ~ Some(_) ~ _ =>
-          logger.warn(logContext + s"Authorisation successful but no valid session ")
+          logger.warn(logContext + s"No sufficient enrolments error")
           throw InsufficientEnrolments("No sufficient enrolments found")
         case _ =>
           throw InternalError("Some internal error occurred")
