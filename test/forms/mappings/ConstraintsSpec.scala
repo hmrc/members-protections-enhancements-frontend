@@ -16,20 +16,26 @@
 
 package forms.mappings
 
-import java.time.LocalDate
-
+import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import generators.Generators
+import models.MembersDob
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.data.validation.{Invalid, Valid}
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.data.validation.{Invalid, Valid, ValidationResult}
+import providers.DateTimeProvider
 
 class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with Constraints {
 
+  private def toMembersDob(input: LocalDate): MembersDob = {
+    MembersDob(input.getDayOfMonth, input.getMonthValue, input.getYear)
+  }
 
   "firstError" - {
-
     "must return Valid when all constraints pass" in {
       val result = firstError(maxLength(10, "error.length"), regexp("""^\w+$""", "error.regexp"))("foo")
       result mustEqual Valid
@@ -51,44 +57,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     }
   }
 
-  "minimumValue" - {
-
-    "must return Valid for a number greater than the threshold" in {
-      val result = minimumValue(1, "error.min").apply(2)
-      result mustEqual Valid
-    }
-
-    "must return Valid for a number equal to the threshold" in {
-      val result = minimumValue(1, "error.min").apply(1)
-      result mustEqual Valid
-    }
-
-    "must return Invalid for a number below the threshold" in {
-      val result = minimumValue(1, "error.min").apply(0)
-      result mustEqual Invalid("error.min", 1)
-    }
-  }
-
-  "maximumValue" - {
-
-    "must return Valid for a number less than the threshold" in {
-      val result = maximumValue(1, "error.max").apply(0)
-      result mustEqual Valid
-    }
-
-    "must return Valid for a number equal to the threshold" in {
-      val result = maximumValue(1, "error.max").apply(1)
-      result mustEqual Valid
-    }
-
-    "must return Invalid for a number above the threshold" in {
-      val result = maximumValue(1, "error.max").apply(2)
-      result mustEqual Invalid("error.max", 1)
-    }
-  }
-
   "regexp" - {
-
     "must return Valid for an input that matches the expression" in {
       val result = regexp("""^\w+$""", "error.invalid")("foo")
       result mustEqual Valid
@@ -100,8 +69,29 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     }
   }
 
-  "maxLength" - {
+  "minLength" - {
+    "must return Valid for a string longer than the minimum length" in {
+      val result = minLength(8, "error.length")("a" * 9)
+      result mustEqual Valid
+    }
 
+    "must return Invalid for an empty string" in {
+      val result = minLength(10, "error.length")("")
+      result mustEqual Invalid("error.length", 10)
+    }
+
+    "must return Valid for a string equal to the minimum length" in {
+      val result = minLength(10, "error.length")("a" * 10)
+      result mustEqual Valid
+    }
+
+    "must return Invalid for a string shorter than the minimum length" in {
+      val result = minLength(11, "error.length")("a" * 10)
+      result mustEqual Invalid("error.length", 11)
+    }
+  }
+
+  "maxLength" - {
     "must return Valid for a string shorter than the allowed length" in {
       val result = maxLength(10, "error.length")("a" * 9)
       result mustEqual Valid
@@ -123,66 +113,58 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     }
   }
 
-  "maxDate" - {
+  "validDate" - {
+    "should return Valid for a valid date" in {
+      val (day, month, year) = (1, 1, 2025)
+      val result: ValidationResult = validDate("some.error")(MembersDob(day, month, year))
+      result mustBe Valid
+    }
+
+    "should return Invalid for an invalid date" in {
+      val (day, month, year) = (30, 2, 2025)
+      val result: ValidationResult = validDate("some.error")(MembersDob(day, month, year))
+      result mustBe a[Invalid]
+    }
+  }
+
+  "futureDate" - {
+    val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
+
+    val mockYear: Int = 2025
+    val mockDateTimeVal: Int = 12
+    val mockCurrentDate: LocalDate = LocalDate.of(mockYear, mockDateTimeVal, mockDateTimeVal)
+
+    when(mockDateTimeProvider.now(any())).thenReturn(
+      ZonedDateTime.of(
+        mockCurrentDate.atStartOfDay(),
+        ZoneId.of("Europe/London")
+      )
+    )
 
     "must return Valid for a date before or equal to the maximum" in {
-
       val gen: Gen[LocalDate] = for {
-        date <- datesBetween(LocalDate.of(2000, 1, 1), maxDate)
+        date <- datesBetween(LocalDate.of(2000, 1, 1), mockCurrentDate)
       } yield date
 
       forAll(gen) {
         date =>
 
-          val result = maxDate("error.future")(toMembersDob(date))
+          val result = futureDate("error.future", mockDateTimeProvider)(toMembersDob(date))
           result mustEqual Valid
       }
     }
 
     "must return Invalid for a date after the maximum" in {
-
       val gen: Gen[LocalDate] = for {
-        date <- datesBetween(maxDate.plusDays(1), LocalDate.of(3000, 1, 2))
+        date <- datesBetween(mockCurrentDate.plusDays(1), LocalDate.of(3000, 1, 2))
       } yield date
 
       forAll(gen) {
         date =>
-          val result = maxDate("error.future", "foo")(toMembersDob(date))
+          val result = futureDate("error.future", mockDateTimeProvider, "foo")(toMembersDob(date))
           result mustEqual Invalid("error.future", "foo")
       }
     }
   }
 
-  "minDate" - {
-
-    "must return Valid for a date after or equal to the minimum" in {
-
-      val gen: Gen[(LocalDate, LocalDate)] = for {
-        min  <- datesBetween(LocalDate.of(2000, 1, 1), LocalDate.of(3000, 1, 1))
-        date <- datesBetween(min, LocalDate.of(3000, 1, 1))
-      } yield (min, date)
-
-      forAll(gen) {
-        case (min, date) =>
-
-          val result = minDate(min.getYear, "error.past", "foo")(toMembersDob(date))
-          result mustEqual Valid
-      }
-    }
-
-    "must return Invalid for a date before the minimum" in {
-
-      val gen: Gen[(LocalDate, LocalDate)] = for {
-        min  <- datesBetween(LocalDate.of(2000, 1, 2), LocalDate.of(3000, 1, 1))
-        date <- datesBetween(LocalDate.of(minYear, 1, 1), min)
-      } yield (min, date)
-
-      forAll(gen) {
-        case (min, date) =>
-
-          val result = minDate(min.getYear, "error.past", "foo")(toMembersDob(date))
-          result mustEqual Invalid("error.past", "foo")
-      }
-    }
-  }
 }

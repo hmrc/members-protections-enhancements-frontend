@@ -21,21 +21,12 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.{Content, HtmlContent}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.label.Label
 import viewmodels.LabelSize
 
-object label extends LabelFluency
-
 trait LabelFluency {
-
   object LabelViewModel {
-
-    def apply(content: Content): Label =
-      Label(content = content)
-
-    def apply(html: Html): Label =
-      apply(HtmlContent(html))
+    def apply(content: Content): Label = Label(content = content)
   }
 
   implicit class FluentLabel(label: Label) {
-
     def asPageHeading(size: LabelSize = LabelSize.ExtraLarge): Label =
       label
         .copy(isPageHeading = true)
@@ -43,11 +34,5 @@ trait LabelFluency {
 
     def withCssClass(className: String): Label =
       label.copy(classes = s"${label.classes} $className")
-
-    def withAttribute(attribute: (String, String)): Label =
-      label.copy(attributes = label.attributes + attribute)
-
-    def forAttr(attr: String): Label =
-      label.copy(forAttr = Some(attr))
   }
 }

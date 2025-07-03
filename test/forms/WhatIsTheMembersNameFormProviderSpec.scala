@@ -29,28 +29,51 @@ class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
   val form: Form[MemberDetails] = formProvider()
 
   ".firstName" must {
-    behave.like(mandatoryField(form, "firstName", FormError("firstName", List("membersName.firstName.error.required"))))
+    behave.like(
+      mandatoryField(
+        form = form,
+        fieldName = "firstName",
+        requiredError = FormError(key = "firstName", messages = List("membersName.error.required.firstName"))
+      )
+    )
 
     behave.like(
       invalidAlphaField(
         form,
         fieldName = "firstName",
-        errorMessage = "membersName.firstName.error.invalid",
+        errorMessage = "membersName.error.invalid.firstName",
         args = List(nameRegex)
       )
     )
   }
 
   ".lastName" must {
-    behave.like(mandatoryField(form, "lastName", FormError("lastName", List("membersName.lastName.error.required"))))
+    behave.like(
+      mandatoryField(
+        form = form,
+        fieldName = "lastName",
+        requiredError = FormError("lastName", List("membersName.error.required.lastName"))
+      )
+    )
+
     behave.like(
       invalidAlphaField(
         form,
         fieldName = "lastName",
-        errorMessage = "membersName.lastName.error.invalid",
+        errorMessage = "membersName.error.invalid.lastName",
         args = List(nameRegex)
       )
     )
+
+    "return an error for a last name which is shorter then 2 characters" in {
+      val result: Form[MemberDetails] = form.bind(Map(
+        "firstName" -> "Valid",
+        "lastName" -> "A"
+      ))
+
+      result.errors must have length 1
+      result.errors.map(_.message) must contain("membersName.error.tooShort.lastName")
+    }
   }
 
 }

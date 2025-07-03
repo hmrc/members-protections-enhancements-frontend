@@ -16,16 +16,14 @@
 
 package forms.mappings
 
-import models.Enumerable
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
 import scala.util.control.Exception.nonFatalCatch
 
 trait Formatters {
-
-  private[mappings] def stringFormatter(errorKey: String, args: Seq[String] = Seq.empty): Formatter[String] = new Formatter[String] {
-
+  private[mappings] def stringFormatter(errorKey: String,
+                                        args: Seq[String] = Seq.empty): Formatter[String] = new Formatter[String] {
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
       data.get(key) match {
         case None                      => Left(Seq(FormError(key, errorKey, args)))
@@ -37,29 +35,12 @@ trait Formatters {
       Map(key -> value)
   }
 
-  private[mappings] def booleanFormatter(requiredKey: String, invalidKey: String, args: Seq[String] = Seq.empty): Formatter[Boolean] =
-    new Formatter[Boolean] {
-
-      private val baseFormatter = stringFormatter(requiredKey, args)
-
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Boolean] =
-        baseFormatter
-          .bind(key, data)
-          .flatMap {
-          case "true"  => Right(true)
-          case "false" => Right(false)
-          case _       => Left(Seq(FormError(key, invalidKey, args)))
-        }
-
-      def unbind(key: String, value: Boolean): Map[String, String] = Map(key -> value.toString)
-    }
-
-  private[mappings] def intFormatter(requiredKey: String, wholeNumberKey: String, nonNumericKey: String, args: Seq[String] = Seq.empty): Formatter[Int] =
-    new Formatter[Int] {
-
-      val decimalRegexp = """^-?(\d*\.\d*)$"""
-
-      private val baseFormatter = stringFormatter(requiredKey, args)
+  private[mappings] def intFormatter(requiredKey: String,
+                                     wholeNumberKey: String,
+                                     nonNumericKey: String,
+                                     args: Seq[String] = Seq.empty): Formatter[Int] = new Formatter[Int] {
+      val decimalRegexp: String = """^-?(\d*\.\d*)$"""
+      private val baseFormatter: Formatter[String] = stringFormatter(requiredKey, args)
 
       override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Int] =
         baseFormatter
@@ -75,25 +56,6 @@ trait Formatters {
         }
 
       override def unbind(key: String, value: Int): Map[String, String] =
-        baseFormatter.unbind(key, value.toString)
-    }
-
-
-  private[mappings] def enumerableFormatter[A](requiredKey: String, invalidKey: String, args: Seq[String] = Seq.empty)
-                                              (implicit ev: Enumerable[A]): Formatter[A] =
-    new Formatter[A] {
-
-      private val baseFormatter = stringFormatter(requiredKey, args)
-
-      override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], A] =
-        baseFormatter.bind(key, data).flatMap {
-          str =>
-            ev.withName(str)
-              .map(Right.apply)
-              .getOrElse(Left(Seq(FormError(key, invalidKey, args))))
-        }
-
-      override def unbind(key: String, value: A): Map[String, String] =
         baseFormatter.unbind(key, value.toString)
     }
 

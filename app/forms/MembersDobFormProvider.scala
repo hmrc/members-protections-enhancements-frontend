@@ -20,16 +20,17 @@ import com.google.inject.Inject
 import forms.mappings.Mappings
 import models._
 import play.api.data.Form
+import providers.DateTimeProvider
 
-class MembersDobFormProvider @Inject() extends Mappings {
+class MembersDobFormProvider @Inject()(dateTimeProvider: DateTimeProvider) extends Mappings {
 
   def apply(): Form[MembersDob] =
     Form(
-      "dateOfBirth" -> dateMapping
+      "dateOfBirth" -> dateOfBirth(dateTimeProvider)
         .verifying(
           firstError(
             validDate("membersDob.error.invalid"),
-            maxDate("membersDob.error.dateOfBirth.maxDate")
+            futureDate("membersDob.error.futureDate", dateTimeProvider)
           )
         )
     )

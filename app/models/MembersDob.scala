@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter
 case class MembersDob(day: Int, month: Int, year: Int) {
   lazy val date: LocalDate = LocalDate.of(year, month, day)
   lazy val dob: String = date.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
-  lazy val dateOfBirth = date.format(DateTimeFormats.apiDateTimeFormat)
+  lazy val dateOfBirth: String = date.format(DateTimeFormats.apiDateTimeFormat)
 }
 
 object MembersDob {

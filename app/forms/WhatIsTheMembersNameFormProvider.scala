@@ -23,8 +23,9 @@ import play.api.data.Form
 import play.api.data.Forms.mapping
 
 class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
+  private val nameMaxLength: Int = 35
+  private val lastNameMinLength: Int = 2
 
-  val nameMaxLength = 35
   val nameRegex = "^[a-zA-Z\\-' ]+$"
 
   val firstName = "firstName"
@@ -33,16 +34,17 @@ class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
   def apply(): Form[MemberDetails] =
     Form(
       mapping(
-        firstName -> text("membersName.firstName.error.required").verifying(
+        firstName -> text("membersName.error.required.firstName").verifying(
           firstError(
-            regexp(nameRegex, "membersName.firstName.error.invalid"),
-            maxLength(nameMaxLength, "membersName.firstName.error.length")
+            regexp(nameRegex, "membersName.error.invalid.firstName"),
+            maxLength(nameMaxLength, "membersName.error.tooLong.firstName")
           )
         ),
-        lastName -> text("membersName.lastName.error.required").verifying(
+        lastName -> text("membersName.error.required.lastName").verifying(
           firstError(
-            regexp(nameRegex, "membersName.lastName.error.invalid"),
-            maxLength(nameMaxLength, "membersName.lastName.error.length")
+            regexp(nameRegex, "membersName.error.invalid.lastName"),
+            minLength(lastNameMinLength, "membersName.error.tooShort.lastName"),
+            maxLength(nameMaxLength, "membersName.error.tooLong.lastName")
           )
         ),
       )(MemberDetails.apply)(MemberDetails.unapply)
