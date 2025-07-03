@@ -18,17 +18,33 @@ package forms
 
 import forms.behaviours.DateBehaviours
 import models.MembersDob
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
 import play.api.test.{FakeRequest, Helpers}
+import providers.DateTimeProvider
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import scala.collection.mutable
 
 class MembersDobFormProviderSpec extends DateBehaviours {
+  val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
 
-  private val formProvider = new MembersDobFormProvider()
+  val mockYear: Int = 2025
+  val mockDateTimeVal: Int = 12
+  val mockCurrentDate: LocalDate = LocalDate.of(mockYear, mockDateTimeVal, mockDateTimeVal)
+
+  when(mockDateTimeProvider.now(any())).thenReturn(
+    ZonedDateTime.of(
+      mockCurrentDate.atStartOfDay(),
+      ZoneId.of("Europe/London")
+    )
+  )
+
+  private val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
   private val form: Form[MembersDob] = formProvider()
 
   val messages: Messages = Helpers.stubMessagesApi().preferred(FakeRequest())
@@ -68,24 +84,66 @@ class MembersDobFormProviderSpec extends DateBehaviours {
     }
 
     "fail to bind" when {
-      val fields = List("day", "month", "year")
+      "invalid values are submitted" in {
+        val day = 33
+        val month = 23
+        val year = 1
 
-      fields foreach { field =>
-        s"$field is blank" in {
-          forAll(datesBetween(minDate, maxDate)) { date =>
-            val data = mutable.Map(
-              s"$formField.day" -> date.getDayOfMonth.toString,
-              s"$formField.month" -> date.getMonthValue.toString,
-              s"$formField.year" -> date.getYear.toString
-            )
-            data(s"$formField.$field") = ""
-            val result = form.bind(data.toMap)
+        val data = Map(
+          s"$formField.day" -> day.toString,
+          s"$formField.month" -> month.toString,
+          s"$formField.year" -> year.toString
+        )
+        val result = form.bind(data)
+        result.errors must have length 3
+        result.errors.flatMap(_.messages) mustBe Seq(
+          "membersDob.error.invalidOrMissing.day",
+          "membersDob.error.invalidOrMissing.month",
+          "membersDob.error.invalidOrMissing.year"
+        )
+      }
 
-            result.errors.headOption shouldEqual Some(
-              FormError(s"$formField.$field", messages(s"membersDob.error.required.$field"))
-            )
-          }
-        }
+      "fields are missing or empty" in {
+        val data = Map(
+          s"$formField.day" -> " ",
+          s"$formField.month" -> "",
+        )
+        val result = form.bind(data)
+        result.errors must have length 3
+        result.errors.flatMap(_.messages) mustBe Seq(
+          "membersDob.error.invalidOrMissing.day",
+          "membersDob.error.invalidOrMissing.month",
+          "membersDob.error.invalidOrMissing.year"
+        )
+      }
+
+      "supplied data represents a non-valid date" in {
+        val day = 30
+        val month = 2
+        val year = 2010
+
+        val data = Map(
+          s"$formField.day" -> day.toString,
+          s"$formField.month" -> month.toString,
+          s"$formField.year" -> year.toString
+        )
+        val result = form.bind(data)
+        result.errors must have length 1
+        result.errors.flatMap(_.messages) must contain("membersDob.error.invalid")
+      }
+
+      "supplied data represents a future date" in {
+        val futureDate: LocalDate = mockCurrentDate.plusDays(1)
+        val (day, month, year) = (futureDate.getDayOfMonth, futureDate.getMonthValue, futureDate.getYear)
+
+        val data = Map(
+          s"$formField.day" -> day.toString,
+          s"$formField.month" -> month.toString,
+          s"$formField.year" -> year.toString
+        )
+        val result = form.bind(data)
+        result.errors must have length 1
+        result.errors.flatMap(_.messages) must contain(messages("membersDob.error.futureDate"))
       }
     }
   }

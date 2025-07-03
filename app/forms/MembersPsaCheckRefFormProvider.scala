@@ -31,7 +31,7 @@ class MembersPsaCheckRefFormProvider @Inject() extends Mappings {
     Form(
       mapping(
         psaCheckRef -> text("membersPsaCheckRef.error.required")
-          .transform[String](_.filterNot(_.isWhitespace), identity)
+          .transform[String](_.filterNot(_.isWhitespace).toUpperCase, identity)
           .verifying(
             "membersPsaCheckRef.error.invalid", value => value.matches(psaCheckRefRegex)
           )

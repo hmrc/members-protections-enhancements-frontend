@@ -32,7 +32,7 @@ class MembersDobControllerSpec extends SpecBase {
   private lazy val onSubmit = routes.MembersDobController.onSubmit(NormalMode)
   private lazy val backLinkUrl = routes.WhatIsTheMembersNameController.onSubmit(NormalMode).url
 
-  private val formProvider = new MembersDobFormProvider()
+  private val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
   private val form: Form[MembersDob] = formProvider()
 
   "Member Dob Controller" - {

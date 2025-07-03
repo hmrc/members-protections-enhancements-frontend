@@ -31,26 +31,22 @@ import viewmodels.formPage.FormPageViewModel
 import views.html.MembersDobView
 
 class MembersDobViewSpec extends SpecBase {
-
   "view" - {
     "display correct guidance and text" in new Setup {
-
       view.getElementsByTag("h1").text() mustBe "What is Pearl Harvey's date of birth?"
       view.html.contains(messages(app)("membersDob.title"))
       view.text.contains(messages(app)("date.day"))
       view.text.contains(messages(app)("date.month"))
       view.text.contains(messages(app)("date.year"))
-
     }
   }
 
 
   trait Setup {
-
     val app: Application = applicationBuilder(emptyUserAnswers).build()
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
-    private val formProvider = new MembersDobFormProvider()
+    private val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
     private val form: Form[MembersDob] = formProvider()
     private val onSubmit = routes.MembersDobController.onSubmit(NormalMode)
     private val backLinkUrl = routes.WhatIsTheMembersNameController.onSubmit(NormalMode).url
@@ -60,5 +56,4 @@ class MembersDobViewSpec extends SpecBase {
       Jsoup.parse(app.injector.instanceOf[MembersDobView].apply(form, viewModel, "Pearl Harvey").body
       )
   }
-
 }

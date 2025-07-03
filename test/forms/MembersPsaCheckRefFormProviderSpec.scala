@@ -36,5 +36,13 @@ class MembersPsaCheckRefFormProviderSpec extends FieldBehaviours {
         errorMessage = "membersPsaCheckRef.error.invalid"
       )
     )
+
+    "accept a valid psaCheckRef with lowercase letters" in {
+      val result: Form[MembersPsaCheckRef] = form.bind(
+        Map("psaCheckRef" -> "psa 12 34 56 78 a")
+      )
+
+      result.value mustBe Some(MembersPsaCheckRef("PSA12345678A"))
+    }
   }
 }
