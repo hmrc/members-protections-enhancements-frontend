@@ -112,6 +112,16 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         redirectLocation(result) mustBe Some(expectedUrl)
       }
 
+      "Redirect user to MPS registration page when user has insufficient enrolments" in runningApplication {
+        implicit app =>
+          setAuthValue(Future.failed(new InsufficientEnrolments("Insufficient enrolments") {}))
+
+          val result = handler.run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
+          val expectedUrl = appConfig.mpsRegistrationUrl
+
+          redirectLocation(result) mustBe Some(expectedUrl)
+      }
+
       "Redirect user to MPS registration page when user does not have psa or psp enrolment" in runningApplication {
         implicit app =>
           setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId")))
