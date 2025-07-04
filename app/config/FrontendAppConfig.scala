@@ -53,6 +53,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   lazy val psaOverviewUrl: String = loadConfig("urls.psaOverview")
   lazy val pspDashboardUrl: String = loadConfig("urls.pspDashboard")
+  lazy val mpsRegistrationUrl: String = loadConfig("urls.mpsRegistration")
 
   //Beta feedback config
   private def redirectUrl(implicit request: RequestHeader) = SafeRedirectUrl(host + request.uri).encodedUrl

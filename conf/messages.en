@@ -28,6 +28,8 @@ timeout.signOut = Sign out
 error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
+error.try.again = You can try again later or
+error.contact = contact us for help with pension scheme queries
 
 index.title = members-protections-and-enhancements
 index.heading = members-protections-and-enhancements
