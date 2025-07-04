@@ -148,7 +148,7 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
       boundForm.errors must have length 1
       boundForm.errors.flatMap(_.messages) mustBe Seq(
-        "membersDob.error.invalidOrMissing.year"
+        "membersDob.error.futureDate"
       )
     }
   }

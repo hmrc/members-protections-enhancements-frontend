@@ -22,13 +22,12 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatestplus.mockito.MockitoSugar.mock
-import play.api.data.{Form, FormError}
+import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.test.{FakeRequest, Helpers}
 import providers.DateTimeProvider
 
 import java.time.{LocalDate, ZoneId, ZonedDateTime}
-import scala.collection.mutable
 
 class MembersDobFormProviderSpec extends DateBehaviours {
   val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]

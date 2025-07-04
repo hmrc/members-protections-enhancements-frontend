@@ -27,12 +27,6 @@ class MembersDobFormProvider @Inject()(dateTimeProvider: DateTimeProvider) exten
   def apply(): Form[MembersDob] =
     Form(
       "dateOfBirth" -> dateOfBirth(dateTimeProvider)
-        .verifying(
-          firstError(
-            validDate("membersDob.error.invalid"),
-            futureDate("membersDob.error.futureDate", dateTimeProvider)
-          )
-        )
     )
 }
 

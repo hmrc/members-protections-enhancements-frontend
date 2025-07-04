@@ -47,8 +47,14 @@ trait Mappings extends Formatters with Constraints {
         requiredKey = yearError,
         wholeNumberKey = yearError,
         nonNumericKey = yearError
-      ).verifying(yearError, y => y >= minYear && y <= dateTimeProvider.now().getYear)
+      ).verifying(yearError, y => y > 1900 &&  y < 10000)
     )(MembersDob.apply)(MembersDob.unapply)
+      .verifying(
+        firstError(
+          validDate("membersDob.error.invalid"),
+          futureDate("membersDob.error.futureDate", dateTimeProvider)
+        )
+      )
   }
 
   protected def int(requiredKey: String,
