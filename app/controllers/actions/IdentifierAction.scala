@@ -56,7 +56,7 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
         case Some(_) ~ Some(_) ~ _ if !hasValidSession(hc) =>
           Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
         case _ =>
-          throw InternalError("Unknow error occurred in the auth process")
+          throw InternalError("Unknown error occurred in the auth process")
       } recoverWith {
       case _: NoActiveSession =>
         Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
