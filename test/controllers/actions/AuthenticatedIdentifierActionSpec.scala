@@ -122,16 +122,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
           redirectLocation(result) mustBe Some(expectedUrl)
       }
 
-      "Redirect user to MPS registration page when user does not have psa or psp enrolment" in runningApplication {
-        implicit app =>
-          setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId")))
-
-          val result = handler.run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
-          val expectedUrl = appConfig.mpsRegistrationUrl
-
-          redirectLocation(result) mustBe Some(expectedUrl)
-      }
-
       "Redirect user to error page when non-auth exception is thrown" in runningApplication { implicit app =>
         setAuthValue(Future.failed(new RuntimeException("Some funky error")))
         val result: Future[Result] = handler.run(FakeRequest())
@@ -184,14 +174,15 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
       )
     }
 
-    "Redirect user to protection enhancement" - {
+    "Redirect user to login" - {
       "User has a psa enrolment but has a no valid session" in runningApplication { implicit app =>
         setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
 
         val result = handler.run(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        val expectedUrl = controllers.auth.routes.AuthController.sessionTimeout().url
+        val continueUrl = urlEncode(appConfig.loginContinueUrl)
+        val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
         redirectLocation(result) mustBe Some(expectedUrl)
       }
@@ -202,7 +193,8 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         val result = handler.run(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        val expectedUrl = controllers.auth.routes.AuthController.sessionTimeout().url
+        val continueUrl = urlEncode(appConfig.loginContinueUrl)
+        val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
         redirectLocation(result) mustBe Some(expectedUrl)
       }

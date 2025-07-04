@@ -54,18 +54,16 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
         case Some(internalId) ~ Some(affGroup) ~ IsPSP(pspId) if hasValidSession(hc) =>
           block(PractitionerRequest(affGroup, internalId, pspId.value, UserType.PSP, request))
         case Some(_) ~ Some(_) ~ _ if !hasValidSession(hc) =>
-          Future.successful(Redirect(controllers.auth.routes.AuthController.sessionTimeout()))
-        case Some(_) ~ Some(_) ~ _ =>
-          throw InsufficientEnrolments("No sufficient enrolments found")
+          Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
         case _ =>
-          throw InternalError("Some internal error occurred")
+          throw InternalError("Unknow error occurred in the auth process")
       } recoverWith {
       case _: NoActiveSession =>
         Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
       case _: InsufficientEnrolments =>
         Future.successful(Redirect(config.mpsRegistrationUrl))
       case err: AuthorisationException =>
-        logger.warn(logContext + s"An authorisation error occurred with message: ${err.reason}")
+        logger.error(logContext + s"An authorisation error occurred with message", err)
         Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }

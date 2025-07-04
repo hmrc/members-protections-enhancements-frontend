@@ -90,11 +90,12 @@ trait Generators {
       chars <- listOfN(length, arbitrary[Char])
     } yield chars.mkString
 
-  def stringsLongerThan(minLength: Int): Gen[String] = for {
-    maxLength <- (minLength * 2).max(100)
-    length    <- Gen.chooseNum(minLength + 1, maxLength)
-    chars     <- listOfN(length, arbitrary[Char])
-  } yield chars.mkString
+
+  def stringsLongerThan(minLength: Int): Gen[String] =
+    for {
+      base <- Gen.listOfN(minLength + 1, alphaChar).map(_.mkString)
+      surplus <- alphaChar
+    } yield base + surplus
 
   def stringLengthBetween(minLength: Int, maxLength: Int, charGen: Gen[Char]): Gen[String] =
     for {
