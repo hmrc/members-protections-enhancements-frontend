@@ -16,20 +16,26 @@
 
 @import views.html.components._
 @import config.FrontendAppConfig
+@import viewmodels.MpeBreadcrumbs._
 
 @this(
     layout: templates.Layout,
     govukButton : GovukButton,
     govukBackLink: GovukBackLink,
     heading: h1,
-    appConfig: FrontendAppConfig
+    appConfig: FrontendAppConfig,
+    govukBreadcrumbs: GovukBreadcrumbs
 )
 
 @(
     backLinkUrl: Option[String]
 )(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("whatYouWillNeed.title")), backLinkUrl = backLinkUrl) {
+@layout(
+        pageTitle = titleNoForm(messages("whatYouWillNeed.title")),
+        backLinkUrl = backLinkUrl,
+        beforeContent = Some(govukBreadcrumbs(Breadcrumbs(mpePageBreadcrumbs)))
+) {
 
     @heading("whatYouWillNeed.heading", headerSize = "xl")
 

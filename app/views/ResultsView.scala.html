@@ -15,7 +15,7 @@
  *@
 
 @import views.html.components._
-@import viewmodels.ResultsPageBreadcrumbs._
+@import viewmodels.MpeBreadcrumbs._
 @import viewmodels.ResultsViewUtils._
 @import models.response._
 @import utils.CurrencyFormats
@@ -47,7 +47,7 @@
 @layout(
     pageTitle = titleNoForm(messages("results.title")),
     backLinkUrl = backLinkUrl,
-    beforeContent = Some(govukBreadcrumbs(Breadcrumbs(resultsPageBreadcrumbs))),
+    beforeContent = Some(govukBreadcrumbs(Breadcrumbs(mpePageBreadcrumbs))),
     fullWidthContent = true
 ) {
     <div class="govuk-grid-row govuk-grid-column-two-thirds">

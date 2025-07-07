@@ -19,7 +19,7 @@ package viewmodels
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{BreadcrumbsItem, Text}
 
-object ResultsPageBreadcrumbs {
+object MpeBreadcrumbs {
   private def managingPensionSchemesBreadcrumb(implicit messages: Messages) = BreadcrumbsItem(
     content = Text(messages("results.breadcrumbs.mps")),
     href = Some(controllers.routes.MpsDashboardController.redirectToMps().url)
@@ -30,7 +30,7 @@ object ResultsPageBreadcrumbs {
     href = Some(controllers.routes.WhatYouWillNeedController.onPageLoad().url)
   )
 
-  def resultsPageBreadcrumbs(implicit messages: Messages): Seq[BreadcrumbsItem] = Seq(
+  def mpePageBreadcrumbs(implicit messages: Messages): Seq[BreadcrumbsItem] = Seq(
     managingPensionSchemesBreadcrumb,
     checkMpeBreadcrumb
   )
