@@ -17,7 +17,7 @@
 @import views.html.components._
 @import config.FrontendAppConfig
 @import models.response._
-@import viewmodels.ResultsPageBreadcrumbs._
+@import viewmodels.MpeBreadcrumbs._
 
 @this(
     layout: templates.Layout,
@@ -38,7 +38,7 @@
 
 @layout(
     pageTitle = titleNoForm(messages("noResults.title")),
-    beforeContent =Some(govukBreadcrumbs(Breadcrumbs(resultsPageBreadcrumbs))),
+    beforeContent =Some(govukBreadcrumbs(Breadcrumbs(mpePageBreadcrumbs))),
     fullWidthContent = true
 ) {
 
