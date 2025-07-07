@@ -94,12 +94,11 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         redirectLocation(result) mustBe Some(expectedUrl)
       }
 
-      "Redirect user to protection enhancement when authorise fails to match predicate" in runningApplication { implicit app =>
+      "Redirect user to unauthorised page when authorise fails to match predicate" in runningApplication { implicit app =>
         setAuthValue(Future.failed(new AuthorisationException("Authorise predicate fails") {}))
 
         val result = handler.run(FakeRequest())
-        val continueUrl = urlEncode(appConfig.loginContinueUrl)
-        val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
+        val expectedUrl = routes.UnauthorisedController.onPageLoad().url
 
         redirectLocation(result) mustBe Some(expectedUrl)
       }
@@ -113,12 +112,12 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         redirectLocation(result) mustBe Some(expectedUrl)
       }
 
-      "Redirect user to Login page when user does not have psa or psp enrolment" in runningApplication {
+      "Redirect user to MPS registration page when user has insufficient enrolments" in runningApplication {
         implicit app =>
-          setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId")))
+          setAuthValue(Future.failed(new InsufficientEnrolments("Insufficient enrolments") {}))
 
-          val result = handler.run(FakeRequest())
-          val expectedUrl = appConfig.loginUrl
+          val result = handler.run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
+          val expectedUrl = appConfig.mpsRegistrationUrl
 
           redirectLocation(result) mustBe Some(expectedUrl)
       }
@@ -175,14 +174,15 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
       )
     }
 
-    "Redirect user to protection enhancement" - {
+    "Redirect user to login" - {
       "User has a psa enrolment but has a no valid session" in runningApplication { implicit app =>
         setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
 
         val result = handler.run(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        val expectedUrl = s"${appConfig.loginUrl}"
+        val continueUrl = urlEncode(appConfig.loginContinueUrl)
+        val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
         redirectLocation(result) mustBe Some(expectedUrl)
       }
@@ -193,7 +193,8 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         val result = handler.run(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        val expectedUrl = s"${appConfig.loginUrl}"
+        val continueUrl = urlEncode(appConfig.loginContinueUrl)
+        val expectedUrl = s"${appConfig.loginUrl}?continue=$continueUrl"
 
         redirectLocation(result) mustBe Some(expectedUrl)
       }

@@ -16,11 +16,11 @@
 
 package forms
 
-import forms.behaviours.FieldBehaviours
+import forms.behaviours.StringFieldBehaviours
 import models.MemberDetails
 import play.api.data.{Form, FormError}
 
-class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
+class WhatIsTheMembersNameFormProviderSpec extends StringFieldBehaviours {
 
   private val formProvider = new WhatIsTheMembersNameFormProvider()
 
@@ -45,6 +45,24 @@ class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
         args = List(nameRegex)
       )
     )
+
+    behave.like(
+      fieldWithRegex(
+        form,
+        fieldName = "firstName",
+        invalidString = "!ValidName",
+        error = "membersName.error.invalid.firstName"
+      )
+    )
+
+    behave.like(
+      fieldWithMaxLength(
+        form,
+        fieldName = "firstName",
+        maxLength = 35,
+        "membersName.error.tooLong.firstName"
+      )
+    )
   }
 
   ".lastName" must {
@@ -65,6 +83,24 @@ class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
       )
     )
 
+    behave.like(
+      fieldWithRegex(
+        form,
+        fieldName = "lastName",
+        invalidString = "!ValidName",
+        error = "membersName.error.invalid.lastName"
+      )
+    )
+
+    behave.like(
+      fieldWithMaxLength(
+        form,
+        fieldName = "lastName",
+        maxLength = 35,
+        "membersName.error.tooLong.lastName"
+      )
+    )
+
     "return an error for a last name which is shorter then 2 characters" in {
       val result: Form[MemberDetails] = form.bind(Map(
         "firstName" -> "Valid",
@@ -75,5 +111,4 @@ class WhatIsTheMembersNameFormProviderSpec extends FieldBehaviours {
       result.errors.map(_.message) must contain("membersName.error.tooShort.lastName")
     }
   }
-
 }
