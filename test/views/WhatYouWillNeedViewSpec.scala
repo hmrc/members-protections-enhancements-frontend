@@ -29,6 +29,12 @@ import views.html.WhatYouWillNeedView
 class WhatYouWillNeedViewSpec extends SpecBase {
 
   "view" - {
+
+    "with correct breadcrumbs" in new Setup {
+      view.getElementsByClass("govuk-breadcrumbs__link").first().text() mustBe messages(app)("results.breadcrumbs.mps")
+      view.getElementsByClass("govuk-breadcrumbs__link").last().text() mustBe messages(app)("results.breadcrumbs.mpe")
+    }
+
     "display correct guidance and text" in new Setup {
 
       view.getElementsByTag("h1").text() mustBe messages(app)("whatYouWillNeed.heading")
