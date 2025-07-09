@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package config
+package controllers.actions
 
-import com.google.inject.AbstractModule
-import controllers.actions._
+import models.requests.IdentifierRequest
+import play.api.mvc.Result
 
-import java.time.{Clock, ZoneOffset}
+import scala.concurrent.{ExecutionContext, Future}
 
-class Module extends AbstractModule {
+class FakeCheckLockoutAction(filterResult: Option[Result]) extends CheckLockoutAction {
+  override protected implicit val executionContext: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
 
-  override def configure(): Unit = {
-    bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
-    bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
-    bind(classOf[CheckLockoutAction]).to(classOf[CheckLockoutActionImpl]).asEagerSingleton()
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-  }
+  override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] =
+    Future.successful(filterResult)
 }

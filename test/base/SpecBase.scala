@@ -56,7 +56,7 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.{JsResult, JsString, JsSuccess, Reads}
-import play.api.mvc.{BodyParsers, Call}
+import play.api.mvc.{BodyParsers, Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
 import providers.DateTimeProvider
@@ -112,12 +112,15 @@ trait SpecBase
     )
   )
 
-  protected def applicationBuilder(userAnswers: UserAnswers, identifierAction: IdentifierAction = fakePsaIdentifierAction): GuiceApplicationBuilder =
+  protected def applicationBuilder(userAnswers: UserAnswers,
+                                   identifierAction: IdentifierAction = fakePsaIdentifierAction,
+                                   checkLockoutResult: Option[Result] = None): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(servicesConfig)
       .overrides(
         bind[IdentifierAction].toInstance(identifierAction),
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[CheckLockoutAction].toInstance(new FakeCheckLockoutAction(checkLockoutResult))
       )
 
   def runningApplication(block: Application => Unit): Unit =
