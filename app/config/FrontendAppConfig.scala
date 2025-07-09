@@ -34,8 +34,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
+  //Lockout config
+  val lockoutThreshold: Int = configuration.get[Int]("lockout.threshold")
+
   //MongoDB config
-  val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+  val sessionDataTtl: Long = configuration.get[Int]("mongodb.sessionDataTtl")
+  val failedAttemptTtl: Long = configuration.get[Int]("mongodb.lockoutTtl")
+  val lockoutTtl: Long = configuration.get[Int]("mongodb.lockoutTtl")
 
   //URLs
   val loginUrl: String         = loadConfig("urls.login")
@@ -67,4 +72,5 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   //Feature switches
   val betaBannerEnabled: Boolean = configuration.get[Boolean]("feature-switch.betaBannerEnabled")
+  val lockoutEnabled: Boolean = configuration.get[Boolean]("feature-switch.lockoutEnabled")
 }
