@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersDobFormProvider
 import models.{MembersDob, Mode}
 import navigation.Navigator
@@ -30,16 +30,16 @@ import views.html.MembersDobView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MembersDobController @Inject()(
-                                      override val messagesApi: MessagesApi,
-                                      identify: IdentifierAction,
-                                      getData: DataRetrievalAction,
-                                      navigator: Navigator,
-                                      service: SessionCacheService,
-                                      formProvider: MembersDobFormProvider,
-                                      implicit val controllerComponents: MessagesControllerComponents,
-                                      view: MembersDobView
-                                    )(implicit ec: ExecutionContext) extends MpeBaseController(identify, getData) {
+class MembersDobController @Inject()(override val messagesApi: MessagesApi,
+                                     identify: IdentifierAction,
+                                     checkLockout: CheckLockoutAction,
+                                     getData: DataRetrievalAction,
+                                     navigator: Navigator,
+                                     service: SessionCacheService,
+                                     formProvider: MembersDobFormProvider,
+                                     implicit val controllerComponents: MessagesControllerComponents,
+                                     view: MembersDobView)(implicit ec: ExecutionContext)
+  extends MpeBaseController(identify, checkLockout, getData) {
 
   private val form: Form[MembersDob] = formProvider()
 

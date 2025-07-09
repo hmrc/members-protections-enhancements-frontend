@@ -23,10 +23,9 @@ import views.html.auth.SessionTimeoutView
 
 import javax.inject.Inject
 
-class SessionTimeoutController @Inject()(
-                                          val controllerComponents: MessagesControllerComponents,
-                                          view: SessionTimeoutView
-                                        ) extends FrontendBaseController with I18nSupport {
+class SessionTimeoutController @Inject()(val controllerComponents: MessagesControllerComponents,
+                                         view: SessionTimeoutView)
+  extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
     Ok(view())

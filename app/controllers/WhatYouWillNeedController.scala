@@ -17,21 +17,22 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.WhatYouWillNeedView
 
-class WhatYouWillNeedController @Inject()(
-                                                              override val messagesApi: MessagesApi,
-                                                              identify: IdentifierAction,
-                                                              getData: DataRetrievalAction,
-                                                              val controllerComponents: MessagesControllerComponents,
-                                                              view: WhatYouWillNeedView
-                                                            )  extends MpeBaseController(identify, getData) {
+import scala.concurrent.Future
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen getData) {
-    implicit request =>
-      Ok(view(Some(routes.MpsDashboardController.redirectToMps().url)))
+class WhatYouWillNeedController @Inject()(override val messagesApi: MessagesApi,
+                                          identify: IdentifierAction,
+                                          checkLockout: CheckLockoutAction,
+                                          getData: DataRetrievalAction,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          view: WhatYouWillNeedView)
+  extends MpeBaseController(identify, checkLockout, getData) {
+
+  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+    Future.successful(Ok(view(Some(routes.MpsDashboardController.redirectToMps().url))))
   }
 }
