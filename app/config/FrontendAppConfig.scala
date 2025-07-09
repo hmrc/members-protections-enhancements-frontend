@@ -38,7 +38,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   //MongoDB config
   val sessionDataTtl: Long = configuration.get[Int]("mongodb.sessionDataTtl")
-  val failedAttemptTtl: Long = configuration.get[Int]("mongodb.lockoutTtl")
+  val failedAttemptTtl: Long = configuration.get[Int]("mongodb.failedAttemptTtl")
   val lockoutTtl: Long = configuration.get[Int]("mongodb.lockoutTtl")
 
   //URLs
