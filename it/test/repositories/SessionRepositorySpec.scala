@@ -51,7 +51,7 @@ class SessionRepositorySpec
   private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
 
   private val mockAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.cacheTtl) thenReturn 1L
+  when(mockAppConfig.sessionDataTtl) thenReturn 1L
 
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
