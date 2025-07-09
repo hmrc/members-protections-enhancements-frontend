@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
@@ -29,34 +29,35 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   identify: IdentifierAction,
+                                  checkLockout: CheckLockoutAction,
                                   getData: DataRetrievalAction,
                                   val controllerComponents: MessagesControllerComponents,
                                   view: ResultsView,
                                   dateTimeProvider: DateTimeProvider,
                                   checkAndRetrieveService: MembersCheckAndRetrieveService)
-                                 (implicit ec: ExecutionContext) extends MpeBaseController(identify, getData) {
+                                 (implicit ec: ExecutionContext)
+  extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handle {
-    implicit request =>
-      getUserData(request) match {
-        case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
-          checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)).map {
-            case Right(value) => Ok(
-              view(
-                memberDetails = memberDetails,
-                membersDob = membersDob,
-                membersNino = membersNino,
-                membersPsaCheckRef = membersPsaCheckRef,
-                backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
-                formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
-                protectionRecordDetails = value
-              )
+  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+    getUserData(request) match {
+      case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
+        checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)).map {
+          case Right(value) => Ok(
+            view(
+              memberDetails = memberDetails,
+              membersDob = membersDob,
+              membersNino = membersNino,
+              membersPsaCheckRef = membersPsaCheckRef,
+              backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
+              formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
+              protectionRecordDetails = value
             )
-            case _ =>
-              Redirect(routes.NoResultsController.onPageLoad())
-          }
-        case _ =>
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-      }
+          )
+          case _ =>
+            Redirect(routes.NoResultsController.onPageLoad())
+        }
+      case _ =>
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 }

@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersNinoFormProvider
 import models.{MembersNino, Mode}
 import navigation.Navigator
@@ -30,16 +30,16 @@ import views.html.MembersNinoView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MembersNinoController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       navigator: Navigator,
-                                       service: SessionCacheService,
-                                       formProvider: MembersNinoFormProvider,
-                                       implicit val controllerComponents: MessagesControllerComponents,
-                                       view: MembersNinoView
-                                     )(implicit ec: ExecutionContext) extends MpeBaseController(identify, getData) {
+class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
+                                      identify: IdentifierAction,
+                                      checkLockout: CheckLockoutAction,
+                                      getData: DataRetrievalAction,
+                                      navigator: Navigator,
+                                      service: SessionCacheService,
+                                      formProvider: MembersNinoFormProvider,
+                                      implicit val controllerComponents: MessagesControllerComponents,
+                                      view: MembersNinoView)(implicit ec: ExecutionContext)
+  extends MpeBaseController(identify, checkLockout, getData) {
 
   private val form: Form[MembersNino] = formProvider()
 

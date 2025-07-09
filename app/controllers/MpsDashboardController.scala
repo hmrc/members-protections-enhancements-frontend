@@ -18,26 +18,25 @@ package controllers
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.requests.UserType.PSA
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
 import scala.concurrent.Future
 
-class MpsDashboardController @Inject()(
-                                        identify: IdentifierAction,
-                                        getData: DataRetrievalAction,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        val appConfig: FrontendAppConfig
-                                      )  extends MpeBaseController(identify, getData) {
+class MpsDashboardController @Inject()(identify: IdentifierAction,
+                                       checkLockout: CheckLockoutAction,
+                                       getData: DataRetrievalAction,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       val appConfig: FrontendAppConfig)
+  extends MpeBaseController(identify, checkLockout, getData) {
 
-  def redirectToMps(): Action[AnyContent] = handle {
-    implicit request =>
-      val mpsUrl =
-        request.userDetails.psrUserType match {
-          case PSA => appConfig.psaOverviewUrl
-          case _ => appConfig.pspDashboardUrl
-        }
-      Future.successful(Redirect(mpsUrl))
+  def redirectToMps(): Action[AnyContent] = handle { implicit request =>
+    val mpsUrl =
+      request.userDetails.psrUserType match {
+        case PSA => appConfig.psaOverviewUrl
+        case _ => appConfig.pspDashboardUrl
+      }
+    Future.successful(Redirect(mpsUrl))
   }
 }

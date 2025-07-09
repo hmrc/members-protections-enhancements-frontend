@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.requests.{DataRequest, PensionSchemeMemberRequest}
 import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, Mode, NormalMode}
 import pages._
@@ -28,20 +28,20 @@ import viewmodels.formPage.FormPageViewModel
 import javax.inject.Inject
 import scala.concurrent.Future
 
-abstract class MpeBaseController @Inject()(
-                                            identify: IdentifierAction,
-                                            getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport {
+abstract class MpeBaseController @Inject()(identify: IdentifierAction,
+                                           checkLockout: CheckLockoutAction,
+                                           getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport {
 
-  def handleWithMemberDetails(f: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] = (identify andThen getData).async {
-    implicit request =>
-      withMemberDetails { memberDetails =>
-        f(request)(memberDetails)
-      }
+  def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
+    (identify andThen checkLockout andThen getData).async {
+      implicit request =>
+        withMemberDetails { memberDetails =>
+          block(request)(memberDetails)
+        }
     }
 
-  def handle(f: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] = (identify andThen getData).async {
-    implicit request => f(request)
-  }
+  def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
+    (identify andThen checkLockout andThen getData).async(block(_))
 
   private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
     request.userAnswers.get(WhatIsTheMembersNamePage) match {
