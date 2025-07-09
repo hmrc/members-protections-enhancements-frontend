@@ -18,13 +18,12 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.api.mvc.RequestHeader
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   private def loadConfig(key: String): String = configuration.get[String](key)
+  def getServiceBaseUrl(service: String): String = configuration.get[Service](service)
 
   //Application config
   val host: String    = loadConfig("host")
@@ -41,13 +40,14 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val loginUrl: String         = loadConfig("urls.login")
   val loginContinueUrl: String = loadConfig("urls.loginContinue")
 
-  private val basGatewayFrontendBaseUrl: String = configuration.get[Service]("microservice.services.bas-gateway-frontend").baseUrl
+  private val basGatewayFrontendBaseUrl: String = getServiceBaseUrl("microservice.services.bas-gateway-frontend")
   lazy val signOutUrl: String = basGatewayFrontendBaseUrl + "/bas-gateway/sign-out-without-state"
 
   // Feedback config
   val exitSurveyUrl: String = loadConfig("urls.signOutWithFeedback")
 
-  private val backendUrl: String = configuration.get[Service]("microservice.services.mpe-backend").baseUrl
+
+  private val backendUrl: String = getServiceBaseUrl("microservice.services.mpe-backend")
   val checkAndRetrieveUrl = s"$backendUrl/${loadConfig("urls.checkAndRetrieve")}"
 
 
@@ -56,13 +56,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   lazy val mpsRegistrationUrl: String = loadConfig("urls.mpsRegistration")
 
   //Beta feedback config
-  private def redirectUrl(implicit request: RequestHeader) = SafeRedirectUrl(host + request.uri).encodedUrl
-  private val contactFormServiceIdentifier: String = appName
-  private val contactFrontendUrl: String = configuration.get[Service]("microservice.services.contact-frontend").baseUrl
+//  private def redirectUrl(implicit request: RequestHeader) = SafeRedirectUrl(host + request.uri).encodedUrl
+//  private val contactFormServiceIdentifier: String = appName
+//  private val contactFrontendUrl: String = configuration.get[Service]("microservice.services.contact-frontend").baseUrl
 
-  def betaFeedbackUrl(implicit request: RequestHeader): String =
-    s"$contactFrontendUrl/contact/beta-feedback" +
-      s"?service=$contactFormServiceIdentifier&backUrl=$redirectUrl"
+//  def betaFeedbackUrl(implicit request: RequestHeader): String =
+//    s"$contactFrontendUrl/contact/beta-feedback" +
+//      s"?service=$contactFormServiceIdentifier&backUrl=$redirectUrl"
 
   val checkLtaGuidanceUrl: String = loadConfig("urls.guidance.checkLta")
 
