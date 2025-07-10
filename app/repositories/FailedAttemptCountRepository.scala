@@ -16,7 +16,7 @@
 
 package repositories
 
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.requests.IdentifierRequest
@@ -28,11 +28,17 @@ import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
 
+@ImplementedBy(classOf[FailedAttemptCountRepositoryImpl])
+trait FailedAttemptCountRepository {
+  def addFailedAttempt()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Unit]
+  def countFailedAttempts()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Long]
+}
+
 @Singleton
-class FailedAttemptCountRepository @Inject()(mongoComponent: MongoComponent,
-                                             frontendAppConfig: FrontendAppConfig,
-                                             timestampSupport: TimestampSupport)
-                                            (implicit ec: ExecutionContext)
+class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
+                                                 frontendAppConfig: FrontendAppConfig,
+                                                 timestampSupport: TimestampSupport)
+                                                (implicit ec: ExecutionContext)
   extends PlayMongoRepository[CacheUserDetails](
     collectionName = "failed-attempt-count",
     mongoComponent = mongoComponent,
@@ -49,8 +55,9 @@ class FailedAttemptCountRepository @Inject()(mongoComponent: MongoComponent,
         IndexOptions()
           .name("internalIdIndex")
       )
-    )
-  ) {
+    ),
+    replaceIndexes = true
+  ) with FailedAttemptCountRepository {
 
   def addFailedAttempt()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Unit] =
     collection
