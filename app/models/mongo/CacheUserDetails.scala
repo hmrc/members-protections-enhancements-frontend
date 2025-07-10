@@ -17,7 +17,8 @@
 package models.mongo
 
 import models.requests.{UserDetails, UserType}
-import play.api.libs.json.{Format, Json, OWrites}
+import play.api.libs.json.{Format, Json, OFormat, OWrites}
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 
@@ -36,6 +37,6 @@ object CacheUserDetails {
     createdAt = createdAt
   )
 
-  implicit val mongoFormat: Format[CacheUserDetails] = Json.format[CacheUserDetails]
-  implicit val objWrites: OWrites[CacheUserDetails] = Json.writes[CacheUserDetails]
+  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
+  val mongoFormat: Format[CacheUserDetails] = Json.format[CacheUserDetails]
 }

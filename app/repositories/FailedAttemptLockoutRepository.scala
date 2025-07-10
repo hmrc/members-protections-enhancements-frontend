@@ -20,9 +20,9 @@ import com.google.inject.{Inject, Singleton}
 import com.mongodb.DuplicateKeyException
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
-import org.mongodb.scala.{MongoException, SingleObservable}
-import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.mongo.cache.{CacheIdType, CacheItem, EntityCache, MongoCacheRepository}
+import org.mongodb.scala.MongoException
+import play.api.libs.json.{Format, Json, Writes}
+import uk.gov.hmrc.mongo.cache.{CacheIdType, CacheItem, DataKey, EntityCache, MongoCacheRepository}
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
 
 import java.util.concurrent.TimeUnit
@@ -35,35 +35,38 @@ class FailedAttemptLockoutRepository @Inject()(mongoComponent: MongoComponent,
                                                timestampSupport: TimestampSupport)
                                               (implicit ec: ExecutionContext)
   extends EntityCache[String, CacheUserDetails] {
-    override val cacheRepo: MongoCacheRepository[String] = new MongoCacheRepository[String](
+
+  lazy val format: Format[CacheUserDetails] = CacheUserDetails.mongoFormat
+
+  lazy val cacheRepo: MongoCacheRepository[String] = new MongoCacheRepository[String](
       mongoComponent = mongoComponent,
       collectionName = "failed-attempt-lockout",
       ttl = Duration(frontendAppConfig.lockoutTtl, TimeUnit.SECONDS),
       timestampSupport = timestampSupport,
       cacheIdType = CacheIdType.SimpleCacheId
-    )
+    ) {
+    override def put[A: Writes](cacheId: String)(dataKey: DataKey[A], data: A): Future[CacheItem] = {
+      val id = CacheIdType.SimpleCacheId.run(cacheId)
+      val timestamp = timestampSupport.timestamp()
 
-  override val format: Format[CacheUserDetails] = CacheUserDetails.mongoFormat
-
-  //TODO: Handle conflict error
-  override def putCache(cacheId: String)(data: CacheUserDetails)
-                       (implicit ec: ExecutionContext): Future[Unit] = {
-    val id = CacheIdType.SimpleCacheId.run(cacheId)
-    val timestamp = timestampSupport.timestamp()
-
-    cacheRepo.collection
-      .insertOne(
-        CacheItem(id, Json.toJsObject(data), timestamp, timestamp)
+      val cacheItem: CacheItem = CacheItem(
+        id = id,
+        data = Json.obj(dataKey.unwrap -> Json.toJson(data)),
+        createdAt = timestamp,
+        modifiedAt = timestamp
       )
-      .toFuture()
-      .map {
-        case res if res.wasAcknowledged() => ()
-        case _ => ??? //TODO Throw a fatal exception
-      }
-      .recover {
-        case _: DuplicateKeyException => ???
-        case _: MongoException => ???
-      }
 
+      cacheRepo.collection
+        .insertOne(cacheItem)
+        .toFuture()
+        .map {
+          case res if res.wasAcknowledged() => cacheItem
+          case _ => ???
+        }
+        .recover {
+          case _: DuplicateKeyException => ???
+          case _: MongoException => ???
+        }
+    }
   }
 }

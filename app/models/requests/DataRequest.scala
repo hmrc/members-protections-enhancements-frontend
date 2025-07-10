@@ -18,12 +18,18 @@ package models.requests
 
 import play.api.mvc.{Request, WrappedRequest}
 import models.UserAnswers
+import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 
 case class OptionalDataRequest[A] (request: Request[A],
                                    userDetails: UserDetails,
                                    userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
 
-case class DataRequest[A] (
-                            request: Request[A],
-                            userDetails: UserDetails,
-                            userAnswers: UserAnswers) extends WrappedRequest[A](request)
+case class DataRequest[A] (request: Request[A],
+                           userDetails: UserDetails,
+                           userAnswers: UserAnswers) extends WrappedRequest[A](request) {
+  def toIdentifierRequest: IdentifierRequest[A] = userDetails.psrUserType match {
+    case UserType.PSA => new AdministratorRequest[A](userDetails, request)
+    case UserType.PSP => new PractitionerRequest[A](userDetails, request)
+  }
+}
+

@@ -17,22 +17,16 @@
 package repositories
 
 import com.google.inject.{Inject, Singleton}
-import com.mongodb.DuplicateKeyException
 import config.FrontendAppConfig
-import models.UserAnswers
 import models.mongo.CacheUserDetails
 import models.requests.IdentifierRequest
 import org.mongodb.scala.MongoException
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
-import org.mongodb.scala.result.InsertOneResult
-import play.api.libs.json.Format
-import uk.gov.hmrc.mongo.cache.{CacheIdType, CacheItem, EntityCache, MongoCacheRepository}
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration.Duration
 
 @Singleton
 class FailedAttemptCountRepository @Inject()(mongoComponent: MongoComponent,
