@@ -16,7 +16,7 @@
 
 package services
 
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.requests.IdentifierRequest
@@ -26,10 +26,19 @@ import repositories.{FailedAttemptCountRepository, FailedAttemptLockoutRepositor
 
 import scala.concurrent.{ExecutionContext, Future}
 
+@ImplementedBy(classOf[FailedAttemptServiceImpl])
+trait FailedAttemptService {
+  def checkForLockout()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean]
+
+  def handleFailedAttempt(lockoutResult: Result)
+                         (noLockoutResult: Result)
+                         (implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Result]
+}
+
 @Singleton
-class FailedAttemptService @Inject()(failedAttemptLockoutRepository: FailedAttemptLockoutRepository,
-                                     failedAttemptCountRepository: FailedAttemptCountRepository,
-                                     frontendAppConfig: FrontendAppConfig) extends Logging {
+class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedAttemptLockoutRepository,
+                                         failedAttemptCountRepository: FailedAttemptCountRepository,
+                                         frontendAppConfig: FrontendAppConfig) extends Logging {
   private val classLoggingContext: String = "FailedAttemptService"
 
   def checkForLockout()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean] = {
@@ -38,25 +47,34 @@ class FailedAttemptService @Inject()(failedAttemptLockoutRepository: FailedAttem
     val methodLoggingContext: String = "checkForLockout"
     val loggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
-    logger.info(s"$loggingContext - ...")
+    logger.info(s"$loggingContext - Received request to check for matching lockout for user")
 
     failedAttemptLockoutRepository.getFromCache(request.userDetails.userId).map {
       case Some(value) if value.psrUserType == psrUserType && value.psrUserId == psrUserId =>
-        logger.warn(s"$loggingContext - ...")
+        logger.warn(s"$loggingContext - User has been locked out")
         true
       case Some(_) =>
-        logger.error(s"$methodLoggingContext - ...")
-        ???
+        logger.warn(s"$methodLoggingContext - Existing lockout was found for user with conflicting PSR details")
+        throw new IllegalStateException("User lockout has conflicting PSR details")
       case None =>
-        logger.info(s"$loggingContext - ...")
+        logger.info(s"$loggingContext - No existing lockout found for user")
         false
     }
   }
 
   private def checkThresholdExceeded()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean] = {
+    val methodLoggingContext: String = "checkThresholdExceeded"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
+    logger.info(s"$fullLoggingContext - Attempting to check if failed attempt threshold has been exceeded for user")
+
     failedAttemptCountRepository.countFailedAttempts().map {
-      case count if count >= frontendAppConfig.lockoutThreshold => true
-      case _ => false
+      case count if count < frontendAppConfig.lockoutThreshold =>
+        logger.info(s"$fullLoggingContext - Failed attempt threshold not exceeded")
+        false
+      case count =>
+        logger.warn(s"$fullLoggingContext - User has exceeded threshold for failed attempts, with amount: $count")
+        true
     }
   }
 
@@ -64,28 +82,34 @@ class FailedAttemptService @Inject()(failedAttemptLockoutRepository: FailedAttem
     import request.userDetails._
 
     val methodLoggingContext: String = "createLockout"
-    val loggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
-    logger.info(s"$loggingContext - ...")
+    logger.info(s"$fullLoggingContext - Attempting to create lockout for user")
 
     failedAttemptLockoutRepository.putCache(userId)(
       CacheUserDetails(userDetails = request.userDetails, withInternalId = false)
     )
   }
 
-  def handleFailedAttempt(lockoutResult: Result)(noLockoutResult: Result)
+  def handleFailedAttempt(lockoutResult: Result)
+                         (noLockoutResult: Result)
                          (implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Result] = {
+    val methodLoggingContext: String = "createLockout"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
+    logger.info(s"$fullLoggingContext - Received request to handle failed attempt for user")
+
     failedAttemptCountRepository
       .addFailedAttempt()
-      .flatMap(
-        _ => checkThresholdExceeded()
-      )
+      .flatMap(_ => checkThresholdExceeded())
       .map {
+        case false =>
+          logger.info(s"$fullLoggingContext - Returning no lockout result")
+          noLockoutResult
         case true =>
           createLockout()
+          logger.info(s"$fullLoggingContext - Returning lockout result")
           lockoutResult
-        case false =>
-          noLockoutResult
       }
 
   }

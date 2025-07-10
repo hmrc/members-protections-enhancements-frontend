@@ -79,8 +79,8 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
             logger.info(s"$fullLoggingContext - Successfully created lockout for user")
             cacheItem
           case _ =>
-            logger.warn(s"$fullLoggingContext - Lockout was not added successfully to MongoDB")
-            throw new CacheException("Failed to add user lockout to MongoDB")
+            logger.warn(s"$fullLoggingContext - Lockout was not added successfully to cache")
+            throw new CacheException("Failed to add user lockout to cache")
         }
         .recover {
           case ex: DuplicateKeyException =>
@@ -88,7 +88,7 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
             throw ex
           case ex: MongoException =>
             logger.warn(s"$fullLoggingContext - " +
-              s"MongoDB returned an error during lockout creation with message: ${ex.getMessage}"
+              s"MongoDB returned an error during lockout creation with error message: ${ex.getMessage}"
             )
             throw ex
         }

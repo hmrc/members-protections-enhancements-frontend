@@ -67,7 +67,7 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
     val methodLoggingContext: String = "addFailedAttempt"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
-    logger.info(s"$fullLoggingContext - Received request to add failed attempt for user")
+    logger.info(s"$fullLoggingContext - Received request to add failed attempt to cache for user")
 
     collection
       .insertOne(
@@ -80,15 +80,15 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       .toFuture()
       .map {
         case res if res.wasAcknowledged() =>
-          logger.info(s"$fullLoggingContext - Successfully created failed attempt for user")
+          logger.info(s"$fullLoggingContext - Successfully cached failed attempt")
         case _ =>
-          logger.warn(s"$fullLoggingContext - Failed attempt was not added successfully to MongoDB")
-          throw new CacheException("Failed to add user failed attempt to MongoDB")
+          logger.warn(s"$fullLoggingContext - Failed attempt was not added successfully to cache")
+          throw new CacheException("Failed to add user failed attempt to cache")
       }
       .recover {
         case ex: MongoException =>
           logger.warn(s"$fullLoggingContext - " +
-            s"MongoDB returned an error during failed attempt creation with message: ${ex.getMessage}"
+            s"MongoDB returned an error while attempting to cache failed attempt with error message: ${ex.getMessage}"
           )
           throw ex
       }
@@ -106,13 +106,13 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       )
       .toFuture()
       .map(res => {
-        logger.info(s"Successfully retrieved failed attempt count for user of: $res")
+        logger.info(s"Successfully retrieved failed attempt count of: $res")
         res
       })
       .recover {
         case ex: MongoException =>
           logger.warn(s"$fullLoggingContext - " +
-            s"MongoDB returned an error during failed attempt count with message: ${ex.getMessage}"
+            s"MongoDB returned an error during failed attempt count with error message: ${ex.getMessage}"
           )
           throw ex
       }

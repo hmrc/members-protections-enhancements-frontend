@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.requests.{DataRequest, IdentifierRequest, UserType}
+import play.api.Logging
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
@@ -40,25 +41,34 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   checkAndRetrieveService: MembersCheckAndRetrieveService,
                                   failedAttemptService: FailedAttemptService)
                                  (implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
-  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+  val classLoggingContext: String = "ResultsController"
+
+  def onPageLoad(): Action[AnyContent] = handle(implicit request => {
+    val methodLoggingContext: String = "onPageLoad"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
     getUserData(request) match {
       case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
         checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)).flatMap {
-          case Right(value) => Future.successful(Ok(
-            view(
-              memberDetails = memberDetails,
-              membersDob = membersDob,
-              membersNino = membersNino,
-              membersPsaCheckRef = membersPsaCheckRef,
-              backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
-              formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
-              protectionRecordDetails = value
-            )
-          ))
+          case Right(value) =>
+            logger.info(s"$fullLoggingContext - Successfully retrieved results for supplied details")
+            Future.successful(Ok(
+              view(
+                memberDetails = memberDetails,
+                membersDob = membersDob,
+                membersNino = membersNino,
+                membersPsaCheckRef = membersPsaCheckRef,
+                backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
+                formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
+                protectionRecordDetails = value
+              )
+            ))
           case _ =>
             implicit val req: IdentifierRequest[AnyContent] = request.toIdentifierRequest
+            logger.warn(s"$fullLoggingContext - Failed to retrieve results for supplied details")
+
             failedAttemptService.handleFailedAttempt(
               Redirect(routes.UnauthorisedController.onPageLoad())
             )(
@@ -69,5 +79,5 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
       case _ =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
-  }
+  })
 }
