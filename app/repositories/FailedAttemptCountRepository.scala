@@ -22,10 +22,12 @@ import models.mongo.CacheUserDetails
 import models.requests.IdentifierRequest
 import org.mongodb.scala.MongoException
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
+import play.api.Logging
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
 
 import java.util.concurrent.TimeUnit
+import javax.cache.CacheException
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[FailedAttemptCountRepositoryImpl])
@@ -57,9 +59,16 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       )
     ),
     replaceIndexes = true
-  ) with FailedAttemptCountRepository {
+  ) with FailedAttemptCountRepository with Logging {
 
-  def addFailedAttempt()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Unit] =
+  val classLoggingContext: String = "FailedAttemptCountRepository"
+
+  def addFailedAttempt()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Unit] = {
+    val methodLoggingContext: String = "addFailedAttempt"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
+    logger.info(s"$fullLoggingContext - Received request to add failed attempt for user")
+
     collection
       .insertOne(
         document = CacheUserDetails(
@@ -70,21 +79,42 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       )
       .toFuture()
       .map {
-        case res if res.wasAcknowledged() => ()
-        case _ => ??? //TODO Throw a fatal exception
+        case res if res.wasAcknowledged() =>
+          logger.info(s"$fullLoggingContext - Successfully created failed attempt for user")
+        case _ =>
+          logger.warn(s"$fullLoggingContext - Failed attempt was not added successfully to MongoDB")
+          throw new CacheException("Failed to add user failed attempt to MongoDB")
       }
       .recover {
-        case _: MongoException => ???
+        case ex: MongoException =>
+          logger.warn(s"$fullLoggingContext - " +
+            s"MongoDB returned an error during failed attempt creation with message: ${ex.getMessage}"
+          )
+          throw ex
       }
+  }
 
   def countFailedAttempts()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Long] = {
+    val methodLoggingContext: String = "countFailedAttempts"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
+    logger.info(s"$fullLoggingContext - Received request to count failed attempts for user")
+
     collection
       .countDocuments(
         filter = Filters.equal(fieldName = "internalId", value = request.userDetails.userId)
       )
       .toFuture()
+      .map(res => {
+        logger.info(s"Successfully retrieved failed attempt count for user of: $res")
+        res
+      })
       .recover {
-        case _: MongoException => ???
+        case ex: MongoException =>
+          logger.warn(s"$fullLoggingContext - " +
+            s"MongoDB returned an error during failed attempt count with message: ${ex.getMessage}"
+          )
+          throw ex
       }
   }
 }
