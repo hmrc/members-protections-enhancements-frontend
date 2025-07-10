@@ -38,7 +38,9 @@ trait FailedAttemptService {
 @Singleton
 class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedAttemptLockoutRepository,
                                          failedAttemptCountRepository: FailedAttemptCountRepository,
-                                         frontendAppConfig: FrontendAppConfig) extends Logging {
+                                         frontendAppConfig: FrontendAppConfig)
+  extends FailedAttemptService with Logging {
+
   private val classLoggingContext: String = "FailedAttemptService"
 
   def checkForLockout()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean] = {
@@ -69,7 +71,7 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
     logger.info(s"$fullLoggingContext - Attempting to check if failed attempt threshold has been exceeded for user")
 
     failedAttemptCountRepository.countFailedAttempts().map {
-      case count if count < frontendAppConfig.lockoutThreshold =>
+      case count if count <= frontendAppConfig.lockoutThreshold =>
         logger.info(s"$fullLoggingContext - Failed attempt threshold not exceeded")
         false
       case count =>

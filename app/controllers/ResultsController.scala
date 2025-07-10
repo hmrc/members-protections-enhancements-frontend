@@ -70,7 +70,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
             logger.warn(s"$fullLoggingContext - Failed to retrieve results for supplied details")
 
             failedAttemptService.handleFailedAttempt(
-              Redirect(routes.UnauthorisedController.onPageLoad())
+              Redirect(routes.LockedOutController.onPageLoad())
             )(
               Redirect(routes.NoResultsController.onPageLoad())
             )

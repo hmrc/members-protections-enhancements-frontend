@@ -17,19 +17,13 @@
 package controllers.actions
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
-import config.{Constants, FrontendAppConfig}
+import config.FrontendAppConfig
 import controllers.routes
-import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
-import models.requests.{IdentifierRequest, UserType}
+import models.requests.IdentifierRequest
 import play.api.Logging
 import play.api.mvc.Results._
 import play.api.mvc._
 import services.FailedAttemptService
-import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, authorisedEnrolments, internalId}
-import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -56,7 +50,7 @@ class CheckLockoutActionImpl @Inject()(val config: FrontendAppConfig,
           None
         case true =>
           logger.warn(s"$fullLoggingContext - User has been locked out. Redirecting to lockout page")
-          Some(Redirect(routes.UnauthorisedController.onPageLoad())) //TODO - replace with real page
+          Some(Redirect(routes.LockedOutController.onPageLoad()))
       }
     } else {
       logger.info(s"$fullLoggingContext - Lockout service disabled")
