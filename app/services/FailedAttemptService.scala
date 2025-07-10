@@ -21,6 +21,7 @@ import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.requests.IdentifierRequest
 import play.api.Logging
+import play.api.mvc.Result
 import repositories.{FailedAttemptCountRepository, FailedAttemptLockoutRepository}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -72,7 +73,8 @@ class FailedAttemptService @Inject()(failedAttemptLockoutRepository: FailedAttem
     )
   }
 
-  def handleFailedAttempt()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean] = {
+  def handleFailedAttempt(lockoutResult: Result)(noLockoutResult: Result)
+                         (implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Result] = {
     failedAttemptCountRepository
       .addFailedAttempt()
       .flatMap(
@@ -81,9 +83,9 @@ class FailedAttemptService @Inject()(failedAttemptLockoutRepository: FailedAttem
       .map {
         case true =>
           createLockout()
-          true
+          lockoutResult
         case false =>
-          false
+          noLockoutResult
       }
 
   }

@@ -18,14 +18,17 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
+import models.requests.{DataRequest, IdentifierRequest, UserType}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
-import services.MembersCheckAndRetrieveService
+import services.{FailedAttemptService, MembersCheckAndRetrieveService}
 import utils.DateTimeFormats
 import views.html.ResultsView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.language.implicitConversions
 
 class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   identify: IdentifierAction,
@@ -34,15 +37,16 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   val controllerComponents: MessagesControllerComponents,
                                   view: ResultsView,
                                   dateTimeProvider: DateTimeProvider,
-                                  checkAndRetrieveService: MembersCheckAndRetrieveService)
+                                  checkAndRetrieveService: MembersCheckAndRetrieveService,
+                                  failedAttemptService: FailedAttemptService)
                                  (implicit ec: ExecutionContext)
   extends MpeBaseController(identify, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
     getUserData(request) match {
       case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
-        checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)).map {
-          case Right(value) => Ok(
+        checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)).flatMap {
+          case Right(value) => Future.successful(Ok(
             view(
               memberDetails = memberDetails,
               membersDob = membersDob,
@@ -52,9 +56,15 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
               formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
               protectionRecordDetails = value
             )
-          )
+          ))
           case _ =>
-            Redirect(routes.NoResultsController.onPageLoad())
+            implicit val req: IdentifierRequest[AnyContent] = request.toIdentifierRequest
+            failedAttemptService.handleFailedAttempt(
+              Redirect(routes.UnauthorisedController.onPageLoad())
+            )(
+              Redirect(routes.NoResultsController.onPageLoad())
+            )
+
         }
       case _ =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
