@@ -16,7 +16,6 @@
 
 package utils
 
-import models.errors.MpeError
 import models.response.ProtectionRecordDetails
 import play.api.http.Status._
 import play.api.libs.json.{JsError, JsResultException, JsSuccess, JsValue}
@@ -38,12 +37,12 @@ trait HttpResponseHelper extends HttpErrorFunctions {
         throw new UnrecognisedHttpResponseException(httpMethod, url, response)
     }
 
-  def handleSuccessResponse(response: JsValue): Either[MpeError, ProtectionRecordDetails] =
+  def handleSuccessResponse(response: JsValue): ProtectionRecordDetails =
     response.validate[ProtectionRecordDetails] match {
-      case JsSuccess(value, _) => Right(value)
+      case JsSuccess(value, _) => value
       case JsError(errors) => throw JsResultException(errors)
     }
 }
 
 class UnrecognisedHttpResponseException(method: String, url: String, response: HttpResponse)
-  extends Exception(s"$method to $url failed with status ${response.status}. Response body: '${response.body}'")
+  extends Exception(s"$method to $url failed with status ${response.status}. Response body: '${response}'")

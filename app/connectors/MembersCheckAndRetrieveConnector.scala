@@ -55,7 +55,7 @@ class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2,
         response.status match {
             case OK =>
               logger.info(s"Response from the NPS: ${Json.prettyPrint(response.json)}")
-              handleSuccessResponse(response.json)
+              Right(handleSuccessResponse(response.json))
             case NOT_FOUND => Left(NotFoundError)
             case _ => handleErrorResponse("POST", checkAndRetrieveUrl.toString)(response)
           }

@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-package models.requests
+package pages
 
-import models.UserAnswers
-import play.api.mvc.{Request, WrappedRequest}
-
-case class DataRequest[A] (
-                            request: Request[A],
-                            userDetails: UserDetails,
-                            userAnswers: UserAnswers) extends WrappedRequest[A](request)
+case object CheckYourAnswersPage extends Page

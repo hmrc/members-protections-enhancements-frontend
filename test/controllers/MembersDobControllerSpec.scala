@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import forms.MembersDobFormProvider
 import models.{MemberDetails, MembersDob, NormalMode}
-import pages.WhatIsTheMembersNamePage
+import pages.{MembersDobPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -51,6 +51,26 @@ class MembersDobControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and pre-fill the form when data is already present" in {
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(10, 3, 2014)).success.value
+
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[MembersDobView]
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(MembersDob(10, 3, 2014)), viewModel, "Pearl Harvey")(request, messages(application)).toString
       }
     }
 
@@ -93,6 +113,21 @@ class MembersDobControllerSpec extends SpecBase {
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString
 
+      }
+    }
+
+    "must redirect to WhatIsTheMembersNamePage when no members details exists" in {
+
+      val userAnswers = emptyUserAnswers
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
       }
     }
   }

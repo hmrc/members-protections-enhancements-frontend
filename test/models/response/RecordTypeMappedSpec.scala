@@ -34,6 +34,7 @@ class RecordTypeMappedSpec extends SpecBase {
       "PENSION CREDIT RIGHTS S220" -> PensionCreditRightsPreviouslyCrystallised,
       "INTERNATIONAL ENHANCEMENT S221" -> InternationalEnhancementRelevantIndividual,
       "INTERNATIONAL ENHANCEMENT S224" -> InternationalEnhancementTransfer,
+      "PENSION CREDIT RIGHTS" -> PensionCreditRights,
       // Also check that LTA protections are correctly read and mapped
       "FIXED PROTECTION LTA" -> FixedProtection,
       "FIXED PROTECTION 2014 LTA" -> FixedProtection2014,
