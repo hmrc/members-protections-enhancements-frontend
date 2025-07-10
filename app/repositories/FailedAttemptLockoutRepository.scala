@@ -16,7 +16,7 @@
 
 package repositories
 
-import com.google.inject.{Inject, Singleton}
+import com.google.inject.{ImplementedBy, Inject, Singleton}
 import com.mongodb.DuplicateKeyException
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
@@ -29,12 +29,18 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
+@ImplementedBy(classOf[FailedAttemptLockoutRepositoryImpl])
+trait FailedAttemptLockoutRepository {
+  def putCache(cacheId: String)(data: CacheUserDetails)(implicit ec: ExecutionContext): Future[Unit]
+  def getFromCache(cacheId: String): Future[Option[CacheUserDetails]]
+}
+
 @Singleton
-class FailedAttemptLockoutRepository @Inject()(mongoComponent: MongoComponent,
+class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponent,
                                                frontendAppConfig: FrontendAppConfig,
                                                timestampSupport: TimestampSupport)
                                               (implicit ec: ExecutionContext)
-  extends EntityCache[String, CacheUserDetails] {
+  extends EntityCache[String, CacheUserDetails] with FailedAttemptLockoutRepository {
 
   lazy val format: Format[CacheUserDetails] = CacheUserDetails.mongoFormat
 
