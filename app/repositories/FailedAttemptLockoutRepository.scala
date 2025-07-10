@@ -21,11 +21,13 @@ import com.mongodb.DuplicateKeyException
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import org.mongodb.scala.MongoException
+import play.api.Logging
 import play.api.libs.json.{Format, Json, Writes}
 import uk.gov.hmrc.mongo.cache.{CacheIdType, CacheItem, DataKey, EntityCache, MongoCacheRepository}
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
 
 import java.util.concurrent.TimeUnit
+import javax.cache.CacheException
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,7 +42,9 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
                                                frontendAppConfig: FrontendAppConfig,
                                                timestampSupport: TimestampSupport)
                                               (implicit ec: ExecutionContext)
-  extends EntityCache[String, CacheUserDetails] with FailedAttemptLockoutRepository {
+  extends EntityCache[String, CacheUserDetails] with FailedAttemptLockoutRepository with Logging {
+
+  val classLoggingContext: String = "FailedAttemptLockoutRepository"
 
   lazy val format: Format[CacheUserDetails] = CacheUserDetails.mongoFormat
 
@@ -52,6 +56,9 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
       cacheIdType = CacheIdType.SimpleCacheId
     ) {
     override def put[A: Writes](cacheId: String)(dataKey: DataKey[A], data: A): Future[CacheItem] = {
+      val methodLoggingContext: String = "put"
+      val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
       val id = CacheIdType.SimpleCacheId.run(cacheId)
       val timestamp = timestampSupport.timestamp()
 
@@ -62,16 +69,28 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
         modifiedAt = timestamp
       )
 
+      logger.info(s"$fullLoggingContext - Received request to create lockout for user")
+
       cacheRepo.collection
         .insertOne(cacheItem)
         .toFuture()
         .map {
-          case res if res.wasAcknowledged() => cacheItem
-          case _ => ???
+          case res if res.wasAcknowledged() =>
+            logger.info(s"$fullLoggingContext - Successfully created lockout for user")
+            cacheItem
+          case _ =>
+            logger.warn(s"$fullLoggingContext - Lockout was not added successfully to MongoDB")
+            throw new CacheException("Failed to add user lockout to MongoDB")
         }
         .recover {
-          case _: DuplicateKeyException => ???
-          case _: MongoException => ???
+          case ex: DuplicateKeyException =>
+            logger.warn(s"$fullLoggingContext - Lockout entry already exists for user")
+            throw ex
+          case ex: MongoException =>
+            logger.warn(s"$fullLoggingContext - " +
+              s"MongoDB returned an error during lockout creation with message: ${ex.getMessage}"
+            )
+            throw ex
         }
     }
   }
