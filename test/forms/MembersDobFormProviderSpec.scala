@@ -102,6 +102,44 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         )
       }
 
+      "decimal values are submitted" in {
+        val day = 3.33
+        val month = 2.22
+        val year = 1.11
+
+        val data = Map(
+          s"$formField.day" -> day.toString,
+          s"$formField.month" -> month.toString,
+          s"$formField.year" -> year.toString
+        )
+        val result = form.bind(data)
+        result.errors must have length 3
+        result.errors.flatMap(_.messages) mustBe Seq(
+          "membersDob.error.invalidOrMissing.day",
+          "membersDob.error.invalidOrMissing.month",
+          "membersDob.error.invalidOrMissing.year"
+        )
+      }
+
+      "non-numeric values are submitted" in {
+        val day = "a"
+        val month = "b"
+        val year = "c"
+
+        val data = Map(
+          s"$formField.day" -> day,
+          s"$formField.month" -> month,
+          s"$formField.year" -> year
+        )
+        val result = form.bind(data)
+        result.errors must have length 3
+        result.errors.flatMap(_.messages) mustBe Seq(
+          "membersDob.error.invalidOrMissing.day",
+          "membersDob.error.invalidOrMissing.month",
+          "membersDob.error.invalidOrMissing.year"
+        )
+      }
+
       "fields are missing or empty" in {
         val data = Map(
           s"$formField.day" -> " ",
@@ -143,6 +181,20 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         val result = form.bind(data)
         result.errors must have length 1
         result.errors.flatMap(_.messages) must contain(messages("membersDob.error.futureDate"))
+      }
+
+      "supplied data represents a less than min date" in {
+        val futureDate: LocalDate = LocalDate.of(1900, 1, 1).minusDays(1)
+        val (day, month, year) = (futureDate.getDayOfMonth, futureDate.getMonthValue, futureDate.getYear)
+
+        val data = Map(
+          s"$formField.day" -> day.toString,
+          s"$formField.month" -> month.toString,
+          s"$formField.year" -> year.toString
+        )
+        val result = form.bind(data)
+        result.errors must have length 1
+        result.errors.flatMap(_.messages) must contain(messages("membersDob.error.invalidOrMissing.year"))
       }
     }
   }

@@ -38,7 +38,10 @@ class ResultsViewSpec extends SpecBase {
         view.html must include (messages(app)("results.title"))
         view.getElementsByTag("h1").text() mustBe messages(app)("results.heading")
       }
-
+      "with correct breadcrumbs" in new Setup {
+        view.getElementsByClass("govuk-breadcrumbs__link").first().text() mustBe messages(app)("results.breadcrumbs.mps")
+        view.getElementsByClass("govuk-breadcrumbs__link").last().text() mustBe messages(app)("results.breadcrumbs.mpe")
+      }
       "with expected user details section" in new Setup {
         view.html must include (messages(app)("results.memberDetails.heading"))
         view.html must include (messages(app)("membersName.name"))

@@ -16,11 +16,15 @@
 
 package utils
 
+import models.response.RecordStatusMapped.Active
+import models.response.RecordTypeMapped.FixedProtection2016
+import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import org.scalacheck.Gen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.http.Status._
+import play.api.libs.json.JsResultException
 import uk.gov.hmrc.http._
 
 // scalastyle:off magic.number
@@ -31,7 +35,46 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
 
   "handleErrorResponse" should "transform Bad Request into BadRequestException" in {
     val response = responseFor(BAD_REQUEST)
-    a[BadRequestException] should be thrownBy fixture()(response)
+    a[BadRequestException] should be thrownBy failure()(response)
+  }
+
+  "handleSuccessResponse" should "throw JsResultException for invalid json" in {
+    val response = HttpResponse(OK, "{}")
+    a[JsResultException] should be thrownBy success()(response)
+  }
+
+  "handleSuccessResponse" should "return a valid response" in {
+
+    val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
+      ProtectionRecord(
+        protectionReference = Some("some-id"),
+        `type` = FixedProtection2016,
+        status = Active,
+        protectedAmount = Some(1),
+        lumpSumAmount = Some(1),
+        lumpSumPercentage = Some(1),
+        enhancementFactor = Some(0.5)
+      )
+    ))
+
+    val res: String =
+      """
+        |{
+        | "protectionRecords": [
+        |   {
+        |     "protectionReference": "some-id",
+        |     "type": "FIXED PROTECTION 2016",
+        |     "status": "OPEN",
+        |     "protectedAmount": 1,
+        |     "lumpSumAmount": 1,
+        |     "lumpSumPercentage": 1,
+        |     "enhancementFactor": 0.5
+        |   }
+        | ]
+        |}""".stripMargin
+
+    val response = HttpResponse(OK, res)
+    testModel shouldBe success()(response)
   }
 
   it should "transform any other 4xx into Upstream4xxResponse" in {
@@ -39,7 +82,7 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
 
     forAll(userErrors) {
       userError =>
-        val ex = the[UpstreamErrorResponse] thrownBy fixture()(responseFor(userError))
+        val ex = the[UpstreamErrorResponse] thrownBy failure()(responseFor(userError))
         ex.reportAs shouldBe userError
         ex.statusCode shouldBe userError
     }
@@ -50,7 +93,7 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
 
     forAll(serverErrors) {
       serverError =>
-        val ex = the[UpstreamErrorResponse] thrownBy fixture()(responseFor(serverError))
+        val ex = the[UpstreamErrorResponse] thrownBy failure()(responseFor(serverError))
         ex.reportAs shouldBe BAD_GATEWAY
         ex.statusCode shouldBe serverError
     }
@@ -61,7 +104,7 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
 
     forAll(statuses) {
       status =>
-        an[UnrecognisedHttpResponseException] should be thrownBy fixture()(responseFor(status))
+        an[UnrecognisedHttpResponseException] should be thrownBy failure()(responseFor(status))
     }
   }
 
@@ -69,11 +112,14 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
 
 object HttpResponseHelperSpec {
 
-  def fixture(): HttpResponse => Nothing = {
+  def failure(): HttpResponse => Nothing = {
     new HttpResponseHelper {}.handleErrorResponse("test-mnethod", "test-url")
   }
 
-  def responseFor(status: Int): HttpResponse = HttpResponse(status, s"Message for $status")
+  def success(): HttpResponse => ProtectionRecordDetails = res => {
+    new HttpResponseHelper {}.handleSuccessResponse(res.json)
+  }
 
+  def responseFor(status: Int): HttpResponse = HttpResponse(status, s"Message for $status")
 
 }

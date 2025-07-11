@@ -19,6 +19,7 @@ package controllers
 import base.SpecBase
 import forms.WhatIsTheMembersNameFormProvider
 import models.{MemberDetails, NormalMode}
+import pages.WhatIsTheMembersNamePage
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -48,6 +49,23 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and pre-fill the form when data is already present" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val application = applicationBuilder(userAnswers = userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        val view = application.injector.instanceOf[WhatIsTheMembersNameView]
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form.fill(MemberDetails("Pearl", "Harvey")), viewModel)(request, messages(application)).toString
       }
     }
 

@@ -29,6 +29,18 @@ import views.html.WhatYouWillNeedView
 class WhatYouWillNeedViewSpec extends SpecBase {
 
   "view" - {
+
+    "with correct Mpe gov banner" in new Setup {
+      view.getElementsByClass("govuk-header__link govuk-header__service-name").text() mustBe messages(app)("service.name")
+      view.getElementsByClass("govuk-link hmrc-sign-out-nav__link").attr("href") mustBe
+        "/members-protections-and-enhancements/account/sign-out-survey"
+    }
+
+    "with correct breadcrumbs" in new Setup {
+      view.getElementsByClass("govuk-breadcrumbs__link").first().text() mustBe messages(app)("results.breadcrumbs.mps")
+      view.getElementsByClass("govuk-breadcrumbs__link").last().text() mustBe messages(app)("results.breadcrumbs.mpe")
+    }
+
     "display correct guidance and text" in new Setup {
 
       view.getElementsByTag("h1").text() mustBe messages(app)("whatYouWillNeed.heading")
@@ -38,6 +50,15 @@ class WhatYouWillNeedViewSpec extends SpecBase {
       view.text.contains(messages(app)("whatYouWillNeed.dob"))
       view.text.contains(messages(app)("whatYouWillNeed.nino"))
       view.text.contains(messages(app)("whatYouWillNeed.pension-scheme-admin-check-ref"))
+
+      view.text.contains(messages(app)("whatYouWillNeed.guidance.p1"))
+      view.text.contains(messages(app)("whatYouWillNeed.guidance.p2"))
+      view.text.contains(messages(app)("whatYouWillNeed.guidance.li.1"))
+
+      view.getElementsByClass("govuk-list govuk-list--bullet govuk-!-margin-bottom-6").last().getElementsByTag("a").text() mustBe
+        messages(app)("whatYouWillNeed.guidance.li.2.linkText")
+      view.getElementsByClass("govuk-list govuk-list--bullet govuk-!-margin-bottom-6").last().getElementsByTag("a").attr("href") mustBe
+        "https://www.gov.uk/guidance/pension-schemes-protect-your-lifetime-allowance"
     }
   }
 

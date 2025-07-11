@@ -19,6 +19,7 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import models._
+import pages.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -58,6 +59,6 @@ class CheckYourAnswersController @Inject()(
   }
 
   def onSubmit: Action[AnyContent] = handle { _ =>
-      Future.successful(Redirect(routes.ResultsController.onPageLoad()))
+      Future.successful(Redirect(submitUrl(NormalMode, CheckYourAnswersPage)))
   }
 }

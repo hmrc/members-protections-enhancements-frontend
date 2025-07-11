@@ -44,8 +44,18 @@ class MembersNinoFormProviderSpec extends FieldBehaviours {
       result mustBe Some(MembersNino("12A12345"))
     }
 
+    "return a success for a TRN removing spaces" in {
+      val result = form.bind(Map("nino" -> "12A12345")).value
+      result mustBe Some(MembersNino("  12A  12 345   "))
+    }
+
     "return a success for a NINO" in {
       val result = form.bind(Map("nino" -> "AA123456A")).value
+      result mustBe Some(MembersNino("AA123456A"))
+    }
+
+    "return a success for a NINO removing spaces" in {
+      val result = form.bind(Map("nino" -> "  AA 1234 56A  ")).value
       result mustBe Some(MembersNino("AA123456A"))
     }
 

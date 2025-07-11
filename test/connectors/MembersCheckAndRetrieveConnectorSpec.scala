@@ -17,142 +17,112 @@
 package connectors
 
 import base.SpecBase
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import models.errors.NotFoundError
 import models.requests.PensionSchemeMemberRequest
-import org.scalatest.RecoverMethods.recoverToSucceededIf
+import models.response.RecordStatusMapped.Active
+import models.response.RecordTypeMapped.FixedProtection2016
+import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import play.api.Application
 import play.api.http.Status._
-import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, NotFoundException, UpstreamErrorResponse}
+import play.api.libs.json.Json
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, UpstreamErrorResponse}
 import utils.UnrecognisedHttpResponseException
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
 
-  private val checkAndRetrieveUrl = "members-protections-and-enhancements/check-and-retrieve"
+  trait Test {
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+    val app: Application = applicationBuilder(emptyUserAnswers).build()
 
-  private implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
+    val connector: MembersCheckAndRetrieveConnector = app.injector.instanceOf[MembersCheckAndRetrieveConnector]
 
-  val connector: MembersCheckAndRetrieveConnector = app.injector.instanceOf[MembersCheckAndRetrieveConnector]
+    val pensionSchemeMemberRequest: PensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2022-01-01", "AB123456A", "PSA12345678A")
 
-  val request = PensionSchemeMemberRequest(
-    firstName = "Naren",
-    lastName = "Vijay",
-    dateOfBirth = "2024-12-31",
-    nino = "QQ123456C",
-    psaCheckRef = "PSA12345678A"
-  )
+    val checkAndRetrieveUrl = "/members-protections-and-enhancements/check-and-retrieve"
+
+    val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
+      ProtectionRecord(
+        protectionReference = Some("some-id"),
+        `type` = FixedProtection2016,
+        status = Active,
+        protectedAmount = Some(1),
+        lumpSumAmount = Some(1),
+        lumpSumPercentage = Some(1),
+        enhancementFactor = Some(0.5)
+      )
+    ))
+
+    def setUpStubs(status: Int, response: String): StubMapping = stubPost(checkAndRetrieveUrl, Json.toJson(pensionSchemeMemberRequest).toString(),
+      aResponse().withStatus(status).withBody(response))
+  }
 
   "checkAndRetrieve" - {
-    "return valid response with status 200 for a valid submission" in {
+    "return valid response with status 200 for a valid submission" in new Test {
 
-      val response =
-        """{
-          |"statusCode": "200",
-          |"message": "search successful, member details exists"
+      val response: String =
+        """
+          |{
+          | "protectionRecords": [
+          |   {
+          |     "protectionReference": "some-id",
+          |     "type": "FIXED PROTECTION 2016",
+          |     "status": "OPEN",
+          |     "protectedAmount": 1,
+          |     "lumpSumAmount": 1,
+          |     "lumpSumPercentage": 1,
+          |     "enhancementFactor": 0.5
+          |   }
+          | ]
           |}""".stripMargin
 
-      server.stubFor(
-        post(urlEqualTo(s"$checkAndRetrieveUrl"))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(response)
-          )
-      )
+      setUpStubs(OK, response)
 
-      connector.checkAndRetrieve(request).map(
-        result => {
-          result shouldBe response
-          server.findAll(postRequestedFor(urlEqualTo(s"$checkAndRetrieveUrl"))).size() shouldBe 1
-        }
-      )
-
+      private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+      result shouldBe Right(testModel)
+      WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
     }
   }
 
-  "throw BadRequestException when the downstream return BAD_REQUEST response" in {
-    server.stubFor(
-      post(urlEqualTo(s"$checkAndRetrieveUrl"))
-        .willReturn(
-          aResponse()
-            .withStatus(BAD_REQUEST)
-        )
-    )
+  "return NotFoundError when the downstream return NOT_FOUND response" in new Test {
+    setUpStubs(NOT_FOUND, "")
 
-    recoverToSucceededIf[BadRequestException] {
-      connector.checkAndRetrieve(request.copy(nino = ""))
-    } map {
-      _ =>
-        server.findAll(postRequestedFor(urlEqualTo(s"$checkAndRetrieveUrl"))).size() shouldBe 1
-    }
+    private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    result shouldBe Left(NotFoundError)
+    WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 
-  "throw NotFoundException when the downstream return NOT_FOUND response" in {
-    server.stubFor(
-      post(urlEqualTo(s"$checkAndRetrieveUrl"))
-        .willReturn(
-          aResponse()
-            .withStatus(NOT_FOUND)
-        )
-    )
+  "throw BadRequestException when the downstream return BAD_REQUEST response" in new Test {
+    setUpStubs(BAD_REQUEST, "")
 
-    recoverToSucceededIf[NotFoundException] {
-      connector.checkAndRetrieve(request)
-    } map {
-      _ =>
-        server.findAll(postRequestedFor(urlEqualTo(s"$checkAndRetrieveUrl"))).size() shouldBe 1
-    }
+    a[BadRequestException] should be thrownBy await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 
-  "throw UpstreamErrorResponse when the downstream return any 4xx status response" in {
-    server.stubFor(
-      post(urlEqualTo(s"$checkAndRetrieveUrl"))
-        .willReturn(
-          aResponse()
-            .withStatus(FORBIDDEN)
-        )
-    )
+  "throw UpstreamErrorResponse when the downstream return any response with status 4xx" in new Test {
+    setUpStubs(FORBIDDEN, "")
 
-    recoverToSucceededIf[UpstreamErrorResponse] {
-      connector.checkAndRetrieve(request)
-    } map {
-      _ =>
-        server.findAll(postRequestedFor(urlEqualTo(s"$checkAndRetrieveUrl"))).size() shouldBe 1
-    }
+    a[UpstreamErrorResponse] should be thrownBy await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 
-  "throw UpstreamErrorResponse when the downstream return any 5xx status response" in {
-    server.stubFor(
-      post(urlEqualTo(s"$checkAndRetrieveUrl"))
-        .willReturn(
-          aResponse()
-            .withStatus(BAD_GATEWAY)
-        )
-    )
+  "throw UpstreamErrorResponse when the downstream return any response with status 5xx" in new Test {
+    setUpStubs(INTERNAL_SERVER_ERROR, "")
 
-    recoverToSucceededIf[UpstreamErrorResponse] {
-      connector.checkAndRetrieve(request)
-    } map {
-      _ =>
-        server.findAll(postRequestedFor(urlEqualTo(s"$checkAndRetrieveUrl"))).size() shouldBe 1
-    }
+    a[UpstreamErrorResponse] should be thrownBy await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 
-  "throw UnrecognisedHttpResponseException when the downstream return unknown error response" in {
-    server.stubFor(
-      post(urlEqualTo(s"$checkAndRetrieveUrl"))
-        .willReturn(
-          aResponse()
-            .withStatus(MOVED_PERMANENTLY)
-        )
-    )
+  "throw UnrecognisedHttpResponseException when the downstream return unknown error response" in new Test {
+    setUpStubs(MULTIPLE_CHOICES, "")
 
-    recoverToSucceededIf[UnrecognisedHttpResponseException] {
-      connector.checkAndRetrieve(request)
-    } map {
-      _ =>
-        server.findAll(postRequestedFor(urlEqualTo(s"$checkAndRetrieveUrl"))).size() shouldBe 1
-    }
+    a[UnrecognisedHttpResponseException] should be thrownBy await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 }

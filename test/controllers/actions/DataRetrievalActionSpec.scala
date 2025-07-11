@@ -24,6 +24,7 @@ import models.requests.{DataRequest, IdentifierRequest}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.libs.json.JsObject
 import play.api.test.FakeRequest
 import repositories.SessionRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -47,12 +48,13 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
       "must set userAnswers to 'None' in the request" in {
 
         val sessionRepository = mock[SessionRepository]
-        when(sessionRepository.get(any())) thenReturn Future(Some(userAnswers))
+        when(sessionRepository.get(any())) thenReturn Future(None)
         val action = new Harness(sessionRepository)
 
         val result = action.callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id","A2100001", PSA, FakeRequest())).futureValue
 
-        result.userAnswers mustBe userAnswers
+        result.userAnswers.data mustBe JsObject.empty
+        result.userAnswers.id mustBe "id"
       }
     }
 

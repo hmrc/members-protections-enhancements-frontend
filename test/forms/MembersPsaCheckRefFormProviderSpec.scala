@@ -44,5 +44,14 @@ class MembersPsaCheckRefFormProviderSpec extends FieldBehaviours {
 
       result.value mustBe Some(MembersPsaCheckRef("PSA12345678A"))
     }
+
+
+    "accept a valid psaCheckRef with spaces" in {
+      val result: Form[MembersPsaCheckRef] = form.bind(
+        Map("psaCheckRef" -> "   PSA 12 3 4 5 6 78 a    ")
+      )
+
+      result.value mustBe Some(MembersPsaCheckRef("PSA12345678A"))
+    }
   }
 }
