@@ -21,8 +21,7 @@
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("lockedOut.title")),
-    timeout   = false
+    pageTitle = titleNoForm(messages("lockedOut.title"))
 ) {
 
     <h1 class="govuk-heading-xl">@messages("lockedOut.heading")</h1>

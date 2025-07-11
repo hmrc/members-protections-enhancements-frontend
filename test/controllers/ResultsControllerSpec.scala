@@ -18,22 +18,31 @@ package controllers
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models._
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
+import org.mockito.ArgumentMatchers
+import org.mockito.Mockito.when
+import org.mockito.stubbing.OngoingStubbing
 import pages._
+import play.api.{Application, inject}
 import play.api.http.Status.OK
 import play.api.libs.json.Json
+import play.api.mvc.Result
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.FailedAttemptService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.ResultsView
 
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
 import java.util.Locale
+import scala.concurrent.Future
 
 class ResultsControllerSpec extends SpecBase {
 
@@ -45,21 +54,46 @@ class ResultsControllerSpec extends SpecBase {
     val membersNino: MembersNino = MembersNino("AB123456A")
     val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
 
-    val userAnswers = emptyUserAnswers
+    val mockService: FailedAttemptService = mock[FailedAttemptService]
+    val checkLockoutResult: Option[Result] = None
+
+    val userAnswers: UserAnswers = emptyUserAnswers
       .set(page = WhatIsTheMembersNamePage, value = memberDetails).success.value
       .set(page = MembersDobPage, value = membersDob).success.value
       .set(page = MembersNinoPage, value = membersNino).success.value
       .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
 
-    val application = applicationBuilder(userAnswers = userAnswers).build()
+    lazy val application: Application = applicationBuilder(
+      userAnswers = userAnswers,
+      checkLockoutResult = checkLockoutResult
+    )
+      .overrides(
+        inject.bind(classOf[FailedAttemptService]).toInstance(mockService)
+      )
+      .build()
 
-    val backLinkRoute = routes.CheckYourAnswersController.onPageLoad().url
+    def mockFailedAttemptCheck(checkResult: Boolean = false): OngoingStubbing[Future[Boolean]] = when(
+      mockService.checkForLockout()(ArgumentMatchers.any(), ArgumentMatchers.any())
+    ).thenReturn(
+      Future.successful(checkResult)
+    )
 
-    val dateTimeWithZone = ZonedDateTime.now(ZoneId.of("Europe/London"))
-    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' h:mma")
-    val localDateTime = dateTimeWithZone.format(formatter.withLocale(Locale.UK))
+    def mockHandleFailedAttempt(result: Result): OngoingStubbing[Future[Result]] =       when(
+      mockService.handleFailedAttempt(ArgumentMatchers.any())(ArgumentMatchers.any())(
+        ArgumentMatchers.any(),
+        ArgumentMatchers.any()
+      )
+    ).thenReturn(
+      Future.successful(result)
+    )
 
-    val pensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2022-01-01", "AB123456A", "PSA12345678A")
+    val backLinkRoute: String = routes.CheckYourAnswersController.onPageLoad().url
+
+    val dateTimeWithZone: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Europe/London"))
+    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' h:mma")
+    val localDateTime: String = dateTimeWithZone.format(formatter.withLocale(Locale.UK))
+
+    val pensionSchemeMemberRequest: PensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2022-01-01", "AB123456A", "PSA12345678A")
 
     val checkAndRetrieveUrl = "/members-protections-and-enhancements/check-and-retrieve"
 
@@ -75,13 +109,30 @@ class ResultsControllerSpec extends SpecBase {
       )
     ))
 
-    def setUpStubs(status: Int, response: String) = stubPost(checkAndRetrieveUrl, Json.toJson(pensionSchemeMemberRequest).toString(),
-      aResponse().withStatus(status).withBody(response))
+    def setUpStubs(status: Int, response: String): StubMapping = stubPost(
+      url = checkAndRetrieveUrl,
+      requestBody = Json.toJson(pensionSchemeMemberRequest).toString(),
+      response = aResponse().withStatus(status).withBody(response)
+    )
   }
 
   "Results Controller" - {
-    "must return OK and the correct view for a GET" in new Test {
+    "must redirect to lockout page if the user is locked out" in new Test {
+      override val checkLockoutResult: Option[Result] = Some(
+        Redirect(routes.LockedOutController.onPageLoad())
+      )
 
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.LockedOutController.onPageLoad().url)
+      }
+    }
+
+
+    "must return OK and the correct view for a GET" in new Test {
       val response: String =
         """
           |{
@@ -118,8 +169,9 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to NoResults page when response received with 404 status" in new Test {
-
+    "must redirect to NoResults page when failed attempt threshold not exceeded for a failed attempt" in new Test {
+      mockFailedAttemptCheck()
+      mockHandleFailedAttempt(Redirect(routes.NoResultsController.onPageLoad()))
       setUpStubs(NOT_FOUND, "")
 
       running(application) {
@@ -128,6 +180,20 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.NoResultsController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Lockout page when failed attempt threshold exceeded for a failed attempt" in new Test {
+      mockFailedAttemptCheck(checkResult = true)
+      mockHandleFailedAttempt(Redirect(routes.LockedOutController.onPageLoad()))
+      setUpStubs(NOT_FOUND, "")
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.LockedOutController.onPageLoad().url
       }
     }
 

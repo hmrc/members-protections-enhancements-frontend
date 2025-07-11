@@ -20,7 +20,7 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import com.mongodb.DuplicateKeyException
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
-import org.mongodb.scala.MongoException
+import org.mongodb.scala.{MongoException, MongoWriteException}
 import play.api.Logging
 import play.api.libs.json.{Format, Json, Writes}
 import uk.gov.hmrc.mongo.cache.{CacheIdType, CacheItem, DataKey, EntityCache, MongoCacheRepository}
@@ -83,7 +83,7 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
             throw new CacheException("Failed to add user lockout to cache")
         }
         .recover {
-          case ex: DuplicateKeyException =>
+          case ex: MongoWriteException if ex.getMessage.contains("E11000 duplicate key error collection") =>
             logger.warn(s"$fullLoggingContext - Lockout entry already exists for user")
             throw ex
           case ex: MongoException =>
