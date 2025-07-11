@@ -104,14 +104,15 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
     failedAttemptCountRepository
       .addFailedAttempt()
       .flatMap(_ => checkThresholdExceeded())
-      .map {
+      .flatMap {
         case false =>
           logger.info(s"$fullLoggingContext - Returning no lockout result")
-          noLockoutResult
+          Future.successful(noLockoutResult)
         case true =>
-          createLockout()
-          logger.info(s"$fullLoggingContext - Returning lockout result")
-          lockoutResult
+          createLockout().map(_ => {
+            logger.info(s"$fullLoggingContext - Returning lockout result")
+            lockoutResult
+          })
       }
 
   }

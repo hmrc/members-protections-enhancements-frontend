@@ -16,18 +16,26 @@
 
 package controllers
 
+import controllers.actions.IdentifierAction
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.FailedAttemptService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.LockedOutView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class LockedOutController @Inject()(val controllerComponents: MessagesControllerComponents,
-                                    view: LockedOutView)
+                                    identify: IdentifierAction,
+                                    failedAttemptService: FailedAttemptService,
+                                    view: LockedOutView)(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
-    Ok(view())
+  def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
+    failedAttemptService.checkForLockout().map{
+      case true => Ok(view())
+      case false => Redirect(routes.JourneyRecoveryController.onPageLoad())
+    }
   }
 }

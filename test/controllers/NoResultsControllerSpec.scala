@@ -19,6 +19,7 @@ package controllers
 import base.SpecBase
 import models._
 import pages._
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.NoResultsView
@@ -30,6 +31,27 @@ import java.util.Locale
 class NoResultsControllerSpec extends SpecBase {
 
   "No Results Controller" - {
+    "must redirect to Lockout page if the user is locked out" in {
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(page = MembersDobPage, value = MembersDob(1, 1, 2022)).success.value
+        .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
+        .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
+
+      val application = applicationBuilder(
+        userAnswers = userAnswers,
+        checkLockoutResult = Some(Redirect(controllers.routes.LockedOutController.onPageLoad()))
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.NoResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.LockedOutController.onPageLoad().url)
+      }
+    }
+
     "must return OK and the correct view for a GET" in {
       val userAnswers = emptyUserAnswers
         .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
