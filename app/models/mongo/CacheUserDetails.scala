@@ -17,7 +17,7 @@
 package models.mongo
 
 import models.requests.{UserDetails, UserType}
-import play.api.libs.json.{Format, Json, OFormat, OWrites}
+import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant

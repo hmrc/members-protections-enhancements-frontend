@@ -16,7 +16,6 @@
 
 package repositories
 
-import com.mongodb.DuplicateKeyException
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.mongo.CacheUserDetails.mongoFormat
@@ -24,7 +23,7 @@ import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.PSA
 import org.mockito.Mockito.when
-import org.mongodb.scala.{MongoCollection, MongoWriteException}
+import org.mongodb.scala.MongoWriteException
 import org.mongodb.scala.model.Filters
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}

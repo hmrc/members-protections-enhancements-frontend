@@ -35,7 +35,7 @@ class LockedOutController @Inject()(val controllerComponents: MessagesController
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
     failedAttemptService.checkForLockout().map{
       case true => Ok(view())
-      case false => Redirect(routes.JourneyRecoveryController.onPageLoad())
+      case false => Redirect(routes.WhatYouWillNeedController.onPageLoad())
     }
   }
 }

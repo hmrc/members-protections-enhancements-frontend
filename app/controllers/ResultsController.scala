@@ -18,8 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
-import models.requests.{DataRequest, IdentifierRequest, UserType}
+import models.requests.IdentifierRequest
 import play.api.Logging
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

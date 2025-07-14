@@ -20,21 +20,21 @@ import base.SpecBase
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.requests.IdentifierRequest
-import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
+import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.{PSA, PSP}
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.{reset, when}
+import org.mockito.Mockito.when
 import play.api.http.Status.IM_A_TEAPOT
+import play.api.mvc.Results._
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, contentAsString, defaultAwaitTimeout, status}
-import play.api.mvc.Results._
 import repositories.{FailedAttemptCountRepository, FailedAttemptLockoutRepository}
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 import java.time.Instant
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class FailedAttemptServiceSpec extends SpecBase {
 

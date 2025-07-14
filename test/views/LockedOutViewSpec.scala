@@ -17,18 +17,13 @@
 package views
 
 import base.SpecBase
-import controllers.routes
-import forms.MembersNinoFormProvider
-import models.{MembersNino, NormalMode}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import viewmodels.formPage.FormPageViewModel
-import views.html.{LockedOutView, MembersNinoView}
+import views.html.LockedOutView
 
 class LockedOutViewSpec extends SpecBase {
 

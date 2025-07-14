@@ -23,8 +23,8 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.Application
 import play.api.inject.bind
-import play.api.mvc.{AnyContent, Result}
 import play.api.mvc.Results.Redirect
+import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.FailedAttemptService
@@ -86,7 +86,7 @@ class LockedOutControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to journey recovers when user is not locked out" in {
+    "must redirect to start page when user is not locked out" in {
       val mockService: FailedAttemptService = mock[FailedAttemptService]
 
       val application: Application = applicationBuilder(userAnswers = emptyUserAnswers)
@@ -104,7 +104,7 @@ class LockedOutControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.JourneyRecoveryController.onPageLoad().url)
+        redirectLocation(result) mustBe Some(routes.WhatYouWillNeedController.onPageLoad().url)
       }
     }
   }

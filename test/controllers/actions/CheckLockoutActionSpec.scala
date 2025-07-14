@@ -24,8 +24,8 @@ import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.PSA
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import play.api.mvc.{AnyContent, AnyContentAsEmpty, Result}
 import play.api.mvc.Results.Redirect
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.FailedAttemptService

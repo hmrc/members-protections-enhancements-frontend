@@ -17,13 +17,12 @@
 package repositories
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
-import com.mongodb.DuplicateKeyException
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import org.mongodb.scala.{MongoException, MongoWriteException}
 import play.api.Logging
 import play.api.libs.json.{Format, Json, Writes}
-import uk.gov.hmrc.mongo.cache.{CacheIdType, CacheItem, DataKey, EntityCache, MongoCacheRepository}
+import uk.gov.hmrc.mongo.cache._
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
 
 import java.util.concurrent.TimeUnit
