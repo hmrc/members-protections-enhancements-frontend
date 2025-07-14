@@ -23,6 +23,7 @@ import models.requests.IdentifierRequest
 import play.api.Logging
 import play.api.mvc.Results._
 import play.api.mvc._
+import repositories.SessionRepository
 import services.FailedAttemptService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,7 +33,8 @@ trait CheckLockoutAction extends ActionFilter[IdentifierRequest]
 
 @Singleton
 class CheckLockoutActionImpl @Inject()(val config: FrontendAppConfig,
-                                       failedAttemptService: FailedAttemptService)
+                                       failedAttemptService: FailedAttemptService,
+                                       sessionRepository: SessionRepository)
                                       (implicit override val executionContext: ExecutionContext)
   extends CheckLockoutAction with Logging {
 
@@ -44,13 +46,15 @@ class CheckLockoutActionImpl @Inject()(val config: FrontendAppConfig,
 
     if (config.lockoutEnabled) {
       logger.info(s"$fullLoggingContext - Checking to see to user has been locked out for failed attempts")
-      failedAttemptService.checkForLockout()(request, executionContext).map {
+      failedAttemptService.checkForLockout()(request, executionContext).flatMap {
         case false =>
           logger.info(s"$fullLoggingContext - User has not been locked out. Continuing with request")
-          None
+          Future.successful(None)
         case true =>
           logger.warn(s"$fullLoggingContext - User has been locked out. Redirecting to lockout page")
-          Some(Redirect(routes.LockedOutController.onPageLoad()))
+          sessionRepository
+            .clear(request.userDetails.userId)
+            .map(_ => Some(Redirect(routes.LockedOutController.onPageLoad())))
       }
     } else {
       logger.info(s"$fullLoggingContext - Lockout service disabled")

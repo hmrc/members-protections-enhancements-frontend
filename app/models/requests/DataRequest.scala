@@ -17,6 +17,7 @@
 package models.requests
 
 import models.UserAnswers
+import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import play.api.mvc.{Request, WrappedRequest}
 
 case class DataRequest[A] (request: Request[A],

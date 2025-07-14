@@ -28,7 +28,6 @@ import utils.DateTimeFormats
 import views.html.ResultsView
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.language.implicitConversions
 
 class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   identify: IdentifierAction,

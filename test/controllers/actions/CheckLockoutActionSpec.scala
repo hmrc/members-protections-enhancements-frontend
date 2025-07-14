@@ -23,11 +23,12 @@ import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.PSA
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.SessionRepository
 import services.FailedAttemptService
 import uk.gov.hmrc.auth.core.AffinityGroup
 
@@ -38,10 +39,12 @@ class CheckLockoutActionSpec extends SpecBase {
   trait Test {
     val mockConfig: FrontendAppConfig = mock[FrontendAppConfig]
     val mockService: FailedAttemptService = mock[FailedAttemptService]
+    val mockSessionRepo: SessionRepository = mock[SessionRepository]
 
     val testAction: CheckLockoutActionImpl = new CheckLockoutActionImpl(
       config = mockConfig,
-      failedAttemptService = mockService
+      failedAttemptService = mockService,
+      mockSessionRepo
     )
 
     val unauthorisedResult: Future[Result] = Future.successful(
@@ -88,6 +91,7 @@ class CheckLockoutActionSpec extends SpecBase {
       )
 
       when(mockConfig.lockoutEnabled).thenReturn(true)
+      when(mockSessionRepo.clear(ArgumentMatchers.any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = testAction.invokeBlock(
         request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", PSA, FakeRequest()),
@@ -96,6 +100,7 @@ class CheckLockoutActionSpec extends SpecBase {
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(controllers.routes.LockedOutController.onPageLoad().url)
+      verify(mockSessionRepo, times(1)).clear(ArgumentMatchers.any())
     }
   }
 }
