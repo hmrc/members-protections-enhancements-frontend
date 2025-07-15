@@ -79,16 +79,15 @@ class FailedAttemptLockoutRepositorySpec
 
   val cacheUserDetails: CacheUserDetails = CacheUserDetails(
     psrUserType = PSA,
-    psrUserId = "psaId",
-    internalId = Some("userId"),
+    psrUserId = Some("psaId"),
     createdAt = Some(Instant.ofEpochSecond(timeSecs))
   )
 
   "putCache" - {
     "must successfully add a new lockout" in {
-      val result: Future[Unit] = lockoutRepo.putCache("userId")(cacheUserDetails)
+      val result: Future[Unit] = lockoutRepo.putCache("psaId")(cacheUserDetails)
       await(result) mustBe()
-      val findResult: Seq[CacheItem] = find(Filters.equal("_id", "userId")).futureValue
+      val findResult: Seq[CacheItem] = find(Filters.equal("_id", "psaId")).futureValue
       findResult must have length 1
       findResult.headOption.get.data mustBe Json.obj(
         "dataKey" -> Json.toJson(cacheUserDetails)(mongoFormat)
@@ -96,7 +95,7 @@ class FailedAttemptLockoutRepositorySpec
     }
 
     "must not create duplicate entries or upsert" in {
-      def result: Future[Unit] = lockoutRepo.putCache("userId")(cacheUserDetails)
+      def result: Future[Unit] = lockoutRepo.putCache("psaId")(cacheUserDetails)
       await(result) mustBe()
 
       assertThrows[MongoWriteException](await(result))
@@ -106,8 +105,8 @@ class FailedAttemptLockoutRepositorySpec
   "getFromCache" - {
     "must successfully retrieve a matching lockout" in {
       val result: Future[Option[CacheUserDetails]] =
-        lockoutRepo.putCache("userId")(cacheUserDetails).flatMap(_ =>
-          lockoutRepo.getFromCache("userId")
+        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ =>
+          lockoutRepo.getFromCache("psaId")
         )
 
       await(result) mustBe Some(cacheUserDetails)
@@ -115,8 +114,8 @@ class FailedAttemptLockoutRepositorySpec
 
     "must return None when no entries match" in {
       val result: Future[Option[CacheUserDetails]] =
-        lockoutRepo.putCache("userId")(cacheUserDetails).flatMap(_ =>
-          lockoutRepo.getFromCache("notUserId")
+        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ =>
+          lockoutRepo.getFromCache("notPsaId")
         )
 
       await(result) mustBe None

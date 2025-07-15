@@ -53,9 +53,9 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
           .expireAfter(frontendAppConfig.failedAttemptTtl, TimeUnit.SECONDS)
       ),
       IndexModel(
-        Indexes.ascending("internalId"),
+        Indexes.ascending("psrUserId"),
         IndexOptions()
-          .name("internalIdIndex")
+          .name("psrUserIdIndex")
       )
     ),
     replaceIndexes = true
@@ -73,7 +73,7 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       .insertOne(
         document = CacheUserDetails(
           userDetails = request.userDetails,
-          withInternalId = true,
+          withPsrUserId = true,
           createdAt = Some(timestampSupport.timestamp())
         )
       )
@@ -102,7 +102,7 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
 
     collection
       .countDocuments(
-        filter = Filters.equal(fieldName = "internalId", value = request.userDetails.userId)
+        filter = Filters.equal(fieldName = "psrUserId", value = request.userDetails.psrUserId)
       )
       .toFuture()
       .map(res => {

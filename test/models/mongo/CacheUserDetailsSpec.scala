@@ -33,7 +33,6 @@ class CacheUserDetailsSpec extends SpecBase {
       |{
       | "psrUserType": "PSA",
       | "psrUserId": "anId",
-      | "internalId": "anotherId",
       | "createdAt": {
       |   "$$date": {
       |     "$$numberLong": "$instantLong"
@@ -45,8 +44,7 @@ class CacheUserDetailsSpec extends SpecBase {
 
   val testModel: CacheUserDetails = CacheUserDetails(
     psrUserType = PSA,
-    psrUserId = "anId",
-    internalId = Some("anotherId"),
+    psrUserId = Some("anId"),
     createdAt = Some(Instant.ofEpochMilli(instantLong))
   )
 
@@ -70,20 +68,20 @@ class CacheUserDetailsSpec extends SpecBase {
   }
 
   "apply" -> {
-    "should not include internal ID when flag is false" in {
+    "should not include PSR ID when flag is false" in {
       CacheUserDetails.apply(
         userDetails = UserDetails(PSA, "anId", "anotherId", AffinityGroup.Individual),
-        withInternalId = false,
+        withPsrUserId = false,
         createdAt = None
-      ) mustBe CacheUserDetails(PSA, "anId", None, None)
+      ) mustBe CacheUserDetails(PSA, None, None)
     }
 
-    "should include internal ID when flag is true" in {
+    "should include PSR ID when flag is true" in {
       CacheUserDetails.apply(
         userDetails = UserDetails(PSA, "anId", "anotherId", AffinityGroup.Individual),
-        withInternalId = true,
+        withPsrUserId = true,
         createdAt = Some(Instant.ofEpochMilli(instantLong))
-      ) mustBe CacheUserDetails(PSA, "anId", Some("anotherId"), Some(Instant.ofEpochMilli(instantLong)))
+      ) mustBe CacheUserDetails(PSA, Some("anId"), Some(Instant.ofEpochMilli(instantLong)))
     }
   }
 }

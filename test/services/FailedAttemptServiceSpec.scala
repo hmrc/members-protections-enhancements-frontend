@@ -74,8 +74,7 @@ class FailedAttemptServiceSpec extends SpecBase {
     lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(Some(
       CacheUserDetails(
         psrUserType = PSA,
-        psrUserId = "anotherId",
-        internalId = None,
+        psrUserId = None,
         createdAt = Some(Instant.ofEpochSecond(timestampSeconds))
       )
     ))
@@ -85,8 +84,8 @@ class FailedAttemptServiceSpec extends SpecBase {
 
     implicit val request: IdentifierRequest[AnyContentAsEmpty.type] = AdministratorRequest(
       affGroup = AffinityGroup.Individual,
-      userId = "anId",
-      psaId = "anotherId",
+      userId = "internalId",
+      psaId = "psaId",
       psrUserType = PSA,
       request = FakeRequest()
     )
@@ -109,8 +108,7 @@ class FailedAttemptServiceSpec extends SpecBase {
       override lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(Some(
         CacheUserDetails(
           psrUserType = PSP,
-          psrUserId = "non matching",
-          internalId = None,
+          psrUserId = None,
           createdAt = Some(Instant.ofEpochSecond(timestampSeconds))
         )
       ))
@@ -147,13 +145,6 @@ class FailedAttemptServiceSpec extends SpecBase {
     }
 
     "should return no lockout result when count is below the threshold" in new Test {
-      val result: Future[Result] = service.handleFailedAttempt(Ok(""))(ImATeapot("teapot time"))
-      status(result) mustBe IM_A_TEAPOT
-      contentAsString(result) mustBe "teapot time"
-    }
-
-    "should return no lockout result when count equals the threshold" in new Test {
-      override lazy val countAttemptResult: Future[Long] = Future.successful(lockoutThreshold.toLong)
       val result: Future[Result] = service.handleFailedAttempt(Ok(""))(ImATeapot("teapot time"))
       status(result) mustBe IM_A_TEAPOT
       contentAsString(result) mustBe "teapot time"

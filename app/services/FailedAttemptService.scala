@@ -51,8 +51,8 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
 
     logger.info(s"$loggingContext - Received request to check for matching lockout for user")
 
-    failedAttemptLockoutRepository.getFromCache(request.userDetails.userId).map {
-      case Some(value) if value.psrUserType == psrUserType && value.psrUserId == psrUserId =>
+    failedAttemptLockoutRepository.getFromCache(request.userDetails.psrUserId).map {
+      case Some(value) if value.psrUserType == psrUserType =>
         logger.warn(s"$loggingContext - User has been locked out")
         true
       case Some(_) =>
@@ -71,7 +71,7 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
     logger.info(s"$fullLoggingContext - Attempting to check if failed attempt threshold has been exceeded for user")
 
     failedAttemptCountRepository.countFailedAttempts().map {
-      case count if count <= frontendAppConfig.lockoutThreshold =>
+      case count if count < frontendAppConfig.lockoutThreshold =>
         logger.info(s"$fullLoggingContext - Failed attempt threshold not exceeded")
         false
       case count =>
@@ -88,8 +88,8 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
 
     logger.info(s"$fullLoggingContext - Attempting to create lockout for user")
 
-    failedAttemptLockoutRepository.putCache(userId)(
-      CacheUserDetails(userDetails = request.userDetails, withInternalId = false)
+    failedAttemptLockoutRepository.putCache(psrUserId)(
+      CacheUserDetails(userDetails = request.userDetails, withPsrUserId = false)
     )
   }
 

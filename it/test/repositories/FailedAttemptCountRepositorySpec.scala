@@ -74,9 +74,9 @@ class FailedAttemptCountRepositorySpec
     "must successfully add a new failed attempt" in {
       val result: Future[Unit] = repository.addFailedAttempt()
       await(result) mustBe()
-      val findResult: Seq[CacheUserDetails] = find(Filters.equal("internalId", "userId")).futureValue
+      val findResult: Seq[CacheUserDetails] = find(Filters.equal("psrUserId", "psaId")).futureValue
       findResult must have length 1
-      findResult.headOption.get mustBe CacheUserDetails(PSA, "psaId", Some("userId"), Some(Instant.ofEpochSecond(timeSecs)))
+      findResult.headOption.get mustBe CacheUserDetails(PSA, Some("psaId"), Some(Instant.ofEpochSecond(timeSecs)))
     }
   }
 
