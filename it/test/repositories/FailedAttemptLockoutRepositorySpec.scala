@@ -59,7 +59,8 @@ class FailedAttemptLockoutRepositorySpec
 
   val mockTimestampSupport: TimestampSupport = mock[TimestampSupport]
   val timeSecs: Long = 1000000L
-  when(mockTimestampSupport.timestamp()).thenReturn(Instant.ofEpochSecond(timeSecs))
+  val instantTime: Instant = Instant.ofEpochSecond(timeSecs)
+  when(mockTimestampSupport.timestamp()).thenReturn(instantTime)
 
   val lockoutRepo: FailedAttemptLockoutRepositoryImpl = new FailedAttemptLockoutRepositoryImpl(
     mongoComponent = mongoComponent,
@@ -110,6 +111,26 @@ class FailedAttemptLockoutRepositorySpec
         )
 
       await(result) mustBe Some(cacheUserDetails)
+    }
+
+    "must return None when no entries match" in {
+      val result: Future[Option[CacheUserDetails]] =
+        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ =>
+          lockoutRepo.getFromCache("notPsaId")
+        )
+
+      await(result) mustBe None
+    }
+  }
+
+  "getLockoutExpiry" - {
+    "must successfully retrieve a lockout expiry when one exists" in {
+      val result: Future[Option[Instant]] =
+        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ =>
+          lockoutRepo.getLockoutExpiry("psaId")
+        )
+
+      await(result) mustBe Some(instantTime)
     }
 
     "must return None when no entries match" in {
