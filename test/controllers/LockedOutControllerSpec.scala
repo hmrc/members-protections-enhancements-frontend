@@ -30,6 +30,7 @@ import play.api.test.Helpers._
 import services.FailedAttemptService
 import views.html.LockedOutView
 
+import java.time.Instant
 import scala.concurrent.Future
 
 class LockedOutControllerSpec extends SpecBase {
@@ -63,6 +64,9 @@ class LockedOutControllerSpec extends SpecBase {
     }
 
     "must return OK and the correct view for a GET when user is locked out" in {
+      val timestampSeconds: Long = 100000L
+      val getExpiryResult: Future[Option[Instant]] = Future.successful(Some(Instant.ofEpochSecond(timestampSeconds)))
+
       val mockService: FailedAttemptService = mock[FailedAttemptService]
       val application: Application = applicationBuilder(userAnswers = emptyUserAnswers)
         .overrides(
@@ -71,9 +75,9 @@ class LockedOutControllerSpec extends SpecBase {
         .build()
 
       when(
-        mockService.checkForLockout()(ArgumentMatchers.any(), ArgumentMatchers.any())
+        mockService.getLockoutExpiry()(ArgumentMatchers.any())
       ).thenReturn(
-        Future.successful(true)
+        getExpiryResult
       )
 
       running(application) {
@@ -95,9 +99,9 @@ class LockedOutControllerSpec extends SpecBase {
         .build()
 
       when(
-        mockService.checkForLockout()(ArgumentMatchers.any(), ArgumentMatchers.any())
+        mockService.getLockoutExpiry()(ArgumentMatchers.any())
       ).thenReturn(
-        Future.successful(false)
+        Future.successful(None)
       )
 
       running(application) {
