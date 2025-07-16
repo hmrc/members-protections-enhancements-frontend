@@ -17,7 +17,6 @@
 package controllers
 
 import com.google.inject.Inject
-
 import controllers.actions._
 import models._
 import pages.CheckYourAnswersPage

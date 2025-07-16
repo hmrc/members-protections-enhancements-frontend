@@ -17,36 +17,51 @@
 package controllers
 
 import base.SpecBase
+import models.MemberDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.inject
+import pages.WhatIsTheMembersNamePage
 import play.api.inject.bind
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
-import utils.IdGenerator
 
 import scala.concurrent.Future
 
 class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
   "keepAlive" - {
-
     "when the user has answered some questions" - {
+      "must redirect to unauthorised page if user is not allowed" in {
+        val userAnswers = emptyUserAnswers.set(
+          page = WhatIsTheMembersNamePage,
+          value = MemberDetails("Pearl", "Harvey")
+        ).success.value
 
-      "must keep the answers alive and return OK" - {
-        "when data request has no correlation id" in {
+        val application = applicationBuilder(
+          userAnswers = userAnswers,
+          allowListResponse = Some(Redirect(routes.UnauthorisedController.onPageLoad().url))
+        ).build()
 
-          val mockSessionRepository = mock[SessionRepository]
-          when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
+        running(application) {
+          val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
 
-          val mockIdGenerator = mock[IdGenerator]
-          val application = applicationBuilder(userAnswers = emptyUserAnswers)
-            .overrides(
-              inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
-              bind[SessionRepository].toInstance(mockSessionRepository)
-            ).build()
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+        }
+      }
+
+      "must keep the answers alive and return OK" in {
+        val mockSessionRepository = mock[SessionRepository]
+        when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
+
+        val application =
+          applicationBuilder(emptyUserAnswers)
+            .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+            .build()
 
         running(application) {
 
@@ -54,33 +69,8 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
           val result = route(application, request).value
 
-            status(result) mustEqual OK
-            verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
-            verify(mockIdGenerator, times(1)).getCorrelationId
-          }
-        }
-        "when data request has correlation id, no need to generate new" in {
-
-          val mockSessionRepository = mock[SessionRepository]
-          when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
-
-          val mockIdGenerator = mock[IdGenerator]
-          val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationIdInRequest = Some("X-123"))
-            .overrides(
-              inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
-              bind[SessionRepository].toInstance(mockSessionRepository)
-            ).build()
-
-          running(application) {
-
-            val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
-
-            val result = route(application, request).value
-
-            status(result) mustEqual OK
-            verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
-            verify(mockIdGenerator, times(0)).getCorrelationId
-          }
+          status(result) mustEqual OK
+          verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
         }
       }
     }
