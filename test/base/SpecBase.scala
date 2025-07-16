@@ -43,7 +43,6 @@ import models.UserAnswers
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import models.response.RecordTypeMapped.{FixedProtection2016, IndividualProtection2014, InternationalEnhancementTransfer, PrimaryProtection}
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
-import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -66,7 +65,6 @@ import viewmodels.formPage.FormPageViewModel
 
 import java.net.URLEncoder
 import java.time.{ZoneId, ZonedDateTime}
-import scala.concurrent.Future
 import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.reflect.ClassTag
 

@@ -28,14 +28,13 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.mockito.stubbing.OngoingStubbing
 import pages._
-import play.api.Application
 import play.api.http.Status.OK
+import play.api.{Application, inject}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Application, inject}
 import services.FailedAttemptService
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.ResultsView
