@@ -17,7 +17,7 @@
 package models.response
 
 import base.SpecBase
-import models.response.RecordStatusMapped.Active
+import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import models.response.RecordTypeMapped.FixedProtection2016
 import play.api.libs.json._
 
@@ -62,6 +62,12 @@ class ProtectionRecordDetailsSpec extends SpecBase {
       val result = testJson.validate[ProtectionRecordDetails]
       result mustBe a[JsSuccess[_]]
       result.get mustBe testModel
+    }
+  }
+
+  "ordered" -> {
+    "should order protections and enhancements correctly" in {
+      dummyProtectionRecords.ordered.map(_.status) mustBe Seq(Active, Active, Dormant, Withdrawn)
     }
   }
 }
