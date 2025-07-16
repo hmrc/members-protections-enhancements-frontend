@@ -25,6 +25,7 @@ import play.api.libs.json.{Format, Json, Writes}
 import uk.gov.hmrc.mongo.cache._
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
 
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.cache.CacheException
 import scala.concurrent.duration.Duration
@@ -34,6 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait FailedAttemptLockoutRepository {
   def putCache(cacheId: String)(data: CacheUserDetails)(implicit ec: ExecutionContext): Future[Unit]
   def getFromCache(cacheId: String): Future[Option[CacheUserDetails]]
+  def getLockoutExpiry(cacheId: String): Future[Option[Instant]]
 }
 
 @Singleton
@@ -92,5 +94,23 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
             throw ex
         }
     }
+  }
+
+  override def getLockoutExpiry(cacheId: String): Future[Option[Instant]] = {
+    val methodLoggingContext: String = "getLockoutExpiry"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
+    logger.info(s"$fullLoggingContext - Received request to retrieve lockout expiry for user")
+
+    cacheRepo
+      .findById(cacheId)
+      .map {
+        case value@Some(_) =>
+          logger.info(s"$fullLoggingContext - Lockout expiry successfully retrieved for the supplied details")
+          value.map(_.createdAt)
+        case None =>
+          logger.info(s"$fullLoggingContext - No lockout found for the supplied details")
+          None
+      }
   }
 }
