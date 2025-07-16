@@ -23,6 +23,7 @@ import pages._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.Logging
 import viewmodels.formPage.FormPageViewModel
 
 import javax.inject.Inject
@@ -30,7 +31,7 @@ import scala.concurrent.Future
 
 abstract class MpeBaseController @Inject()(identify: IdentifierAction,
                                            checkLockout: CheckLockoutAction,
-                                           getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport {
+                                           getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport with Logging {
 
   def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
     (identify andThen checkLockout andThen getData).async {

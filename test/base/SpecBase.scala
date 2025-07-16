@@ -114,12 +114,13 @@ trait SpecBase
 
   protected def applicationBuilder(userAnswers: UserAnswers,
                                    identifierAction: IdentifierAction = fakePsaIdentifierAction,
-                                   checkLockoutResult: Option[Result] = None): GuiceApplicationBuilder =
+                                   checkLockoutResult: Option[Result] = None,
+                                   correlationId: Option[String] = None): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(servicesConfig)
       .overrides(
         bind[IdentifierAction].toInstance(identifierAction),
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, correlationId)),
         bind[CheckLockoutAction].toInstance(new FakeCheckLockoutAction(checkLockoutResult))
       )
 

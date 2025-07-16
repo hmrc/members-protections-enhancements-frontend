@@ -25,7 +25,7 @@ import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import pages._
 import play.api.http.Status.OK
@@ -37,6 +37,7 @@ import play.api.test.Helpers._
 import play.api.{Application, inject}
 import services.FailedAttemptService
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.IdGenerator
 import views.html.ResultsView
 
 import java.time.format.DateTimeFormatter
@@ -114,6 +115,22 @@ class ResultsControllerSpec extends SpecBase {
       requestBody = Json.toJson(pensionSchemeMemberRequest).toString(),
       response = aResponse().withStatus(status).withBody(response)
     )
+
+    val response: String =
+      """
+        |{
+        | "protectionRecords": [
+        |   {
+        |     "protectionReference": "some-id",
+        |     "type": "FIXED PROTECTION 2016",
+        |     "status": "OPEN",
+        |     "protectedAmount": 1,
+        |     "lumpSumAmount": 1,
+        |     "lumpSumPercentage": 1,
+        |     "enhancementFactor": 0.5
+        |   }
+        | ]
+        |}""".stripMargin
   }
 
   "Results Controller" - {
@@ -132,40 +149,60 @@ class ResultsControllerSpec extends SpecBase {
     }
 
 
-    "must return OK and the correct view for a GET" in new Test {
-      val response: String =
-        """
-          |{
-          | "protectionRecords": [
-          |   {
-          |     "protectionReference": "some-id",
-          |     "type": "FIXED PROTECTION 2016",
-          |     "status": "OPEN",
-          |     "protectedAmount": 1,
-          |     "lumpSumAmount": 1,
-          |     "lumpSumPercentage": 1,
-          |     "enhancementFactor": 0.5
-          |   }
-          | ]
-          |}""".stripMargin
+    "must return OK and the correct view for a GET" - {
+      "when data request has no correlation id" in new Test {
+        setUpStubs(OK, response)
+        val mockIdGenerator: IdGenerator = mock[IdGenerator]
+        override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
+          .overrides(
+            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
+          ).build()
 
-      setUpStubs(OK, response)
+        running(application) {
+          val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[ResultsView]
 
-      running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
-        val result = route(application, request).value
-        val view = application.injector.instanceOf[ResultsView]
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(
+            memberDetails,
+            membersDob,
+            membersNino,
+            membersPsaCheckRef,
+            Some(backLinkRoute),
+            localDateTime,
+            testModel
+          )(request, messages(application)).toString
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(
-          memberDetails,
-          membersDob,
-          membersNino,
-          membersPsaCheckRef,
-          Some(backLinkRoute),
-          localDateTime,
-          testModel
-        )(request, messages(application)).toString
+          verify(mockIdGenerator, times(1)).getCorrelationId
+        }
+      }
+
+      "when data request has correlation id, no need to generate new" in new Test {
+        setUpStubs(OK, response)
+        val mockIdGenerator: IdGenerator = mock[IdGenerator]
+        override lazy val application: Application = applicationBuilder(userAnswers = userAnswers, correlationId = Some("X-123"))
+          .overrides(
+            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
+          ).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[ResultsView]
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(
+            memberDetails,
+            membersDob,
+            membersNino,
+            membersPsaCheckRef,
+            Some(backLinkRoute),
+            localDateTime,
+            testModel
+          )(request, messages(application)).toString
+          verify(mockIdGenerator, times(0)).getCorrelationId
+        }
       }
     }
 

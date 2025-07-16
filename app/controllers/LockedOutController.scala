@@ -33,7 +33,7 @@ class LockedOutController @Inject()(val controllerComponents: MessagesController
   extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
-    failedAttemptService.checkForLockout().map{
+    failedAttemptService.checkForLockout() map {
       case true => Ok(view())
       case false => Redirect(routes.WhatYouWillNeedController.onPageLoad())
     }
