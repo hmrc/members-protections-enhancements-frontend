@@ -53,9 +53,10 @@ class MembersDobControllerSpec extends SpecBase {
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad())
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
       }
     }
+
     "must return OK and the correct view for a GET" in {
       val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
@@ -108,7 +109,6 @@ class MembersDobControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.MembersNinoController.onPageLoad(NormalMode).url
-
       }
     }
 
@@ -131,12 +131,10 @@ class MembersDobControllerSpec extends SpecBase {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString
-
       }
     }
 
     "must redirect to WhatIsTheMembersNamePage when no members details exists" in {
-
       val userAnswers = emptyUserAnswers
       val application = applicationBuilder(userAnswers).build()
 
