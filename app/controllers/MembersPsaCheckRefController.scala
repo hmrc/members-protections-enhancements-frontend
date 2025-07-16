@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions._
 import forms.MembersPsaCheckRefFormProvider
 import models.{MembersPsaCheckRef, Mode}
 import navigation.Navigator
@@ -31,17 +31,20 @@ import views.html.MembersPsaCheckRefView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MembersPsaCheckRefController @Inject()(override val messagesApi: MessagesApi,
-                                             identify: IdentifierAction,
-                                             checkLockout: CheckLockoutAction,
-                                             getData: DataRetrievalAction,
-                                             navigator: Navigator,
-                                             service: SessionCacheService,
-                                             formProvider: MembersPsaCheckRefFormProvider,
-                                             implicit val controllerComponents: MessagesControllerComponents,
-                                             view: MembersPsaCheckRefView,
-                                             idGenerator: IdGenerator)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class MembersPsaCheckRefController @Inject()(
+                                              override val messagesApi: MessagesApi,
+                                              identify: IdentifierAction,
+                                              allowListAction: AllowListAction,
+                                              checkLockout: CheckLockoutAction,
+                                              getData: DataRetrievalAction,
+                                              navigator: Navigator,
+                                              service: SessionCacheService,
+                                              formProvider: MembersPsaCheckRefFormProvider,
+                                              implicit val controllerComponents: MessagesControllerComponents,
+                                              view: MembersPsaCheckRefView,
+                                              idGenerator: IdGenerator
+                                            )(implicit ec: ExecutionContext)
+  extends MpeBaseController(identify,  allowListAction, checkLockout, getData) {
 
   private val form: Form[MembersPsaCheckRef] = formProvider()
 

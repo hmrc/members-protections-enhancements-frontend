@@ -65,7 +65,7 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
           when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
 
           val mockIdGenerator = mock[IdGenerator]
-          val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationId = Some("X-123"))
+          val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationIdInRequest = Some("X-123"))
             .overrides(
               inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
               bind[SessionRepository].toInstance(mockSessionRepository)

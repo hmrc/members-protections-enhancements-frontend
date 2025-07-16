@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
@@ -26,15 +26,17 @@ import views.html.NoResultsView
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class NoResultsController @Inject()(override val messagesApi: MessagesApi,
-                                    identify: IdentifierAction,
-                                    checkLockout: CheckLockoutAction,
-                                    getData: DataRetrievalAction,
-                                    val controllerComponents: MessagesControllerComponents,
-                                    view: NoResultsView,
-                                    dateTimeProvider: DateTimeProvider,
-                                    idGenerator: IdGenerator)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class NoResultsController @Inject()(
+                                     override val messagesApi: MessagesApi,
+                                     identify: IdentifierAction,
+                                     allowListAction: AllowListAction,
+                                     checkLockout: CheckLockoutAction,
+                                     getData: DataRetrievalAction,
+                                     val controllerComponents: MessagesControllerComponents,
+                                     view: NoResultsView,
+                                     dateTimeProvider: DateTimeProvider,
+                                     idGenerator: IdGenerator
+                                   ) extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
     val correlationId = request.correlationId match {

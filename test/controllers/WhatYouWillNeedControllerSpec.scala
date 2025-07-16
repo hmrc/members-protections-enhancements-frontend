@@ -56,7 +56,7 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
       }
       "when data request has correlation id, no need to generate new" in {
         val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationId = Some("X-123"))
+        val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationIdInRequest = Some("X-123"))
           .overrides(
             inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
           ).build()

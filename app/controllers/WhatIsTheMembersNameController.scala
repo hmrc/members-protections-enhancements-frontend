@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions._
 import forms.WhatIsTheMembersNameFormProvider
 import models.{MemberDetails, Mode}
 import navigation.Navigator
@@ -31,17 +31,20 @@ import views.html.WhatIsTheMembersNameView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class WhatIsTheMembersNameController @Inject()(override val messagesApi: MessagesApi,
-                                               identify: IdentifierAction,
-                                               checkLockout: CheckLockoutAction,
-                                               getData: DataRetrievalAction,
-                                               navigator: Navigator,
-                                               service: SessionCacheService,
-                                               val controllerComponents: MessagesControllerComponents,
-                                               formProvider: WhatIsTheMembersNameFormProvider,
-                                               view: WhatIsTheMembersNameView,
-                                               idGenerator: IdGenerator)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class WhatIsTheMembersNameController @Inject()(
+                                                override val messagesApi: MessagesApi,
+                                                identify: IdentifierAction,
+                                                allowListAction: AllowListAction,
+                                                checkLockout: CheckLockoutAction,
+                                                getData: DataRetrievalAction,
+                                                navigator: Navigator,
+                                                service: SessionCacheService,
+                                                val controllerComponents: MessagesControllerComponents,
+                                                formProvider: WhatIsTheMembersNameFormProvider,
+                                                view: WhatIsTheMembersNameView,
+                                                idGenerator: IdGenerator
+                                              )(implicit ec: ExecutionContext)
+  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   private val form: Form[MemberDetails] = formProvider()
 

@@ -73,5 +73,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   //Feature switches
   val betaBannerEnabled: Boolean = configuration.get[Boolean]("feature-switch.betaBannerEnabled")
+
   val lockoutEnabled: Boolean = configuration.get[Boolean]("feature-switch.lockoutEnabled")
+
+  //Allow list
+  val allowListEnabled: Boolean = configuration.get[Boolean]("feature-switch.allowListEnabled")
+  val allowedPsrIds: Seq[String] = configuration.get[Seq[String]]("psrIdAllowList")
 }

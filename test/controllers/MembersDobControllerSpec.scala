@@ -19,13 +19,11 @@ package controllers
 import base.SpecBase
 import forms.MembersDobFormProvider
 import models.{MemberDetails, MembersDob, NormalMode}
-import org.mockito.Mockito.{times, verify}
 import pages.{MembersDobPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
-import play.api.inject
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.IdGenerator
 import viewmodels.formPage.FormPageViewModel
 import views.html.MembersDobView
 
@@ -39,50 +37,39 @@ class MembersDobControllerSpec extends SpecBase {
   private val form: Form[MembersDob] = formProvider()
 
   "Member Dob Controller" - {
-    "must return OK and the correct view for a GET" - {
-      "when data request has no correlation id" in {
+    "must redirect to unauthorised page if user is not allowed" in {
+      val userAnswers = emptyUserAnswers.set(
+        page = WhatIsTheMembersNamePage,
+        value = MemberDetails("Pearl", "Harvey")
+      ).success.value
 
-        val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = userAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+      val application = applicationBuilder(
+        userAnswers = userAnswers,
+        allowListResponse = Some(Redirect(routes.UnauthorisedController.onPageLoad().url))
+      ).build()
 
-        running(application) {
-          val request = FakeRequest(GET, onPageLoad)
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
 
-          val result = route(application, request).value
-
-          val view = application.injector.instanceOf[MembersDobView]
-          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad())
       }
-      "when data request has correlation id, no need to generate new" in {
+    }
+    "must return OK and the correct view for a GET" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val application = applicationBuilder(userAnswers).build()
 
-        val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = userAnswers, correlationId = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
 
-        running(application) {
-          val request = FakeRequest(GET, onPageLoad)
+        val result = route(application, request).value
 
-          val result = route(application, request).value
+        val view = application.injector.instanceOf[MembersDobView]
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
-          val view = application.injector.instanceOf[MembersDobView]
-          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
-          verify(mockIdGenerator, times(0)).getCorrelationId
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
       }
     }
 

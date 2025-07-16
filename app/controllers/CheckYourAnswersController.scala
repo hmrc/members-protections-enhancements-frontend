@@ -17,7 +17,8 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+
+import controllers.actions._
 import models._
 import pages.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
@@ -32,11 +33,12 @@ import scala.concurrent.Future
 class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
                                            identify: IdentifierAction,
                                            checkLockout: CheckLockoutAction,
+                                           allowListAction: AllowListAction,
                                            getData: DataRetrievalAction,
                                            implicit val controllerComponents: MessagesControllerComponents,
                                            view: CheckYourAnswersView,
                                            idGenerator: IdGenerator)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle {
     implicit request =>
