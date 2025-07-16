@@ -31,8 +31,8 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 import uk.gov.hmrc.play.bootstrap.dispatchers.MDCPropagatingExecutorService
 
-import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
+import java.time.{Clock, Instant, ZoneId}
 import java.util.concurrent.Executors
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -51,7 +51,7 @@ class SessionRepositorySpec
   private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
 
   private val mockAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.cacheTtl) thenReturn 1L
+  when(mockAppConfig.sessionDataTtl) thenReturn 1L
 
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,

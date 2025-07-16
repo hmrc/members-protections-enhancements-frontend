@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models._
 import pages.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
@@ -28,26 +28,26 @@ import views.html.CheckYourAnswersView
 
 import scala.concurrent.Future
 
-class CheckYourAnswersController @Inject()(
-                                            override val messagesApi: MessagesApi,
-                                            identify: IdentifierAction,
-                                            getData: DataRetrievalAction,
-                                            implicit val controllerComponents: MessagesControllerComponents,
-                                            view: CheckYourAnswersView
-                                          ) extends MpeBaseController(identify, getData) {
+class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
+                                           identify: IdentifierAction,
+                                           checkLockout: CheckLockoutAction,
+                                           getData: DataRetrievalAction,
+                                           implicit val controllerComponents: MessagesControllerComponents,
+                                           view: CheckYourAnswersView)
+  extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handle {
-    implicit request =>
-
-      getUserData(request) match {
-        case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) => Future.successful(Ok(
-          view(rows(memberDetails, membersDob, membersNino, membersPsaCheckRef), memberDetails.fullName,
-            Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))))
-        case None => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-      }
+  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+    getUserData(request) match {
+      case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) => Future.successful(Ok(
+        view(rows(memberDetails, membersDob, membersNino, membersPsaCheckRef), memberDetails.fullName,
+          Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))))
+      case None => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 
-  private def rows(memberDetails: MemberDetails, membersDob: MembersDob, membersNino: MembersNino,
+  private def rows(memberDetails: MemberDetails,
+                   membersDob: MembersDob,
+                   membersNino: MembersNino,
                    membersPsaCheckRef: MembersPsaCheckRef)(implicit messages: Messages): Seq[SummaryListRow] = {
     List(
       membersFirstNameRow(memberDetails),

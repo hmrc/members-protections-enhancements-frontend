@@ -26,9 +26,9 @@ import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import views.html.ResultsView
 import uk.gov.hmrc.govukfrontend.views.html.components.GovukSummaryList
 import viewmodels.ResultsViewUtils
+import views.html.ResultsView
 
 class ResultsViewSpec extends SpecBase {
 

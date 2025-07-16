@@ -17,11 +17,10 @@
 package forms.mappings
 
 import models.MembersDob
-
-import java.time.LocalDate
 import play.api.data.validation.{Constraint, Invalid, Valid}
 import providers.DateTimeProvider
 
+import java.time.LocalDate
 import scala.util.Try
 
 trait Constraints {

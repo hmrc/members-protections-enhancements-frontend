@@ -20,9 +20,9 @@ import config.FrontendAppConfig
 import models.UserAnswers
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
+import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.OptionValues
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
@@ -30,8 +30,8 @@ import play.api.libs.json.Json
 import repositories.SessionRepository
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
-import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
+import java.time.{Clock, Instant, ZoneId}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class SessionRepositorySpec extends AnyFreeSpec with Matchers with DefaultPlayMongoRepositorySupport[UserAnswers]
@@ -43,7 +43,7 @@ class SessionRepositorySpec extends AnyFreeSpec with Matchers with DefaultPlayMo
   private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
 
   private val mockAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.cacheTtl) thenReturn 1
+  when(mockAppConfig.sessionDataTtl) thenReturn 1
 
   protected override val repository = new SessionRepository(
     mongoComponent = mongoComponent,

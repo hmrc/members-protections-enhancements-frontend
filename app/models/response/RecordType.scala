@@ -17,7 +17,7 @@
 package models.response
 
 import models.response.RecordTypeMapped._
-import play.api.libs.json.{JsError, JsResult, JsString, JsValue, JsonValidationError, Reads}
+import play.api.libs.json._
 import utils.enums.Enums
 
 sealed trait RecordType {

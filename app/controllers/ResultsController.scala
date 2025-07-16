@@ -17,11 +17,13 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import models.requests.IdentifierRequest
+import play.api.Logging
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
-import services.MembersCheckAndRetrieveService
+import services.{FailedAttemptService, MembersCheckAndRetrieveService}
 import utils.DateTimeFormats
 import views.html.ResultsView
 
@@ -29,19 +31,28 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   identify: IdentifierAction,
+                                  checkLockout: CheckLockoutAction,
                                   getData: DataRetrievalAction,
                                   val controllerComponents: MessagesControllerComponents,
                                   view: ResultsView,
                                   dateTimeProvider: DateTimeProvider,
-                                  checkAndRetrieveService: MembersCheckAndRetrieveService)
-                                 (implicit ec: ExecutionContext) extends MpeBaseController(identify, getData) {
+                                  checkAndRetrieveService: MembersCheckAndRetrieveService,
+                                  failedAttemptService: FailedAttemptService)
+                                 (implicit ec: ExecutionContext)
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
-  def onPageLoad(): Action[AnyContent] = handle {
-    implicit request =>
-      getUserData(request) match {
-        case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
-          checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)).map {
-            case Right(value) => Ok(
+  val classLoggingContext: String = "ResultsController"
+
+  def onPageLoad(): Action[AnyContent] = handle(implicit request => {
+    val methodLoggingContext: String = "onPageLoad"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
+    getUserData(request) match {
+      case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
+        checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)).flatMap {
+          case Right(value) =>
+            logger.info(s"$fullLoggingContext - Successfully retrieved results for supplied details")
+            Future.successful(Ok(
               view(
                 memberDetails = memberDetails,
                 membersDob = membersDob,
@@ -51,12 +62,20 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                 formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
                 protectionRecordDetails = value
               )
-            )
-            case _ =>
+            ))
+          case _ =>
+            implicit val req: IdentifierRequest[AnyContent] = request.toIdentifierRequest
+            logger.warn(s"$fullLoggingContext - Failed to retrieve results for supplied details")
+
+            failedAttemptService.handleFailedAttempt(
+              Redirect(routes.LockedOutController.onPageLoad())
+            )(
               Redirect(routes.NoResultsController.onPageLoad())
-          }
-        case _ =>
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-      }
-  }
+            )
+
+        }
+      case _ =>
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
+  })
 }

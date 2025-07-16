@@ -22,4 +22,3 @@ case class UserDetails(psrUserType: UserType,
                        psrUserId: String,
                        userId: String,
                        affinityGroup: AffinityGroup)
-

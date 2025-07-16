@@ -16,18 +16,19 @@
 
 package forms.mappings
 
-import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import generators.Generators
 import models.MembersDob
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalacheck.Gen
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar.mock
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.data.validation.{Invalid, Valid, ValidationResult}
 import providers.DateTimeProvider
+
+import java.time.{LocalDate, ZoneId, ZonedDateTime}
 
 class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with Constraints {
 

@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package navigation
+package controllers.actions
 
-import models.{Mode, UserAnswers}
-import pages._
-import play.api.mvc.Call
+import models.requests.IdentifierRequest
+import play.api.mvc.Result
 
-class FakeNavigator(desiredRoute: Call) extends Navigator {
+import scala.concurrent.{ExecutionContext, Future}
 
-  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
-    desiredRoute
+class FakeCheckLockoutAction(filterResult: Option[Result]) extends CheckLockoutAction {
+  override protected implicit val executionContext: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
+
+  override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] =
+    Future.successful(filterResult)
 }
