@@ -19,6 +19,7 @@ package controllers
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import controllers.actions.FakePspIdentifierAction
 import models._
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
@@ -149,7 +150,7 @@ class ResultsControllerSpec extends SpecBase {
     }
 
 
-    "must return OK and the correct view for a GET" - {
+    "must return OK and the correct view for GET" - {
       "when data request has no correlation id" in new Test {
         setUpStubs(OK, response)
         val mockIdGenerator: IdGenerator = mock[IdGenerator]
@@ -208,6 +209,16 @@ class ResultsControllerSpec extends SpecBase {
 
     "must redirect to NoResults page when failed attempt threshold not exceeded for a failed attempt" in new Test {
       mockFailedAttemptCheck()
+      val fakePspIdentifierAction: FakePspIdentifierAction = new FakePspIdentifierAction(parsers)
+      override lazy val application: Application = applicationBuilder(
+        userAnswers = userAnswers,
+        checkLockoutResult = checkLockoutResult,
+        identifierAction = fakePspIdentifierAction
+      )
+        .overrides(
+          inject.bind(classOf[FailedAttemptService]).toInstance(mockService)
+        )
+        .build()
       mockHandleFailedAttempt(Redirect(routes.NoResultsController.onPageLoad()))
       setUpStubs(NOT_FOUND, "")
 

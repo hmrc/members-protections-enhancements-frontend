@@ -52,7 +52,7 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
         case Some(id) => id
       }
       request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+      logInfo("MembersDobController", "onPageLoad", request.correlationId)
 
       memberDetails =>
         request.userAnswers.get(MembersDobPage) match {

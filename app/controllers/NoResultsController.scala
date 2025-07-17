@@ -42,7 +42,7 @@ class NoResultsController @Inject()(override val messagesApi: MessagesApi,
       case Some(id) => id
     }
     request.copy(correlationId = Some(correlationId))
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+    logInfo("NoResultsController", "onPageLoad", request.correlationId)
 
     getUserData(request) match {
       case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>

@@ -50,7 +50,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
       case Some(id) => id
     }
     request.copy(correlationId = Some(correlationId))
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+    logInfo("ResultsController", "onPageLoad", request.correlationId)
 
     val methodLoggingContext: String = "onPageLoad"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"

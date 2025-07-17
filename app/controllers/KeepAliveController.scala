@@ -37,7 +37,7 @@ class KeepAliveController @Inject()(val controllerComponents: MessagesController
       case Some(id) => id
     }
     request.copy(correlationId = Some(correlationId))
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+    logInfo("KeepAliveController", "keepAlive", request.correlationId)
 
     sessionRepository.keepAlive(request.userAnswers.id).map(_ => Ok)
   }

@@ -16,36 +16,35 @@
 
 package controllers
 
-import com.google.inject.Inject
-import config.FrontendAppConfig
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import models.requests.UserType.PSA
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.SessionCacheService
 import utils.IdGenerator
 
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
-class MpsDashboardController @Inject()(identify: IdentifierAction,
-                                       checkLockout: CheckLockoutAction,
-                                       getData: DataRetrievalAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       val appConfig: FrontendAppConfig,
-                                       idGenerator: IdGenerator)
+class ClearCacheController @Inject()(val controllerComponents: MessagesControllerComponents,
+                                     identify: IdentifierAction,
+                                     checkLockout: CheckLockoutAction,
+                                     getData: DataRetrievalAction,
+                                     sessionCacheService: SessionCacheService,
+                                     idGenerator: IdGenerator)(implicit ec: ExecutionContext)
   extends MpeBaseController(identify, checkLockout, getData) {
 
-  def redirectToMps(): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
     val correlationId = request.correlationId match {
       case None => idGenerator.getCorrelationId
       case Some(id) => id
     }
     request.copy(correlationId = Some(correlationId))
-    logInfo("MpsDashboardController", "onPageLoad", request.correlationId)
+    logInfo("ClearCacheController", "onPageLoad", request.correlationId)
 
-    val mpsUrl =
-      request.userDetails.psrUserType match {
-        case PSA => appConfig.psaOverviewUrl
-        case _ => appConfig.pspDashboardUrl
+    sessionCacheService
+      .clear(request.userAnswers)
+      .map {
+        _ =>
+          Redirect(routes.WhatYouWillNeedController.onPageLoad().url)
       }
-    Future.successful(Redirect(mpsUrl))
   }
 }

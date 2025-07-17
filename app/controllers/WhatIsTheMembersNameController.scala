@@ -52,7 +52,7 @@ class WhatIsTheMembersNameController @Inject()(override val messagesApi: Message
         case Some(id) => id
       }
       request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+      logInfo("WhatIsTheMembersNameController", "onPageLoad", request.correlationId)
 
       val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
         case None => form

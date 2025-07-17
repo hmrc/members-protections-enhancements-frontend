@@ -33,7 +33,6 @@ import views.html.CheckYourAnswersView
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
 
-
   val userAnswers: UserAnswers = emptyUserAnswers
     .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
     .set(page = MembersDobPage, value = MembersDob(1, 1, 2000)).success.value
