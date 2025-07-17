@@ -29,9 +29,13 @@ class SessionCacheServiceImpl @Inject()(sessionRepository: SessionRepository) ex
   override def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
     sessionRepository.set(userAnswers)
   }
+  override def clear(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+    sessionRepository.clear(userAnswers.id)
+  }
 }
 
 @ImplementedBy(classOf[SessionCacheServiceImpl])
 trait SessionCacheService {
   def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit]
+  def clear(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean]
 }

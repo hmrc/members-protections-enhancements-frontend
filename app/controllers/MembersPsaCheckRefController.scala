@@ -52,7 +52,7 @@ class MembersPsaCheckRefController @Inject()(override val messagesApi: MessagesA
         case Some(id) => id
       }
       request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+      logInfo("MembersPsaCheckRefController", "onPageLoad", request.correlationId)
 
       membersDetails =>
         request.userAnswers.get(MembersPsaCheckRefPage) match {

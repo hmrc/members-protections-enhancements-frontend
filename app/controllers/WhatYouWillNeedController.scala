@@ -40,7 +40,7 @@ class WhatYouWillNeedController @Inject()(override val messagesApi: MessagesApi,
       case Some(id) => id
     }
     request.copy(correlationId = Some(correlationId))
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+    logInfo("WhatYouWillNeedController", "onPageLoad", request.correlationId)
 
     Future.successful(Ok(view(Some(routes.MpsDashboardController.redirectToMps().url))))
   }

@@ -8,6 +8,8 @@ GET         /assets/*file                                                       
 
 GET         /refresh-session                                                    controllers.KeepAliveController.keepAlive()
 
+GET         /clear-cache                                                        controllers.ClearCacheController.onPageLoad()
+
 GET         /there-is-a-problem                                                 controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
 GET         /check-your-answers                                                 controllers.CheckYourAnswersController.onPageLoad()

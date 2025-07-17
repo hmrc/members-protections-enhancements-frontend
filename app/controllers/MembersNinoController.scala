@@ -52,7 +52,7 @@ class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
         case Some(id) => id
       }
       request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+      logInfo("MembersNinoController", "onPageLoad", request.correlationId)
 
       memberDetails =>
         request.userAnswers.get(MembersNinoPage) match {

@@ -42,7 +42,7 @@ class JourneyRecoveryController @Inject()(val controllerComponents: MessagesCont
         case Some(id) => id
       }
       request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+      logInfo("JourneyRecoveryController", "onPageLoad", request.correlationId)
 
       val safeUrl: Option[String] = continueUrl.flatMap {
         unsafeUrl =>

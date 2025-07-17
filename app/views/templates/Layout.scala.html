@@ -90,7 +90,7 @@
         mainContentLayout = Some(_ => mainContentLayout)
     ),
     serviceURLs = ServiceURLs(
-        serviceUrl = Some(routes.WhatYouWillNeedController.onPageLoad().url),
+        serviceUrl = Some(routes.ClearCacheController.onPageLoad().url),
         signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
     ),
     banners = Banners(
