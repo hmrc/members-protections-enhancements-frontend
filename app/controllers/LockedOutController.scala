@@ -16,9 +16,12 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.IdentifierAction
+import models.LockoutExpiry
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import providers.DateTimeProvider
 import services.FailedAttemptService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.LockedOutView
@@ -29,12 +32,21 @@ import scala.concurrent.ExecutionContext
 class LockedOutController @Inject()(val controllerComponents: MessagesControllerComponents,
                                     identify: IdentifierAction,
                                     failedAttemptService: FailedAttemptService,
+                                    frontendAppConfig: FrontendAppConfig,
+                                    dateTimeProvider: DateTimeProvider,
                                     view: LockedOutView)(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
     failedAttemptService.getLockoutExpiry().map {
-      case Some(_) => Ok(view())
+      case Some(expiry) =>
+        lazy val lockoutExpiry: LockoutExpiry = LockoutExpiry(
+          lockoutCreated = expiry,
+          lockoutExpiry = frontendAppConfig.lockoutTtl,
+          currentTime = dateTimeProvider.now().toInstant
+        )
+
+        Ok(view(lockoutExpiry.toTimeString))
       case None => Redirect(routes.WhatYouWillNeedController.onPageLoad())
     }
   }
