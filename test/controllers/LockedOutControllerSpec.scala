@@ -64,9 +64,10 @@ class LockedOutControllerSpec extends SpecBase {
 
     "must return OK and the correct view for a GET when user is locked out" in {
       val mockService: FailedAttemptService = mock[FailedAttemptService]
-
       val application: Application = applicationBuilder(userAnswers = emptyUserAnswers)
-        .overrides(bind[FailedAttemptService].toInstance(mockService))
+        .overrides(
+          bind[FailedAttemptService].toInstance(mockService)
+        )
         .build()
 
       when(

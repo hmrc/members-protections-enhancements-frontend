@@ -20,7 +20,7 @@ import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierA
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
-import utils.DateTimeFormats
+import utils.{DateTimeFormats, IdGenerator}
 import views.html.NoResultsView
 
 import javax.inject.Inject
@@ -32,10 +32,18 @@ class NoResultsController @Inject()(override val messagesApi: MessagesApi,
                                     getData: DataRetrievalAction,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: NoResultsView,
-                                    dateTimeProvider: DateTimeProvider)
+                                    dateTimeProvider: DateTimeProvider,
+                                    idGenerator: IdGenerator)
   extends MpeBaseController(identify, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+    val correlationId = request.correlationId match {
+      case None => idGenerator.getCorrelationId
+      case Some(id) => id
+    }
+    request.copy(correlationId = Some(correlationId))
+    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+
     getUserData(request) match {
       case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
         Future.successful(Ok(

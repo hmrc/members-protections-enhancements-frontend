@@ -1,5 +1,5 @@
-@*
- * Copyright 2025 HM Revenue & Customs
+/*
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,16 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this(
-    layout: templates.Layout
-)
+package utils
 
-@(pageTitle: String, heading: String, message: String)(implicit rh: RequestHeader, messages: Messages)
+import java.util.UUID
+import javax.inject.{Inject, Singleton}
 
-@layout(pageTitle = titleNoForm("journeyRecovery.startAgain.title")) {
-    <h1 class="govuk-heading-xl">@messages(heading)</h1>
+@Singleton
+class IdGenerator @Inject()() {
 
-    <p class="govuk-body">@messages("error.try.again") <a class="govuk-link" href="https://www.gov.uk/find-hmrc-contacts/pension-schemes-general-enquiries">@messages("error.contact")</a></p>
+  def getCorrelationId: String = UUID.randomUUID().toString
 }
