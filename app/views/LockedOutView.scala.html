@@ -18,7 +18,7 @@
     layout: templates.Layout
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(timeString: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("lockedOut.title"))
@@ -27,5 +27,5 @@
     <h1 class="govuk-heading-xl">@messages("lockedOut.heading")</h1>
 
     <p class="govuk-body">@messages("lockedOut.p1")</p>
-    <p class="govuk-body">@messages("lockedOut.p2")</p>
+    <p class="govuk-body">@messages("lockedOut.p2", timeString)</p>
 }
