@@ -16,11 +16,17 @@
 
 package utils
 
+import com.google.inject.ImplementedBy
+
 import java.util.UUID
-import javax.inject.{Inject, Singleton}
+import javax.inject.Singleton
+
+@ImplementedBy(classOf[IdGeneratorImpl])
+trait IdGenerator {
+  def getCorrelationId: String
+}
 
 @Singleton
-class IdGenerator @Inject()() {
-
+class IdGeneratorImpl extends IdGenerator {
   def getCorrelationId: String = UUID.randomUUID().toString
 }

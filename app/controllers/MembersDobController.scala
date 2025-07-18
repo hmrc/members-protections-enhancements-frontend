@@ -31,54 +31,45 @@ import views.html.MembersDobView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MembersDobController @Inject()(
-                                      override val messagesApi: MessagesApi,
-                                      identify: IdentifierAction,
-                                      allowListAction: AllowListAction,
-                                      checkLockout: CheckLockoutAction,
-                                      getData: DataRetrievalAction,
-                                      navigator: Navigator,
-                                      service: SessionCacheService,
-                                      formProvider: MembersDobFormProvider,
-                                      implicit val controllerComponents: MessagesControllerComponents,
-                                      view: MembersDobView,
-                                      idGenerator: IdGenerator
-                                    )(implicit ec: ExecutionContext)
+class MembersDobController @Inject()(override val messagesApi: MessagesApi,
+                                     identify: IdentifierAction,
+                                     allowListAction: AllowListAction,
+                                     checkLockout: CheckLockoutAction,
+                                     getData: DataRetrievalAction,
+                                     navigator: Navigator,
+                                     service: SessionCacheService,
+                                     formProvider: MembersDobFormProvider,
+                                     implicit val controllerComponents: MessagesControllerComponents,
+                                     view: MembersDobView,
+                                     val idGenerator: IdGenerator)(implicit ec: ExecutionContext)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   private val form: Form[MembersDob] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
-    implicit request =>
-      val correlationId = request.correlationId match {
-        case None => idGenerator.getCorrelationId
-        case Some(id) => id
-      }
-      request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request =>
+    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
-      memberDetails =>
-        request.userAnswers.get(MembersDobPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), memberDetails.fullName)))
-          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), memberDetails.fullName)))
-        }
+    memberDetails =>
+      request.userAnswers.get(MembersDobPage) match {
+        case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), memberDetails.fullName)))
+        case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), memberDetails.fullName)))
+      }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
-    implicit request =>
-      memberDetails =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersDobPage), memberDetails.fullName)))
-          },
-          answer => {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
-              _ <- service.save(updatedAnswers)
-            } yield {
-              Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
-            }
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request =>
+    memberDetails =>
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersDobPage), memberDetails.fullName)))
+        },
+        answer => {
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
+            _ <- service.save(updatedAnswers)
+          } yield {
+            Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
           }
-        )
+        }
+      )
   }
 }

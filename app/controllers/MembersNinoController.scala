@@ -41,45 +41,38 @@ class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
                                       formProvider: MembersNinoFormProvider,
                                       implicit val controllerComponents: MessagesControllerComponents,
                                       view: MembersNinoView,
-                                      idGenerator: IdGenerator)(implicit ec: ExecutionContext)
+                                      val idGenerator: IdGenerator)(implicit ec: ExecutionContext)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   private val form: Form[MembersNino] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
-    implicit request =>
-      val correlationId = request.correlationId match {
-        case None => idGenerator.getCorrelationId
-        case Some(id) => id
-      }
-      request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request =>
+    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
-      memberDetails =>
-        request.userAnswers.get(MembersNinoPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
-          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), memberDetails.fullName)))
-        }
+    memberDetails =>
+      request.userAnswers.get(MembersNinoPage) match {
+        case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
+        case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), memberDetails.fullName)))
+      }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
-    implicit request =>
-      memberDetails =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => {
-              Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
-            },
-            answer => {
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
-                _ <- service.save(updatedAnswers)
-              } yield {
-                Redirect(navigator.nextPage(MembersNinoPage, mode, updatedAnswers))
-              }
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request =>
+    memberDetails =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => {
+            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
+          },
+          answer => {
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
+              _ <- service.save(updatedAnswers)
+            } yield {
+              Redirect(navigator.nextPage(MembersNinoPage, mode, updatedAnswers))
             }
-          )
+          }
+        )
   }
 
 }

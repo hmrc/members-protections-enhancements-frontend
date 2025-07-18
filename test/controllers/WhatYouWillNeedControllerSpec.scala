@@ -19,11 +19,9 @@ package controllers
 import base.SpecBase
 import org.mockito.Mockito.{times, verify}
 import play.api.i18n.Messages
-import play.api.inject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.IdGenerator
 import views.html.WhatYouWillNeedView
 
 class WhatYouWillNeedControllerSpec extends SpecBase {
@@ -32,12 +30,12 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
 
   "Check Members Protection Enhancements Controller" - {
     "must return OK and the correct view for a GET" - {
-      "when data request has no correlation id" in {
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = emptyUserAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+      "when correlation ID isn't found in the request" in {
+        val application = applicationBuilder(
+          userAnswers = emptyUserAnswers,
+          correlationIdInRequest = None,
+          idGeneratorResponse = "id"
+        ).build()
 
         running(application) {
           implicit val request: FakeRequest[AnyContentAsEmpty.type] =
@@ -54,12 +52,9 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
           verify(mockIdGenerator, times(1)).getCorrelationId
         }
       }
-      "when data request has correlation id, no need to generate new" in {
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationIdInRequest = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+
+      "when correlation ID exists in the request" in {
+        val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
         running(application) {
           implicit val request: FakeRequest[AnyContentAsEmpty.type] =

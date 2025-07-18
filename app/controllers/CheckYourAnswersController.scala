@@ -36,24 +36,18 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            getData: DataRetrievalAction,
                                            implicit val controllerComponents: MessagesControllerComponents,
                                            view: CheckYourAnswersView,
-                                           idGenerator: IdGenerator)
+                                           val idGenerator: IdGenerator)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handle {
-    implicit request =>
-      val correlationId = request.correlationId match {
-        case None => idGenerator.getCorrelationId
-        case Some(id) => id
-      }
-      request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
-      getUserData(request) match {
-        case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) => Future.successful(Ok(
-          view(rows(memberDetails, membersDob, membersNino, membersPsaCheckRef), memberDetails.fullName,
-            Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))))
-        case None => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-      }
+    getUserData(request) match {
+      case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) => Future.successful(Ok(
+        view(rows(memberDetails, membersDob, membersNino, membersPsaCheckRef), memberDetails.fullName,
+          Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))))
+      case None => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
   }
 
   private def rows(memberDetails: MemberDetails,
@@ -70,6 +64,6 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
   }
 
   def onSubmit: Action[AnyContent] = handle { _ =>
-      Future.successful(Redirect(submitUrl(NormalMode, CheckYourAnswersPage)))
+    Future.successful(Redirect(submitUrl(NormalMode, CheckYourAnswersPage)))
   }
 }

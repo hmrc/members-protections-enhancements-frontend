@@ -42,42 +42,33 @@ class WhatIsTheMembersNameController @Inject()(
                                                 val controllerComponents: MessagesControllerComponents,
                                                 formProvider: WhatIsTheMembersNameFormProvider,
                                                 view: WhatIsTheMembersNameView,
-                                                idGenerator: IdGenerator
+                                                val idGenerator: IdGenerator
                                               )(implicit ec: ExecutionContext)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   private val form: Form[MemberDetails] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handle {
-    implicit request =>
-      val correlationId = request.correlationId match {
-        case None => idGenerator.getCorrelationId
-        case Some(id) => id
-      }
-      request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+  def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
+    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
-      val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
-      Future.successful(Ok(view(namesForm, viewModel(mode, WhatIsTheMembersNamePage))))
+    val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
+      case None => form
+      case Some(value) => form.fill(value)
+    }
+    Future.successful(Ok(view(namesForm, viewModel(mode, WhatIsTheMembersNamePage))))
   }
 
-
-  def onSubmit(mode: Mode): Action[AnyContent] = handle {
-    implicit request =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, WhatIsTheMembersNamePage)))
-            ),
-          answer =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))
-              _ <- service.save(updatedAnswers)
-            } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers)))
+  def onSubmit(mode: Mode): Action[AnyContent] = handle { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          Future.successful(BadRequest(view(formWithErrors, viewModel(mode, WhatIsTheMembersNamePage)))
+          ),
+        answer =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))
+            _ <- service.save(updatedAnswers)
+          } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers)))
   }
-
 }

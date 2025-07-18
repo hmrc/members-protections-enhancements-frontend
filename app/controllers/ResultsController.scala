@@ -39,18 +39,13 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   dateTimeProvider: DateTimeProvider,
                                   checkAndRetrieveService: MembersCheckAndRetrieveService,
                                   failedAttemptService: FailedAttemptService,
-                                  idGenerator: IdGenerator)
+                                  val idGenerator: IdGenerator)
                                  (implicit ec: ExecutionContext)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) with Logging {
 
   val classLoggingContext: String = "ResultsController"
 
   def onPageLoad(): Action[AnyContent] = handle(implicit request => {
-    val correlationId = request.correlationId match {
-      case None => idGenerator.getCorrelationId
-      case Some(id) => id
-    }
-    request.copy(correlationId = Some(correlationId))
     logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
     val methodLoggingContext: String = "onPageLoad"

@@ -30,17 +30,11 @@ class KeepAliveController @Inject()(val controllerComponents: MessagesController
                                     checkLockout: CheckLockoutAction,
                                     getData: DataRetrievalAction,
                                     sessionRepository: SessionRepository,
-                                    idGenerator: IdGenerator)(implicit ec: ExecutionContext)
+                                    val idGenerator: IdGenerator)(implicit ec: ExecutionContext)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def keepAlive(): Action[AnyContent] = handle { implicit request =>
-    val correlationId = request.correlationId match {
-      case None => idGenerator.getCorrelationId
-      case Some(id) => id
-    }
-    request.copy(correlationId = Some(correlationId))
     logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
-
     sessionRepository.keepAlive(request.userAnswers.id).map(_ => Ok)
   }
 }

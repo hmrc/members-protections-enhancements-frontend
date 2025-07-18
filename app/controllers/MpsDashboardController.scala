@@ -32,15 +32,10 @@ class MpsDashboardController @Inject()(
                                         getData: DataRetrievalAction,
                                         val controllerComponents: MessagesControllerComponents,
                                         val appConfig: FrontendAppConfig,
-                                        idGenerator: IdGenerator
+                                        val idGenerator: IdGenerator
                                       )  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def redirectToMps(): Action[AnyContent] = handle { implicit request =>
-    val correlationId = request.correlationId match {
-      case None => idGenerator.getCorrelationId
-      case Some(id) => id
-    }
-    request.copy(correlationId = Some(correlationId))
     logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
     val mpsUrl =

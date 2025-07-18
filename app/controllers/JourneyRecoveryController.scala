@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import controllers.actions.{AllowListAction, CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import utils.{IdGenerator, Logging}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -26,37 +26,36 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
 import javax.inject.Inject
+import scala.concurrent.Future
 
 class JourneyRecoveryController @Inject()(val controllerComponents: MessagesControllerComponents,
                                           identify: IdentifierAction,
+                                          checkLockout: CheckLockoutAction,
+                                          allowListAction: AllowListAction,
                                           getData: DataRetrievalAction,
                                           continueView: JourneyRecoveryContinueView,
                                           startAgainView: JourneyRecoveryStartAgainView,
-                                          idGenerator: IdGenerator)
-  extends FrontendBaseController with I18nSupport with Logging {
+                                          val idGenerator: IdGenerator)
+  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
-  def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = (identify andThen getData) {
-    implicit request =>
-      val correlationId = request.correlationId match {
-        case None => idGenerator.getCorrelationId
-        case Some(id) => id
-      }
-      request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+  def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = handle { implicit request =>
+    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
-      val safeUrl: Option[String] = continueUrl.flatMap {
-        unsafeUrl =>
-          unsafeUrl.getEither(OnlyRelative) match {
-            case Right(safeUrl) =>
-              Some(safeUrl.url)
-            case Left(message) =>
-              logger.info(message)
-              None
-          }
-      }
+    val safeUrl: Option[String] = continueUrl.flatMap {
+      unsafeUrl =>
+        unsafeUrl.getEither(OnlyRelative) match {
+          case Right(safeUrl) =>
+            Some(safeUrl.url)
+          case Left(message) =>
+            logger.info(message)
+            None
+        }
+    }
 
+    Future.successful(
       safeUrl
         .map(url => Ok(continueView(url)))
         .getOrElse(Ok(startAgainView()))
+    )
   }
 }

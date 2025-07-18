@@ -19,7 +19,9 @@ package controllers
 import base.SpecBase
 import controllers.actions.FakePspIdentifierAction
 import models.MemberDetails
+import org.mockito.Mockito.{times, verify}
 import pages.WhatIsTheMembersNamePage
+import play.api.Application
 import play.api.mvc.AnyContentAsEmpty
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
@@ -45,8 +47,12 @@ class MpsDashboardControllerSpec extends SpecBase {
       }
     }
 
-    "redirect to the MPS administrator dashboard for a PSA user" in {
-      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+    "add correlation ID when it does not exist" in {
+      val application: Application = applicationBuilder(
+        userAnswers = emptyUserAnswers,
+        correlationIdInRequest = None,
+        idGeneratorResponse = "id"
+      ).build()
 
       running(application) {
         implicit val request: FakeRequest[AnyContentAsEmpty.type] =
@@ -56,13 +62,32 @@ class MpsDashboardControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe "http://localhost:8204/manage-pension-schemes/overview"
+        verify(mockIdGenerator, times(1)).getCorrelationId
+      }
+    }
+
+    "redirect to the MPS administrator dashboard for a PSA user" in {
+      val application: Application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+
+      running(application) {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest(GET, routes.MpsDashboardController.redirectToMps().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe "http://localhost:8204/manage-pension-schemes/overview"
+        verify(mockIdGenerator, times(0)).getCorrelationId
       }
     }
 
     "redirect to the MPS practitioner dashboard for a PSP user" in {
-
       val fakePspIdentifierAction: FakePspIdentifierAction = new FakePspIdentifierAction(parsers)
-      val application = applicationBuilder(userAnswers = emptyUserAnswers, fakePspIdentifierAction).build()
+
+      val application = applicationBuilder(
+        userAnswers = emptyUserAnswers,
+        identifierAction = fakePspIdentifierAction
+      ).build()
 
       running(application) {
         implicit val request: FakeRequest[AnyContentAsEmpty.type] =
@@ -72,6 +97,7 @@ class MpsDashboardControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustBe "http://localhost:8204/manage-pension-schemes/dashboard"
+        verify(mockIdGenerator, times(0)).getCorrelationId
       }
     }
   }

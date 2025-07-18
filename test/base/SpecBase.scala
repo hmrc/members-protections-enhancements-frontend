@@ -61,6 +61,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.running
 import providers.DateTimeProvider
 import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
+import utils.IdGenerator
 import viewmodels.formPage.FormPageViewModel
 
 import java.net.URLEncoder
@@ -91,12 +92,10 @@ trait SpecBase
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
   val parsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
-
   val fakePsaIdentifierAction: FakePsaIdentifierAction = new FakePsaIdentifierAction(parsers)
-
   val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
 
-  val mockAllowListAction: AllowListAction = mock[AllowListAction]
+  def mockIdGenerator: IdGenerator = mock[IdGenerator]
 
   val mockYear: Int = 2025
   val mockDateTimeVal: Int = 12
@@ -118,15 +117,20 @@ trait SpecBase
                                    identifierAction: IdentifierAction = fakePsaIdentifierAction,
                                    allowListResponse: Option[Result] = None,
                                    checkLockoutResult: Option[Result] = None,
-                                   correlationIdInRequest: Option[String] = Some("correlationId")): GuiceApplicationBuilder =
+                                   correlationIdInRequest: Option[String] = Some("correlationId"),
+                                   idGeneratorResponse: String = "None"): GuiceApplicationBuilder = {
+    when(mockIdGenerator.getCorrelationId).thenReturn(idGeneratorResponse)
+
     new GuiceApplicationBuilder()
       .configure(servicesConfig)
       .overrides(
+        bind[IdGenerator].toInstance(mockIdGenerator),
         bind[IdentifierAction].toInstance(identifierAction),
         bind[AllowListAction].toInstance(new FakeAllowListAction(allowListResponse)),
         bind[CheckLockoutAction].toInstance(new FakeCheckLockoutAction(checkLockoutResult)) ,
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, correlationIdInRequest))
       )
+  }
 
   def runningApplication(block: Application => Unit): Unit =
     running(_ => applicationBuilder(emptyUserAnswers))(block)

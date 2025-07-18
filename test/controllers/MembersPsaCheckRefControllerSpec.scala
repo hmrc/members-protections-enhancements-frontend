@@ -19,6 +19,7 @@ package controllers
 import base.SpecBase
 import forms.MembersPsaCheckRefFormProvider
 import models.{MemberDetails, MembersPsaCheckRef, NormalMode}
+import org.mockito.Mockito.{times, verify}
 import pages.{MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.mvc.Results.Redirect
@@ -55,20 +56,46 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
       }
     }
 
-    "must return OK and the correct view for a GET" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-      val application = applicationBuilder(userAnswers).build()
+    "must return OK and the correct view for a GET" - {
+      "when correlation ID exists in request" in {
+        val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        val application = applicationBuilder(userAnswers).build()
 
-      running(application) {
-        val request = FakeRequest(GET, onPageLoad)
+        running(application) {
+          val request = FakeRequest(GET, onPageLoad)
 
-        val result = route(application, request).value
+          val result = route(application, request).value
 
-        val view = application.injector.instanceOf[MembersPsaCheckRefView]
-        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+          val view = application.injector.instanceOf[MembersPsaCheckRefView]
+          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
-        status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
+          verify(mockIdGenerator, times(0)).getCorrelationId
+        }
+      }
+
+      "when correlation ID doesn't exist in request" in {
+        val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+
+        val application = applicationBuilder(
+          userAnswers = userAnswers,
+          correlationIdInRequest = None,
+          idGeneratorResponse = "id"
+        ).build()
+
+        running(application) {
+          val request = FakeRequest(GET, onPageLoad)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[MembersPsaCheckRefView]
+          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
+          verify(mockIdGenerator, times(1)).getCorrelationId
+        }
       }
     }
 

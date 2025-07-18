@@ -25,25 +25,17 @@ import views.html.WhatYouWillNeedView
 
 import scala.concurrent.Future
 
-class WhatYouWillNeedController @Inject()(
-                                                              override val messagesApi: MessagesApi,
-                                                              identify: IdentifierAction,
-                                                              allowListAction: AllowListAction,
-                                                              checkLockout: CheckLockoutAction,
-                                                              getData: DataRetrievalAction,
-                                                              val controllerComponents: MessagesControllerComponents,
-                                                              view: WhatYouWillNeedView,
-                                                              idGenerator: IdGenerator
-                                                            )  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
+class WhatYouWillNeedController @Inject()(override val messagesApi: MessagesApi,
+                                          identify: IdentifierAction,
+                                          allowListAction: AllowListAction,
+                                          checkLockout: CheckLockoutAction,
+                                          getData: DataRetrievalAction,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          view: WhatYouWillNeedView,
+                                          val idGenerator: IdGenerator) extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
-    val correlationId = request.correlationId match {
-      case None => idGenerator.getCorrelationId
-      case Some(id) => id
-    }
-    request.copy(correlationId = Some(correlationId))
     logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
-
     Future.successful(Ok(view(Some(routes.MpsDashboardController.redirectToMps().url))))
   }
 }

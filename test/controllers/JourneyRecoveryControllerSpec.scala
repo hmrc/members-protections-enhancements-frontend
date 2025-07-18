@@ -19,11 +19,14 @@ package controllers
 import base.SpecBase
 import org.mockito.Mockito.{times, verify}
 import play.api.inject
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import utils.IdGenerator
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
+
+import scala.concurrent.Future
 
 class JourneyRecoveryControllerSpec extends SpecBase {
 
@@ -33,12 +36,11 @@ class JourneyRecoveryControllerSpec extends SpecBase {
 
       "must return OK and the continue view" - {
         "when data request has no correlation id" in {
-
-          val mockIdGenerator = mock[IdGenerator]
-          val application = applicationBuilder(userAnswers = emptyUserAnswers)
-            .overrides(
-              inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-            ).build()
+          val application = applicationBuilder(
+            userAnswers = emptyUserAnswers,
+            correlationIdInRequest = None,
+            idGeneratorResponse = "id"
+          ).build()
 
           running(application) {
             val continueUrl = RedirectUrl("/foo")
@@ -53,19 +55,15 @@ class JourneyRecoveryControllerSpec extends SpecBase {
             verify(mockIdGenerator, times(1)).getCorrelationId
           }
         }
-        "when data request has correlation id, no need to generate new" in {
 
-          val mockIdGenerator = mock[IdGenerator]
-          val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationIdInRequest = Some("X-123"))
-            .overrides(
-              inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-            ).build()
+        "when data request has correlation id, no need to generate new" in {
+          val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
           running(application) {
             val continueUrl = RedirectUrl("/foo")
             val request = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
 
-            val result = route(application, request).value
+            val result: Future[Result] = route(application, request).value
 
             val continueView = application.injector.instanceOf[JourneyRecoveryContinueView]
 
