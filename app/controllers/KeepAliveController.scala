@@ -16,29 +16,25 @@
 
 package controllers
 
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{AllowListAction, CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import utils.IdGenerator
+
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class KeepAliveController @Inject()(val controllerComponents: MessagesControllerComponents,
                                     identify: IdentifierAction,
+                                    allowListAction: AllowListAction,
                                     checkLockout: CheckLockoutAction,
                                     getData: DataRetrievalAction,
                                     sessionRepository: SessionRepository,
-                                    idGenerator: IdGenerator)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+                                    val idGenerator: IdGenerator)(implicit ec: ExecutionContext)
+  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def keepAlive(): Action[AnyContent] = handle { implicit request =>
-    val correlationId = request.correlationId match {
-      case None => idGenerator.getCorrelationId
-      case Some(id) => id
-    }
-    request.copy(correlationId = Some(correlationId))
     logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
-
     sessionRepository.keepAlive(request.userAnswers.id).map(_ => Ok)
   }
 }

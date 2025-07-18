@@ -22,10 +22,9 @@ import models.{MemberDetails, MembersPsaCheckRef, NormalMode}
 import org.mockito.Mockito.{times, verify}
 import pages.{MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
-import play.api.inject
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.IdGenerator
 import viewmodels.formPage.FormPageViewModel
 import views.html.MembersPsaCheckRefView
 
@@ -40,36 +39,27 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
 
 
   "Members Psa Check Reference Controller" - {
-    "must return OK and the correct view for a GET" - {
-      "when data request has no correlation id" in {
-        val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = userAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+    "must redirect to unauthorised page if user is not allowed" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
 
-        running(application) {
-          val request = FakeRequest(GET, onPageLoad)
+      val application = applicationBuilder(
+        userAnswers = userAnswers,
+        allowListResponse = Some(Redirect(routes.UnauthorisedController.onPageLoad()))
+      ).build()
 
-          val result = route(application, request).value
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
 
-          val view = application.injector.instanceOf[MembersPsaCheckRefView]
-          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
       }
+    }
 
-      "when data request has correlation id, no need to generate new" in {
+    "must return OK and the correct view for a GET" - {
+      "when correlation ID exists in request" in {
         val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = userAnswers, correlationId = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+        val application = applicationBuilder(userAnswers).build()
 
         running(application) {
           val request = FakeRequest(GET, onPageLoad)
@@ -82,6 +72,28 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
           verify(mockIdGenerator, times(0)).getCorrelationId
+        }
+      }
+
+      "when correlation ID doesn't exist in request" in {
+        val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+
+        val application = applicationBuilder(
+          userAnswers = userAnswers,
+          correlationIdInRequest = None
+        ).build()
+
+        running(application) {
+          val request = FakeRequest(GET, onPageLoad)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[MembersPsaCheckRefView]
+          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
+          verify(mockIdGenerator, times(1)).getCorrelationId
         }
       }
     }

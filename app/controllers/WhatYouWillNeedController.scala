@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import utils.IdGenerator
@@ -27,21 +27,15 @@ import scala.concurrent.Future
 
 class WhatYouWillNeedController @Inject()(override val messagesApi: MessagesApi,
                                           identify: IdentifierAction,
+                                          allowListAction: AllowListAction,
                                           checkLockout: CheckLockoutAction,
                                           getData: DataRetrievalAction,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: WhatYouWillNeedView,
-                                          idGenerator: IdGenerator)
-  extends MpeBaseController(identify, checkLockout, getData) {
+                                          val idGenerator: IdGenerator) extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
-    val correlationId = request.correlationId match {
-      case None => idGenerator.getCorrelationId
-      case Some(id) => id
-    }
-    request.copy(correlationId = Some(correlationId))
     logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
-
     Future.successful(Ok(view(Some(routes.MpsDashboardController.redirectToMps().url))))
   }
 }

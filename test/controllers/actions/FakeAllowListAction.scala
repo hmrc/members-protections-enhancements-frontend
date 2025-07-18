@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package utils
+package controllers.actions
 
-import com.google.inject.ImplementedBy
+import models.requests.IdentifierRequest
+import play.api.mvc.Result
 
-import java.util.UUID
-import javax.inject.Singleton
+import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[IdGeneratorImpl])
-trait IdGenerator {
-  def getCorrelationId: String
-}
+class FakeAllowListAction(result: Option[Result]) extends AllowListAction {
 
-@Singleton
-class IdGeneratorImpl extends IdGenerator {
-  def getCorrelationId: String = UUID.randomUUID().toString
+  override protected implicit val executionContext: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
+
+  override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] =
+    Future.successful(result)
 }

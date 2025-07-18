@@ -29,15 +29,14 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import pages._
 import play.api.http.Status.OK
+import play.api.{Application, inject}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Application, inject}
 import services.FailedAttemptService
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.IdGenerator
 import views.html.ResultsView
 
 import java.time.format.DateTimeFormatter
@@ -87,7 +86,6 @@ class ResultsControllerSpec extends SpecBase {
     ).thenReturn(
       Future.successful(result)
     )
-
     val backLinkRoute: String = routes.CheckYourAnswersController.onPageLoad().url
 
     val dateTimeWithZone: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Europe/London"))
@@ -115,25 +113,26 @@ class ResultsControllerSpec extends SpecBase {
       requestBody = Json.toJson(pensionSchemeMemberRequest).toString(),
       response = aResponse().withStatus(status).withBody(response)
     )
-
-    val response: String =
-      """
-        |{
-        | "protectionRecords": [
-        |   {
-        |     "protectionReference": "some-id",
-        |     "type": "FIXED PROTECTION 2016",
-        |     "status": "OPEN",
-        |     "protectedAmount": 1,
-        |     "lumpSumAmount": 1,
-        |     "lumpSumPercentage": 1,
-        |     "enhancementFactor": 0.5
-        |   }
-        | ]
-        |}""".stripMargin
   }
 
   "Results Controller" - {
+    "must redirect to unauthorised page if user is not allowed" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+
+      val application = applicationBuilder(
+        userAnswers = userAnswers,
+        allowListResponse = Some(Redirect(routes.UnauthorisedController.onPageLoad()))
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+      }
+    }
+
     "must redirect to lockout page if the user is locked out" in new Test {
       override val checkLockoutResult: Option[Result] = Some(
         Redirect(routes.LockedOutController.onPageLoad())
@@ -148,15 +147,70 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
-
     "must return OK and the correct view for a GET" - {
-      "when data request has no correlation id" in new Test {
+      "when correlation ID exists in the request" in new Test {
+        val response: String =
+          """
+            |{
+            | "protectionRecords": [
+            |   {
+            |     "protectionReference": "some-id",
+            |     "type": "FIXED PROTECTION 2016",
+            |     "status": "OPEN",
+            |     "protectedAmount": 1,
+            |     "lumpSumAmount": 1,
+            |     "lumpSumPercentage": 1,
+            |     "enhancementFactor": 0.5
+            |   }
+            | ]
+            |}""".stripMargin
+
         setUpStubs(OK, response)
-        val mockIdGenerator: IdGenerator = mock[IdGenerator]
-        override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+          val result = route(application, request).value
+          val view = application.injector.instanceOf[ResultsView]
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(
+            memberDetails,
+            membersDob,
+            membersNino,
+            membersPsaCheckRef,
+            Some(backLinkRoute),
+            localDateTime,
+            testModel
+          )(request, messages(application)).toString
+
+          verify(mockIdGenerator, times(0)).getCorrelationId
+        }
+      }
+
+      "when correlation ID is not in the request" in new Test {
+        val response: String =
+          """
+            |{
+            | "protectionRecords": [
+            |   {
+            |     "protectionReference": "some-id",
+            |     "type": "FIXED PROTECTION 2016",
+            |     "status": "OPEN",
+            |     "protectedAmount": 1,
+            |     "lumpSumAmount": 1,
+            |     "lumpSumPercentage": 1,
+            |     "enhancementFactor": 0.5
+            |   }
+            | ]
+            |}""".stripMargin
+
+        setUpStubs(OK, response)
+
+        override lazy val application: Application = applicationBuilder(
+          userAnswers = userAnswers,
+          correlationIdInRequest = None
+        )
+          .build()
 
         running(application) {
           val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
@@ -175,33 +229,6 @@ class ResultsControllerSpec extends SpecBase {
           )(request, messages(application)).toString
 
           verify(mockIdGenerator, times(1)).getCorrelationId
-        }
-      }
-
-      "when data request has correlation id, no need to generate new" in new Test {
-        setUpStubs(OK, response)
-        val mockIdGenerator: IdGenerator = mock[IdGenerator]
-        override lazy val application: Application = applicationBuilder(userAnswers = userAnswers, correlationId = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
-          val result = route(application, request).value
-          val view = application.injector.instanceOf[ResultsView]
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(
-            memberDetails,
-            membersDob,
-            membersNino,
-            membersPsaCheckRef,
-            Some(backLinkRoute),
-            localDateTime,
-            testModel
-          )(request, messages(application)).toString
-          verify(mockIdGenerator, times(0)).getCorrelationId
         }
       }
     }

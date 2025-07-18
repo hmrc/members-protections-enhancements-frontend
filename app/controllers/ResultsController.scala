@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions._
 import models.requests.IdentifierRequest
 import utils.Logging
 import play.api.i18n.MessagesApi
@@ -31,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   identify: IdentifierAction,
+                                  allowListAction: AllowListAction,
                                   checkLockout: CheckLockoutAction,
                                   getData: DataRetrievalAction,
                                   val controllerComponents: MessagesControllerComponents,
@@ -38,18 +39,13 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   dateTimeProvider: DateTimeProvider,
                                   checkAndRetrieveService: MembersCheckAndRetrieveService,
                                   failedAttemptService: FailedAttemptService,
-                                  idGenerator: IdGenerator)
+                                  val idGenerator: IdGenerator)
                                  (implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) with Logging {
+  extends MpeBaseController(identify, allowListAction, checkLockout, getData) with Logging {
 
   val classLoggingContext: String = "ResultsController"
 
   def onPageLoad(): Action[AnyContent] = handle(implicit request => {
-    val correlationId = request.correlationId match {
-      case None => idGenerator.getCorrelationId
-      case Some(id) => id
-    }
-    request.copy(correlationId = Some(correlationId))
     logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
     val methodLoggingContext: String = "onPageLoad"

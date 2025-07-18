@@ -22,17 +22,15 @@ import org.mockito.Mockito.{times, verify}
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.http.Status.OK
 import play.api.i18n.Messages
-import play.api.inject
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import utils.IdGenerator
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
-
 
   val userAnswers: UserAnswers = emptyUserAnswers
     .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
@@ -41,44 +39,24 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
     .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
 
   "Check Your Answers Controller" - {
+    "must redirect to unauthorised page if user is not allowed" in {
+      val application = applicationBuilder(
+        userAnswers = userAnswers,
+        allowListResponse = Some(Redirect(routes.UnauthorisedController.onPageLoad()))
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+      }
+    }
 
     "must return OK and the correct view for a GET when userAnswers are present" - {
-      "when data request has no correlation id" in {
-
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = userAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
-          implicit val msgs: Messages = messages(application)
-
-          val result = route(application, request).value
-          val view = application.injector.instanceOf[CheckYourAnswersView]
-          val list: Seq[SummaryListRow] = Seq(
-            membersFirstNameRow(MemberDetails("Pearl", "Harvey")),
-            membersLastNameRow(MemberDetails("Pearl", "Harvey")),
-            membersDobRow(MembersDob(1, 1, 2000)),
-            membersNinoRow(MembersNino("AB123456A")),
-            membersPsaCheckRefRow(MembersPsaCheckRef("PSA12345678A"))
-          )
-          val backLinkRoute = routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(list, "Pearl Harvey", Some(backLinkRoute))(request, messages(application)).toString
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
-      }
-
-      "when data request has correlation id, no need to generate new" in {
-
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = userAnswers, correlationId = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+      "when correlation ID exists in the request" in {
+        val application = applicationBuilder(userAnswers = userAnswers).build()
 
         running(application) {
           val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
@@ -101,10 +79,38 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
           verify(mockIdGenerator, times(0)).getCorrelationId
         }
       }
+
+      "when correlation ID doesn't exists in the request" in {
+        val application = applicationBuilder(
+          userAnswers = userAnswers,
+          correlationIdInRequest = None
+        ).build()
+
+        running(application) {
+          val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+          implicit val msgs: Messages = messages(application)
+
+          val result = route(application, request).value
+
+          val view = application.injector.instanceOf[CheckYourAnswersView]
+          val list: Seq[SummaryListRow] = Seq(
+            membersFirstNameRow(MemberDetails("Pearl", "Harvey")),
+            membersLastNameRow(MemberDetails("Pearl", "Harvey")),
+            membersDobRow(MembersDob(1, 1, 2000)),
+            membersNinoRow(MembersNino("AB123456A")),
+            membersPsaCheckRefRow(MembersPsaCheckRef("PSA12345678A"))
+          )
+          val backLinkRoute = routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual view(list, "Pearl Harvey", Some(backLinkRoute))(request, messages(application)).toString
+          verify(mockIdGenerator, times(1)).getCorrelationId
+        }
+      }
     }
 
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
@@ -118,7 +124,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
     }
 
     "must return to ResultsController page when submitted" in {
-
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
       val onSubmit = routes.CheckYourAnswersController.onSubmit()
