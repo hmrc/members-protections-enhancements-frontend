@@ -79,8 +79,7 @@ class MembersNinoControllerSpec extends SpecBase {
 
         val application = applicationBuilder(
           userAnswers,
-          correlationIdInRequest = None,
-          idGeneratorResponse = "id"
+          correlationIdInRequest = None
         ).build()
 
         running(application) {

@@ -80,8 +80,7 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
           val application =
             applicationBuilder(
               emptyUserAnswers,
-              correlationIdInRequest = None,
-              idGeneratorResponse = "id"
+              correlationIdInRequest = None
             )
               .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
               .build()

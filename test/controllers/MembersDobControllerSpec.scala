@@ -81,8 +81,7 @@ class MembersDobControllerSpec extends SpecBase {
         val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
         val application = applicationBuilder(
           userAnswers = userAnswers,
-          correlationIdInRequest = None,
-          idGeneratorResponse = "id"
+          correlationIdInRequest = None
         ).build()
 
         running(application) {

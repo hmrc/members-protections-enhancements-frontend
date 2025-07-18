@@ -95,7 +95,8 @@ trait SpecBase
   val fakePsaIdentifierAction: FakePsaIdentifierAction = new FakePsaIdentifierAction(parsers)
   val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
 
-  def mockIdGenerator: IdGenerator = mock[IdGenerator]
+  val mockIdGenerator: IdGenerator = mock[IdGenerator]
+  when(mockIdGenerator.getCorrelationId).thenReturn("someId")
 
   val mockYear: Int = 2025
   val mockDateTimeVal: Int = 12
@@ -117,20 +118,16 @@ trait SpecBase
                                    identifierAction: IdentifierAction = fakePsaIdentifierAction,
                                    allowListResponse: Option[Result] = None,
                                    checkLockoutResult: Option[Result] = None,
-                                   correlationIdInRequest: Option[String] = Some("correlationId"),
-                                   idGeneratorResponse: String = "None"): GuiceApplicationBuilder = {
-    when(mockIdGenerator.getCorrelationId).thenReturn(idGeneratorResponse)
-
+                                   correlationIdInRequest: Option[String] = Some("correlationId")): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(servicesConfig)
       .overrides(
         bind[IdGenerator].toInstance(mockIdGenerator),
         bind[IdentifierAction].toInstance(identifierAction),
         bind[AllowListAction].toInstance(new FakeAllowListAction(allowListResponse)),
-        bind[CheckLockoutAction].toInstance(new FakeCheckLockoutAction(checkLockoutResult)) ,
+        bind[CheckLockoutAction].toInstance(new FakeCheckLockoutAction(checkLockoutResult)),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, correlationIdInRequest))
       )
-  }
 
   def runningApplication(block: Application => Unit): Unit =
     running(_ => applicationBuilder(emptyUserAnswers))(block)

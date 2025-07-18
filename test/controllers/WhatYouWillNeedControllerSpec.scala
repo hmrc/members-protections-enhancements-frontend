@@ -33,8 +33,7 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
       "when correlation ID isn't found in the request" in {
         val application = applicationBuilder(
           userAnswers = emptyUserAnswers,
-          correlationIdInRequest = None,
-          idGeneratorResponse = "id"
+          correlationIdInRequest = None
         ).build()
 
         running(application) {

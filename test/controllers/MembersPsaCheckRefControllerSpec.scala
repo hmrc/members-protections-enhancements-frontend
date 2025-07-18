@@ -80,8 +80,7 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
 
         val application = applicationBuilder(
           userAnswers = userAnswers,
-          correlationIdInRequest = None,
-          idGeneratorResponse = "id"
+          correlationIdInRequest = None
         ).build()
 
         running(application) {

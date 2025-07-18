@@ -38,8 +38,7 @@ class JourneyRecoveryControllerSpec extends SpecBase {
         "when data request has no correlation id" in {
           val application = applicationBuilder(
             userAnswers = emptyUserAnswers,
-            correlationIdInRequest = None,
-            idGeneratorResponse = "id"
+            correlationIdInRequest = None
           ).build()
 
           running(application) {

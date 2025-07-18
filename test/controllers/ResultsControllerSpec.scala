@@ -208,8 +208,7 @@ class ResultsControllerSpec extends SpecBase {
 
         override lazy val application: Application = applicationBuilder(
           userAnswers = userAnswers,
-          correlationIdInRequest = None,
-          idGeneratorResponse = "id"
+          correlationIdInRequest = None
         )
           .build()
 

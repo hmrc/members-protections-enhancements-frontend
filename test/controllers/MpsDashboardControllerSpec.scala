@@ -50,8 +50,7 @@ class MpsDashboardControllerSpec extends SpecBase {
     "add correlation ID when it does not exist" in {
       val application: Application = applicationBuilder(
         userAnswers = emptyUserAnswers,
-        correlationIdInRequest = None,
-        idGeneratorResponse = "id"
+        correlationIdInRequest = None
       ).build()
 
       running(application) {

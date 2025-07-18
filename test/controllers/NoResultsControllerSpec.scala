@@ -116,8 +116,7 @@ class NoResultsControllerSpec extends SpecBase {
 
         val application = applicationBuilder(
           userAnswers = userAnswers,
-          correlationIdInRequest = None,
-          idGeneratorResponse = "ID"
+          correlationIdInRequest = None
         ).build()
 
         running(application) {

@@ -76,8 +76,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
       "when correlation ID doesn't exist in the request" in {
         val application = applicationBuilder(
           userAnswers = emptyUserAnswers,
-          correlationIdInRequest = None,
-          idGeneratorResponse = "id"
+          correlationIdInRequest = None
         ).build()
 
         running(application) {

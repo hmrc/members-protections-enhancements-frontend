@@ -83,8 +83,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
       "when correlation ID doesn't exists in the request" in {
         val application = applicationBuilder(
           userAnswers = userAnswers,
-          correlationIdInRequest = None,
-          idGeneratorResponse = "Id"
+          correlationIdInRequest = None
         ).build()
 
         running(application) {
