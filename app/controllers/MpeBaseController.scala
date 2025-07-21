@@ -16,12 +16,12 @@
 
 package controllers
 
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions._
 import models.requests.{DataRequest, PensionSchemeMemberRequest}
 import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, Mode, NormalMode}
 import pages._
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, Call, Result}
+import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.Logging
 import viewmodels.formPage.FormPageViewModel
@@ -30,19 +30,17 @@ import javax.inject.Inject
 import scala.concurrent.Future
 
 abstract class MpeBaseController @Inject()(identify: IdentifierAction,
+                                           allowListAction: AllowListAction,
                                            checkLockout: CheckLockoutAction,
                                            getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport with Logging {
 
   def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
-    (identify andThen checkLockout andThen getData).async {
-      implicit request =>
-        withMemberDetails { memberDetails =>
-          block(request)(memberDetails)
-        }
-    }
+    handle(implicit request =>
+      withMemberDetails(memberDetails => block(request)(memberDetails))
+    )
 
   def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
-    (identify andThen checkLockout andThen getData).async(block(_))
+    (identify andThen allowListAction andThen checkLockout andThen getData).async(block(_))
 
   private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
     request.userAnswers.get(WhatIsTheMembersNamePage) match {

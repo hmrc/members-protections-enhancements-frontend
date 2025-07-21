@@ -18,9 +18,8 @@ package controllers
 
 import base.SpecBase
 import forms.WhatIsTheMembersNameFormProvider
-import models.{MemberDetails, NormalMode}
+import models.{CheckMode, MemberDetails, NormalMode}
 import pages.WhatIsTheMembersNamePage
-import play.api.Application
 import play.api.data.Form
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
@@ -38,18 +37,20 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
   private val form: Form[MemberDetails] = formProvider()
 
   "Member Name Controller" - {
-    "must redirect to lockout page if the user is locked out" in {
-      val application: Application = applicationBuilder(
-        userAnswers = emptyUserAnswers,
-        checkLockoutResult = Some(Redirect(controllers.routes.LockedOutController.onPageLoad()))
+    "must redirect to unauthorised page if user is not allowed" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+
+      val application = applicationBuilder(
+        userAnswers = userAnswers,
+        allowListResponse = Some(Redirect(routes.UnauthorisedController.onPageLoad()))
       ).build()
 
       running(application) {
-        val request = FakeRequest(GET, onPageLoad)
-        val result = route(application, request).value
+        val request = FakeRequest(GET, routes.WhatIsTheMembersNameController.onPageLoad(CheckMode).url)
 
+        val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(controllers.routes.LockedOutController.onPageLoad().url)
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
       }
     }
 

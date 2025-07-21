@@ -21,6 +21,7 @@ import forms.MembersPsaCheckRefFormProvider
 import models.{MemberDetails, MembersPsaCheckRef, NormalMode}
 import pages.{MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import viewmodels.formPage.FormPageViewModel
@@ -37,10 +38,26 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
 
 
   "Members Psa Check Reference Controller" - {
-    "must return OK and the correct view for a GET" in {
+    "must redirect to unauthorised page if user is not allowed" in {
       val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
 
-      val application = applicationBuilder(userAnswers = userAnswers).build()
+      val application = applicationBuilder(
+        userAnswers = userAnswers,
+        allowListResponse = Some(Redirect(routes.UnauthorisedController.onPageLoad()))
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+      }
+    }
+
+    "must return OK and the correct view for a GET" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val application = applicationBuilder(userAnswers).build()
 
       running(application) {
         val request = FakeRequest(GET, onPageLoad)

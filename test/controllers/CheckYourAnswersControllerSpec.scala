@@ -21,6 +21,8 @@ import models._
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.http.Status.OK
 import play.api.i18n.Messages
+
+import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -37,6 +39,20 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
     .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
 
   "Check Your Answers Controller" - {
+    "must redirect to unauthorised page if user is not allowed" in {
+      val application = applicationBuilder(
+        userAnswers = userAnswers,
+        allowListResponse = Some(Redirect(routes.UnauthorisedController.onPageLoad()))
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+      }
+    }
 
     "must return OK and the correct view for a GET when userAnswers are present" in {
 
@@ -64,7 +80,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
     }
 
     "must redirect to start page for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
@@ -78,7 +93,6 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
     }
 
     "must return to ResultsController page when submitted" in {
-
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
       val onSubmit = routes.CheckYourAnswersController.onSubmit()

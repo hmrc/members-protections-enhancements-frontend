@@ -18,18 +18,20 @@ package controllers
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions._
 import models.requests.UserType.PSA
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
 import scala.concurrent.Future
 
-class MpsDashboardController @Inject()(identify: IdentifierAction,
-                                       checkLockout: CheckLockoutAction,
-                                       getData: DataRetrievalAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       val appConfig: FrontendAppConfig)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class MpsDashboardController @Inject()(
+                                        identify: IdentifierAction,
+                                        allowListAction: AllowListAction,
+                                        checkLockout: CheckLockoutAction,
+                                        getData: DataRetrievalAction,
+                                        val controllerComponents: MessagesControllerComponents,
+                                        val appConfig: FrontendAppConfig
+                                      )  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def redirectToMps(): Action[AnyContent] = handle { implicit request =>
 

@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{AllowListAction, CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
 
@@ -26,9 +26,10 @@ import scala.concurrent.ExecutionContext
 class ClearCacheController @Inject()(val controllerComponents: MessagesControllerComponents,
                                      identify: IdentifierAction,
                                      checkLockout: CheckLockoutAction,
+                                     allowListAction: AllowListAction,
                                      getData: DataRetrievalAction,
                                      sessionCacheService: SessionCacheService)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
 

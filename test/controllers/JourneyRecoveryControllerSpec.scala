@@ -27,10 +27,10 @@ class JourneyRecoveryControllerSpec extends SpecBase {
   "JourneyRecovery Controller" - {
 
     "when a relative continue Url is supplied" - {
-
       "must return OK and the continue view" in {
-
-        val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+        val application = applicationBuilder(
+          userAnswers = emptyUserAnswers
+        ).build()
 
         running(application) {
           val continueUrl = RedirectUrl("/foo")

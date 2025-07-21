@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions.{AllowListAction, CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 
@@ -25,13 +25,13 @@ import scala.concurrent.ExecutionContext
 
 class KeepAliveController @Inject()(val controllerComponents: MessagesControllerComponents,
                                     identify: IdentifierAction,
+                                    allowListAction: AllowListAction,
                                     checkLockout: CheckLockoutAction,
                                     getData: DataRetrievalAction,
                                     sessionRepository: SessionRepository)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def keepAlive(): Action[AnyContent] = handle { implicit request =>
-
     sessionRepository.keepAlive(request.userAnswers.id).map(_ => Ok)
   }
 }

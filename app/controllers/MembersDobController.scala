@@ -17,7 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import controllers.actions._
 import forms.MembersDobFormProvider
 import models.{MembersDob, Mode}
 import navigation.Navigator
@@ -32,6 +32,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class MembersDobController @Inject()(override val messagesApi: MessagesApi,
                                      identify: IdentifierAction,
+                                     allowListAction: AllowListAction,
                                      checkLockout: CheckLockoutAction,
                                      getData: DataRetrievalAction,
                                      navigator: Navigator,
@@ -39,35 +40,33 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
                                      formProvider: MembersDobFormProvider,
                                      implicit val controllerComponents: MessagesControllerComponents,
                                      view: MembersDobView)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   private val form: Form[MembersDob] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request =>
 
-      memberDetails =>
-        request.userAnswers.get(MembersDobPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), memberDetails.fullName)))
-          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), memberDetails.fullName)))
-        }
+    memberDetails =>
+      request.userAnswers.get(MembersDobPage) match {
+        case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), memberDetails.fullName)))
+        case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), memberDetails.fullName)))
+      }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
-    implicit request =>
-      memberDetails =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersDobPage), memberDetails.fullName)))
-          },
-          answer => {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
-              _ <- service.save(updatedAnswers)
-            } yield {
-              Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
-            }
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request =>
+    memberDetails =>
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersDobPage), memberDetails.fullName)))
+        },
+        answer => {
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
+            _ <- service.save(updatedAnswers)
+          } yield {
+            Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
           }
-        )
+        }
+      )
   }
 }

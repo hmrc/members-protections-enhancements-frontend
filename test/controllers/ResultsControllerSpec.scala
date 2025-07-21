@@ -30,12 +30,12 @@ import org.mockito.Mockito.{times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import pages._
 import play.api.http.Status.OK
+import play.api.{Application, inject}
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Application, inject}
 import services.FailedAttemptService
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.IdGenerator
@@ -88,7 +88,6 @@ class ResultsControllerSpec extends SpecBase {
     ).thenReturn(
       Future.successful(result)
     )
-
     val backLinkRoute: String = routes.CheckYourAnswersController.onPageLoad().url
 
     val dateTimeWithZone: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Europe/London"))
@@ -135,6 +134,23 @@ class ResultsControllerSpec extends SpecBase {
   }
 
   "Results Controller" - {
+    "must redirect to unauthorised page if user is not allowed" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+
+      val application = applicationBuilder(
+        userAnswers = userAnswers,
+        allowListResponse = Some(Redirect(routes.UnauthorisedController.onPageLoad()))
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+      }
+    }
+
     "must redirect to lockout page if the user is locked out" in new Test {
       override val checkLockoutResult: Option[Result] = Some(
         Redirect(routes.LockedOutController.onPageLoad())
@@ -148,7 +164,6 @@ class ResultsControllerSpec extends SpecBase {
         redirectLocation(result) mustBe Some(controllers.routes.LockedOutController.onPageLoad().url)
       }
     }
-
 
     "must return OK and the correct view for GET and generate correlation id" in new Test {
       setUpStubs(OK, response)
