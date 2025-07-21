@@ -1,0 +1,8 @@
+@media print {
+    .hmrc-sign-out-nav__link,
+    .govuk-breadcrumbs,
+    .govuk-button,
+    .gem-c-print-link__button {
+        display: none !important;
+    }
+}
