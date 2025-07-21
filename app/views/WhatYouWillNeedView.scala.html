@@ -16,7 +16,6 @@
 
 @import views.html.components._
 @import config.FrontendAppConfig
-@import viewmodels.MpeBreadcrumbs._
 
 @this(
     layout: templates.Layout,
@@ -27,14 +26,11 @@
     govukBreadcrumbs: GovukBreadcrumbs
 )
 
-@(
-    backLinkUrl: Option[String]
-)(implicit request: Request[_], messages: Messages)
+@(backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
 
 @layout(
-        pageTitle = titleNoForm(messages("whatYouWillNeed.title")),
-        backLinkUrl = backLinkUrl,
-        beforeContent = Some(govukBreadcrumbs(Breadcrumbs(mpePageBreadcrumbs)))
+    pageTitle = titleNoForm(messages("whatYouWillNeed.title")),
+    backLinkUrl = backLinkUrl
 ) {
 
     @heading("whatYouWillNeed.heading", headerSize = "l")

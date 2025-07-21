@@ -33,7 +33,6 @@ class WhatYouWillNeedController @Inject()(override val messagesApi: MessagesApi,
   extends MpeBaseController(identify, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
-
     Future.successful(Ok(view(Some(routes.MpsDashboardController.redirectToMps().url))))
   }
 }
