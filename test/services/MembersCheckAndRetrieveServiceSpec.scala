@@ -34,7 +34,7 @@ import scala.concurrent.Future
 class MembersCheckAndRetrieveServiceSpec extends SpecBase with ScalaCheckPropertyChecks {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-
+  implicit val correlationId: String = "X-123"
   val mockConnector: MembersCheckAndRetrieveConnector = mock[MembersCheckAndRetrieveConnector]
   val service = new MembersCheckAndRetrieveServiceImpl(mockConnector)
 
@@ -43,7 +43,7 @@ class MembersCheckAndRetrieveServiceSpec extends SpecBase with ScalaCheckPropert
   }
 
 
-  val request = PensionSchemeMemberRequest(
+  val request: PensionSchemeMemberRequest = PensionSchemeMemberRequest(
     firstName = "Naren",
     lastName = "Vijay",
     dateOfBirth = "2024-12-31",

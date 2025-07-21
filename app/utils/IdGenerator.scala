@@ -29,4 +29,5 @@ trait IdGenerator {
 @Singleton
 class IdGeneratorImpl extends IdGenerator {
   def getCorrelationId: String = UUID.randomUUID().toString
+
 }

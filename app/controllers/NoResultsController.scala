@@ -20,7 +20,7 @@ import controllers.actions._
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
-import utils.{DateTimeFormats, IdGenerator}
+import utils.DateTimeFormats
 import views.html.NoResultsView
 
 import javax.inject.Inject
@@ -33,12 +33,10 @@ class NoResultsController @Inject()(override val messagesApi: MessagesApi,
                                     getData: DataRetrievalAction,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: NoResultsView,
-                                    dateTimeProvider: DateTimeProvider,
-                                    val idGenerator: IdGenerator)
+                                    dateTimeProvider: DateTimeProvider)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
     getUserData(request) match {
       case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
@@ -50,7 +48,7 @@ class NoResultsController @Inject()(override val messagesApi: MessagesApi,
             membersPsaCheckRef = membersPsaCheckRef,
             formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now())
           )))
-      case _ => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      case _ => Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
     }
   }
 }

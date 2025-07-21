@@ -19,7 +19,6 @@ package controllers
 import base.SpecBase
 import forms.WhatIsTheMembersNameFormProvider
 import models.{CheckMode, MemberDetails, NormalMode}
-import org.mockito.Mockito.{times, verify}
 import pages.WhatIsTheMembersNamePage
 import play.api.data.Form
 import play.api.mvc.Results.Redirect
@@ -55,41 +54,20 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
       }
     }
 
-    "must return OK and the correct view for a GET" - {
-      "when correlation ID exists in the request" in {
-        val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+    "must return OK and the correct view for a GET" in {
 
-        running(application) {
-          val request = FakeRequest(GET, onPageLoad)
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
-          val result = route(application, request).value
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
 
-          val view = application.injector.instanceOf[WhatIsTheMembersNameView]
-          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+        val result = route(application, request).value
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
-          verify(mockIdGenerator, times(0)).getCorrelationId
-        }
-      }
+        val view = application.injector.instanceOf[WhatIsTheMembersNameView]
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
-      "when correlation ID doesn't exist in the request" in {
-        val application = applicationBuilder(
-          userAnswers = emptyUserAnswers,
-          correlationIdInRequest = None
-        ).build()
-
-        running(application) {
-          val request = FakeRequest(GET, onPageLoad)
-          val result = route(application, request).value
-          val view = application.injector.instanceOf[WhatIsTheMembersNameView]
-          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
-        }
-
-        verify(mockIdGenerator, times(1)).getCorrelationId
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
       }
     }
 

@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class MembersCheckAndRetrieveServiceImpl @Inject()(checkAndRetrieveConnector: MembersCheckAndRetrieveConnector) extends MembersCheckAndRetrieveService {
 
   override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
-                               (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[MpeError, ProtectionRecordDetails]] = {
+                               (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[Either[MpeError, ProtectionRecordDetails]] = {
     checkAndRetrieveConnector.checkAndRetrieve(pensionSchemeMemberRequest)
   }
 }
@@ -38,5 +38,5 @@ class MembersCheckAndRetrieveServiceImpl @Inject()(checkAndRetrieveConnector: Me
 @ImplementedBy(classOf[MembersCheckAndRetrieveServiceImpl])
 trait MembersCheckAndRetrieveService {
   def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
-                      (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[MpeError, ProtectionRecordDetails]]
+                      (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[Either[MpeError, ProtectionRecordDetails]]
 }

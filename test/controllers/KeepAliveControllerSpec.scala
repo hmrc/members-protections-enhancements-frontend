@@ -54,46 +54,23 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must keep the answers alive and return OK" - {
-        "when correlation ID exists in the request" in {
-          val mockSessionRepository = mock[SessionRepository]
-          when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
+      "must keep the answers alive and return OK" in {
+        val mockSessionRepository = mock[SessionRepository]
+        when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
 
-          val application =
-            applicationBuilder(emptyUserAnswers)
-              .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-              .build()
+        val application =
+          applicationBuilder(emptyUserAnswers)
+            .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+            .build()
 
-          running(application) {
-            val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
-            val result = route(application, request).value
-            status(result) mustEqual OK
-            verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
-            verify(mockIdGenerator, times(0)).getCorrelationId
-          }
-        }
-
-        "when correlation ID doesn't exists in the request" in {
-          val mockSessionRepository = mock[SessionRepository]
-          when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
-
-          val application =
-            applicationBuilder(
-              emptyUserAnswers,
-              correlationIdInRequest = None
-            )
-              .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
-              .build()
-
-          running(application) {
-            val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
-            val result = route(application, request).value
-            status(result) mustEqual OK
-            verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
-            verify(mockIdGenerator, times(1)).getCorrelationId
-          }
+        running(application) {
+          val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
+          val result = route(application, request).value
+          status(result) mustEqual OK
+          verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
         }
       }
+
     }
   }
 }

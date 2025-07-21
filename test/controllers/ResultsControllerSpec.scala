@@ -19,6 +19,7 @@ package controllers
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import controllers.actions.FakePspIdentifierAction
 import models._
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
@@ -37,6 +38,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.FailedAttemptService
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.IdGenerator
 import views.html.ResultsView
 
 import java.time.format.DateTimeFormatter
@@ -113,6 +115,22 @@ class ResultsControllerSpec extends SpecBase {
       requestBody = Json.toJson(pensionSchemeMemberRequest).toString(),
       response = aResponse().withStatus(status).withBody(response)
     )
+
+    val response: String =
+      """
+        |{
+        | "protectionRecords": [
+        |   {
+        |     "protectionReference": "some-id",
+        |     "type": "FIXED PROTECTION 2016",
+        |     "status": "OPEN",
+        |     "protectedAmount": 1,
+        |     "lumpSumAmount": 1,
+        |     "lumpSumPercentage": 1,
+        |     "enhancementFactor": 0.5
+        |   }
+        | ]
+        |}""".stripMargin
   }
 
   "Results Controller" - {
@@ -147,94 +165,46 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
-    "must return OK and the correct view for a GET" - {
-      "when correlation ID exists in the request" in new Test {
-        val response: String =
-          """
-            |{
-            | "protectionRecords": [
-            |   {
-            |     "protectionReference": "some-id",
-            |     "type": "FIXED PROTECTION 2016",
-            |     "status": "OPEN",
-            |     "protectedAmount": 1,
-            |     "lumpSumAmount": 1,
-            |     "lumpSumPercentage": 1,
-            |     "enhancementFactor": 0.5
-            |   }
-            | ]
-            |}""".stripMargin
+    "must return OK and the correct view for GET and generate correlation id" in new Test {
+      setUpStubs(OK, response)
+      val mockIdGenerator: IdGenerator = mock[IdGenerator]
+      override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
+        .overrides(
+          inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
+        ).build()
 
-        setUpStubs(OK, response)
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[ResultsView]
 
-        running(application) {
-          val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
-          val result = route(application, request).value
-          val view = application.injector.instanceOf[ResultsView]
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          memberDetails,
+          membersDob,
+          membersNino,
+          membersPsaCheckRef,
+          Some(backLinkRoute),
+          localDateTime,
+          testModel
+        )(request, messages(application)).toString
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(
-            memberDetails,
-            membersDob,
-            membersNino,
-            membersPsaCheckRef,
-            Some(backLinkRoute),
-            localDateTime,
-            testModel
-          )(request, messages(application)).toString
-
-          verify(mockIdGenerator, times(0)).getCorrelationId
-        }
-      }
-
-      "when correlation ID is not in the request" in new Test {
-        val response: String =
-          """
-            |{
-            | "protectionRecords": [
-            |   {
-            |     "protectionReference": "some-id",
-            |     "type": "FIXED PROTECTION 2016",
-            |     "status": "OPEN",
-            |     "protectedAmount": 1,
-            |     "lumpSumAmount": 1,
-            |     "lumpSumPercentage": 1,
-            |     "enhancementFactor": 0.5
-            |   }
-            | ]
-            |}""".stripMargin
-
-        setUpStubs(OK, response)
-
-        override lazy val application: Application = applicationBuilder(
-          userAnswers = userAnswers,
-          correlationIdInRequest = None
-        )
-          .build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
-          val result = route(application, request).value
-          val view = application.injector.instanceOf[ResultsView]
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(
-            memberDetails,
-            membersDob,
-            membersNino,
-            membersPsaCheckRef,
-            Some(backLinkRoute),
-            localDateTime,
-            testModel
-          )(request, messages(application)).toString
-
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
+        verify(mockIdGenerator, times(1)).getCorrelationId
       }
     }
 
     "must redirect to NoResults page when failed attempt threshold not exceeded for a failed attempt" in new Test {
       mockFailedAttemptCheck()
+      val fakePspIdentifierAction: FakePspIdentifierAction = new FakePspIdentifierAction(parsers)
+      override lazy val application: Application = applicationBuilder(
+        userAnswers = userAnswers,
+        checkLockoutResult = checkLockoutResult,
+        identifierAction = fakePspIdentifierAction
+      )
+        .overrides(
+          inject.bind(classOf[FailedAttemptService]).toInstance(mockService)
+        )
+        .build()
       mockHandleFailedAttempt(Redirect(routes.NoResultsController.onPageLoad()))
       setUpStubs(NOT_FOUND, "")
 

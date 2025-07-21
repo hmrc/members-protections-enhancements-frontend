@@ -17,12 +17,9 @@
 package controllers
 
 import controllers.actions.{AllowListAction, CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import utils.{IdGenerator, Logging}
-import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
 import uk.gov.hmrc.play.bootstrap.binders._
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
 import javax.inject.Inject
@@ -34,12 +31,10 @@ class JourneyRecoveryController @Inject()(val controllerComponents: MessagesCont
                                           allowListAction: AllowListAction,
                                           getData: DataRetrievalAction,
                                           continueView: JourneyRecoveryContinueView,
-                                          startAgainView: JourneyRecoveryStartAgainView,
-                                          val idGenerator: IdGenerator)
+                                          startAgainView: JourneyRecoveryStartAgainView)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = handle { implicit request =>
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
     val safeUrl: Option[String] = continueUrl.flatMap {
       unsafeUrl =>

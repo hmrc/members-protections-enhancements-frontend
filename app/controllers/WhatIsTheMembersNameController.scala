@@ -26,7 +26,6 @@ import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
-import utils.IdGenerator
 import views.html.WhatIsTheMembersNameView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,15 +40,13 @@ class WhatIsTheMembersNameController @Inject()(
                                                 service: SessionCacheService,
                                                 val controllerComponents: MessagesControllerComponents,
                                                 formProvider: WhatIsTheMembersNameFormProvider,
-                                                view: WhatIsTheMembersNameView,
-                                                val idGenerator: IdGenerator
+                                                view: WhatIsTheMembersNameView
                                               )(implicit ec: ExecutionContext)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   private val form: Form[MemberDetails] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
     val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
       case None => form

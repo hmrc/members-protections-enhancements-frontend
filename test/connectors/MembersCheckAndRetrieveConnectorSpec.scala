@@ -39,6 +39,7 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
 
   trait Test {
     implicit val hc: HeaderCarrier = HeaderCarrier()
+    implicit val correlationId: String = "X-123"
     val app: Application = applicationBuilder(emptyUserAnswers).build()
 
     val connector: MembersCheckAndRetrieveConnector = app.injector.instanceOf[MembersCheckAndRetrieveConnector]
@@ -60,7 +61,7 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
     ))
 
     def setUpStubs(status: Int, response: String): StubMapping = stubPost(checkAndRetrieveUrl, Json.toJson(pensionSchemeMemberRequest).toString(),
-      aResponse().withStatus(status).withBody(response))
+      aResponse().withStatus(status).withBody(response).withHeader("correlationId", "X-123"))
   }
 
   "checkAndRetrieve" - {

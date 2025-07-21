@@ -26,7 +26,6 @@ import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
-import utils.IdGenerator
 import views.html.MembersNinoView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,14 +39,12 @@ class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
                                       service: SessionCacheService,
                                       formProvider: MembersNinoFormProvider,
                                       implicit val controllerComponents: MessagesControllerComponents,
-                                      view: MembersNinoView,
-                                      val idGenerator: IdGenerator)(implicit ec: ExecutionContext)
+                                      view: MembersNinoView)(implicit ec: ExecutionContext)
   extends MpeBaseController(identify, allowListAction, checkLockout, getData) {
 
   private val form: Form[MembersNino] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request =>
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
     memberDetails =>
       request.userAnswers.get(MembersNinoPage) match {

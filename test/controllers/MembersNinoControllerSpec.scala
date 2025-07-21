@@ -19,7 +19,6 @@ package controllers
 import base.SpecBase
 import forms.MembersNinoFormProvider
 import models.{MemberDetails, MembersNino, NormalMode}
-import org.mockito.Mockito.{times, verify}
 import pages.{MembersNinoPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.mvc.Results.Redirect
@@ -55,45 +54,20 @@ class MembersNinoControllerSpec extends SpecBase {
       }
     }
 
-    "must return OK and the correct view for a GET" - {
-      "when correlation ID already exists in request" in {
-        val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        val application = applicationBuilder(userAnswers).build()
+    "must return OK and the correct view for a GET" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val application = applicationBuilder(userAnswers).build()
 
-        running(application) {
-          val request = FakeRequest(GET, onPageLoad)
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          val view = application.injector.instanceOf[MembersNinoView]
-          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+        val view = application.injector.instanceOf[MembersNinoView]
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
-          verify(mockIdGenerator, times(0)).getCorrelationId
-        }
-      }
-
-      "when correlation ID doesn't exists in request" in {
-        val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-
-        val application = applicationBuilder(
-          userAnswers,
-          correlationIdInRequest = None
-        ).build()
-
-        running(application) {
-          val request = FakeRequest(GET, onPageLoad)
-
-          val result = route(application, request).value
-
-          val view = application.injector.instanceOf[MembersNinoView]
-          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, viewModel, "Pearl Harvey")(request, messages(application)).toString
       }
     }
 

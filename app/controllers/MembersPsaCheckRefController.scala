@@ -26,7 +26,6 @@ import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
-import utils.IdGenerator
 import views.html.MembersPsaCheckRefView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,14 +39,12 @@ class MembersPsaCheckRefController @Inject()(override val messagesApi: MessagesA
                                              service: SessionCacheService,
                                              formProvider: MembersPsaCheckRefFormProvider,
                                              implicit val controllerComponents: MessagesControllerComponents,
-                                             view: MembersPsaCheckRefView,
-                                             val idGenerator: IdGenerator)(implicit ec: ExecutionContext)
+                                             view: MembersPsaCheckRefView)(implicit ec: ExecutionContext)
   extends MpeBaseController(identify,  allowListAction, checkLockout, getData) {
 
   private val form: Form[MembersPsaCheckRef] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request =>
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
     membersDetails =>
       request.userAnswers.get(MembersPsaCheckRefPage) match {

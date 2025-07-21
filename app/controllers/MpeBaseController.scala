@@ -23,7 +23,7 @@ import pages._
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.{IdGenerator, Logging}
+import utils.Logging
 import viewmodels.formPage.FormPageViewModel
 
 import javax.inject.Inject
@@ -33,7 +33,6 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
                                            allowListAction: AllowListAction,
                                            checkLockout: CheckLockoutAction,
                                            getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport with Logging {
-  def idGenerator: IdGenerator
 
   def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
     handle(implicit request =>
@@ -41,16 +40,7 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
     )
 
   def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
-    (identify andThen allowListAction andThen checkLockout andThen getData).async(implicit request => {
-      val requestWithCorrelationId: DataRequest[AnyContent] = request.correlationId match {
-        case None => request.copy(
-          correlationId = Some(idGenerator.getCorrelationId)
-        )
-        case Some(_) => request
-      }
-
-      block(requestWithCorrelationId)
-    })
+    (identify andThen allowListAction andThen checkLockout andThen getData).async(block(_))
 
   private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
     request.userAnswers.get(WhatIsTheMembersNamePage) match {

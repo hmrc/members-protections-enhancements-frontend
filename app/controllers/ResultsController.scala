@@ -19,12 +19,11 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions._
 import models.requests.IdentifierRequest
-import utils.Logging
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
 import services.{FailedAttemptService, MembersCheckAndRetrieveService}
-import utils.{DateTimeFormats, IdGenerator}
+import utils.{DateTimeFormats, IdGenerator, Logging}
 import views.html.ResultsView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,10 +45,11 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
   val classLoggingContext: String = "ResultsController"
 
   def onPageLoad(): Action[AnyContent] = handle(implicit request => {
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
+    implicit val correlationId: String = idGenerator.getCorrelationId
 
     val methodLoggingContext: String = "onPageLoad"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+    logInfo(fullLoggingContext, s"with correlationId: $correlationId")
 
     getUserData(request) match {
       case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
