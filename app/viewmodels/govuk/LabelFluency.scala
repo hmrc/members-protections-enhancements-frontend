@@ -32,6 +32,8 @@ trait LabelFluency {
         .withCssClass(size.toString)
 
     def withCssClass(className: String): Label =
-      label.copy(classes = s"${label.classes} $className")
+      label.copy(
+        classes = s"${label.classes.strip()} $className"
+      )
   }
 }
