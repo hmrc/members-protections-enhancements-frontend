@@ -43,22 +43,22 @@ class WhatYouWillNeedViewSpec extends SpecBase {
     }
 
     "display correct guidance and text" in new Setup {
-
       view.getElementsByTag("h1").text() mustBe messages(app)("whatYouWillNeed.heading")
 
       view.html.contains(messages(app)("whatYouWillNeed.p1"))
       view.text.contains(messages(app)("whatYouWillNeed.full-name"))
       view.text.contains(messages(app)("whatYouWillNeed.dob"))
       view.text.contains(messages(app)("whatYouWillNeed.nino"))
-      view.text.contains(messages(app)("whatYouWillNeed.pension-scheme-admin-check-ref"))
+      view.text.contains(messages(app)("whatYouWillNeed.pension-scheme-admin-check-ref.li"))
 
+      view.getElementsByTag("h2").first().text() mustBe messages(app)("whatYouWillNeed.pension_scheme_admin_check_ref.h2")
       view.text.contains(messages(app)("whatYouWillNeed.guidance.p1"))
       view.text.contains(messages(app)("whatYouWillNeed.guidance.p2"))
       view.text.contains(messages(app)("whatYouWillNeed.guidance.li.1"))
 
-      view.getElementsByClass("govuk-list govuk-list--bullet govuk-!-margin-bottom-6").last().getElementsByTag("a").text() mustBe
+      view.getElementsByClass("govuk-list govuk-list--bullet").last().getElementsByTag("a").text() mustBe
         messages(app)("whatYouWillNeed.guidance.li.2.linkText")
-      view.getElementsByClass("govuk-list govuk-list--bullet govuk-!-margin-bottom-6").last().getElementsByTag("a").attr("href") mustBe
+      view.getElementsByClass("govuk-list govuk-list--bullet").last().getElementsByTag("a").attr("href") mustBe
         "https://www.gov.uk/guidance/pension-schemes-protect-your-lifetime-allowance"
     }
   }
