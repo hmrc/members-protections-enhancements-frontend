@@ -66,12 +66,12 @@
         @h2("results.relatedContent", marginBottom = "6")
         <ul class="govuk-list govuk-!-margin-bottom-6">
             <li>
-                <a class="govuk-link" href="@routes.WhatYouWillNeedController.onPageLoad()">
+                <a class="govuk-link" href="@routes.WhatYouWillNeedController.onPageLoad().absoluteURL()">
                     @messages("results.checkAnotherMpe")
                 </a>
             </li>
             <li>
-                <a class="govuk-link" href="@routes.MpsDashboardController.redirectToMps()">
+                <a class="govuk-link" href="@routes.MpsDashboardController.redirectToMps().absoluteURL()">
                     @messages("results.mpsDashboard")
                 </a>
             </li>

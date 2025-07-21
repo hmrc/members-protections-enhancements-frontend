@@ -65,7 +65,13 @@
         </ul>
 
         <p class="govuk-body govuk-!-margin-bottom-8">
-            @messages("noResults.checkInformation") <a class="govuk-link" href="@routes.CheckYourAnswersController.onPageLoad()">@messages("noResults.tryAgain")</a>@messages("noResults.period")
+            @messages("noResults.checkInformation")
+
+            <a class="govuk-link" href="@routes.CheckYourAnswersController.onPageLoad().absoluteURL()">
+                @messages("noResults.tryAgain")
+            </a>
+
+            @messages("noResults.period")
         </p>
 
         @printSection(formattedTimestamp)
