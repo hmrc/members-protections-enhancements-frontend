@@ -19,7 +19,7 @@ package views
 import base.SpecBase
 import controllers.routes
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
+import org.jsoup.nodes.{Document, Element}
 import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
@@ -36,9 +36,10 @@ class WhatYouWillNeedViewSpec extends SpecBase {
         "/members-protections-and-enhancements/account/sign-out-survey"
     }
 
-    "with correct breadcrumbs" in new Setup {
-      view.getElementsByClass("govuk-breadcrumbs__link").first().text() mustBe messages(app)("results.breadcrumbs.mps")
-      view.getElementsByClass("govuk-breadcrumbs__link").last().text() mustBe messages(app)("results.breadcrumbs.mpe")
+    "with correct back link" in new Setup {
+      val element: Element = view.getElementsByClass("govuk-back-link").first()
+      element.text mustBe messages(app)("Back")
+      element.attr("href") mustBe controllers.routes.MpsDashboardController.redirectToMps().url
     }
 
     "display correct guidance and text" in new Setup {
