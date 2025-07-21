@@ -63,19 +63,20 @@ sessionTimeout.title = For your security, we signed you out
 sessionTimeout.heading = For your security, we signed you out
 sessionTimeout.signIn = Sign in
 
-whatYouWillNeed.title = What you''ll need
-whatYouWillNeed.heading = What you''ll need
+whatYouWillNeed.title = Check a pension scheme member's protections and enhancements
+whatYouWillNeed.heading = Check a pension scheme member''s protections and enhancements
 whatYouWillNeed.p1 = You''ll need the member''s:
 whatYouWillNeed.full_name = full name
 whatYouWillNeed.dob = date of birth
 whatYouWillNeed.nino = National Insurance number
-whatYouWillNeed.pension_scheme_admin_check_ref = pension scheme administrator check reference
+whatYouWillNeed.pension_scheme_admin_check_ref.li = pension scheme administrator check reference
 
-whatYouWillNeed.guidance.p1 = Ask the member for the pension scheme administrator check reference if you do not already have it.
+whatYouWillNeed.pension_scheme_admin_check_ref.h2 = Pension scheme administrator check reference
+whatYouWillNeed.guidance.p1 = Ask the member for the reference if you do not already have it.
 whatYouWillNeed.guidance.p2 = They can find the reference:
 whatYouWillNeed.guidance.li.1 = on their protection certificate or confirmation letter
 whatYouWillNeed.guidance.li.2 = when they
-whatYouWillNeed.guidance.li.2.linkText = check the protected allowances on their pension savings
+whatYouWillNeed.guidance.li.2.linkText = check the protected allowances on their pension savings (opens in new tab)
 whatYouWillNeed.guidance.li.3 = by contacting HMRC if their protection or enhancement is from before 2014
 
 membersName.title = What is the member''s name?
