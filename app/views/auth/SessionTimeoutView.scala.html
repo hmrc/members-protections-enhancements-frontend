@@ -22,14 +22,14 @@
     pageTitle = titleNoForm(messages("sessionTimeout.title")),
     timeout   = false
 ) {
+    <h1 class="govuk-heading-l">@messages("sessionTimeout.heading")</h1>
 
-    <h1 class="govuk-heading-xl">@messages("sessionTimeout.heading")</h1>
-
-    <p class="govuk-body">
-        @messages("sessionTimeout.body.1")
-        <a class="govuk-link" href="@routes.WhatYouWillNeedController.onPageLoad()">
-            @messages("sessionTimeout.body.signInLink")
-        </a>
-        @messages("sessionTimeout.body.2")
-    </p>
+    <form class="form" action="@routes.WhatYouWillNeedController.onPageLoad()" method="get">
+        <div class="govuk-button-group">
+            <button id="timeout-signin-btn"
+                    class="govuk-button govuk-!-margin-bottom-0">
+                @messages("sessionTimeout.signIn")
+            </button>
+        </div>
+    </form>
 }
