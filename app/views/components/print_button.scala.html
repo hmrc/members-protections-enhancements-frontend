@@ -20,7 +20,7 @@
 
 @(marginTop: Int = 40, marginBottom: Int = 40, classes: String = "", buttonId: Int = 1)(implicit request: Request[_], messages: Messages)
 
-<div class="gem-c-print-link govuk-!-display-none-print govuk-!-margin-top-@{marginTop} govuk-!-margin-bottom-@{marginBottom} @classes">
+<div class="display-none govuk-!-display-none-print govuk-!-margin-top-@{marginTop} govuk-!-margin-bottom-@{marginBottom} @classes">
  <button class="govuk-link govuk-body-s gem-c-print-link__button" id="print-button-@{buttonId}">
    @messages("site.print")
  </button>
@@ -28,7 +28,7 @@
 
 <script @CSPNonce.attr>
  var printButton = document.getElementById('print-button-@{buttonId}');
-     printButton.addEventListener('click', function() {
-         window.print();
-     });
+ printButton.addEventListener('click', function() {
+  window.print();
+ });
 </script>
