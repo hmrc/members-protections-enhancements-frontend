@@ -23,7 +23,6 @@ import pages.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import utils.IdGenerator
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import views.html.CheckYourAnswersView
 
@@ -34,24 +33,16 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            checkLockout: CheckLockoutAction,
                                            getData: DataRetrievalAction,
                                            implicit val controllerComponents: MessagesControllerComponents,
-                                           view: CheckYourAnswersView,
-                                           idGenerator: IdGenerator)
+                                           view: CheckYourAnswersView)
   extends MpeBaseController(identify, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handle {
     implicit request =>
-      val correlationId = request.correlationId match {
-        case None => idGenerator.getCorrelationId
-        case Some(id) => id
-      }
-      request.copy(correlationId = Some(correlationId))
-      logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
-
       getUserData(request) match {
         case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) => Future.successful(Ok(
           view(rows(memberDetails, membersDob, membersNino, membersPsaCheckRef), memberDetails.fullName,
             Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))))
-        case None => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+        case None => Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
       }
   }
 

@@ -18,54 +18,26 @@ package controllers
 
 import base.SpecBase
 import controllers.actions.FakePspIdentifierAction
-import org.mockito.Mockito.{times, verify}
-import play.api.inject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.IdGenerator
 
 class MpsDashboardControllerSpec extends SpecBase {
 
   "MpsDashboardController" - {
-    "redirect to the MPS administrator dashboard for a PSA user" - {
-      "when data request has no correlation id" in {
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = emptyUserAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+    "redirect to the MPS administrator dashboard for a PSA user" in {
 
-        running(application) {
-          implicit val request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.MpsDashboardController.redirectToMps().url)
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
-          val result = route(application, request).value
+      running(application) {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest(GET, routes.MpsDashboardController.redirectToMps().url)
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustBe "http://localhost:8204/manage-pension-schemes/overview"
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
-      }
+        val result = route(application, request).value
 
-      "when data request has correlation id, no need to generate new" in {
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustBe "http://localhost:8204/manage-pension-schemes/overview"
 
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationId = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
-
-        running(application) {
-          implicit val request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.MpsDashboardController.redirectToMps().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustBe "http://localhost:8204/manage-pension-schemes/overview"
-          verify(mockIdGenerator, times(0)).getCorrelationId
-        }
       }
     }
 

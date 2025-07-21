@@ -21,43 +21,54 @@ import config.FrontendAppConfig
 import models.errors.{MpeError, NotFoundError}
 import models.requests.PensionSchemeMemberRequest
 import models.response.ProtectionRecordDetails
-import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import utils.HttpResponseHelper
+import utils.{HttpResponseHelper, Logging}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 
 @ImplementedBy(classOf[MembersCheckAndRetrieveConnectorImpl])
-trait MembersCheckAndRetrieveConnector {
+trait MembersCheckAndRetrieveConnector extends Logging {
 
   def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
-                      (implicit hc: HeaderCarrier, ec: ExecutionContext):  Future[Either[MpeError, ProtectionRecordDetails]]
+                      (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String):  Future[Either[MpeError, ProtectionRecordDetails]]
 }
 
 class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: FrontendAppConfig)
   extends MembersCheckAndRetrieveConnector
     with HttpResponseHelper {
 
-  private val logger = Logger(classOf[MembersCheckAndRetrieveConnectorImpl])
+  val classLoggingContext: String = "MembersCheckAndRetrieveConnector"
+
+  private def retrieveCorrelationId(response: HttpResponse): Option[String] = response.header("correlationId")
 
   override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
-                               (implicit hc: HeaderCarrier, ec: ExecutionContext):  Future[Either[MpeError, ProtectionRecordDetails]] = {
+                               (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String):  Future[Either[MpeError, ProtectionRecordDetails]] = {
 
     val checkAndRetrieveUrl = url"${config.checkAndRetrieveUrl}"
+    val methodLoggingContext: String = "checkAndRetrieve"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+    logInfo(fullLoggingContext, s"with correlationId: $correlationId")
 
     httpClientV2.post(checkAndRetrieveUrl)
+      .setHeader()
       .withBody(Json.toJson(pensionSchemeMemberRequest))
+      .setHeader(
+        ("correlationId", correlationId))
       .execute[HttpResponse].map { response =>
         response.status match {
             case OK =>
-              logger.info(s"Response from the NPS: ${Json.prettyPrint(response.json)}")
+              logInfo(fullLoggingContext, s"Success response received" +
+                s" with status ${response.status}, and correlationId: ${retrieveCorrelationId(response)}")
               Right(handleSuccessResponse(response.json))
             case NOT_FOUND => Left(NotFoundError)
-            case _ => handleErrorResponse("POST", checkAndRetrieveUrl.toString)(response)
+            case _ =>
+              logError(fullLoggingContext, s"Error response received" +
+                s" with status: ${response.status}, and correlationId: ${retrieveCorrelationId(response)}")
+              handleErrorResponse("POST", checkAndRetrieveUrl.toString)(response)
           }
       } andThen {
         case Failure(t: Throwable) => logger.warn("Unable to retrieve the data", t)

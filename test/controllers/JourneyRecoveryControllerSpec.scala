@@ -17,12 +17,9 @@
 package controllers
 
 import base.SpecBase
-import org.mockito.Mockito.{times, verify}
-import play.api.inject
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import utils.IdGenerator
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
 class JourneyRecoveryControllerSpec extends SpecBase {
@@ -31,48 +28,20 @@ class JourneyRecoveryControllerSpec extends SpecBase {
 
     "when a relative continue Url is supplied" - {
 
-      "must return OK and the continue view" - {
-        "when data request has no correlation id" in {
+      "must return OK and the continue view" in {
 
-          val mockIdGenerator = mock[IdGenerator]
-          val application = applicationBuilder(userAnswers = emptyUserAnswers)
-            .overrides(
-              inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-            ).build()
+        val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
-          running(application) {
-            val continueUrl = RedirectUrl("/foo")
-            val request = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
+        running(application) {
+          val continueUrl = RedirectUrl("/foo")
+          val request = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
 
-            val result = route(application, request).value
+          val result = route(application, request).value
 
-            val continueView = application.injector.instanceOf[JourneyRecoveryContinueView]
+          val continueView = application.injector.instanceOf[JourneyRecoveryContinueView]
 
-            status(result) mustEqual OK
-            contentAsString(result) mustEqual continueView(continueUrl.unsafeValue)(request, messages(application)).toString
-            verify(mockIdGenerator, times(1)).getCorrelationId
-          }
-        }
-        "when data request has correlation id, no need to generate new" in {
-
-          val mockIdGenerator = mock[IdGenerator]
-          val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationId = Some("X-123"))
-            .overrides(
-              inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-            ).build()
-
-          running(application) {
-            val continueUrl = RedirectUrl("/foo")
-            val request = FakeRequest(GET, routes.JourneyRecoveryController.onPageLoad(Some(continueUrl)).url)
-
-            val result = route(application, request).value
-
-            val continueView = application.injector.instanceOf[JourneyRecoveryContinueView]
-
-            status(result) mustEqual OK
-            contentAsString(result) mustEqual continueView(continueUrl.unsafeValue)(request, messages(application)).toString
-            verify(mockIdGenerator, times(0)).getCorrelationId
-          }
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual continueView(continueUrl.unsafeValue)(request, messages(application)).toString
         }
       }
     }

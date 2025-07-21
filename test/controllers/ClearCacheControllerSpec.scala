@@ -18,13 +18,10 @@ package controllers
 
 import base.SpecBase
 import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, UserAnswers}
-import org.mockito.Mockito.{times, verify}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
-import play.api.inject
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.IdGenerator
 
 class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
 
@@ -35,44 +32,17 @@ class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
     .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
 
   "onPageLoad" - {
-    "when the user clicked service name on banner" - {
-      "must redirect to start page with new correlation id" in {
+    "when the user clicked service name on banner" in {
+      val application = applicationBuilder(userAnswers = userAnswers).build()
 
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = userAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+      running(application) {
 
-        running(application) {
+        val request = FakeRequest(GET, routes.ClearCacheController.onPageLoad().url)
 
-          val request = FakeRequest(GET, routes.ClearCacheController.onPageLoad().url)
+        val result = route(application, request).value
 
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.WhatYouWillNeedController.onPageLoad().url
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
-      }
-      "must redirect to start page with existing request correlation id, no need to generate new" in {
-
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = userAnswers, correlationId = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
-
-        running(application) {
-
-          val request = FakeRequest(GET, routes.ClearCacheController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.WhatYouWillNeedController.onPageLoad().url
-          verify(mockIdGenerator, times(0)).getCorrelationId
-        }
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.WhatYouWillNeedController.onPageLoad().url
       }
     }
   }

@@ -23,4 +23,5 @@ import javax.inject.{Inject, Singleton}
 class IdGenerator @Inject()() {
 
   def getCorrelationId: String = UUID.randomUUID().toString
+
 }

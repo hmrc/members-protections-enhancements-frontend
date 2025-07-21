@@ -21,7 +21,9 @@ import play.api.Logger
 trait Logging {
   lazy val logger: Logger = Logger(this.getClass)
 
-  def logInfo(className: String, funcName: String, correlationId: Option[String]) =
-    logger.info(message = s"[$className][$funcName] " +
-      s"with correlationId : ${correlationId.getOrElse("")}")
+  def logInfo(context: String, message: String) =
+    logger.info(s"$context $message")
+
+  def logError(context: String, message: String) =
+    logger.error(s"$context $message")
 }

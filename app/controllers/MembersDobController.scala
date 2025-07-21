@@ -26,7 +26,6 @@ import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import services.SessionCacheService
-import utils.IdGenerator
 import views.html.MembersDobView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,20 +38,13 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
                                      service: SessionCacheService,
                                      formProvider: MembersDobFormProvider,
                                      implicit val controllerComponents: MessagesControllerComponents,
-                                     view: MembersDobView,
-                                     idGenerator: IdGenerator)(implicit ec: ExecutionContext)
+                                     view: MembersDobView)(implicit ec: ExecutionContext)
   extends MpeBaseController(identify, checkLockout, getData) {
 
   private val form: Form[MembersDob] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
     implicit request =>
-      val correlationId = request.correlationId match {
-        case None => idGenerator.getCorrelationId
-        case Some(id) => id
-      }
-      request.copy(correlationId = Some(correlationId))
-      logInfo("MembersDobController", "onPageLoad", request.correlationId)
 
       memberDetails =>
         request.userAnswers.get(MembersDobPage) match {

@@ -150,60 +150,31 @@ class ResultsControllerSpec extends SpecBase {
     }
 
 
-    "must return OK and the correct view for GET" - {
-      "when data request has no correlation id" in new Test {
-        setUpStubs(OK, response)
-        val mockIdGenerator: IdGenerator = mock[IdGenerator]
-        override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+    "must return OK and the correct view for GET and generate correlation id" in new Test {
+      setUpStubs(OK, response)
+      val mockIdGenerator: IdGenerator = mock[IdGenerator]
+      override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
+        .overrides(
+          inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
+        ).build()
 
-        running(application) {
-          val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
-          val result = route(application, request).value
-          val view = application.injector.instanceOf[ResultsView]
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[ResultsView]
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(
-            memberDetails,
-            membersDob,
-            membersNino,
-            membersPsaCheckRef,
-            Some(backLinkRoute),
-            localDateTime,
-            testModel
-          )(request, messages(application)).toString
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          memberDetails,
+          membersDob,
+          membersNino,
+          membersPsaCheckRef,
+          Some(backLinkRoute),
+          localDateTime,
+          testModel
+        )(request, messages(application)).toString
 
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
-      }
-
-      "when data request has correlation id, no need to generate new" in new Test {
-        setUpStubs(OK, response)
-        val mockIdGenerator: IdGenerator = mock[IdGenerator]
-        override lazy val application: Application = applicationBuilder(userAnswers = userAnswers, correlationId = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
-
-        running(application) {
-          val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
-          val result = route(application, request).value
-          val view = application.injector.instanceOf[ResultsView]
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(
-            memberDetails,
-            membersDob,
-            membersNino,
-            membersPsaCheckRef,
-            Some(backLinkRoute),
-            localDateTime,
-            testModel
-          )(request, messages(application)).toString
-          verify(mockIdGenerator, times(0)).getCorrelationId
-        }
+        verify(mockIdGenerator, times(1)).getCorrelationId
       }
     }
 

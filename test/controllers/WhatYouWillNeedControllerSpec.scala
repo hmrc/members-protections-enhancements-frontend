@@ -17,13 +17,10 @@
 package controllers
 
 import base.SpecBase
-import org.mockito.Mockito.{times, verify}
 import play.api.i18n.Messages
-import play.api.inject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import utils.IdGenerator
 import views.html.WhatYouWillNeedView
 
 class WhatYouWillNeedControllerSpec extends SpecBase {
@@ -31,50 +28,21 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
   private lazy val backLinkUrl = routes.MpsDashboardController.redirectToMps().url
 
   "Check Members Protection Enhancements Controller" - {
-    "must return OK and the correct view for a GET" - {
-      "when data request has no correlation id" in {
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = emptyUserAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+    "must return OK and the correct view for a GET" in {
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
-        running(application) {
-          implicit val request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.WhatYouWillNeedController.onPageLoad().url)
+      running(application) {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest(GET, routes.WhatYouWillNeedController.onPageLoad().url)
 
-          implicit val msg: Messages = messages(application)
+        implicit val msg: Messages = messages(application)
 
-          val result = route(application, request).value
+        val result = route(application, request).value
 
-          val view = application.injector.instanceOf[WhatYouWillNeedView]
+        val view = application.injector.instanceOf[WhatYouWillNeedView]
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(Some(backLinkUrl)).toString
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
-      }
-      "when data request has correlation id, no need to generate new" in {
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationId = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
-
-        running(application) {
-          implicit val request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.WhatYouWillNeedController.onPageLoad().url)
-
-          implicit val msg: Messages = messages(application)
-
-          val result = route(application, request).value
-
-          val view = application.injector.instanceOf[WhatYouWillNeedView]
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(Some(backLinkUrl)).toString
-          verify(mockIdGenerator, times(0)).getCorrelationId
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(Some(backLinkUrl)).toString
       }
     }
   }

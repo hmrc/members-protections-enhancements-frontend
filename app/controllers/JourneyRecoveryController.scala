@@ -17,12 +17,12 @@
 package controllers
 
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
-import utils.{IdGenerator, Logging}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
 import uk.gov.hmrc.play.bootstrap.binders._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.Logging
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
 import javax.inject.Inject
@@ -31,18 +31,11 @@ class JourneyRecoveryController @Inject()(val controllerComponents: MessagesCont
                                           identify: IdentifierAction,
                                           getData: DataRetrievalAction,
                                           continueView: JourneyRecoveryContinueView,
-                                          startAgainView: JourneyRecoveryStartAgainView,
-                                          idGenerator: IdGenerator)
+                                          startAgainView: JourneyRecoveryStartAgainView)
   extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = (identify andThen getData) {
     implicit request =>
-      val correlationId = request.correlationId match {
-        case None => idGenerator.getCorrelationId
-        case Some(id) => id
-      }
-      request.copy(correlationId = Some(correlationId))
-      logInfo("JourneyRecoveryController", "onPageLoad", request.correlationId)
 
       val safeUrl: Option[String] = continueUrl.flatMap {
         unsafeUrl =>
