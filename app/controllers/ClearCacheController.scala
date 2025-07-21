@@ -18,20 +18,25 @@ package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
+import services.SessionCacheService
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class KeepAliveController @Inject()(val controllerComponents: MessagesControllerComponents,
-                                    identify: IdentifierAction,
-                                    checkLockout: CheckLockoutAction,
-                                    getData: DataRetrievalAction,
-                                    sessionRepository: SessionRepository)(implicit ec: ExecutionContext)
+class ClearCacheController @Inject()(val controllerComponents: MessagesControllerComponents,
+                                     identify: IdentifierAction,
+                                     checkLockout: CheckLockoutAction,
+                                     getData: DataRetrievalAction,
+                                     sessionCacheService: SessionCacheService)(implicit ec: ExecutionContext)
   extends MpeBaseController(identify, checkLockout, getData) {
 
-  def keepAlive(): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
 
-    sessionRepository.keepAlive(request.userAnswers.id).map(_ => Ok)
+    sessionCacheService
+      .clear(request.userAnswers)
+      .map {
+        _ =>
+          Redirect(routes.WhatYouWillNeedController.onPageLoad().url)
+      }
   }
 }

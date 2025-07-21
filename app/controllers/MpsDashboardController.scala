@@ -21,7 +21,6 @@ import config.FrontendAppConfig
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.requests.UserType.PSA
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import utils.IdGenerator
 
 import scala.concurrent.Future
 
@@ -29,17 +28,10 @@ class MpsDashboardController @Inject()(identify: IdentifierAction,
                                        checkLockout: CheckLockoutAction,
                                        getData: DataRetrievalAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       val appConfig: FrontendAppConfig,
-                                       idGenerator: IdGenerator)
+                                       val appConfig: FrontendAppConfig)
   extends MpeBaseController(identify, checkLockout, getData) {
 
   def redirectToMps(): Action[AnyContent] = handle { implicit request =>
-    val correlationId = request.correlationId match {
-      case None => idGenerator.getCorrelationId
-      case Some(id) => id
-    }
-    request.copy(correlationId = Some(correlationId))
-    logInfo("CheckYourAnswersController", "onPageLoad", request.correlationId)
 
     val mpsUrl =
       request.userDetails.psrUserType match {

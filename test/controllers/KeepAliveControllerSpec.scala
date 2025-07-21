@@ -20,12 +20,10 @@ import base.SpecBase
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.inject
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.SessionRepository
-import utils.IdGenerator
 
 import scala.concurrent.Future
 
@@ -35,18 +33,15 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
     "when the user has answered some questions" - {
 
-      "must keep the answers alive and return OK" - {
-        "when data request has no correlation id" in {
+      "must keep the answers alive and return OK" in {
 
-          val mockSessionRepository = mock[SessionRepository]
-          when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
+        val mockSessionRepository = mock[SessionRepository]
+        when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
 
-          val mockIdGenerator = mock[IdGenerator]
-          val application = applicationBuilder(userAnswers = emptyUserAnswers)
-            .overrides(
-              inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
-              bind[SessionRepository].toInstance(mockSessionRepository)
-            ).build()
+        val application = applicationBuilder(userAnswers = emptyUserAnswers)
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          ).build()
 
         running(application) {
 
@@ -54,33 +49,8 @@ class KeepAliveControllerSpec extends SpecBase with MockitoSugar {
 
           val result = route(application, request).value
 
-            status(result) mustEqual OK
-            verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
-            verify(mockIdGenerator, times(1)).getCorrelationId
-          }
-        }
-        "when data request has correlation id, no need to generate new" in {
-
-          val mockSessionRepository = mock[SessionRepository]
-          when(mockSessionRepository.keepAlive(any())) thenReturn Future.successful(true)
-
-          val mockIdGenerator = mock[IdGenerator]
-          val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationId = Some("X-123"))
-            .overrides(
-              inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
-              bind[SessionRepository].toInstance(mockSessionRepository)
-            ).build()
-
-          running(application) {
-
-            val request = FakeRequest(GET, routes.KeepAliveController.keepAlive().url)
-
-            val result = route(application, request).value
-
-            status(result) mustEqual OK
-            verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
-            verify(mockIdGenerator, times(0)).getCorrelationId
-          }
+          status(result) mustEqual OK
+          verify(mockSessionRepository, times(1)).keepAlive(emptyUserAnswers.id)
         }
       }
     }

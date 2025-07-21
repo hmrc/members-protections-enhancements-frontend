@@ -19,14 +19,12 @@ package controllers
 import base.SpecBase
 import forms.WhatIsTheMembersNameFormProvider
 import models.{MemberDetails, NormalMode}
-import org.mockito.Mockito.{times, verify}
 import pages.WhatIsTheMembersNamePage
+import play.api.Application
 import play.api.data.Form
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Application, inject}
-import utils.IdGenerator
 import viewmodels.formPage.FormPageViewModel
 import views.html.WhatIsTheMembersNameView
 
@@ -55,47 +53,20 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
       }
     }
 
-    "must return OK and the correct view for a GET" - {
-      "when data request has no correlation id" in {
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = emptyUserAnswers)
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
+    "must return OK and the correct view for a GET" in {
 
-        running(application) {
-          val request = FakeRequest(GET, onPageLoad)
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
-          val result = route(application, request).value
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
 
-          val view = application.injector.instanceOf[WhatIsTheMembersNameView]
-          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+        val result = route(application, request).value
 
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
-          verify(mockIdGenerator, times(1)).getCorrelationId
-        }
-      }
+        val view = application.injector.instanceOf[WhatIsTheMembersNameView]
+        val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
-      "when data request has correlation id, no need to generate new" in {
-        val mockIdGenerator = mock[IdGenerator]
-        val application = applicationBuilder(userAnswers = emptyUserAnswers, correlationId = Some("X-123"))
-          .overrides(
-            inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-          ).build()
-
-        running(application) {
-          val request = FakeRequest(GET, onPageLoad)
-
-          val result = route(application, request).value
-
-          val view = application.injector.instanceOf[WhatIsTheMembersNameView]
-          val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
-
-          status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
-          verify(mockIdGenerator, times(0)).getCorrelationId
-        }
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, viewModel)(request, messages(application)).toString
       }
     }
 
