@@ -16,12 +16,14 @@
 
 package models.response
 
+import models.response.PensionCreditLegislation.{`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`, `SECTION 220 FINANCE ACT 2004`}
 import models.response.RecordTypeMapped._
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
 import utils.enums.Enums
 
 sealed trait RecordType {
-  def toMapped: RecordTypeMapped
+  val mapping: RecordTypeMapped
 }
 
 sealed trait Protection extends RecordType
@@ -31,92 +33,95 @@ object RecordType {
   /**
    * Types of Protections & Enhancements
    *
-   * "FIXED PROTECTION 2016"
    * "INDIVIDUAL PROTECTION 2014"
+   * "INDIVIDUAL PROTECTION 2014 LTA"
    * "INDIVIDUAL PROTECTION 2016"
+   * "INDIVIDUAL PROTECTION 2016 LTA"
    * "PRIMARY PROTECTION"
+   * "PRIMARY PROTECTION LTA"
    * "ENHANCED PROTECTION"
+   * "ENHANCED PROTECTION LTA"
    * "FIXED PROTECTION"
+   * "FIXED PROTECTION LTA"
    * "FIXED PROTECTION 2014"
+   * "FIXED PROTECTION 2014 LTA"
+   * "FIXED PROTECTION 2016"
+   * "FIXED PROTECTION 2016 LTA"
    * "PENSION CREDIT RIGHTS"
    * "INTERNATIONAL ENHANCEMENT (S221)"
    * "INTERNATIONAL ENHANCEMENT (S224)"
-   * "FIXED PROTECTION 2016 LTA"
-   * "INDIVIDUAL PROTECTION 2014 LTA"
-   * "INDIVIDUAL PROTECTION 2016 LTA"
-   * "PRIMARY PROTECTION LTA"
-   * "ENHANCED PROTECTION LTA"
-   * "FIXED PROTECTION LTA"
-   * "FIXED PROTECTION 2014 LTA"
    */
   case object `FIXED PROTECTION` extends Protection {
-    override def toMapped: RecordTypeMapped = FixedProtection
+    override val mapping: RecordTypeMapped = FixedProtection
   }
 
   case object `FIXED PROTECTION 2014` extends Protection {
-    override def toMapped: RecordTypeMapped = FixedProtection2014
+    override val mapping: RecordTypeMapped = FixedProtection2014
   }
   case object `FIXED PROTECTION 2016` extends Protection {
-    override def toMapped: RecordTypeMapped = FixedProtection2016
+    override val mapping: RecordTypeMapped = FixedProtection2016
   }
 
   case object `INDIVIDUAL PROTECTION 2014` extends Protection {
-    override def toMapped: RecordTypeMapped = IndividualProtection2014
+    override val mapping: RecordTypeMapped = IndividualProtection2014
   }
 
   case object `INDIVIDUAL PROTECTION 2016` extends Protection {
-    override def toMapped: RecordTypeMapped = IndividualProtection2016
+    override val mapping: RecordTypeMapped = IndividualProtection2016
   }
 
   case object `PRIMARY PROTECTION` extends Protection {
-    override def toMapped: RecordTypeMapped = PrimaryProtection
+    override val mapping: RecordTypeMapped = PrimaryProtection
   }
 
   case object `ENHANCED PROTECTION` extends Protection {
-    override def toMapped: RecordTypeMapped = EnhancedProtection
-  }
-
-  case object `PENSION CREDIT RIGHTS P18` extends Enhancement {
-    override def toMapped: RecordTypeMapped = PensionCreditRightsPreCommencement
-  }
-
-  case object `PENSION CREDIT RIGHTS` extends Enhancement {
-    override def toMapped: RecordTypeMapped = PensionCreditRights
-  }
-
-  case object `PENSION CREDIT RIGHTS S220` extends Enhancement {
-    override def toMapped: RecordTypeMapped = PensionCreditRightsPreviouslyCrystallised
+    override val mapping: RecordTypeMapped = EnhancedProtection
   }
 
   case object `INTERNATIONAL ENHANCEMENT S221` extends Enhancement {
-    override def toMapped: RecordTypeMapped = InternationalEnhancementRelevantIndividual
+    override val mapping: RecordTypeMapped = InternationalEnhancementRelevantIndividual
   }
 
   case object `INTERNATIONAL ENHANCEMENT S224` extends Enhancement {
-    override def toMapped: RecordTypeMapped = InternationalEnhancementTransfer
+    override val mapping: RecordTypeMapped = InternationalEnhancementTransfer
+  }
+
+  case class `PENSION CREDIT RIGHTS`(legislation: PensionCreditLegislation) extends RecordType {
+    override val mapping: RecordTypeMapped = legislation match {
+      case `PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004` => PcrPreCommencement
+      case `SECTION 220 FINANCE ACT 2004` => PcrPreviouslyCrystallised
+    }
   }
 
   implicit val reads: Reads[RecordType] = (json: JsValue) => {
     val enumReadsProtection: Reads[Protection] = Enums.reads[Protection]
     val enumReadsEnhancement: Reads[Enhancement] = Enums.reads[Enhancement]
 
-    val protectionCombinedReads: JsResult[Protection] =
+    val protectionReadsResult: JsResult[Protection] =
       json
         .validate[Protection](enumReadsProtection)
         .orElse(
           json.validate[JsString]
-            .map(jsString =>
-              JsString(jsString.value.replace(" LTA", "").replaceAll("\\((.*?)\\)", "$1")))
+            .map(jsString => JsString(jsString.value.replace(" LTA", "").replaceAll("\\((.*?)\\)", "$1")))
             .flatMap(_.validate[Protection](enumReadsProtection))
         )
 
-    json.validate[Enhancement](enumReadsEnhancement)
-      .orElse(
-        json.validate[JsString]
-          .map(jsString =>
-            JsString(jsString.value.replaceAll("\\((.*?)\\)", "$1")))
-          .flatMap(_.validate[Enhancement](enumReadsEnhancement)))
-      .orElse(protectionCombinedReads)
+    val enhancementReadsResult: JsResult[Enhancement] =
+      json
+        .validate[Enhancement](enumReadsEnhancement)
+        .orElse(
+          json.validate[JsString]
+            .map(jsString => JsString(jsString.value.replaceAll("\\((.*?)\\)", "$1")))
+            .flatMap(_.validate[Enhancement](enumReadsEnhancement))
+        )
+
+    enhancementReadsResult
+      .orElse(protectionReadsResult)
       .orElse(JsError(JsonValidationError("error.expected.RecordType")))
   }
+
+  implicit val pcrReads: Reads[`PENSION CREDIT RIGHTS`] = (
+    (JsPath \ "type").read[String].filter(_ == "PENSION CREDIT RIGHTS") and
+      (JsPath \ "pensionCreditLegislation").read[PensionCreditLegislation]
+  )((_, legislation) => `PENSION CREDIT RIGHTS`(legislation))
 }
