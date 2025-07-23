@@ -19,6 +19,7 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersDobFormProvider
+import forms.MembersDobFormProvider.combineMissingErrors
 import models.{MembersDob, Mode}
 import navigation.Navigator
 import pages.MembersDobPage
@@ -58,7 +59,11 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
       memberDetails =>
         form.bindFromRequest().fold(
           formWithErrors => {
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersDobPage), memberDetails.fullName)))
+            Future.successful(BadRequest(view(
+              form = combineMissingErrors(formWithErrors),
+              viewModel = viewModel(mode, MembersDobPage),
+              name = memberDetails.fullName
+            )))
           },
           answer => {
             for {

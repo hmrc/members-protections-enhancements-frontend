@@ -122,9 +122,9 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
     "must return errors when fields are missing" in new DateOfBirthTest {
       boundForm.errors must have length 3
       boundForm.errors.flatMap(_.messages) mustBe Seq(
-        "membersDob.error.invalidOrMissing.day",
-        "membersDob.error.invalidOrMissing.month",
-        "membersDob.error.invalidOrMissing.year"
+        "membersDob.error.missing.day",
+        "membersDob.error.missing.month",
+        "membersDob.error.missing.year"
       )
     }
 
@@ -135,9 +135,9 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
       boundForm.errors must have length 3
       boundForm.errors.flatMap(_.messages) mustBe Seq(
-        "membersDob.error.invalidOrMissing.day",
-        "membersDob.error.invalidOrMissing.month",
-        "membersDob.error.invalidOrMissing.year"
+        "membersDob.error.invalid.day",
+        "membersDob.error.invalid.month",
+        "membersDob.error.invalid.year"
       )
     }
 
@@ -148,7 +148,7 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
       boundForm.errors must have length 1
       boundForm.errors.flatMap(_.messages) mustBe Seq(
-        "membersDob.error.invalidOrMissing.year"
+        "membersDob.error.invalid.year"
       )
     }
   }

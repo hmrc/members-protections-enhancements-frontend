@@ -19,6 +19,8 @@ package forms.mappings
 import play.api.data.FormError
 import play.api.data.format.Formatter
 
+import java.time.format.DateTimeFormatter
+import java.time.temporal.{ChronoField, TemporalField}
 import scala.util.control.Exception.nonFatalCatch
 
 trait Formatters {
@@ -33,6 +35,39 @@ trait Formatters {
 
     override def unbind(key: String, value: String): Map[String, String] =
       Map(key -> value)
+  }
+
+  private[mappings] def monthFormatter(requiredKey: String,
+                             wholeNumberKey: String,
+                             nonNumericKey: String): Formatter[Int] = new Formatter[Int] {
+    val decimalRegexp: String = """^-?(\d*\.\d*)$"""
+    private val baseFormatter: Formatter[String] = stringFormatter(requiredKey)
+
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Int] =
+      baseFormatter
+        .bind(key, data)
+        .map(_.filterNot(_.isWhitespace).replace(",", ""))
+        .flatMap {
+          case s if s.matches(decimalRegexp) =>
+            Left(Seq(FormError(key, wholeNumberKey)))
+          case s =>
+            nonFatalCatch
+              .either(s.toInt)
+              .left.flatMap(_ => {
+                val aa = DateTimeFormatter.ofPattern("MMM")
+                nonFatalCatch
+                .either(aa.parse(s).get(ChronoField.MONTH_OF_YEAR))
+                  .left.flatMap(_ =>{
+                    val bb = DateTimeFormatter.ofPattern("LLLL")
+                    nonFatalCatch
+                     .either((bb.parse(s).get(ChronoField.MONTH_OF_YEAR)))
+                      .left.map(_ => Seq(FormError(key, nonNumericKey)))
+                  } )
+              })
+        }
+
+    override def unbind(key: String, value: Int): Map[String, String] =
+      baseFormatter.unbind(key, value.toString)
   }
 
   private[mappings] def intFormatter(requiredKey: String,
@@ -58,5 +93,4 @@ trait Formatters {
       override def unbind(key: String, value: Int): Map[String, String] =
         baseFormatter.unbind(key, value.toString)
     }
-
 }

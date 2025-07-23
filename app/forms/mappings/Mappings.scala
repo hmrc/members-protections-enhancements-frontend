@@ -27,29 +27,40 @@ trait Mappings extends Formatters with Constraints {
     of(stringFormatter(errorKey, args))
 
   protected def dateOfBirth(dateTimeProvider: DateTimeProvider): Mapping[MembersDob] = {
-    val baseError = "membersDob.error.invalidOrMissing"
-    val dayError = s"$baseError.day"
-    val monthError = s"$baseError.month"
-    val yearError = s"$baseError.year"
+    val invalidError: String = "membersDob.error.invalid"
+    val missingError: String = "membersDob.error.missing"
+
+    val dayError: String = s".day"
+    val monthError: String = s".month"
+    val yearError: String = s".year"
+
+    val invalidDayError: String = invalidError + dayError
+    val invalidMonthError: String = invalidError + monthError
+    val invalidYearError: String = invalidError + yearError
 
     mapping(
       "day" -> int(
-        requiredKey = dayError,
-        wholeNumberKey = dayError,
-        nonNumericKey = dayError
-      ).verifying(dayError, d => d > 0 && d < 32),
-      "month" -> int(
-        requiredKey = monthError,
-        wholeNumberKey = monthError,
-        nonNumericKey = monthError
-      ).verifying(monthError, m => m > 0 && m < 13),
+        requiredKey = missingError + dayError,
+        wholeNumberKey = invalidDayError,
+        nonNumericKey = invalidDayError
+      ).verifying(invalidDayError, d => d > 0 && d < 32),
+      "month" -> month(
+        requiredKey = missingError + monthError,
+        wholeNumberKey = invalidMonthError,
+        nonNumericKey = invalidMonthError
+      ).verifying(invalidMonthError, m => m > 0 && m < 13),
       "year" -> int(
-        requiredKey = yearError,
-        wholeNumberKey = yearError,
-        nonNumericKey = yearError
-      ).verifying(yearError, y => y >= minYear && y <= dateTimeProvider.now().getYear)
+        requiredKey = missingError + yearError,
+        wholeNumberKey = invalidYearError,
+        nonNumericKey = invalidYearError
+      ).verifying(invalidYearError, y => y >= minYear && y <= dateTimeProvider.now().getYear)
     )(MembersDob.apply)(MembersDob.unapply)
   }
+
+  protected def month(requiredKey: String,
+                      wholeNumberKey: String,
+                      nonNumericKey: String): FieldMapping[Int] =
+    of(monthFormatter(requiredKey, wholeNumberKey, nonNumericKey))
 
   protected def int(requiredKey: String,
                     wholeNumberKey: String,
