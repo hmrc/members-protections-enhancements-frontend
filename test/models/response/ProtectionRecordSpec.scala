@@ -18,7 +18,7 @@ package models.response
 
 import base.SpecBase
 import models.response.RecordStatusMapped.Active
-import models.response.RecordTypeMapped.FixedProtection2016
+import models.response.RecordTypeMapped.{FixedProtection2016, PcrPreCommencement}
 import play.api.libs.json._
 
 class ProtectionRecordSpec extends SpecBase {
@@ -55,6 +55,54 @@ class ProtectionRecordSpec extends SpecBase {
       val result = testJson.validate[ProtectionRecord]
       result mustBe a[JsSuccess[_]]
       result.get mustBe testModel
+    }
+
+    "work for a valid pension credit rights entry" in {
+      val testJson: JsValue = Json.parse(
+        """
+          |{
+          | "protectionReference": "some-id",
+          | "type": "PENSION CREDIT RIGHTS",
+          | "status": "OPEN",
+          | "protectedAmount": 1,
+          | "lumpSumAmount": 1,
+          | "lumpSumPercentage": 1,
+          | "enhancementFactor": 0.5,
+          | "pensionCreditLegislation": "PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004"
+          |}
+        """.stripMargin
+      )
+
+      val result = testJson.validate[ProtectionRecord]
+      result mustBe a[JsSuccess[_]]
+      result.get mustBe testModel.copy(`type` = PcrPreCommencement)
+    }
+
+    "not work when pension credit legislation is missing for a `PENSION CREDIT RIGHTS` type" in {
+      val testJson: JsValue = Json.parse(
+        """
+          |{
+          | "protectionReference": "some-id",
+          | "type": "PENSION CREDIT RIGHTS",
+          | "status": "OPEN",
+          | "protectedAmount": 1,
+          | "lumpSumAmount": 1,
+          | "lumpSumPercentage": 1,
+          | "enhancementFactor": 0.5
+          |}
+        """.stripMargin
+      )
+
+      val result = testJson.validate[ProtectionRecord]
+      result mustBe a[JsError]
+      result.recover {
+        case err: JsError =>
+          err.errors must have length 1
+          val (path, msgs) = err.errors.head
+          path.toString() mustBe "/pensionCreditLegislation"
+          msgs must have length 1
+          msgs.head.message mustBe "error.path.missing"
+      }
     }
   }
 }
