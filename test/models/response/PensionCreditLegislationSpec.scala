@@ -17,29 +17,16 @@
 package models.response
 
 import base.SpecBase
-import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
-import models.response.RecordTypeMapped.{FixedProtection2014, PcrPreCommencement}
+import models.response.PensionCreditLegislation.{`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`, `SECTION 220 FINANCE ACT 2004`}
 
-class RecordStatusMappedSpec extends SpecBase {
+class PensionCreditLegislationSpec extends SpecBase {
   "round test" -> {
-    val values: Seq[(String, RecordStatusMapped)] = Seq(
-      "OPEN" -> Active,
-      "DORMANT" -> Dormant,
-      "WITHDRAWN" -> Withdrawn
+    val values: Seq[(String, PensionCreditLegislation)] = Seq(
+      "PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004" -> `PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`,
+      "SECTION 220 FINANCE ACT 2004" -> `SECTION 220 FINANCE ACT 2004`
     )
 
     for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, expectedModel)
-  }
-
-  "toDescriptionMessagesString" -> {
-    "should return the correct string for a protection" in {
-      Active.toDescriptionMessagesString(FixedProtection2014) mustBe "results.status.active.message.protection"
-    }
-
-    "should return the correct string for an enhancement" in {
-      Dormant.toDescriptionMessagesString(PcrPreCommencement) mustBe
-        "results.status.dormant.message.enhancement"
-    }
   }
 
 }

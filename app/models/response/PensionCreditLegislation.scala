@@ -16,20 +16,14 @@
 
 package models.response
 
-import models.response.RecordStatusMapped._
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.Reads
+import utils.enums.Enums
 
-case class ProtectionRecordDetails(protectionRecords: Seq[ProtectionRecord]) {
-  def ordered: Seq[ProtectionRecord] = {
-    val groupedProtectionRecords = protectionRecords
-      .groupBy(_.status)
+sealed trait PensionCreditLegislation
 
-    groupedProtectionRecords.getOrElse(Active, Nil) ++
-      groupedProtectionRecords.getOrElse(Dormant, Nil) ++
-      groupedProtectionRecords.getOrElse(Withdrawn, Nil)
-  }
-}
+object PensionCreditLegislation {
+  case object `PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004` extends PensionCreditLegislation
+  case object `SECTION 220 FINANCE ACT 2004` extends PensionCreditLegislation
 
-object ProtectionRecordDetails {
-  implicit val reads: Reads[ProtectionRecordDetails] = Json.reads[ProtectionRecordDetails]
+  implicit val reads: Reads[PensionCreditLegislation] = Enums.reads[PensionCreditLegislation]
 }

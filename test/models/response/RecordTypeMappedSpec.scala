@@ -18,9 +18,11 @@ package models.response
 
 import base.SpecBase
 import models.response.RecordTypeMapped._
-import play.api.libs.json.{JsError, JsResult, JsString, JsonValidationError}
+import play.api.libs.json._
 
 class RecordTypeMappedSpec extends SpecBase {
+  def toTypeJsString: String => JsValue = str => Json.parse(s"""{"type": "$str"}""")
+
   "round test" -> {
     val values: Seq[(String, RecordTypeMapped)] = Seq(
       "FIXED PROTECTION" -> FixedProtection,
@@ -30,11 +32,8 @@ class RecordTypeMappedSpec extends SpecBase {
       "INDIVIDUAL PROTECTION 2016" -> IndividualProtection2016,
       "ENHANCED PROTECTION" -> EnhancedProtection,
       "PRIMARY PROTECTION" -> PrimaryProtection,
-      "PENSION CREDIT RIGHTS P18" -> PensionCreditRightsPreCommencement,
-      "PENSION CREDIT RIGHTS S220" -> PensionCreditRightsPreviouslyCrystallised,
       "INTERNATIONAL ENHANCEMENT S221" -> InternationalEnhancementRelevantIndividual,
       "INTERNATIONAL ENHANCEMENT S224" -> InternationalEnhancementTransfer,
-      "PENSION CREDIT RIGHTS" -> PensionCreditRights,
       // Also check that LTA protections are correctly read and mapped
       "FIXED PROTECTION LTA" -> FixedProtection,
       "FIXED PROTECTION 2014 LTA" -> FixedProtection2014,
@@ -45,12 +44,51 @@ class RecordTypeMappedSpec extends SpecBase {
       "PRIMARY PROTECTION LTA" -> PrimaryProtection,
     )
 
-    for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, expectedModel)
+    for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, toTypeJsString, expectedModel)
   }
 
   "should not read an enhancement with the LTA suffix" in {
-    val result: JsResult[RecordType] = JsString("PENSION CREDIT RIGHTS P18 LTA").validate[RecordType]
+    val result: JsResult[RecordTypeMapped] = toTypeJsString("PENSION CREDIT RIGHTS P18 LTA").validate[RecordTypeMapped]
     result mustBe a[JsError]
-    result mustBe JsError(JsonValidationError("error.expected.RecordType"))
+    result.recover {
+      case err: JsError =>
+        err.errors must have length 1
+        val (path, msgs) = err.errors.head
+        path.toString() mustBe "/type"
+        msgs must have length 1
+        msgs.head.message mustBe "error.expected.RecordType"
+    }
+  }
+
+  "for a type of `PENSION CREDIT RIGHTS`" - {
+    "should read when P18 legislation field is included" in {
+      val json: JsValue = Json.parse(
+        """
+          |{
+          | "type": "PENSION CREDIT RIGHTS",
+          | "pensionCreditLegislation": "PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004"
+          |}
+        """.stripMargin
+      )
+
+      val result = json.validate[RecordTypeMapped]
+      result mustBe a[JsSuccess[_]]
+      result.get mustBe PcrPreCommencement
+    }
+
+    "should read when Section 220 legislation field is included" in {
+      val json: JsValue = Json.parse(
+        """
+          |{
+          | "type": "PENSION CREDIT RIGHTS",
+          | "pensionCreditLegislation": "SECTION 220 FINANCE ACT 2004"
+          |}
+        """.stripMargin
+      )
+
+      val result = json.validate[RecordTypeMapped]
+      result mustBe a[JsSuccess[_]]
+      result.get mustBe PcrPreviouslyCrystallised
+    }
   }
 }

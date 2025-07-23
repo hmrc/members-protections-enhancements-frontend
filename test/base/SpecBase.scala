@@ -55,7 +55,7 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsResult, JsString, JsSuccess, Reads}
+import play.api.libs.json._
 import play.api.mvc.{BodyParsers, Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running
@@ -169,6 +169,15 @@ trait SpecBase
   def enumRoundTest[ModelType: Reads](stringValue: String, expectedModel: ModelType): Unit =
     s"when provided with valid string '$stringValue' should read and map to the correct model" in {
       val result: JsResult[ModelType] = JsString(stringValue).validate[ModelType]
+      result mustBe a[JsSuccess[_]]
+      result.get mustBe expectedModel
+    }
+
+  def enumRoundTest[ModelType: Reads](stringValue: String,
+                                      jsonFormatter: String => JsValue,
+                                      expectedModel: ModelType): Unit =
+    s"when provided with valid string '$stringValue' should read and map to the correct model" in {
+      val result: JsResult[ModelType] = jsonFormatter(stringValue).validate[ModelType]
       result mustBe a[JsSuccess[_]]
       result.get mustBe expectedModel
     }
