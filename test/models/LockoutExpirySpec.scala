@@ -78,17 +78,14 @@ class LockoutExpirySpec extends SpecBase {
     }
   }
 
-  "toTimeString" - {
-    "must return the expected string for a one digit amount of seconds" in {
-      LockoutExpiry(minutes = 12, seconds = 1).toTimeString mustBe "12:01"
+  "roundedUpMins" - {
+    "must round up if seconds are above zero" in {
+      LockoutExpiry(minutes = 1, seconds = 1).roundedUpMins mustBe 2
     }
 
-    "must return the expected string for a one digit amount of minutes" in {
-      LockoutExpiry(minutes = 2, seconds = 1).toTimeString mustBe "02:01"
+    "must not round up if seconds are zero" in {
+      LockoutExpiry(minutes = 1, seconds = 0).roundedUpMins mustBe 1
     }
 
-    "must return the expected string for a two digit amount of minutes and seconds" in {
-      LockoutExpiry(minutes = 12, seconds = 12).toTimeString mustBe "12:12"
-    }
   }
 }

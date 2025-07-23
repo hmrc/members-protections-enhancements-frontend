@@ -21,7 +21,7 @@ import scala.math.Integral.Implicits.infixIntegralOps
 
 case class LockoutExpiry(minutes: Int, seconds: Int) {
   val isExpired: Boolean = if(minutes <= 0 && seconds <= 0) true else false
-  val toTimeString: String = f"$minutes%02d" + ":" + f"$seconds%02d"
+  val roundedUpMins: Int = if(seconds > 0) minutes + 1 else minutes
 }
 
 object LockoutExpiry {

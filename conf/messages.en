@@ -55,7 +55,9 @@ unauthorised.heading = You can’t access this service with this account
 lockedOut.title = You''ve been locked out
 lockedOut.heading = You''ve been locked out
 lockedOut.p1 = You''ve carried out this check too many times.
-lockedOut.p2 = Try again in {0}.
+lockedOut.p2 = Try again in {0}
+lockedOut.p2.minutes = minutes.
+lockedOut.p2.minute = minute.
 
 sessionTimeout.title = You''ve been signed out due to inactivity
 sessionTimeout.heading = You''ve been signed out due to inactivity

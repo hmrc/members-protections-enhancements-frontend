@@ -102,7 +102,7 @@ class LockedOutControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[LockedOutView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view("15:00")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(15)(request, messages(application)).toString
       }
     }
 

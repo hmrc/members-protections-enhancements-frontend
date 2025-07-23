@@ -46,7 +46,7 @@ class LockedOutController @Inject()(val controllerComponents: MessagesController
           currentTime = dateTimeProvider.now().toInstant
         )
 
-        Ok(view(lockoutExpiry.toTimeString))
+        Ok(view(lockoutExpiry.roundedUpMins))
       case None => Redirect(routes.WhatYouWillNeedController.onPageLoad())
     }
   }
