@@ -24,15 +24,17 @@ import play.api.Logging
 import play.api.mvc.Result
 import repositories.{FailedAttemptCountRepository, FailedAttemptLockoutRepository}
 
+import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[FailedAttemptServiceImpl])
 trait FailedAttemptService {
   def checkForLockout()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean]
 
-  def handleFailedAttempt(lockoutResult: Result)
-                         (noLockoutResult: Result)
+  def handleFailedAttempt(lockoutResult: Result)(noLockoutResult: Result)
                          (implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Result]
+
+  def getLockoutExpiry()(implicit request: IdentifierRequest[_]): Future[Option[Instant]]
 }
 
 @Singleton
@@ -117,5 +119,13 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
 
   }
 
+  override def getLockoutExpiry()(implicit request: IdentifierRequest[_]): Future[Option[Instant]] = {
+    val methodLoggingContext: String = "getLockoutExpiry"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
+    logger.info(s"$fullLoggingContext - Received request to retrieve lockout expiry for user")
+
+    failedAttemptLockoutRepository
+      .getLockoutExpiry(request.userDetails.psrUserId)
+  }
 }

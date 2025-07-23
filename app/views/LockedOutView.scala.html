@@ -18,7 +18,15 @@
     layout: templates.Layout
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(timeMins: Int)(implicit request: Request[_], messages: Messages)
+
+@minsString = {
+    @if(timeMins > 1) {
+        @messages("lockedOut.p2.minutes")
+    } else {
+        @messages("lockedOut.p2.minute")
+    }
+}
 
 @layout(
     pageTitle = titleNoForm(messages("lockedOut.title"))
@@ -27,5 +35,5 @@
     <h1 class="govuk-heading-xl">@messages("lockedOut.heading")</h1>
 
     <p class="govuk-body">@messages("lockedOut.p1")</p>
-    <p class="govuk-body">@messages("lockedOut.p2")</p>
+    <p class="govuk-body">@messages("lockedOut.p2", timeMins.toString) @minsString</p>
 }

@@ -71,16 +71,22 @@ class FailedAttemptServiceSpec extends SpecBase {
     ).thenReturn(createLockoutResult)
 
     val timestampSeconds: Long = 100000L
+    val instantTime: Option[Instant] = Some(Instant.ofEpochSecond(timestampSeconds))
     lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(Some(
       CacheUserDetails(
         psrUserType = PSA,
         psrUserId = None,
-        createdAt = Some(Instant.ofEpochSecond(timestampSeconds))
+        createdAt = instantTime
       )
     ))
     when(
       mockLockoutRepo.getFromCache(ArgumentMatchers.any())
     ).thenReturn(checkLockoutResult)
+
+    lazy val getExpiryResult: Future[Option[Instant]] = Future.successful(instantTime)
+    when(
+      mockLockoutRepo.getLockoutExpiry(ArgumentMatchers.any())
+    ).thenReturn(getExpiryResult)
 
     implicit val request: IdentifierRequest[AnyContentAsEmpty.type] = AdministratorRequest(
       affGroup = AffinityGroup.Individual,
@@ -164,6 +170,28 @@ class FailedAttemptServiceSpec extends SpecBase {
       val result: Future[Result] = service.handleFailedAttempt(ImATeapot("teapot time"))(Ok(""))
       status(result) mustBe IM_A_TEAPOT
       contentAsString(result) mustBe "teapot time"
+    }
+  }
+
+  "getLockoutExpiry" - {
+    "should return expiry time when a matching lockout exists" in new Test {
+      val result: Future[Option[Instant]] = service.getLockoutExpiry()
+      await(result) mustBe instantTime
+    }
+
+    "should return false when no lockout exists" in new Test {
+      override lazy val getExpiryResult: Future[Option[Instant]] = Future.successful(None)
+      val result: Future[Option[Instant]] = service.getLockoutExpiry()
+      await(result) mustBe None
+    }
+
+    "should return an exception retrieval fails" in new Test {
+      override lazy val getExpiryResult: Future[Option[Instant]] = Future.failed(new RuntimeException(""))
+
+      val result: Future[Option[Instant]] = service.getLockoutExpiry()
+      assertThrows[RuntimeException](
+        await(result)
+      )
     }
   }
 }
