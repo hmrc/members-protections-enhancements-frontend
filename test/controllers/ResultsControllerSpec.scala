@@ -216,7 +216,7 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+    "must redirect to start page for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
@@ -224,7 +224,20 @@ class ResultsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
+      }
+    }
+
+    "must redirect to start page for a GET if user already finished the journey" in new Test {
+      override lazy val application = applicationBuilder(userAnswers.set(page = ResultsPage,
+        value = MembersResult(true)).success.value).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
       }
     }
   }

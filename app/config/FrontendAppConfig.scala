@@ -23,7 +23,7 @@ import play.api.Configuration
 class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   private def loadConfig(key: String): String = configuration.get[String](key)
-  def getServiceBaseUrl(service: String): String = configuration.get[Service](service)
+  private def getServiceBaseUrl(service: String): String = configuration.get[Service](service)
 
   //Application config
   val host: String    = loadConfig("host")

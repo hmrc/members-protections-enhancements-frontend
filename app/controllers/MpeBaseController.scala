@@ -34,7 +34,7 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
                                            getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport with Logging {
 
   def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
-    (identify andThen checkLockout andThen getData).async {
+    handle {
       implicit request =>
         withMemberDetails { memberDetails =>
           block(request)(memberDetails)
@@ -42,7 +42,9 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
     }
 
   def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
-    (identify andThen checkLockout andThen getData).async(block(_))
+    (identify andThen checkLockout andThen getData).async{
+      implicit request => isResultsSuccessful(block(_))
+    }
 
   private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
     request.userAnswers.get(WhatIsTheMembersNamePage) match {
@@ -50,6 +52,14 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
         Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
       case Some(memberDetails) =>
         f(memberDetails)
+    }
+  }
+
+  private def isResultsSuccessful(block: DataRequest[AnyContent] => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
+    request.userAnswers.get(ResultsPage) match {
+      case Some(_) =>
+        Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
+      case None => block(request)
     }
   }
 

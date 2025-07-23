@@ -18,8 +18,8 @@ package controllers
 
 import base.SpecBase
 import forms.MembersPsaCheckRefFormProvider
-import models.{MemberDetails, MembersPsaCheckRef, NormalMode}
-import pages.{MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
+import models.{MemberDetails, MembersPsaCheckRef, MembersResult, NormalMode}
+import pages.{MembersPsaCheckRefPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -128,6 +128,24 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString
 
+      }
+    }
+
+    "must redirect to start page for a GET if user journey is already successful" in {
+
+      val userAnswers = emptyUserAnswers
+        .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey")).success.value
+        .set(page = ResultsPage, value = MembersResult(true)).success.value
+
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
       }
     }
   }

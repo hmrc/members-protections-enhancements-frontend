@@ -17,8 +17,10 @@
 package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -28,9 +30,9 @@ class ClearCacheController @Inject()(val controllerComponents: MessagesControlle
                                      checkLockout: CheckLockoutAction,
                                      getData: DataRetrievalAction,
                                      sessionCacheService: SessionCacheService)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async { implicit request =>
 
     sessionCacheService
       .clear(request.userAnswers)

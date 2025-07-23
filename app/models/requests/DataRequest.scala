@@ -22,9 +22,11 @@ import play.api.mvc.{Request, WrappedRequest}
 
 case class DataRequest[A] (request: Request[A],
                            userDetails: UserDetails,
-                           userAnswers: UserAnswers) extends WrappedRequest[A](request) {
+                           userAnswers: UserAnswers,
+                           correlationId: Option[String] = None) extends WrappedRequest[A](request) {
   def toIdentifierRequest: IdentifierRequest[A] = userDetails.psrUserType match {
     case UserType.PSA => new AdministratorRequest[A](userDetails, request)
     case UserType.PSP => new PractitionerRequest[A](userDetails, request)
   }
 }
+
