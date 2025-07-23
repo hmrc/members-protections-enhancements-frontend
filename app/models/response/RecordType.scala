@@ -19,7 +19,7 @@ package models.response
 import models.response.PensionCreditLegislation.{`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`, `SECTION 220 FINANCE ACT 2004`}
 import models.response.RecordTypeMapped._
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json._
+import play.api.libs.json.{JsError, _}
 import utils.enums.Enums
 
 sealed trait RecordType {
@@ -94,10 +94,14 @@ object RecordType {
   }
 
   implicit val reads: Reads[RecordType] = (json: JsValue) => {
+    val pensionCreditRightsString: String = "PENSION CREDIT RIGHTS"
+
     val enumReadsProtection: Reads[Protection] = Enums.reads[Protection]
     val enumReadsEnhancement: Reads[Enhancement] = Enums.reads[Enhancement]
+    val typeReads: Reads[JsString] = (JsPath \ "type").read[JsString]
+    val fallbackErrorReads: Reads[RecordType] = Reads.failed("error.expected.RecordType")
 
-    val protectionReadsResult: JsResult[Protection] =
+    val protectionRecordReads: Reads[RecordType] = (json: JsValue) => {
       json
         .validate[Protection](enumReadsProtection)
         .orElse(
@@ -105,8 +109,9 @@ object RecordType {
             .map(jsString => JsString(jsString.value.replace(" LTA", "").replaceAll("\\((.*?)\\)", "$1")))
             .flatMap(_.validate[Protection](enumReadsProtection))
         )
+    }
 
-    val enhancementReadsResult: JsResult[Enhancement] =
+    val enhancementRecordReads: Reads[RecordType] = (json: JsValue) => {
       json
         .validate[Enhancement](enumReadsEnhancement)
         .orElse(
@@ -114,14 +119,18 @@ object RecordType {
             .map(jsString => JsString(jsString.value.replaceAll("\\((.*?)\\)", "$1")))
             .flatMap(_.validate[Enhancement](enumReadsEnhancement))
         )
+    }
 
-    enhancementReadsResult
-      .orElse(protectionReadsResult)
-      .orElse(JsError(JsonValidationError("error.expected.RecordType")))
+    val pcrReads: Reads[RecordType] = (
+      typeReads and
+        (JsPath \ "pensionCreditLegislation").read[PensionCreditLegislation]
+      )((_, legislation) => `PENSION CREDIT RIGHTS`(legislation))
+
+    val combinedReads: Reads[RecordType] = typeReads.flatMap {
+      case JsString(`pensionCreditRightsString`) => pcrReads
+      case _ => typeReads.andThen(enhancementRecordReads orElse protectionRecordReads orElse fallbackErrorReads)
+    }
+
+    json.validate[RecordType](combinedReads)
   }
-
-  implicit val pcrReads: Reads[`PENSION CREDIT RIGHTS`] = (
-    (JsPath \ "type").read[String].filter(_ == "PENSION CREDIT RIGHTS") and
-      (JsPath \ "pensionCreditLegislation").read[PensionCreditLegislation]
-  )((_, legislation) => `PENSION CREDIT RIGHTS`(legislation))
 }
