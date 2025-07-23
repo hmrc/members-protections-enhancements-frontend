@@ -16,7 +16,6 @@
 
 package models.response
 
-import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import play.api.libs.json.Reads
 import utils.enums.Enums
 

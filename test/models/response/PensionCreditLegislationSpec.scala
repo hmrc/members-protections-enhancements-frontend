@@ -18,7 +18,6 @@ package models.response
 
 import base.SpecBase
 import models.response.PensionCreditLegislation.{`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`, `SECTION 220 FINANCE ACT 2004`}
-import models.response.RecordStatus._
 
 class PensionCreditLegislationSpec extends SpecBase {
   "round test" -> {

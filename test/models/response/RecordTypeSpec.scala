@@ -19,7 +19,7 @@ package models.response
 import base.SpecBase
 import models.response.PensionCreditLegislation.{`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`, `SECTION 220 FINANCE ACT 2004`}
 import models.response.RecordType._
-import play.api.libs.json.{JsError, JsPath, JsResult, JsString, JsSuccess, JsValue, Json, JsonValidationError}
+import play.api.libs.json._
 
 class RecordTypeSpec extends SpecBase {
   def toTypeJsString: String => JsValue = str => Json.parse(s"""{"type": "$str"}""")

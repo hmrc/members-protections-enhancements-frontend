@@ -55,7 +55,7 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsResult, JsString, JsSuccess, JsValue, Reads}
+import play.api.libs.json._
 import play.api.mvc.{BodyParsers, Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.running

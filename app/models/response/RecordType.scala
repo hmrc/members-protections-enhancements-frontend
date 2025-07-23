@@ -19,7 +19,7 @@ package models.response
 import models.response.PensionCreditLegislation.{`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`, `SECTION 220 FINANCE ACT 2004`}
 import models.response.RecordTypeMapped._
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
-import play.api.libs.json.{JsError, _}
+import play.api.libs.json._
 import utils.enums.Enums
 
 sealed trait RecordType {
