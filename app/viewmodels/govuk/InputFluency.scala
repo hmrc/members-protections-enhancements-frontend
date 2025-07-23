@@ -40,7 +40,7 @@ trait InputFluency {
       input.copy(hint = Some(hint))
 
     def withCssClass(newClass: String): Input =
-      input.copy(classes = s"${input.classes} $newClass")
+      input.copy(classes = s"${input.classes.strip()} $newClass")
 
     def withAutocomplete(value: String): Input =
       input.copy(autocomplete = Some(value))

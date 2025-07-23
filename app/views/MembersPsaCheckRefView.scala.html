@@ -15,6 +15,7 @@
  *@
 
 @import views.html.components._
+@import viewmodels.LabelSize.Large
 @import viewmodels.InputWidth.Fixed10
 @import viewmodels.formPage._
 @import viewmodels.govuk._
@@ -45,8 +46,8 @@
                 label = LabelViewModel(
                     s"${messages("membersPsaCheckRef.heading", name)}"
                 )
-                .asPageHeading()
-                .withCssClass("govuk-label--l govuk-!-margin-bottom-6")
+                .asPageHeading(Large)
+                .withCssClass("govuk-!-margin-bottom-6")
            )
            .withWidth(Fixed10)
            .withHint(HintViewModel(Text(messages("membersPsaCheckRef.hint"))))
