@@ -47,7 +47,7 @@ trait Mappings extends Formatters with Constraints {
       "month" -> month(
         requiredKey = missingError + monthError,
         wholeNumberKey = invalidMonthError,
-        nonNumericKey = invalidMonthError
+        nonNumericKey = s"$invalidMonthError.nonNumeric"
       ).verifying(invalidMonthError, m => m > 0 && m < 13),
       "year" -> int(
         requiredKey = missingError + yearError,

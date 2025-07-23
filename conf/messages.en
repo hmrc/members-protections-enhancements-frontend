@@ -99,6 +99,7 @@ membersDob.error.missing.single = The member''s date of birth must include a {0}
 membersDob.error.missing.double = The member''s date of birth must include a {0} and a {1}
 membersDob.error.invalid.day = Enter a day between 1 and 31
 membersDob.error.invalid.month = Enter a month between 1 and 12
+membersDob.error.invalid.month.nonNumeric = Enter a month between January and December
 membersDob.error.invalid.year = Enter a year between 1900 and current year
 membersDob.error.invalidDate = The member''s date of birth must be a real date
 membersDob.error.futureDate = The member''s date of birth must be in the past
