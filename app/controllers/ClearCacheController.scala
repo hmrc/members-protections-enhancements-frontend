@@ -21,6 +21,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.UnauthorisedView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -29,7 +30,8 @@ class ClearCacheController @Inject()(val controllerComponents: MessagesControlle
                                      identify: IdentifierAction,
                                      checkLockout: CheckLockoutAction,
                                      getData: DataRetrievalAction,
-                                     sessionCacheService: SessionCacheService)(implicit ec: ExecutionContext)
+                                     sessionCacheService: SessionCacheService,
+                                     view: UnauthorisedView)(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async { implicit request =>
@@ -39,6 +41,15 @@ class ClearCacheController @Inject()(val controllerComponents: MessagesControlle
       .map {
         _ =>
           Redirect(routes.WhatYouWillNeedController.onPageLoad().url)
+      }
+  }
+
+  def defaultError(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async { implicit request =>
+    sessionCacheService
+      .clear(request.userAnswers)
+      .map {
+        _ =>
+          Ok(view())
       }
   }
 }

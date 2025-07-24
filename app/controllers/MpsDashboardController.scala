@@ -21,6 +21,7 @@ import config.FrontendAppConfig
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.requests.UserType.PSA
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.Future
 
@@ -29,9 +30,9 @@ class MpsDashboardController @Inject()(identify: IdentifierAction,
                                        getData: DataRetrievalAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        val appConfig: FrontendAppConfig)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends FrontendBaseController {
 
-  def redirectToMps(): Action[AnyContent] = handle { implicit request =>
+  def redirectToMps(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async{ implicit request =>
 
     val mpsUrl =
       request.userDetails.psrUserType match {

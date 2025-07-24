@@ -22,6 +22,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import views.html.UnauthorisedView
 
 class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
 
@@ -44,6 +45,22 @@ class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.WhatYouWillNeedController.onPageLoad().url
       }
+    }
+  }
+
+  "must return OK and the default error view for a GET" in {
+
+    val application = applicationBuilder(userAnswers = emptyUserAnswers ).build()
+
+    running(application) {
+      val request = FakeRequest(GET, routes.ClearCacheController.defaultError().url)
+
+      val result = route(application, request).value
+
+      val view = application.injector.instanceOf[UnauthorisedView]
+
+      status(result) mustEqual OK
+      contentAsString(result) mustEqual view()(request, messages(application)).toString
     }
   }
 }

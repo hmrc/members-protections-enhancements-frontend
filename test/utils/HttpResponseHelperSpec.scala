@@ -19,7 +19,6 @@ package utils
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
-import org.scalacheck.Gen
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
@@ -35,7 +34,8 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
 
   "handleErrorResponse" should "transform Bad Request into BadRequestException" in {
     val response = responseFor(BAD_REQUEST)
-    a[BadRequestException] should be thrownBy failure()(response)
+    val expected = "test-method of 'test-url' returned 400 (Bad Request). Response body 'Message for 400'"
+    failure()(response) shouldBe expected
   }
 
   "handleSuccessResponse" should "throw JsResultException for invalid json" in {
@@ -77,43 +77,30 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
     testModel shouldBe success()(response)
   }
 
-  it should "transform any other 4xx into Upstream4xxResponse" in {
-    val userErrors = for (n <- Gen.choose(400, 499) suchThat (n => n != 400 && n != 404)) yield n
-
-    forAll(userErrors) {
-      userError =>
-        val ex = the[UpstreamErrorResponse] thrownBy failure()(responseFor(userError))
-        ex.reportAs shouldBe userError
-        ex.statusCode shouldBe userError
-    }
+  it should "transform any 4xx into Upstream4xxResponse other than 400" in {
+    val response = responseFor(FORBIDDEN)
+    val expected = "test-method of 'test-url' returned 403. Response body: 'Message for 403'"
+    failure()(response) shouldBe expected
   }
 
-  it should "transform any 5xx into Upstream5xxResponse" in {
-    val serverErrors = for (n <- Gen.choose(500, 599)) yield n
-
-    forAll(serverErrors) {
-      serverError =>
-        val ex = the[UpstreamErrorResponse] thrownBy failure()(responseFor(serverError))
-        ex.reportAs shouldBe BAD_GATEWAY
-        ex.statusCode shouldBe serverError
-    }
+  it should "transform any other 5xx into Upstream5xxResponse" in {
+    val response = responseFor(BAD_GATEWAY)
+    val expected = "test-method of 'test-url' returned 502. Response body: 'Message for 502'"
+    failure()(response) shouldBe expected
   }
 
-  it should "transform any other status into an UnrecognisedHttpResponseException" in {
-    val statuses = for (n <- Gen.choose(0, 1000) suchThat (n => n < 400 || n >= 600)) yield n
-
-    forAll(statuses) {
-      status =>
-        an[UnrecognisedHttpResponseException] should be thrownBy failure()(responseFor(status))
-    }
+  it should "transform any other status other than 4xx and 5xx into an UnrecognisedHttpResponseException" in {
+    val response = responseFor(NOT_MODIFIED)
+    val expected = "test-method of 'test-url' failed with status 304. Response body: 'HttpResponse status=304'"
+    failure()(response) shouldBe expected
   }
 
 }
 
 object HttpResponseHelperSpec {
 
-  def failure(): HttpResponse => Nothing = {
-    new HttpResponseHelper {}.handleErrorResponse("test-mnethod", "test-url")
+  def failure(): HttpResponse => String = {
+    new HttpResponseHelper {}.handleErrorResponse("test-method", "test-url")
   }
 
   def success(): HttpResponse => ProtectionRecordDetails = res => {
