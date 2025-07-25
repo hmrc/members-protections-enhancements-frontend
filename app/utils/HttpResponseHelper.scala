@@ -25,16 +25,14 @@ trait HttpResponseHelper extends HttpErrorFunctions {
 
   implicit val httpResponseReads: HttpReads[HttpResponse] = (method: String, url: String, response: HttpResponse) => response
 
-  def handleErrorResponse(httpMethod: String, url: String)(response: HttpResponse): Nothing =
+  def handleErrorResponse(httpMethod: String, url: String)(response: HttpResponse): String =
     response.status match {
       case BAD_REQUEST =>
-        throw new BadRequestException(badRequestMessage(httpMethod, url, response.body))
-      case status if is4xx(status) =>
-        throw UpstreamErrorResponse(upstreamResponseMessage(httpMethod, url, status, response.body), status, status, response.headers)
-      case status if is5xx(status) =>
-        throw UpstreamErrorResponse(upstreamResponseMessage(httpMethod, url, status, response.body), status, BAD_GATEWAY)
+        badRequestMessage(httpMethod, url, response.body)
+      case status if is4xx(status) || is5xx(status) =>
+        upstreamResponseMessage(httpMethod, url, status, response.body)
       case _ =>
-        throw new UnrecognisedHttpResponseException(httpMethod, url, response)
+        new UnrecognisedHttpResponseException(httpMethod, url, response).getMessage
     }
 
   def handleSuccessResponse(response: JsValue): ProtectionRecordDetails =
@@ -45,4 +43,7 @@ trait HttpResponseHelper extends HttpErrorFunctions {
 }
 
 class UnrecognisedHttpResponseException(method: String, url: String, response: HttpResponse)
-  extends Exception(s"$method to $url failed with status ${response.status}. Response body: '${response}'")
+  extends Exception(s"$method of '$url' failed with status ${response.status}. Response body: '$response'")
+
+class MpeException(message: String)
+  extends RuntimeException(message)

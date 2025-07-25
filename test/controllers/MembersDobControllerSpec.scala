@@ -18,8 +18,8 @@ package controllers
 
 import base.SpecBase
 import forms.MembersDobFormProvider
-import models.{MemberDetails, MembersDob, NormalMode}
-import pages.{MembersDobPage, WhatIsTheMembersNamePage}
+import models.{MemberDetails, MembersDob, MembersResult, NormalMode}
+import pages.{MembersDobPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -128,6 +128,23 @@ class MembersDobControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
+      }
+    }
+
+    "must redirect to start page for a GET if user journey is already successful" in {
+
+      val application = applicationBuilder(userAnswers =
+        emptyUserAnswers
+          .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+          .set(page = ResultsPage, value = MembersResult(true)).success.value).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
       }
     }
   }

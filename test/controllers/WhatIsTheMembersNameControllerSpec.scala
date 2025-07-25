@@ -18,8 +18,8 @@ package controllers
 
 import base.SpecBase
 import forms.WhatIsTheMembersNameFormProvider
-import models.{MemberDetails, NormalMode}
-import pages.WhatIsTheMembersNamePage
+import models.{MemberDetails, MembersResult, NormalMode}
+import pages.{ResultsPage, WhatIsTheMembersNamePage}
 import play.api.Application
 import play.api.data.Form
 import play.api.mvc.Results.Redirect
@@ -50,6 +50,20 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result) mustBe Some(controllers.routes.LockedOutController.onPageLoad().url)
+      }
+    }
+
+    "must redirect to start page if the user journey is already successful" in {
+      val application: Application = applicationBuilder(
+        userAnswers = emptyUserAnswers.set(page = ResultsPage, value = MembersResult(isSuccessful = true)).success.value
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.routes.ClearCacheController.onPageLoad().url)
       }
     }
 

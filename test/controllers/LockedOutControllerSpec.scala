@@ -118,7 +118,7 @@ class LockedOutControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.WhatYouWillNeedController.onPageLoad().url)
+        redirectLocation(result) mustBe Some(routes.ClearCacheController.onPageLoad().url)
       }
     }
   }

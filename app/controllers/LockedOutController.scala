@@ -45,9 +45,9 @@ class LockedOutController @Inject()(val controllerComponents: MessagesController
           lockoutExpiry = frontendAppConfig.lockoutTtl,
           currentTime = dateTimeProvider.now().toInstant
         )
-
         Ok(view(lockoutExpiry.roundedUpMins))
-      case None => Redirect(routes.WhatYouWillNeedController.onPageLoad())
+
+      case None => Redirect(routes.ClearCacheController.onPageLoad())
     }
   }
 }

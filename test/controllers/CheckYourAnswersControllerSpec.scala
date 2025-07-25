@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import models._
-import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
+import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.http.Status.OK
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
@@ -66,6 +66,21 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
     "must redirect to start page for a GET if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
+      }
+    }
+
+    "must redirect to start page for a GET if user journey is already successful" in {
+
+      val application = applicationBuilder(userAnswers =
+        userAnswers.set(page = ResultsPage, value = MembersResult(true)).success.value).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)

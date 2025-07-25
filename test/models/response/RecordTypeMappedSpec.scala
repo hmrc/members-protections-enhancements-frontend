@@ -50,14 +50,13 @@ class RecordTypeMappedSpec extends SpecBase {
   "should not read an enhancement with the LTA suffix" in {
     val result: JsResult[RecordTypeMapped] = toTypeJsString("PENSION CREDIT RIGHTS P18 LTA").validate[RecordTypeMapped]
     result mustBe a[JsError]
-    result.recover {
-      case err: JsError =>
-        err.errors must have length 1
-        val (path, msgs) = err.errors.head
-        path.toString() mustBe "/type"
-        msgs must have length 1
-        msgs.head.message mustBe "error.expected.RecordType"
-    }
+    val errorResult = result.asInstanceOf[JsError]
+    errorResult.errors must have length 1
+    val (path, msgs) = errorResult.errors.head
+    path.toString() mustBe "/type"
+    msgs must have length 1
+    msgs.head.message mustBe "error.expected.RecordType"
+
   }
 
   "for a type of `PENSION CREDIT RIGHTS`" - {

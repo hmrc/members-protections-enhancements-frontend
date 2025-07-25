@@ -18,11 +18,14 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import models.MembersResult
+import models.errors.NotFoundError
 import models.requests.IdentifierRequest
+import pages.ResultsPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
-import services.{FailedAttemptService, MembersCheckAndRetrieveService}
+import services.{FailedAttemptService, MembersCheckAndRetrieveService, SessionCacheService}
 import utils.{DateTimeFormats, IdGenerator, Logging}
 import views.html.ResultsView
 
@@ -37,6 +40,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   dateTimeProvider: DateTimeProvider,
                                   checkAndRetrieveService: MembersCheckAndRetrieveService,
                                   failedAttemptService: FailedAttemptService,
+                                  service: SessionCacheService,
                                   idGenerator: IdGenerator)
                                  (implicit ec: ExecutionContext)
   extends MpeBaseController(identify, checkLockout, getData) with Logging {
@@ -55,18 +59,23 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
         checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)).flatMap {
           case Right(value) =>
             logger.info(s"$fullLoggingContext - Successfully retrieved results for supplied details")
-            Future.successful(Ok(
-              view(
-                memberDetails = memberDetails,
-                membersDob = membersDob,
-                membersNino = membersNino,
-                membersPsaCheckRef = membersPsaCheckRef,
-                backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
-                formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
-                protectionRecordDetails = value
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ResultsPage, MembersResult(isSuccessful = true)))
+              _ <- service.save(updatedAnswers)
+            } yield {
+              Ok(
+                view(
+                  memberDetails = memberDetails,
+                  membersDob = membersDob,
+                  membersNino = membersNino,
+                  membersPsaCheckRef = membersPsaCheckRef,
+                  backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
+                  formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
+                  protectionRecordDetails = value
+                )
               )
-            ))
-          case _ =>
+            }
+          case Left(NotFoundError) =>
             implicit val req: IdentifierRequest[AnyContent] = request.toIdentifierRequest
             logger.warn(s"$fullLoggingContext - Failed to retrieve results for supplied details")
 
@@ -75,10 +84,11 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
             )(
               Redirect(routes.NoResultsController.onPageLoad())
             )
-
+          case _ =>
+            Future.successful(Redirect(routes.ClearCacheController.defaultError()))
         }
       case _ =>
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+        Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
     }
   })
 }

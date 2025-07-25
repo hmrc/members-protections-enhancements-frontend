@@ -34,6 +34,18 @@ class ProtectionRecordDetailsSpec extends SpecBase {
     )
   ))
 
+  val nonActive: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
+    ProtectionRecord(
+      protectionReference = Some("some-id"),
+      `type` = FixedProtection2016,
+      status = Dormant,
+      protectedAmount = Some(1),
+      lumpSumAmount = Some(1),
+      lumpSumPercentage = Some(1),
+      enhancementFactor = Some(0.5)
+    )
+  ))
+
   val testJson: JsValue = Json.parse(
     """
       |{
@@ -63,11 +75,29 @@ class ProtectionRecordDetailsSpec extends SpecBase {
       result mustBe a[JsSuccess[_]]
       result.get mustBe testModel
     }
+
+    "return a JsSuccess when reading a JSON with empty ProtectionRecords" in {
+      val emptyRecordsJson: JsValue = Json.parse(
+        """
+          |{
+          | "protectionRecords": [
+          | ]
+          |}
+    """.stripMargin
+      )
+      val result = emptyRecordsJson.validate[ProtectionRecordDetails]
+      result mustBe a[JsSuccess[_]]
+      result.get mustBe ProtectionRecordDetails(Seq.empty)
+    }
   }
 
   "ordered" -> {
     "should order protections and enhancements correctly" in {
       dummyProtectionRecords.ordered.map(_.status) mustBe Seq(Active, Active, Dormant, Withdrawn)
+    }
+
+    "should order protections and enhancements with no active record" in {
+      nonActive.ordered.map(_.status) mustBe Seq(Dormant)
     }
   }
 }

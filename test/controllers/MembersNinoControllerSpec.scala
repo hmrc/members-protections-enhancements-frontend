@@ -18,8 +18,8 @@ package controllers
 
 import base.SpecBase
 import forms.MembersNinoFormProvider
-import models.{MemberDetails, MembersNino, NormalMode}
-import pages.{MembersNinoPage, WhatIsTheMembersNamePage}
+import models.{MemberDetails, MembersNino, MembersResult, NormalMode}
+import pages.{MembersNinoPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -107,6 +107,24 @@ class MembersNinoControllerSpec extends SpecBase {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url
 
+      }
+    }
+
+    "must redirect to start page for a GET if user journey is already successful" in {
+
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(page = ResultsPage, value = MembersResult(true)).success.value
+
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
       }
     }
 

@@ -75,11 +75,6 @@ class NoResultsControllerSpec extends SpecBase {
         val result = route(application, request).value
         val view = application.injector.instanceOf[NoResultsView]
 
-        val memberDetails: MemberDetails = MemberDetails("Pearl", "Harvey")
-        val membersDob: MembersDob = MembersDob(1, 1, 2022)
-        val membersNino: MembersNino = MembersNino("AB123456A")
-        val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
-
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(
           memberDetails,
@@ -93,6 +88,20 @@ class NoResultsControllerSpec extends SpecBase {
 
     "must redirect to start page for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.NoResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
+      }
+    }
+
+
+    "must redirect to start page for a GET if user journey is already successful" in new Test {
+
+      val application = applicationBuilder(userAnswers.set(page = ResultsPage, value = MembersResult(true)).success.value).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.NoResultsController.onPageLoad().url)

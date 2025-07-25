@@ -52,14 +52,12 @@ class RecordTypeSpec extends SpecBase {
     "should not read an enhancement with the LTA suffix" in {
       val result: JsResult[RecordType] = toTypeJsString("INTERNATIONAL ENHANCEMENT S221 LTA").validate[RecordType]
       result mustBe a[JsError]
-      result.recover {
-        case err: JsError =>
-          err.errors must have length 1
-          val (path, msgs) = err.errors.head
-          path.toString() mustBe "/type"
-          msgs must have length 1
-          msgs.head.message mustBe "error.expected.RecordType"
-      }
+      val errorResult = result.asInstanceOf[JsError]
+      errorResult.errors must have length 1
+      val (path, msgs) = errorResult.errors.head
+      path.toString() mustBe "/type"
+      msgs must have length 1
+      msgs.head.message mustBe "error.expected.RecordType"
     }
 
     "should throw an error when type field is missing" in {
@@ -73,12 +71,10 @@ class RecordTypeSpec extends SpecBase {
 
       val result = json.validate[RecordType]
       result mustBe a[JsError]
-      result.recover {
-        case err: JsError =>
-          val (jsPath, validationErrors) = err.errors.head
-          jsPath.toString() mustBe "/type"
-          validationErrors.head.messages mustBe List("error.path.missing")
-      }
+      val errorResult = result.asInstanceOf[JsError]
+      val (jsPath, validationErrors) = errorResult.errors.head
+      jsPath.toString() mustBe "/type"
+      validationErrors.head.messages mustBe List("error.path.missing")
     }
 
     "should throw an error when type field is unparsable" in {
@@ -93,13 +89,12 @@ class RecordTypeSpec extends SpecBase {
 
       val result = json.validate[RecordType]
       result mustBe a[JsError]
-      result.recover {
-        case err: JsError =>
-          err.errors must have length 1
-          val (_, msg) = err.errors.head
-          msg must have length 1
-          msg.head.message mustBe "error.expected.RecordType"
-      }
+      val errorResult = result.asInstanceOf[JsError]
+      errorResult.errors must have length 1
+      val (_, msg) = errorResult.errors.head
+      msg must have length 1
+      msg.head.message mustBe "error.expected.RecordType"
+
     }
 
     "for a type of `PENSION CREDIT RIGHTS" - {
@@ -145,13 +140,11 @@ class RecordTypeSpec extends SpecBase {
 
         val result = json.validate[RecordType]
         result mustBe a[JsError]
-        result.recover {
-          case err: JsError =>
-            err.errors must have length 1
-            val (_, msg) = err.errors.head
-            msg must have length 1
-            msg.head.message mustBe "error.expected.RecordType"
-        }
+        val errorResult = result.asInstanceOf[JsError]
+        errorResult.errors must have length 1
+        val (_, msg) = errorResult.errors.head
+        msg must have length 1
+        msg.head.message mustBe "error.expected.RecordType"
       }
 
       "should throw an error when legislation field is missing" in {
@@ -165,13 +158,11 @@ class RecordTypeSpec extends SpecBase {
 
         val result = json.validate[RecordType]
         result mustBe a[JsError]
-        result.recover {
-          case err: JsError =>
-            err.errors must have length 1
-            val (jsPath, validationErrors) = err.errors.head
-            jsPath.toString() mustBe "/pensionCreditLegislation"
-            validationErrors.head.messages mustBe List("error.path.missing")
-        }
+        val errorResult = result.asInstanceOf[JsError]
+        errorResult.errors must have length 1
+        val (jsPath, validationErrors) = errorResult.errors.head
+        jsPath.toString() mustBe "/pensionCreditLegislation"
+        validationErrors.head.messages mustBe List("error.path.missing")
       }
 
       "should throw an error when legislation field is unparsable" in {
@@ -186,13 +177,11 @@ class RecordTypeSpec extends SpecBase {
 
         val result = json.validate[RecordType]
         result mustBe a[JsError]
-        result.recover {
-          case err: JsError =>
-            err.errors must have length 1
-            val (jsPath, validationErrors) = err.errors.head
-            jsPath.toString() mustBe "/pensionCreditLegislation"
-            validationErrors.head.messages mustBe List("error.expected.PensionCreditLegislation")
-        }
+        val errorResult = result.asInstanceOf[JsError]
+        errorResult.errors must have length 1
+        val (jsPath, validationErrors) = errorResult.errors.head
+        jsPath.toString() mustBe "/pensionCreditLegislation"
+        validationErrors.head.messages mustBe List("error.expected.PensionCreditLegislation")
       }
     }
   }

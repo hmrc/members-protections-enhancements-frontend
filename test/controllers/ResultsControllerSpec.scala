@@ -202,6 +202,24 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
+
+    "must throw an exception when InternalError response received" in new Test {
+      setUpStubs(FORBIDDEN, "{}")
+      val mockIdGenerator: IdGenerator = mock[IdGenerator]
+      override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
+        .overrides(
+          inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
+        ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.defaultError().url
+      }
+    }
+
     "must redirect to Lockout page when failed attempt threshold exceeded for a failed attempt" in new Test {
       mockFailedAttemptCheck(checkResult = true)
       mockHandleFailedAttempt(Redirect(routes.LockedOutController.onPageLoad()))
@@ -216,7 +234,7 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+    "must redirect to start page for a GET if no existing data is found" in {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
@@ -224,7 +242,20 @@ class ResultsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
+      }
+    }
+
+    "must redirect to start page for a GET if user already finished the journey" in new Test {
+      override lazy val application: Application = applicationBuilder(userAnswers.set(page = ResultsPage,
+        value = MembersResult(true)).success.value).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
       }
     }
   }

@@ -10,6 +10,8 @@ GET         /refresh-session                                                    
 
 GET         /clear-cache                                                        controllers.ClearCacheController.onPageLoad()
 
+GET         /mpe-error                                                          controllers.ClearCacheController.defaultError()
+
 GET         /there-is-a-problem                                                 controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
 GET         /check-your-answers                                                 controllers.CheckYourAnswersController.onPageLoad()

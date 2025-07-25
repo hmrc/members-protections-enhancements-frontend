@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.errors.NotFoundError
+import models.errors.{NotFoundError, InternalError}
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
@@ -30,8 +30,7 @@ import play.api.Application
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
-import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, UpstreamErrorResponse}
-import utils.UnrecognisedHttpResponseException
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -102,28 +101,32 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
   "throw BadRequestException when the downstream return BAD_REQUEST response" in new Test {
     setUpStubs(BAD_REQUEST, "")
 
-    a[BadRequestException] should be thrownBy await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    result shouldBe Left(InternalError)
     WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 
   "throw UpstreamErrorResponse when the downstream return any response with status 4xx" in new Test {
     setUpStubs(FORBIDDEN, "")
 
-    a[UpstreamErrorResponse] should be thrownBy await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    result shouldBe Left(InternalError)
     WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 
   "throw UpstreamErrorResponse when the downstream return any response with status 5xx" in new Test {
     setUpStubs(INTERNAL_SERVER_ERROR, "")
 
-    a[UpstreamErrorResponse] should be thrownBy await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    result shouldBe Left(InternalError)
     WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 
   "throw UnrecognisedHttpResponseException when the downstream return unknown error response" in new Test {
     setUpStubs(MULTIPLE_CHOICES, "")
 
-    a[UnrecognisedHttpResponseException] should be thrownBy await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
+    result shouldBe Left(InternalError)
     WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 }

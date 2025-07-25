@@ -19,6 +19,7 @@ package models.response
 import base.SpecBase
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.{FixedProtection2016, PcrPreCommencement}
+import org.scalatest.RecoverMethods.recoverToSucceededIf
 import play.api.libs.json._
 
 class ProtectionRecordSpec extends SpecBase {
@@ -95,14 +96,13 @@ class ProtectionRecordSpec extends SpecBase {
 
       val result = testJson.validate[ProtectionRecord]
       result mustBe a[JsError]
-      result.recover {
-        case err: JsError =>
-          err.errors must have length 1
-          val (path, msgs) = err.errors.head
-          path.toString() mustBe "/pensionCreditLegislation"
-          msgs must have length 1
-          msgs.head.message mustBe "error.path.missing"
-      }
+      val errorResult = result.asInstanceOf[JsError]
+      errorResult.errors must have length 1
+      val (path, msgs) = errorResult.errors.head
+      path.toString() mustBe "/pensionCreditLegislation"
+      msgs must have length 1
+      msgs.head.message mustBe "error.path.missing"
+
     }
   }
 }
