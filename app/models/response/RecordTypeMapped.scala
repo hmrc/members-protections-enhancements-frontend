@@ -33,11 +33,11 @@ object RecordTypeMapped {
   object IndividualProtection2016 extends ProtectionTypeMapped("IP.2016")
   object PrimaryProtection extends ProtectionTypeMapped("PP")
   object EnhancedProtection extends ProtectionTypeMapped("EP")
-  object PensionCreditRightsPreCommencement extends EnhancementTypeMapped("PCR.COM")
-  object PensionCreditRights extends EnhancementTypeMapped("PCR")
-  object PensionCreditRightsPreviouslyCrystallised extends EnhancementTypeMapped("PCR.CRY")
+  object PcrPreCommencement extends EnhancementTypeMapped("PCR.COM")
+  object PcrPreviouslyCrystallised extends EnhancementTypeMapped("PCR.CRY")
+
   object InternationalEnhancementRelevantIndividual extends EnhancementTypeMapped("IE.RI")
   object InternationalEnhancementTransfer extends EnhancementTypeMapped("IE.T")
 
-  implicit val reads: Reads[RecordTypeMapped] = RecordType.reads.map(_.toMapped)
+  implicit val reads: Reads[RecordTypeMapped] = RecordType.reads.map(_.mapping)
 }

@@ -18,7 +18,7 @@ package models.response
 
 import base.SpecBase
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
-import models.response.RecordTypeMapped.{FixedProtection2014, PensionCreditRightsPreCommencement}
+import models.response.RecordTypeMapped.{FixedProtection2014, PcrPreCommencement}
 
 class RecordStatusMappedSpec extends SpecBase {
   "round test" -> {
@@ -37,9 +37,8 @@ class RecordStatusMappedSpec extends SpecBase {
     }
 
     "should return the correct string for an enhancement" in {
-      Dormant.toDescriptionMessagesString(PensionCreditRightsPreCommencement) mustBe
+      Dormant.toDescriptionMessagesString(PcrPreCommencement) mustBe
         "results.status.dormant.message.enhancement"
-
     }
   }
 

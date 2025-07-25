@@ -32,7 +32,15 @@ class LockedOutViewSpec extends SpecBase {
       view.getElementsByTag("h1").text() mustBe messages(app)("You've been locked out")
 
       view.html.contains(messages(app)("lockedOut.p1"))
-      view.text.contains(messages(app)("lockedOut.p2"))
+      view.text.contains(messages(app)("lockedOut.p2", "13 minutes"))
+    }
+
+    "handle one minute lockout countdown correctly" in new Setup {
+      override val view: Document = Jsoup.parse(app.injector.instanceOf[LockedOutView].apply(1).body)
+      view.getElementsByTag("h1").text() mustBe messages(app)("You've been locked out")
+
+      view.html.contains(messages(app)("lockedOut.p1"))
+      view.text.contains(messages(app)("lockedOut.p2", "1 minute"))
     }
   }
 
@@ -42,7 +50,7 @@ class LockedOutViewSpec extends SpecBase {
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
-    val view: Document = Jsoup.parse(app.injector.instanceOf[LockedOutView].apply().body)
+    val view: Document = Jsoup.parse(app.injector.instanceOf[LockedOutView].apply(13).body)
   }
 
 }

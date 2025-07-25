@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,28 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this(
-    layout: templates.Layout
-)
+package models.response
 
-@(timeMins: Int)(implicit request: Request[_], messages: Messages)
+import play.api.libs.json.Reads
+import utils.enums.Enums
 
-@minsString = {
-    @if(timeMins > 1) {
-        @messages("lockedOut.p2.minutes")
-    } else {
-        @messages("lockedOut.p2.minute")
-    }
-}
+sealed trait PensionCreditLegislation
 
-@layout(
-    pageTitle = titleNoForm(messages("lockedOut.title"))
-) {
+object PensionCreditLegislation {
+  case object `PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004` extends PensionCreditLegislation
+  case object `SECTION 220 FINANCE ACT 2004` extends PensionCreditLegislation
 
-    <h1 class="govuk-heading-xl">@messages("lockedOut.heading")</h1>
-
-    <p class="govuk-body">@messages("lockedOut.p1")</p>
-    <p class="govuk-body">@messages("lockedOut.p2", timeMins.toString) @minsString</p>
+  implicit val reads: Reads[PensionCreditLegislation] = Enums.reads[PensionCreditLegislation]
 }

@@ -68,7 +68,6 @@ object ResultsViewUtils {
 
   def protectionRecordDetailsToSummaryLists(protectionRecordDetails: ProtectionRecordDetails)
                                            (implicit messages: Messages): Seq[SummaryList] = {
-    protectionRecordDetails.protectionRecords.map(protectionRecordToSummaryList)
+    protectionRecordDetails.ordered.map(protectionRecordToSummaryList)
   }
-
 }

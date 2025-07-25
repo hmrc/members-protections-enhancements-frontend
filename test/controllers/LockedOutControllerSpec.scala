@@ -27,18 +27,34 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import providers.DateTimeProvider
 import services.FailedAttemptService
 import views.html.LockedOutView
 
+import java.time.{Instant, ZoneId, ZonedDateTime}
 import scala.concurrent.Future
 
 class LockedOutControllerSpec extends SpecBase {
 
+  trait Test {
+    val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
+    val mockService: FailedAttemptService = mock[FailedAttemptService]
+
+    val application: Application = applicationBuilder(
+      userAnswers = emptyUserAnswers,
+    )
+      .overrides(
+        bind(classOf[DateTimeProvider]).toInstance(mockDateTimeProvider),
+        bind[FailedAttemptService].toInstance(mockService)
+      )
+      .build()
+  }
+
   "LockedOut Controller" - {
-    "must redirect appropriately when user is not authenticated" in {
+    "must redirect appropriately when user is not authenticated" in new Test {
       val mockIdentifierAction: IdentifierAction = mock[IdentifierAction]
 
-      val application: Application = applicationBuilder(
+      override val application: Application = applicationBuilder(
         userAnswers = emptyUserAnswers,
         identifierAction = mockIdentifierAction
       ).build()
@@ -62,18 +78,21 @@ class LockedOutControllerSpec extends SpecBase {
       }
     }
 
-    "must return OK and the correct view for a GET when user is locked out" in {
-      val mockService: FailedAttemptService = mock[FailedAttemptService]
-      val application: Application = applicationBuilder(userAnswers = emptyUserAnswers)
-        .overrides(
-          bind[FailedAttemptService].toInstance(mockService)
-        )
-        .build()
+    "must return OK and the correct view for a GET when user is locked out" in new Test {
+      val timestampSeconds: Long = 100000L
+      val instantTime: Instant = Instant.ofEpochSecond(timestampSeconds)
+      val getExpiryResult: Future[Option[Instant]] = Future.successful(Some(instantTime))
 
       when(
-        mockService.checkForLockout()(ArgumentMatchers.any(), ArgumentMatchers.any())
+        mockService.getLockoutExpiry()(ArgumentMatchers.any())
       ).thenReturn(
-        Future.successful(true)
+        getExpiryResult
+      )
+
+      when(
+        mockDateTimeProvider.now()
+      ).thenReturn(
+        ZonedDateTime.ofInstant(instantTime, ZoneId.of("Europe/London"))
       )
 
       running(application) {
@@ -83,21 +102,15 @@ class LockedOutControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[LockedOutView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(15)(request, messages(application)).toString
       }
     }
 
-    "must redirect to start page when user is not locked out" in {
-      val mockService: FailedAttemptService = mock[FailedAttemptService]
-
-      val application: Application = applicationBuilder(userAnswers = emptyUserAnswers)
-        .overrides(bind[FailedAttemptService].toInstance(mockService))
-        .build()
-
+    "must redirect to start page when user is not locked out" in new Test{
       when(
-        mockService.checkForLockout()(ArgumentMatchers.any(), ArgumentMatchers.any())
+        mockService.getLockoutExpiry()(ArgumentMatchers.any())
       ).thenReturn(
-        Future.successful(false)
+        Future.successful(None)
       )
 
       running(application) {
