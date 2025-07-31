@@ -29,7 +29,7 @@ class MembersDobFormProvider @Inject()(dateTimeProvider: DateTimeProvider) exten
       "dateOfBirth" -> dateOfBirth(dateTimeProvider)
         .verifying(
           firstError(
-            validDate("membersDob.error.invalid"),
+            validDate("membersDob.error.invalidDate"),
             futureDate("membersDob.error.futureDate", dateTimeProvider)
           )
         )

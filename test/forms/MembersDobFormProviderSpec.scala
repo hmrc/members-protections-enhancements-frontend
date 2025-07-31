@@ -27,6 +27,7 @@ import play.api.i18n.Messages
 import play.api.test.{FakeRequest, Helpers}
 import providers.DateTimeProvider
 
+import java.time.temporal.ChronoField
 import java.time.{LocalDate, ZoneId, ZonedDateTime}
 
 class MembersDobFormProviderSpec extends DateBehaviours {
@@ -54,11 +55,26 @@ class MembersDobFormProviderSpec extends DateBehaviours {
   private val maxDate = LocalDate.now()
 
   ".dateOfBirth" must {
-    "bind valid data" in {
+    "bind valid data with numeric month values" in {
       forAll(datesBetween(minDate, maxDate)) { date =>
         val data = Map(
           s"$formField.day" -> date.getDayOfMonth.toString,
           s"$formField.month" -> date.getMonthValue.toString,
+          s"$formField.year" -> date.getYear.toString
+        )
+        val result = form.bind(data)
+        result.value.value shouldEqual MembersDob(
+          date.getDayOfMonth,
+          date.getMonthValue,
+          date.getYear)
+      }
+    }
+
+    "bind valid data with non-numeric month values" in {
+      forAll(datesBetween(minDate, maxDate)) { date =>
+        val data = Map(
+          s"$formField.day" -> date.getDayOfMonth.toString,
+          s"$formField.month" -> ChronoField.MONTH_OF_YEAR.getFrom(date).toString,
           s"$formField.year" -> date.getYear.toString
         )
         val result = form.bind(data)
@@ -96,9 +112,9 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         val result = form.bind(data)
         result.errors must have length 3
         result.errors.flatMap(_.messages) mustBe Seq(
-          "membersDob.error.invalidOrMissing.day",
-          "membersDob.error.invalidOrMissing.month",
-          "membersDob.error.invalidOrMissing.year"
+          "membersDob.error.format.day",
+          "membersDob.error.format.month",
+          "membersDob.error.format.year"
         )
       }
 
@@ -115,9 +131,9 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         val result = form.bind(data)
         result.errors must have length 3
         result.errors.flatMap(_.messages) mustBe Seq(
-          "membersDob.error.invalidOrMissing.day",
-          "membersDob.error.invalidOrMissing.month",
-          "membersDob.error.invalidOrMissing.year"
+          "membersDob.error.format.day",
+          "membersDob.error.format.month",
+          "membersDob.error.format.year"
         )
       }
 
@@ -134,9 +150,9 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         val result = form.bind(data)
         result.errors must have length 3
         result.errors.flatMap(_.messages) mustBe Seq(
-          "membersDob.error.invalidOrMissing.day",
-          "membersDob.error.invalidOrMissing.month",
-          "membersDob.error.invalidOrMissing.year"
+          "membersDob.error.format.day",
+          "membersDob.error.format.month.nonNumeric",
+          "membersDob.error.format.year"
         )
       }
 
@@ -148,9 +164,9 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         val result = form.bind(data)
         result.errors must have length 3
         result.errors.flatMap(_.messages) mustBe Seq(
-          "membersDob.error.invalidOrMissing.day",
-          "membersDob.error.invalidOrMissing.month",
-          "membersDob.error.invalidOrMissing.year"
+          "membersDob.error.missing.day",
+          "membersDob.error.missing.month",
+          "membersDob.error.missing.year"
         )
       }
 
@@ -166,7 +182,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         )
         val result = form.bind(data)
         result.errors must have length 1
-        result.errors.flatMap(_.messages) must contain("membersDob.error.invalid")
+        result.errors.flatMap(_.messages) must contain("membersDob.error.invalidDate")
       }
 
       "supplied data represents a future date" in {
@@ -194,7 +210,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         )
         val result = form.bind(data)
         result.errors must have length 1
-        result.errors.flatMap(_.messages) must contain(messages("membersDob.error.invalidOrMissing.year"))
+        result.errors.flatMap(_.messages) must contain(messages("membersDob.error.format.year"))
       }
     }
   }

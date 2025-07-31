@@ -119,12 +119,38 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       boundForm.value mustBe Some(MembersDob(day, month, year))
     }
 
+    "must bind a valid submission with short month format" in new DateOfBirthTest {
+      val day: Int = 30
+      val month: Int = 1
+      val year: Int = 1902
+
+      override val dayString: Option[String] = Some(day.toString)
+      override val monthString: Option[String] = Some("Jan")
+      override val yearString: Option[String] = Some(year.toString)
+
+      boundForm.errors must have length 0
+      boundForm.value mustBe Some(MembersDob(day, month, year))
+    }
+
+    "must bind a valid submission with long month format" in new DateOfBirthTest {
+      val day: Int = 30
+      val month: Int = 1
+      val year: Int = 1902
+
+      override val dayString: Option[String] = Some(day.toString)
+      override val monthString: Option[String] = Some("January")
+      override val yearString: Option[String] = Some(year.toString)
+
+      boundForm.errors must have length 0
+      boundForm.value mustBe Some(MembersDob(day, month, year))
+    }
+
     "must return errors when fields are missing" in new DateOfBirthTest {
       boundForm.errors must have length 3
       boundForm.errors.flatMap(_.messages) mustBe Seq(
-        "membersDob.error.invalidOrMissing.day",
-        "membersDob.error.invalidOrMissing.month",
-        "membersDob.error.invalidOrMissing.year"
+        "membersDob.error.missing.day",
+        "membersDob.error.missing.month",
+        "membersDob.error.missing.year"
       )
     }
 
@@ -135,9 +161,20 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
       boundForm.errors must have length 3
       boundForm.errors.flatMap(_.messages) mustBe Seq(
-        "membersDob.error.invalidOrMissing.day",
-        "membersDob.error.invalidOrMissing.month",
-        "membersDob.error.invalidOrMissing.year"
+        "membersDob.error.format.day",
+        "membersDob.error.format.month",
+        "membersDob.error.format.year"
+      )
+    }
+
+    "must enforce current year minimum" in new DateOfBirthTest {
+      override val dayString: Option[String] = Some("30")
+      override val monthString: Option[String] = Some("1")
+      override val yearString: Option[String] = Some("1899")
+
+      boundForm.errors must have length 1
+      boundForm.errors.flatMap(_.messages) mustBe Seq(
+        "membersDob.error.format.year"
       )
     }
 
@@ -148,7 +185,51 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
       boundForm.errors must have length 1
       boundForm.errors.flatMap(_.messages) mustBe Seq(
-        "membersDob.error.invalidOrMissing.year"
+        "membersDob.error.format.year"
+      )
+    }
+
+    "must enforce day range maximum" in new DateOfBirthTest {
+      override val dayString: Option[String] = Some("32")
+      override val monthString: Option[String] = Some("1")
+      override val yearString: Option[String] = Some("2000")
+
+      boundForm.errors must have length 1
+      boundForm.errors.flatMap(_.messages) mustBe Seq(
+        "membersDob.error.format.day"
+      )
+    }
+
+    "must enforce day range minimum" in new DateOfBirthTest {
+      override val dayString: Option[String] = Some("0")
+      override val monthString: Option[String] = Some("1")
+      override val yearString: Option[String] = Some("2000")
+
+      boundForm.errors must have length 1
+      boundForm.errors.flatMap(_.messages) mustBe Seq(
+        "membersDob.error.format.day"
+      )
+    }
+
+    "must enforce month range maximum" in new DateOfBirthTest {
+      override val dayString: Option[String] = Some("30")
+      override val monthString: Option[String] = Some("13")
+      override val yearString: Option[String] = Some("2000")
+
+      boundForm.errors must have length 1
+      boundForm.errors.flatMap(_.messages) mustBe Seq(
+        "membersDob.error.format.month"
+      )
+    }
+
+    "must enforce month range minimum" in new DateOfBirthTest {
+      override val dayString: Option[String] = Some("20")
+      override val monthString: Option[String] = Some("0")
+      override val yearString: Option[String] = Some("2000")
+
+      boundForm.errors must have length 1
+      boundForm.errors.flatMap(_.messages) mustBe Seq(
+        "membersDob.error.format.month"
       )
     }
   }
