@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import models._
-import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, ResultsPage, WhatIsTheMembersNamePage}
+import pages._
 import play.api.http.Status.OK
 import play.api.i18n.Messages
 import play.api.test.FakeRequest

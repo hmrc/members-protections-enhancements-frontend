@@ -19,7 +19,6 @@ package controllers
 import base.SpecBase
 import forms.MembersDobFormProvider
 import models.{MemberDetails, MembersDob, MembersResult, NormalMode}
-import org.scalatest.Assertion
 import pages.{MembersDobPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.{Form, FormError}
 import play.api.test.FakeRequest

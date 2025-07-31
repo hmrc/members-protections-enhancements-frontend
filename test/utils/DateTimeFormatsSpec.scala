@@ -16,7 +16,6 @@
 
 package utils
 
-import com.github.tomakehurst.wiremock.common.DateTimeParser
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.i18n.Lang
@@ -24,7 +23,8 @@ import utils.DateTimeFormats.{dateTimeFormat, getCurrentDateTimestamp, longMonth
 
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.temporal.ChronoField
-import java.time.{LocalDate, ZoneId, ZonedDateTime}
+import java.time.{LocalDate, Month, ZoneId, ZonedDateTime}
+import java.time.Month._
 import scala.util.control.Exception.nonFatalCatch
 
 class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
@@ -66,19 +66,21 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
     }
 
   ".shortMonthFormat" - {
+    val sept = LocalDate.of(2021, 9, 1).format(shortMonthFormat)
+
     val validValues: Seq[(String, Int)] = Seq(
-      "Jan" -> 1,
-      "Feb" -> 2,
-      "Mar" -> 3,
-      "Apr" -> 4,
-      "May" -> 5,
-      "Jun" -> 6,
-      "Jul" -> 7,
-      "Aug" -> 8,
-      "Sept" -> 9,
-      "Oct" -> 10,
-      "Nov" -> 11,
-      "Dec" -> 12
+      "Jan" -> JANUARY.getValue,
+      "Feb" -> FEBRUARY.getValue,
+      "Mar" -> MARCH.getValue,
+      "Apr" -> APRIL.getValue,
+      "May" -> MAY.getValue,
+      "Jun" -> JUNE.getValue,
+      "Jul" -> JULY.getValue,
+      "Aug" -> AUGUST.getValue,
+      sept  -> SEPTEMBER.getValue,
+      "Oct" -> OCTOBER.getValue,
+      "Nov" -> NOVEMBER.getValue,
+      "Dec" -> DECEMBER.getValue
     )
 
     validValues.foreach(scenario => testForMonthString(scenario._1, scenario._2, shortMonthFormat))
@@ -90,18 +92,18 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
 
   ".longMonthFormat" - {
     val validValues: Seq[(String, Int)] = Seq(
-      "January" -> 1,
-      "February" -> 2,
-      "March" -> 3,
-      "April" -> 4,
-      "May" -> 5,
-      "June" -> 6,
-      "July" -> 7,
-      "August" -> 8,
-      "September" -> 9,
-      "October" -> 10,
-      "November" -> 11,
-      "December" -> 12
+      "January"   -> JANUARY.getValue,
+      "February"  -> FEBRUARY.getValue,
+      "March"     -> MARCH.getValue,
+      "April"     -> APRIL.getValue,
+      "May"       -> MAY.getValue,
+      "June"      -> JUNE.getValue,
+      "July"      -> JULY.getValue,
+      "August"    -> AUGUST.getValue,
+      "September" -> SEPTEMBER.getValue,
+      "October"   -> OCTOBER.getValue,
+      "November"  -> NOVEMBER.getValue,
+      "December"  -> DECEMBER.getValue
     )
 
     validValues.foreach(scenario => testForMonthString(scenario._1, scenario._2, longMonthFormat))
