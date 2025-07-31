@@ -19,6 +19,7 @@ package controllers
 import base.SpecBase
 import forms.MembersDobFormProvider
 import models.{MemberDetails, MembersDob, MembersResult, NormalMode}
+import org.scalatest.Assertion
 import pages.{MembersDobPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.{Form, FormError}
 import play.api.test.FakeRequest
@@ -148,6 +149,51 @@ class MembersDobControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
+      }
+    }
+
+    ".consolidateMissingFieldErrors" - {
+      "must return original form when no errors exist" in {
+        val boundForm = form.bind(Map(
+          "dateOfBirth.day" -> "11",
+          "dateOfBirth.month" -> "11",
+          "dateOfBirth.year" -> "1900"
+        ))
+
+        MembersDobController.consolidateMissingFieldErrors(boundForm) mustBe boundForm
+      }
+
+      "must return original form with errors when no fields are missing" in {
+        val boundForm = form.bind(Map(
+          "dateOfBirth.day" -> "13",
+          "dateOfBirth.month" -> "11",
+          "dateOfBirth.year" -> "1900"
+        ))
+
+        MembersDobController.consolidateMissingFieldErrors(boundForm) mustBe boundForm
+      }
+
+      "must return original form with only missing field errors when they exist" in {
+        val boundForm = form.bind(Map(
+          "dateOfBirth.day" -> "",
+          "dateOfBirth.month" -> "11",
+          "dateOfBirth.year" -> "1900"
+        ))
+
+        val result: Form[MembersDob] = MembersDobController.consolidateMissingFieldErrors(boundForm)
+        result.errors must have length 1
+        result.errors must contain(FormError("dateOfBirth.day", "membersDob.error.missing.day"))
+      }
+
+      "must return original form with consolidated missing field errors when multiple exist" in {
+        val boundForm = form.bind(Map(
+          "dateOfBirth.day" -> "",
+          "dateOfBirth.year" -> "1900"
+        ))
+
+        val result: Form[MembersDob] = MembersDobController.consolidateMissingFieldErrors(boundForm)
+        result.errors must have length 1
+        result.errors must contain(FormError("dateOfBirth", "membersDob.error.missing.day.month"))
       }
     }
   }
