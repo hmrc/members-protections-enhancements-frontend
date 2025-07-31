@@ -96,11 +96,20 @@ membersDob.title = What is the member''s date of birth?
 membersDob.heading = What is {0}''s date of birth?
 membersDob.hint = For example, 27 03 1970
 membersDob.dob = Date of birth
-membersDob.error.invalid = Enter a valid date
-membersDob.error.invalidOrMissing.day = Enter a day between 1 and 31
-membersDob.error.invalidOrMissing.month = Enter a month between 1 and 12
-membersDob.error.invalidOrMissing.year = Enter a year between 1900 and current year
+membersDob.error.missing.day.month.year = Enter the member''s date of birth
+membersDob.error.missing.day.month = The member''s date of birth must include a day and a month
+membersDob.error.missing.day.year = The member''s date of birth must include a day and a year
+membersDob.error.missing.month.year = The member''s date of birth must include a month and a year
+membersDob.error.missing.day = The member''s date of birth must include a day
+membersDob.error.missing.month = The member''s date of birth must include a month
+membersDob.error.missing.year =  The member''s date of birth must include a year
+
+membersDob.error.format.day = Enter a day between 1 and 31
+membersDob.error.format.month = Enter a month between 1 and 12
+membersDob.error.format.month.nonNumeric = Enter a month between January and December
+membersDob.error.format.year = Enter a year between 1900 and current year
 membersDob.error.futureDate = The member''s date of birth must be in the past
+membersDob.error.invalidDate = The member''s date of birth must be a real date
 
 membersNino.title = What is the member''s National Insurance number?
 membersNino.heading = What is {0}''s National Insurance number?
