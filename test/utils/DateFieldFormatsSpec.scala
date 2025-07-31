@@ -11,6 +11,10 @@ class DateFieldFormatsSpec extends SpecBase{
     "should not match any string containing any non-digit or period characters" in {
       DateFieldFormats.numericRegexp.r.matches("1.123.234.234.23a") mustBe false
     }
+
+    "should not match an empty string" in {
+      DateFieldFormats.numericRegexp.r.matches("") mustBe false
+    }
   }
 
   "decimalRegexp" - {
@@ -25,6 +29,10 @@ class DateFieldFormatsSpec extends SpecBase{
     "should not match any string containing an integer number" in {
       DateFieldFormats.decimalRegexp.r.matches("11234") mustBe false
     }
+
+    "should not match an empty string" in {
+      DateFieldFormats.decimalRegexp.r.matches("") mustBe false
+    }
   }
 
   "integerRegexp" - {
@@ -38,6 +46,10 @@ class DateFieldFormatsSpec extends SpecBase{
 
     "should not match any string containing a valid decimal number" in {
       DateFieldFormats.integerRegexp.r.matches("123.3") mustBe false
+    }
+
+    "should not match an empty string" in {
+      DateFieldFormats.integerRegexp.r.matches("") mustBe false
     }
   }
 }

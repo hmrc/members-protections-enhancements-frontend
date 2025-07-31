@@ -19,5 +19,5 @@ package utils
 object DateFieldFormats {
   val numericRegexp: String = """^[\d\.]+$"""
   val decimalRegexp: String = """^-?(\d*\.\d*)$"""
-  val integerRegexp: String = """^-?(\d*)$"""
+  val integerRegexp: String = """^-?(\d+)$"""
 }
