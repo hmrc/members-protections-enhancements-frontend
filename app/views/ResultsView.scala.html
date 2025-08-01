@@ -62,18 +62,16 @@
 
     @printSection(formattedTimestamp)
 
-    <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
-
-    <nav role="navigation">
+    <nav role="navigation" class="govuk-!-margin-top-8">
         @h2("results.relatedContent", marginBottom = "6")
         <ul class="govuk-list govuk-!-margin-bottom-6">
             <li>
-                <a class="govuk-link" href="@routes.ClearCacheController.onPageLoad()">
+                <a class="govuk-link" href="@routes.ClearCacheController.onPageLoad().absoluteURL()">
                     @messages("results.checkAnotherMpe")
                 </a>
             </li>
             <li>
-                <a class="govuk-link" href="@routes.MpsDashboardController.redirectToMps()">
+                <a class="govuk-link" href="@routes.MpsDashboardController.redirectToMps().absoluteURL()">
                     @messages("results.mpsDashboard")
                 </a>
             </li>

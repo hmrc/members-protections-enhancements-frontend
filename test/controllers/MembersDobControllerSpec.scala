@@ -20,7 +20,7 @@ import base.SpecBase
 import forms.MembersDobFormProvider
 import models.{MemberDetails, MembersDob, MembersResult, NormalMode}
 import pages.{MembersDobPage, ResultsPage, WhatIsTheMembersNamePage}
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import viewmodels.formPage.FormPageViewModel
@@ -102,13 +102,17 @@ class MembersDobControllerSpec extends SpecBase {
           .withFormUrlEncodedBody(
             "dateOfBirth.day" -> "",
             "dateOfBirth.month" -> "",
-            "dateOfBirth.year" -> "")
+            "dateOfBirth.year" -> ""
+          )
 
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[MembersDobView]
         val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
-        val formWithErrors = form.bind(Map("dateOfBirth.day" -> "", "dateOfBirth.month" -> "", "dateOfBirth.year" -> ""))
+
+        val formWithErrors: Form[MembersDob] = form
+          .bind(Map("dateOfBirth.day" -> "", "dateOfBirth.month" -> "", "dateOfBirth.year" -> ""))
+          .copy(errors = Seq(FormError("dateOfBirth", "membersDob.error.missing.day.month.year")))
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString
@@ -117,7 +121,6 @@ class MembersDobControllerSpec extends SpecBase {
     }
 
     "must redirect to WhatIsTheMembersNamePage when no members details exists" in {
-
       val userAnswers = emptyUserAnswers
       val application = applicationBuilder(userAnswers).build()
 
@@ -145,6 +148,51 @@ class MembersDobControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
+      }
+    }
+
+    ".consolidateMissingFieldErrors" - {
+      "must return original form when no errors exist" in {
+        val boundForm = form.bind(Map(
+          "dateOfBirth.day" -> "11",
+          "dateOfBirth.month" -> "11",
+          "dateOfBirth.year" -> "1900"
+        ))
+
+        MembersDobController.consolidateMissingFieldErrors(boundForm) mustBe boundForm
+      }
+
+      "must return original form with errors when no fields are missing" in {
+        val boundForm = form.bind(Map(
+          "dateOfBirth.day" -> "13",
+          "dateOfBirth.month" -> "11",
+          "dateOfBirth.year" -> "1900"
+        ))
+
+        MembersDobController.consolidateMissingFieldErrors(boundForm) mustBe boundForm
+      }
+
+      "must return original form with only missing field errors when they exist" in {
+        val boundForm = form.bind(Map(
+          "dateOfBirth.day" -> "",
+          "dateOfBirth.month" -> "11",
+          "dateOfBirth.year" -> "1900"
+        ))
+
+        val result: Form[MembersDob] = MembersDobController.consolidateMissingFieldErrors(boundForm)
+        result.errors must have length 1
+        result.errors must contain(FormError("dateOfBirth.day", "membersDob.error.missing.day"))
+      }
+
+      "must return original form with consolidated missing field errors when multiple exist" in {
+        val boundForm = form.bind(Map(
+          "dateOfBirth.day" -> "",
+          "dateOfBirth.year" -> "1900"
+        ))
+
+        val result: Form[MembersDob] = MembersDobController.consolidateMissingFieldErrors(boundForm)
+        result.errors must have length 1
+        result.errors must contain(FormError("dateOfBirth", "membersDob.error.missing.day.month"))
       }
     }
   }

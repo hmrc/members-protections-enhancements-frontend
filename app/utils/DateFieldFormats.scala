@@ -14,25 +14,10 @@
  * limitations under the License.
  */
 
-package forms
+package utils
 
-import com.google.inject.Inject
-import forms.mappings.Mappings
-import models._
-import play.api.data.Form
-import providers.DateTimeProvider
-
-class MembersDobFormProvider @Inject()(dateTimeProvider: DateTimeProvider) extends Mappings {
-
-  def apply(): Form[MembersDob] =
-    Form(
-      "dateOfBirth" -> dateOfBirth(dateTimeProvider)
-        .verifying(
-          firstError(
-            validDate("membersDob.error.invalidDate"),
-            futureDate("membersDob.error.futureDate", dateTimeProvider)
-          )
-        )
-    )
+object DateFieldFormats {
+  val numericRegexp: String = """^[\d\.]+$"""
+  val decimalRegexp: String = """^-?(\d*\.\d*)$"""
+  val integerRegexp: String = """^-?(\d+)$"""
 }
-

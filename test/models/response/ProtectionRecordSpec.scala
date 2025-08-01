@@ -19,7 +19,6 @@ package models.response
 import base.SpecBase
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.{FixedProtection2016, PcrPreCommencement}
-import org.scalatest.RecoverMethods.recoverToSucceededIf
 import play.api.libs.json._
 
 class ProtectionRecordSpec extends SpecBase {

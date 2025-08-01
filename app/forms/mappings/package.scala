@@ -16,23 +16,8 @@
 
 package forms
 
-import com.google.inject.Inject
-import forms.mappings.Mappings
-import models._
-import play.api.data.Form
-import providers.DateTimeProvider
+import play.api.data.FormError
 
-class MembersDobFormProvider @Inject()(dateTimeProvider: DateTimeProvider) extends Mappings {
-
-  def apply(): Form[MembersDob] =
-    Form(
-      "dateOfBirth" -> dateOfBirth(dateTimeProvider)
-        .verifying(
-          firstError(
-            validDate("membersDob.error.invalidDate"),
-            futureDate("membersDob.error.futureDate", dateTimeProvider)
-          )
-        )
-    )
+package object mappings {
+  type ValidationResult[R] = Either[Seq[FormError], R]
 }
-

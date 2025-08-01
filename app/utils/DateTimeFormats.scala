@@ -28,6 +28,10 @@ object DateTimeFormats {
   private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' h:mma")
   val apiDateTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
+  val shortMonthFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
+  val longMonthFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("LLLL")
+
+
   private val localisedDateFormatters = Map(
     "en" -> dateFormatter,
     "cy" -> dateFormatter.withLocale(new Locale("cy"))
