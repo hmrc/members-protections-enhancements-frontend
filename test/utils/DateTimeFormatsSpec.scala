@@ -21,10 +21,10 @@ import org.scalatest.matchers.must.Matchers
 import play.api.i18n.Lang
 import utils.DateTimeFormats.{dateTimeFormat, getCurrentDateTimestamp, longMonthFormat, shortMonthFormat}
 
+import java.time.Month._
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.temporal.ChronoField
-import java.time.{LocalDate, Month, ZoneId, ZonedDateTime}
-import java.time.Month._
+import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import scala.util.control.Exception.nonFatalCatch
 
 class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
