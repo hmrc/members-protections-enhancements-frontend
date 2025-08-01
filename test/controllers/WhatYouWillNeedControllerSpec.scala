@@ -45,5 +45,21 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
         contentAsString(result) mustEqual view(Some(backLinkUrl)).toString
       }
     }
+
+    "must redirect to start page for a GET of / " in {
+      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+
+      running(application) {
+        implicit val request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest(GET, routes.WhatYouWillNeedController.start().url)
+
+        implicit val msg: Messages = messages(application)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.WhatYouWillNeedController.start().url)
+      }
+    }
   }
 }

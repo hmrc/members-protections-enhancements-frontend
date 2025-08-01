@@ -2,50 +2,60 @@
 
 ->          /hmrc-frontend                                                      hmrcfrontend.Routes
 
-GET         /                                                                   controllers.WhatYouWillNeedController.onPageLoad()
-
 GET         /assets/*file                                                       controllers.Assets.versioned(path="/public", file: Asset)
 
-GET         /refresh-session                                                    controllers.KeepAliveController.keepAlive()
+# Start page
+GET         /                                                                   controllers.WhatYouWillNeedController.start()
+GET         /start                                                              controllers.WhatYouWillNeedController.onPageLoad()
 
-GET         /clear-cache                                                        controllers.ClearCacheController.onPageLoad()
-
-GET         /mpe-error                                                          controllers.ClearCacheController.defaultError()
-
-GET         /there-is-a-problem                                                 controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
-
-GET         /check-your-answers                                                 controllers.CheckYourAnswersController.onPageLoad()
-GET         /submit-check-your-answers                                          controllers.CheckYourAnswersController.onSubmit()
-
-GET         /account/sign-out-survey                                            controllers.auth.AuthController.signOut()
-GET         /account/sign-out                                                   controllers.auth.AuthController.signOutNoSurvey()
-GET         /account/timeout                                                    controllers.auth.AuthController.sessionTimeout()
-GET         /account/signed-out                                                 controllers.auth.SignedOutController.onPageLoad()
-
-GET         /unauthorised                                                       controllers.UnauthorisedController.onPageLoad()
-GET         /multiple-attempts                                                  controllers.LockedOutController.onPageLoad()
-GET         /timeout-idle                                                       controllers.auth.SessionTimeoutController.onPageLoad()
-
+# Member's name page
 GET         /members-name                                                       controllers.WhatIsTheMembersNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /members-name                                                       controllers.WhatIsTheMembersNameController.onSubmit(mode: Mode = NormalMode)
 GET         /change-members-name                                                controllers.WhatIsTheMembersNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-members-name                                                controllers.WhatIsTheMembersNameController.onSubmit(mode: Mode = CheckMode)
 
+# Member's date of birth page
 GET         /members-date-of-birth                                              controllers.MembersDobController.onPageLoad(mode: Mode = NormalMode)
 POST        /members-date-of-birth                                              controllers.MembersDobController.onSubmit(mode: Mode = NormalMode)
 GET         /change-members-date-of-birth                                       controllers.MembersDobController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-members-date-of-birth                                       controllers.MembersDobController.onSubmit(mode: Mode = CheckMode)
 
+# Member's national insurance number page
 GET         /members-national-insurance-number                                  controllers.MembersNinoController.onPageLoad(mode: Mode = NormalMode)
 POST        /members-national-insurance-number                                  controllers.MembersNinoController.onSubmit(mode: Mode = NormalMode)
 GET         /change-members-national-insurance-number                           controllers.MembersNinoController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-members-national-insurance-number                           controllers.MembersNinoController.onSubmit(mode: Mode = CheckMode)
 
+# Member's pension scheme administrator check reference page
 GET         /members-pension-scheme-administrator-check-reference               controllers.MembersPsaCheckRefController.onPageLoad(mode: Mode = NormalMode)
 POST        /members-pension-scheme-administrator-check-reference               controllers.MembersPsaCheckRefController.onSubmit(mode: Mode = NormalMode)
 GET         /change-members-pension-scheme-administrator-check-reference        controllers.MembersPsaCheckRefController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-members-pension-scheme-administrator-check-reference        controllers.MembersPsaCheckRefController.onSubmit(mode: Mode = CheckMode)
 
+# Check your answers page
+GET         /check-your-answers                                                 controllers.CheckYourAnswersController.onPageLoad()
+POST        /check-your-answers                                                 controllers.CheckYourAnswersController.onSubmit()
+
+# Results pages
 GET         /results                                                            controllers.ResultsController.onPageLoad()
 GET         /no-results                                                         controllers.NoResultsController.onPageLoad()
+
+# Auth pages
+GET         /multiple-attempts                                                  controllers.LockedOutController.onPageLoad()
+GET         /service-timeout-idle                                               controllers.auth.SessionTimeoutController.onPageLoad()
+GET         /account/signed-out                                                 controllers.auth.SignedOutController.onPageLoad()
+GET         /unauthorised                                                       controllers.UnauthorisedController.onPageLoad()
+
+# Auth actions
+GET         /account/sign-out                                                   controllers.auth.AuthController.signOutNoSurvey()
+GET         /account/sign-out-survey                                            controllers.auth.AuthController.signOut()
+GET         /account/timeout                                                    controllers.auth.AuthController.sessionTimeout()
+
+# Session actions
+GET         /refresh-session                                                    controllers.KeepAliveController.keepAlive()
+GET         /clear-cache                                                        controllers.ClearCacheController.onPageLoad()
+
+# Other pages
+GET         /mpe-error                                                          controllers.ClearCacheController.defaultError()
+GET         /there-is-a-problem                                                 controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 GET         /redirect-to-mps                                                    controllers.MpsDashboardController.redirectToMps()
