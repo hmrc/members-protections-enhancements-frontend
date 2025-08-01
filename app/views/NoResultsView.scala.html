@@ -64,15 +64,17 @@
             </li>
         </ul>
 
-        <p class="govuk-body govuk-!-margin-bottom-8">
-            @messages("noResults.checkInformation")
+        <div class = "results-navigation govuk-!-margin-bottom-8">
+            <p class="govuk-body">
+                @messages("noResults.checkInformation")
 
-            <a class="govuk-link" href="@routes.CheckYourAnswersController.onPageLoad().absoluteURL()">
-                @messages("noResults.tryAgain")
-            </a>
+                <a class="govuk-link" href="@routes.CheckYourAnswersController.onPageLoad()">
+                    @messages("noResults.tryAgain")
+                </a>
 
-            @messages("noResults.period")
-        </p>
+                @messages("noResults.period")
+            </p>
+        </div>
 
         @printSection(formattedTimestamp)
     </div>
