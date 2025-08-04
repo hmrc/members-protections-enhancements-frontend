@@ -53,12 +53,10 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
         implicit val request: FakeRequest[AnyContentAsEmpty.type] =
           FakeRequest(GET, routes.WhatYouWillNeedController.start().url)
 
-        implicit val msg: Messages = messages(application)
-
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.WhatYouWillNeedController.start().url)
+        redirectLocation(result) mustBe Some(routes.WhatYouWillNeedController.onPageLoad().url)
       }
     }
   }

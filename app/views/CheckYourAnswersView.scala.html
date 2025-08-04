@@ -16,12 +16,14 @@
 
 @import views.html.components._
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+@import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 
 @this(
     layout: templates.Layout,
     govukSummaryList: GovukSummaryList,
     heading: h1,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    form: FormWithCSRF
 )
 
 @(summaryList: Seq[SummaryListRow], name: String, backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)
@@ -34,8 +36,9 @@
         SummaryList(summaryList).withCssClass("govuk-!-margin-bottom-9")
     )
 
-    @govukButton(
-        ButtonViewModel(messages("site.acceptAndSubmit")).asLink(routes.CheckYourAnswersController.onSubmit().url)
-    )
-
+    @form(action = controllers.routes.CheckYourAnswersController.onSubmit()) {
+        @govukButton(
+            ButtonViewModel(messages("site.acceptAndSubmit")).asSubmit()
+        )
+    }
 }
