@@ -33,10 +33,22 @@ trait ButtonFluency {
   }
 
   implicit class FluentButton(button: Button) {
-    def asLink(href: String): Button =
+    def asLink(href: String, isSubmit: Boolean = false): Button =
       button.copy(
         element = Some("a"),
-        href = Some(href)
+        href = Some(href),
+        attributes = Map(
+          "id" -> "submit",
+          "data-prevent-double-click" -> "true"
+        )
+      )
+
+    def asSubmit(): Button =
+      button.copy(
+        attributes = Map(
+          "id" -> "submit",
+          "data-prevent-double-click" -> "true"
+        )
       )
   }
 }
