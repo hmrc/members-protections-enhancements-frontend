@@ -63,7 +63,7 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
       case _: InsufficientEnrolments =>
         Future.successful(Redirect(config.mpsRegistrationUrl))
       case err: AuthorisationException =>
-        logger.error(logContext + s"An authorisation error occurred with message", err)
+        logger.warn(logContext + s"An authorisation error occurred with message", err)
         Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }

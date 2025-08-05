@@ -16,6 +16,7 @@
 
 package utils
 
+import models.errors.{MatchPerson, MpeError}
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
@@ -32,18 +33,25 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
 
   import HttpResponseHelperSpec._
 
-  "handleErrorResponse" should "transform Bad Request into BadRequestException" in {
-    val response = responseFor(BAD_REQUEST)
-    val expected = "test-method of 'test-url' returned 400 (Bad Request). Response body 'Message for 400'"
-    failure()(response) shouldBe expected
+  "handleResponse" should "transform Bad Request into BadRequestException" in {
+    val body: String =
+      """
+        |{
+        | "code":"BAD_REQUEST",
+        | "message":"message",
+        | "source": "MatchPerson"
+        |}""".stripMargin
+
+    val response = responseFor(BAD_REQUEST, body)
+    failure()(response) shouldBe MpeError("BAD_REQUEST", "message", None, MatchPerson)
   }
 
-  "handleSuccessResponse" should "throw JsResultException for invalid json" in {
+  "handleResponse" should "throw JsResultException for invalid json" in {
     val response = HttpResponse(OK, "{}")
     a[JsResultException] should be thrownBy success()(response)
   }
 
-  "handleSuccessResponse" should "return a valid response" in {
+  "handleResponse" should "return a valid response" in {
 
     val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
       ProtectionRecord(
@@ -77,36 +85,42 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
     testModel shouldBe success()(response)
   }
 
-  it should "transform any 4xx into Upstream4xxResponse other than 400" in {
-    val response = responseFor(FORBIDDEN)
-    val expected = "test-method of 'test-url' returned 403. Response body: 'Message for 403'"
-    failure()(response) shouldBe expected
+  it should "transform FORBIDDEN into MpeError" in {
+    val body: String =
+      """
+        |{
+        | "code":"FORBIDDEN",
+        | "message":"message",
+        | "source": "MatchPerson"
+        |}""".stripMargin
+
+    val response = responseFor(FORBIDDEN, body)
+    failure()(response) shouldBe MpeError("FORBIDDEN", "message", None, MatchPerson)
   }
 
-  it should "transform any other 5xx into Upstream5xxResponse" in {
-    val response = responseFor(BAD_GATEWAY)
-    val expected = "test-method of 'test-url' returned 502. Response body: 'Message for 502'"
-    failure()(response) shouldBe expected
+  it should "transform INTERNAL_SERVER_ERROR into MpeError" in {
+    val body: String =
+      """
+        |{
+        | "code":"INTERNAL_SERVER_ERROR",
+        | "message":"message",
+        | "source": "MatchPerson"
+        |}""".stripMargin
+    val response = responseFor(INTERNAL_SERVER_ERROR, body)
+    failure()(response) shouldBe MpeError("INTERNAL_SERVER_ERROR", "message", None, MatchPerson)
   }
-
-  it should "transform any other status other than 4xx and 5xx into an UnrecognisedHttpResponseException" in {
-    val response = responseFor(NOT_MODIFIED)
-    val expected = "test-method of 'test-url' failed with status 304. Response body: 'HttpResponse status=304'"
-    failure()(response) shouldBe expected
-  }
-
 }
 
 object HttpResponseHelperSpec {
 
-  def failure(): HttpResponse => String = {
-    new HttpResponseHelper {}.handleErrorResponse("test-method", "test-url")
+  def failure(): HttpResponse => MpeError = res => {
+    new HttpResponseHelper {}.handleResponse[MpeError](res.json)
   }
 
   def success(): HttpResponse => ProtectionRecordDetails = res => {
-    new HttpResponseHelper {}.handleSuccessResponse(res.json)
+    new HttpResponseHelper {}.handleResponse[ProtectionRecordDetails](res.json)
   }
 
-  def responseFor(status: Int): HttpResponse = HttpResponse(status, s"Message for $status")
+  def responseFor(status: Int, response: String): HttpResponse = HttpResponse(status, response)
 
 }

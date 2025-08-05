@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.errors.{InternalError, NotFoundError}
+import models.errors.{MatchPerson, MpeError}
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
@@ -90,43 +90,35 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
     }
   }
 
-  "return NotFoundError when the downstream return NOT_FOUND response" in new Test {
-    setUpStubs(NOT_FOUND, "")
+  "return MpeError when the downstream return NOT_FOUND response" in new Test {
+    val response: String =
+      """
+        |{
+        | "code":"CODE",
+        | "message":"message",
+        | "source": "MatchPerson"
+        |}""".stripMargin
+
+    setUpStubs(NOT_FOUND, response)
 
     private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
-    result shouldBe Left(NotFoundError)
+    result shouldBe Left(MpeError("CODE", "message", None, MatchPerson))
     WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 
-  "throw BadRequestException when the downstream return BAD_REQUEST response" in new Test {
-    setUpStubs(BAD_REQUEST, "")
+  "return appropriate MpeError when the downstream return error response" in new Test {
+    val response: String =
+      """
+        |{
+        | "code":"BAD_REQUEST",
+        | "message":"message",
+        | "source": "MatchPerson"
+        |}""".stripMargin
+
+    setUpStubs(BAD_REQUEST, response)
 
     private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
-    result shouldBe Left(InternalError)
-    WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
-  }
-
-  "throw UpstreamErrorResponse when the downstream return any response with status 4xx" in new Test {
-    setUpStubs(FORBIDDEN, "")
-
-    private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
-    result shouldBe Left(InternalError)
-    WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
-  }
-
-  "throw UpstreamErrorResponse when the downstream return any response with status 5xx" in new Test {
-    setUpStubs(INTERNAL_SERVER_ERROR, "")
-
-    private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
-    result shouldBe Left(InternalError)
-    WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
-  }
-
-  "throw UnrecognisedHttpResponseException when the downstream return unknown error response" in new Test {
-    setUpStubs(MULTIPLE_CHOICES, "")
-
-    private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
-    result shouldBe Left(InternalError)
+    result shouldBe Left(MpeError("BAD_REQUEST", "message", None, MatchPerson))
     WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 }

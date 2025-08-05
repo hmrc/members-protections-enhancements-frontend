@@ -19,13 +19,17 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.MembersResult
-import models.errors.NotFoundError
-import models.requests.IdentifierRequest
+import models.audit.{AuditDetail, AuditEvent}
+import models.errors.MatchPerson
+import models.requests.{IdentifierRequest, PensionSchemeMemberRequest, UserDetails}
 import pages.ResultsPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
-import services.{FailedAttemptService, MembersCheckAndRetrieveService, SessionCacheService}
+import services.{AuditService, FailedAttemptService, MembersCheckAndRetrieveService, SessionCacheService}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.{DateTimeFormats, IdGenerator, Logging}
 import views.html.ResultsView
 
@@ -41,6 +45,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   checkAndRetrieveService: MembersCheckAndRetrieveService,
                                   failedAttemptService: FailedAttemptService,
                                   service: SessionCacheService,
+                                  auditService: AuditService,
                                   idGenerator: IdGenerator)
                                  (implicit ec: ExecutionContext)
   extends MpeBaseController(identify, checkLockout, getData) with Logging {
@@ -49,16 +54,20 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
 
   def onPageLoad(): Action[AnyContent] = handle(implicit request => {
     implicit val correlationId: String = idGenerator.getCorrelationId
-
     val methodLoggingContext: String = "onPageLoad"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
     logInfo(fullLoggingContext, s"with correlationId: $correlationId")
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     getUserData(request) match {
       case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
-        checkAndRetrieveService.checkAndRetrieve(retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)).flatMap {
+        val pensionSchemeMemberRequest = retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)
+        val auditDetail = generateAuditDetail(pensionSchemeMemberRequest, request.userDetails)
+        checkAndRetrieveService.checkAndRetrieve(pensionSchemeMemberRequest).flatMap {
           case Right(value) =>
-            logger.info(s"$fullLoggingContext - Successfully retrieved results for supplied details")
+            logInfo(s"$fullLoggingContext", s"Successfully retrieved results for supplied details redirecting to Results page")
+            auditSubmission("CompleteMemberSearch",
+              auditDetail.copy(journey = "resultsDisplayed", searchAPIMatchResult = Some("MATCH")))
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ResultsPage, MembersResult(isSuccessful = true)))
               _ <- service.save(updatedAnswers)
@@ -75,20 +84,54 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                 )
               )
             }
-          case Left(NotFoundError) =>
+          case Left(error) if error.code == "NO_MATCH" || error.code == "EMPTY_DATA" =>
+            val (journey, searchAPIMatchResult): (String, String) = auditParams(error.code)
+            auditSubmission("CompleteMemberSearch",
+              auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult)))(hc, ec, correlationId)
+
             implicit val req: IdentifierRequest[AnyContent] = request.toIdentifierRequest
-            logger.warn(s"$fullLoggingContext - Failed to retrieve results for supplied details")
+            logger.warn(s"$fullLoggingContext - No results found due to ${error.code}")
 
             failedAttemptService.handleFailedAttempt(
               Redirect(routes.LockedOutController.onPageLoad())
             )(
               Redirect(routes.NoResultsController.onPageLoad())
             )
-          case _ =>
+          case Left(error) =>
+            logger.warn(s"$fullLoggingContext - Failure to get the results due to ${error.code}")
+            error.source match {
+              case MatchPerson =>
+                auditSubmission("CompleteMemberSearch",
+                  auditDetail.copy(journey = "searchAPIError", searchAPIFailureReason = Some(error.code)))
+              case _ =>
+                auditSubmission("CompleteMemberSearch",
+                  auditDetail.copy(journey = "retrieveAPIError", retrieveAPIFailureReason = Some(error.code)))
+            }
             Future.successful(Redirect(routes.ClearCacheController.defaultError()))
         }
       case _ =>
         Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
     }
   })
+
+  private def auditSubmission(auditType: String, details: AuditDetail)
+                             (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[AuditResult] = {
+
+    val event: AuditEvent[AuditDetail] = AuditEvent(
+      auditType = auditType,
+      detail = details,
+      transactionName = "member-search-results"
+    )
+    auditService.auditEvent(event)
+  }
+
+  private def generateAuditDetail(pensionSchemeMemberRequest: PensionSchemeMemberRequest, userDetails: UserDetails): AuditDetail =
+    AuditDetail(journey = "journey",
+      request = pensionSchemeMemberRequest,
+      userDetails = userDetails)
+
+  private lazy val auditParams: String => (String, String) = {
+    case "NO_MATCH" => ("noMemberMatched", "NO MATCH")
+    case "EMPTY_DATA" => ("memberMatchedNoData", "MATCH")
+  }
 }

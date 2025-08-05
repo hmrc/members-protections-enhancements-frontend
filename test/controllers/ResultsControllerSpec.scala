@@ -21,11 +21,13 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.actions.FakePspIdentifierAction
 import models._
+import models.audit.AuditDetail
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
 import pages._
@@ -36,7 +38,7 @@ import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Application, inject}
-import services.FailedAttemptService
+import services.{AuditService, FailedAttemptService}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.IdGenerator
 import views.html.ResultsView
@@ -58,6 +60,8 @@ class ResultsControllerSpec extends SpecBase {
 
     val mockService: FailedAttemptService = mock[FailedAttemptService]
     val checkLockoutResult: Option[Result] = None
+    val mockAuditService: AuditService = mock[AuditService]
+    val mockIdGenerator: IdGenerator = mock[IdGenerator]
 
     val userAnswers: UserAnswers = emptyUserAnswers
       .set(page = WhatIsTheMembersNamePage, value = memberDetails).success.value
@@ -68,9 +72,10 @@ class ResultsControllerSpec extends SpecBase {
     lazy val application: Application = applicationBuilder(
       userAnswers = userAnswers,
       checkLockoutResult = checkLockoutResult
-    )
-      .overrides(
-        inject.bind(classOf[FailedAttemptService]).toInstance(mockService)
+    ).overrides(
+        inject.bind(classOf[FailedAttemptService]).toInstance(mockService),
+        inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
+        inject.bind(classOf[AuditService]).to(mockAuditService)
       )
       .build()
 
@@ -134,6 +139,14 @@ class ResultsControllerSpec extends SpecBase {
         |}""".stripMargin
   }
 
+  val errorResponse: (String, String)  => String = (code, source) =>
+   s"""
+      |{
+      | "code": "$code",
+      | "message":"message",
+      | "source": "$source"
+      |}""".stripMargin
+
   "Results Controller" - {
     "must redirect to lockout page if the user is locked out" in new Test {
       override val checkLockoutResult: Option[Result] = Some(
@@ -149,14 +162,8 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
-
     "must return OK and the correct view for GET and generate correlation id" in new Test {
       setUpStubs(OK, response)
-      val mockIdGenerator: IdGenerator = mock[IdGenerator]
-      override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
-        .overrides(
-          inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-        ).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
@@ -175,23 +182,26 @@ class ResultsControllerSpec extends SpecBase {
         )(request, messages(application)).toString
 
         verify(mockIdGenerator, times(1)).getCorrelationId
+        verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
 
     "must redirect to NoResults page when failed attempt threshold not exceeded for a failed attempt" in new Test {
       mockFailedAttemptCheck()
+      setUpStubs(NOT_FOUND, errorResponse("NO_MATCH", "MatchPerson"))
       val fakePspIdentifierAction: FakePspIdentifierAction = new FakePspIdentifierAction(parsers)
       override lazy val application: Application = applicationBuilder(
         userAnswers = userAnswers,
         checkLockoutResult = checkLockoutResult,
         identifierAction = fakePspIdentifierAction
-      )
-        .overrides(
-          inject.bind(classOf[FailedAttemptService]).toInstance(mockService)
+      ).overrides(
+          inject.bind(classOf[FailedAttemptService]).toInstance(mockService),
+          inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
+          inject.bind(classOf[AuditService]).to(mockAuditService)
         )
         .build()
+
       mockHandleFailedAttempt(Redirect(routes.NoResultsController.onPageLoad()))
-      setUpStubs(NOT_FOUND, "")
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
@@ -199,16 +209,18 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.NoResultsController.onPageLoad().url
+        verify(mockIdGenerator, times(1)).getCorrelationId
+        verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
 
 
     "must throw an exception when InternalError response received" in new Test {
-      setUpStubs(FORBIDDEN, "{}")
-      val mockIdGenerator: IdGenerator = mock[IdGenerator]
+      setUpStubs(FORBIDDEN, errorResponse("FORBIDDEN", "MatchPerson"))
       override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
         .overrides(
-          inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
+          inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
+          inject.bind(classOf[AuditService]).to(mockAuditService)
         ).build()
 
       running(application) {
@@ -217,13 +229,14 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.ClearCacheController.defaultError().url
+        verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
 
     "must redirect to Lockout page when failed attempt threshold exceeded for a failed attempt" in new Test {
       mockFailedAttemptCheck(checkResult = true)
       mockHandleFailedAttempt(Redirect(routes.LockedOutController.onPageLoad()))
-      setUpStubs(NOT_FOUND, "")
+      setUpStubs(NOT_FOUND, errorResponse("EMPTY_DATA", "RetrieveMpe"))
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
@@ -231,11 +244,32 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.LockedOutController.onPageLoad().url
+        verify(mockIdGenerator, times(1)).getCorrelationId
+        verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
 
-    "must redirect to start page for a GET if no existing data is found" in {
-      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
+    "must redirect to default error page when received Mpe error with code NOT_FOUND" in new Test {
+      mockFailedAttemptCheck(checkResult = true)
+      mockHandleFailedAttempt(Redirect(routes.LockedOutController.onPageLoad()))
+      setUpStubs(NOT_FOUND, errorResponse("NOT_FOUND", "RetrieveMpe"))
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.defaultError().url
+        verify(mockIdGenerator, times(1)).getCorrelationId
+        verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
+      }
+    }
+
+    "must redirect to start page for a GET if no existing data is found" in new Test {
+
+      override lazy val application: Application = applicationBuilder(userAnswers = emptyUserAnswers).overrides(
+        inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
+      ).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
@@ -243,6 +277,7 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
+        verify(mockIdGenerator, times(1)).getCorrelationId
       }
     }
 

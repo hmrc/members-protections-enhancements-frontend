@@ -16,12 +16,13 @@
 
 package models.errors
 
-import play.api.libs.json.{Json, OWrites}
+import play.api.libs.json.{Json, OFormat}
 
-sealed case class MpeError(code: String, message: String, reasons: Option[Seq[String]] = None)
+sealed case class MpeError(code: String, message: String, reasons: Option[Seq[String]] = None,
+                           source: ErrorSource = Internal)
 
 object MpeError {
-  implicit val writes: OWrites[MpeError] = Json.writes[MpeError]
+  implicit val format: OFormat[MpeError] = Json.format[MpeError]
 }
 
 object InternalError

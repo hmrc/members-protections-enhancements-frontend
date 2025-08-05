@@ -18,7 +18,7 @@ package connectors
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.FrontendAppConfig
-import models.errors.{MpeError, NotFoundError, InternalError}
+import models.errors.MpeError
 import models.requests.PensionSchemeMemberRequest
 import models.response.ProtectionRecordDetails
 import play.api.http.Status._
@@ -54,7 +54,6 @@ class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2,
     logInfo(fullLoggingContext, s"with correlationId: $correlationId")
 
     httpClientV2.post(checkAndRetrieveUrl)
-      .setHeader()
       .withBody(Json.toJson(pensionSchemeMemberRequest))
       .setHeader(
         ("correlationId", correlationId))
@@ -63,14 +62,12 @@ class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2,
             case OK =>
               logInfo(fullLoggingContext, s"Success response received" +
                 s" with status ${response.status}, and correlationId: ${retrieveCorrelationId(response)}")
-              Right(handleSuccessResponse(response.json))
-            case NOT_FOUND => Left(NotFoundError)
+              Right(handleResponse[ProtectionRecordDetails](response.json))
             case _ =>
-              val message = handleErrorResponse("POST", checkAndRetrieveUrl.toString)(response)
               logError(fullLoggingContext, s"Error response received" +
                 s" with status: ${response.status}, and correlationId: ${retrieveCorrelationId(response)} " +
-                s" due to $message")
-              Left(InternalError)
+                s" due to ${response.body}")
+              Left(handleResponse[MpeError](response.json))
           }
       } andThen {
         case Failure(t: Throwable) => logger.warn("Unable to retrieve the data", t)

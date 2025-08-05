@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package utils
+package models.audit
 
-import play.api.libs.json._
-import uk.gov.hmrc.http._
-
-trait HttpResponseHelper extends HttpErrorFunctions {
-
-  implicit val httpResponseReads: HttpReads[HttpResponse] = (method: String, url: String, response: HttpResponse) => response
-
-  def handleResponse[A](response: JsValue)(implicit reads: Reads[A]): A =
-    response.validate[A] match {
-      case JsSuccess(value, _) => value
-      case JsError(errors) => throw JsResultException(errors)
-    }
-}
+case class AuditEvent[T](
+    auditType: String,
+    transactionName: String,
+    detail: T
+)
