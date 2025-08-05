@@ -24,8 +24,8 @@
     govukBreadcrumbs: GovukBreadcrumbs,
     header: h1,
     header2: h2,
-    printSection: print_section,
-    membersDetailsSection: members_details_section
+    membersDetailsSection: members_details_section,
+    resultsFooter: results_footer
 )
 
 @(
@@ -42,40 +42,38 @@
     fullWidthContent = true
 ) {
 
-    <div class="govuk-grid-row govuk-grid-column-two-thirds">
-        @header(msgKey = "noResults.heading", marginBottom = "8")
+    <div class="govuk-grid-row govuk-grid-column-full">
+        <div class="govuk-grid-row govuk-grid-column-two-thirds">
+            @header(msgKey = "noResults.heading", marginBottom = "8")
+        </div>
+    </div>
+
+    <div class="govuk-!-margin-bottom-8">
+        <p class="govuk-body">
+            @messages("noResults.lh")
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>
+                    @messages("noResults.li.1")
+                </li>
+                <li>
+                    @messages("noResults.li.2")
+                </li>
+            </ul>
+        </p>
     </div>
 
     @membersDetailsSection(memberDetails, membersDob, membersNino, membersPsaCheckRef)
 
-    <div class="govuk-!-margin-bottom-6" id="no-results-footer">
-        @header2(msgKey = "noResults.noMatch")
-
-        <p class="govuk-body">
-            @messages("noResults.lh")
-        </p>
-
-        <ul class="govuk-list govuk-list--bullet">
-            <li>
-                @messages("noResults.li.1")
-            </li>
-            <li>
-                @messages("noResults.li.2")
-            </li>
-        </ul>
-
-        <div class = "results-navigation govuk-!-margin-bottom-8">
+    <div class="govuk-!-margin-bottom-6">
+        <div class = "govuk-!-margin-bottom-8 print-hide">
             <p class="govuk-body">
                 @messages("noResults.checkInformation")
 
-                <a class="govuk-link" href="@routes.CheckYourAnswersController.onPageLoad()">
-                    @messages("noResults.tryAgain")
-                </a>
-
-                @messages("noResults.period")
+                <a class="govuk-link" href="@routes.CheckYourAnswersController.onPageLoad()">@messages("noResults.tryAgain")</a>@messages("noResults.period")
             </p>
         </div>
 
-        @printSection(formattedTimestamp)
+        @resultsFooter(formattedTimestamp)
     </div>
 }

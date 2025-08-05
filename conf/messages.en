@@ -126,13 +126,12 @@ membersPsaCheckRef.pensionSchemeAdminCheckRef = Pension scheme administrator che
 membersPsaCheckRef.error.required = Enter a pension scheme administrator check reference
 membersPsaCheckRef.error.invalid = Enter the member''s pension scheme administrator check reference in a valid format
 
-noResults.title = Your search didn''t return any results
-noResults.heading = Your search didn''t return any results
-noResults.noMatch = The details you entered didn''t match an existing protection certificate
+noResults.title = The details you entered didn''t match an existing protection certificate
+noResults.heading = The details you entered didn''t match an existing protection certificate
 noResults.lh = This could be because you''ve:
 noResults.li.1 = been given the wrong information by the member
 noResults.li.2 = entered one or more of the details incorrectly
-noResults.checkInformation = Check the information you''ve been given and
+noResults.checkInformation = Check the member''s details and
 noResults.tryAgain = try again
 noResults.period = .
 
