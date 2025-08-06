@@ -24,8 +24,9 @@ import play.api.data.Forms.mapping
 
 class MembersPsaCheckRefFormProvider @Inject() extends Mappings {
 
-  val psaCheckRefRegex: String = """^PSA[0-9]{8}[A-Z]$"""
-  private val psaCheckRef = "psaCheckRef"
+  private val validCharactersRegex: String = """[A-Za-z0-9]*"""
+  private[forms] val psaCheckRefRegex: String = """^PSA[0-9]{8}[A-Z]$"""
+  private val psaCheckRef: String = "psaCheckRef"
 
   def apply(): Form[MembersPsaCheckRef] =
     Form(
@@ -33,7 +34,10 @@ class MembersPsaCheckRefFormProvider @Inject() extends Mappings {
         psaCheckRef -> text("membersPsaCheckRef.error.required")
           .transform[String](_.filterNot(_.isWhitespace).toUpperCase, identity)
           .verifying(
-            "membersPsaCheckRef.error.invalid", value => value.matches(psaCheckRefRegex)
+            firstError(
+              regexp(validCharactersRegex, "membersPsaCheckRef.error.invalidCharacters"),
+              regexp(psaCheckRefRegex, "membersPsaCheckRef.error.format")
+            )
           )
       )(MembersPsaCheckRef.apply)(MembersPsaCheckRef.unapply)
     )
