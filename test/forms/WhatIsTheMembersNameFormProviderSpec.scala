@@ -63,6 +63,15 @@ class WhatIsTheMembersNameFormProviderSpec extends StringFieldBehaviours {
         "membersName.error.tooLong.firstName"
       )
     )
+
+    "strip whitespace from the user's submission" in {
+      val result: Form[MemberDetails] = form.bind(Map(
+        "firstName" -> "     First       Name   ",
+        "lastName" -> "Last Name"
+      ))
+
+      result.value mustBe Some(MemberDetails("First Name", "Last Name"))
+    }
   }
 
   ".lastName" must {
@@ -109,6 +118,37 @@ class WhatIsTheMembersNameFormProviderSpec extends StringFieldBehaviours {
 
       result.errors must have length 1
       result.errors.map(_.message) must contain("membersName.error.tooShort.lastName")
+    }
+
+    "strip whitespace from the user's submission" in {
+      val result: Form[MemberDetails] = form.bind(Map(
+        "firstName" -> "First Name",
+        "lastName" -> "       Last       Name       "
+      ))
+
+      result.value mustBe Some(MemberDetails("First Name", "Last Name"))
+    }
+  }
+
+  "stripWhitespace" must {
+    "return the same string when an input has no whitespace" in {
+      stripWhitespace("Word") mustBe "Word"
+    }
+
+    "remove any leading spaces from the input" in {
+      stripWhitespace("    Word") mustBe "Word"
+    }
+
+    "remove any trailing spaces from the input" in {
+      stripWhitespace("Word     ") mustBe "Word"
+    }
+
+    "remove any double spaces within the input" in {
+      stripWhitespace("Word  Word2") mustBe "Word Word2"
+    }
+
+    "strip all invalid whitespace" in {
+      stripWhitespace("    Word  Word2    ") mustBe "Word Word2"
     }
   }
 }
