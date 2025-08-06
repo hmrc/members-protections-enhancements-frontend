@@ -27,8 +27,8 @@
     h2: h2,
     govukBreadcrumbs: GovukBreadcrumbs,
     govukSummaryList: GovukSummaryList,
-    printSection: print_section,
-    membersDetailsSection: members_details_section
+    membersDetailsSection: members_details_section,
+    resultsFooter: results_footer
 )
 
 @(
@@ -60,21 +60,5 @@
         @govukSummaryList(summaryList)
     }
 
-    @printSection(formattedTimestamp)
-
-    <nav role="navigation" class="govuk-!-margin-top-8 results-navigation">
-        @h2("results.relatedContent", marginBottom = "6")
-        <ul class="govuk-list govuk-!-margin-bottom-6">
-            <li>
-                <a class="govuk-link" href="@routes.ClearCacheController.onPageLoad()">
-                    @messages("results.checkAnotherMpe")
-                </a>
-            </li>
-            <li>
-                <a class="govuk-link" href="@routes.MpsDashboardController.redirectToMps()">
-                    @messages("results.mpsDashboard")
-                </a>
-            </li>
-        </ul>
-    </nav>
+    @resultsFooter(formattedTimestamp)
 }
