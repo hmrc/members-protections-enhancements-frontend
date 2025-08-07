@@ -29,7 +29,7 @@
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     hmrcScripts: HmrcScripts,
     standardBetaBanner: StandardBetaBanner,
-    hmrcStandardPage: HmrcStandardPage
+    hmrcStandardPage: HmrcStandardPage,
 )
 
 @(
@@ -74,6 +74,10 @@
 <div class="govuk-grid-row">
     <div class=@mainTemplateClass>
         @content
+
+        <div class="govuk-!-margin-top-8">
+            @hmrcReportTechnicalIssueHelper()
+        </div>
     </div>
 </div>
 }
