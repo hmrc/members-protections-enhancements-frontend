@@ -29,7 +29,7 @@
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
     hmrcScripts: HmrcScripts,
     standardBetaBanner: StandardBetaBanner,
-    hmrcStandardPage: HmrcStandardPage
+    hmrcStandardPage: HmrcStandardPage,
 )
 
 @(
@@ -40,7 +40,8 @@
     showHmrcBanner: Boolean = false,
     backLinkUrl: Option[String] = None,
     beforeContent: Option[Html] = None,
-    fullWidthContent: Boolean = false
+    fullWidthContent: Boolean = false,
+    withReportTechnicalIssueLink: Boolean = true
 )(
     contentBlock: Html
 )(
@@ -74,6 +75,12 @@
 <div class="govuk-grid-row">
     <div class=@mainTemplateClass>
         @content
+
+        @if(withReportTechnicalIssueLink) {
+            <div class="govuk-!-margin-top-8">
+                @hmrcReportTechnicalIssueHelper()
+            </div>
+        }
     </div>
 </div>
 }

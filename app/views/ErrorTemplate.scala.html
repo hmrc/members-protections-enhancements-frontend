@@ -20,7 +20,10 @@
 
 @(pageTitle: String, heading: String, message: String)(implicit rh: RequestHeader, messages: Messages)
 
-@layout(pageTitle = titleNoForm("journeyRecovery.startAgain.title")) {
+@layout(
+ pageTitle = titleNoForm("journeyRecovery.startAgain.title"),
+ withReportTechnicalIssueLink = false
+) {
     <h1 class="govuk-heading-l">@messages(heading)</h1>
 
     <p class="govuk-body">@messages("error.try.again") <a class="govuk-link" href="https://www.gov.uk/find-hmrc-contacts/pension-schemes-general-enquiries">@messages("error.contact")</a></p>
