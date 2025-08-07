@@ -101,7 +101,7 @@ object Formatters {
     def checkWithPattern(pattern: DateTimeFormatter): Option[Int] =
       nonFatalCatch.opt(
         pattern
-          .parse(str)
+          .parse(str.toLowerCase.capitalize)
           .get(ChronoField.MONTH_OF_YEAR)
       )
 
