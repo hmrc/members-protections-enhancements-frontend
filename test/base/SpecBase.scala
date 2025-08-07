@@ -39,10 +39,10 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.actions._
-import models.UserAnswers
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import models.response.RecordTypeMapped.{FixedProtection2016, IndividualProtection2014, InternationalEnhancementTransfer, PrimaryProtection}
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
+import models.userAnswers.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}

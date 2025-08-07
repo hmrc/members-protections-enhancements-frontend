@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import play.api.libs.json._
+package models
 
-package object models {
+import play.api.libs.json.{IdxPathNode, JsArray, JsError, JsObject, JsPath, JsResult, JsSuccess, JsValue, Json, KeyPathNode, Reads, RecursiveSearch}
 
+package object userAnswers {
   implicit class RichJsObject(jsObject: JsObject) {
 
     def setObject(path: JsPath, value: JsValue): JsResult[JsObject] =
@@ -45,24 +46,24 @@ package object models {
         case (first :: second :: rest, oldValue) =>
           Reads.optionNoError(Reads.at[JsValue](JsPath(first :: Nil)))
             .reads(oldValue).flatMap {
-            opt =>
+              opt =>
 
-              opt.map(JsSuccess(_)).getOrElse {
-                second match {
-                  case _: KeyPathNode =>
-                    JsSuccess(Json.obj())
-                  case _: IdxPathNode =>
-                    JsSuccess(Json.arr())
-                  case _: RecursiveSearch =>
-                    JsError("recursive search is not supported")
+                opt.map(JsSuccess(_)).getOrElse {
+                  second match {
+                    case _: KeyPathNode =>
+                      JsSuccess(Json.obj())
+                    case _: IdxPathNode =>
+                      JsSuccess(Json.arr())
+                    case _: RecursiveSearch =>
+                      JsError("recursive search is not supported")
+                  }
+                }.flatMap {
+                  _.set(JsPath(second :: rest), value).flatMap {
+                    newValue =>
+                      oldValue.set(JsPath(first :: Nil), newValue)
+                  }
                 }
-              }.flatMap {
-                _.set(JsPath(second :: rest), value).flatMap {
-                  newValue =>
-                    oldValue.set(JsPath(first :: Nil), newValue)
-                }
-              }
-          }
+            }
       }
 
     private def setIndexNode(node: IdxPathNode, oldValue: JsValue, newValue: JsValue): JsResult[JsValue] = {
@@ -118,24 +119,24 @@ package object models {
 
           Reads.optionNoError(Reads.at[JsValue](JsPath(first :: Nil)))
             .reads(oldValue).flatMap {
-            (opt: Option[JsValue]) =>
+              (opt: Option[JsValue]) =>
 
-              opt.map(JsSuccess(_)).getOrElse {
-                second match {
-                  case _: KeyPathNode =>
-                    JsSuccess(Json.obj())
-                  case _: IdxPathNode =>
-                    JsSuccess(Json.arr())
-                  case _: RecursiveSearch =>
-                    JsError("recursive search is not supported")
+                opt.map(JsSuccess(_)).getOrElse {
+                  second match {
+                    case _: KeyPathNode =>
+                      JsSuccess(Json.obj())
+                    case _: IdxPathNode =>
+                      JsSuccess(Json.arr())
+                    case _: RecursiveSearch =>
+                      JsError("recursive search is not supported")
+                  }
+                }.flatMap {
+                  _.remove(JsPath(second :: rest)).flatMap {
+                    newValue =>
+                      oldValue.set(JsPath(first :: Nil), newValue)
+                  }
                 }
-              }.flatMap {
-                _.remove(JsPath(second :: rest)).flatMap {
-                  newValue =>
-                    oldValue.set(JsPath(first :: Nil), newValue)
-                }
-              }
-          }
+            }
       }
     }
   }

@@ -17,16 +17,14 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.UserAnswers
+import models.userAnswers.{EncryptedUserAnswers, UserAnswers}
 import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
-import play.api.libs.json.Format
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import uk.gov.hmrc.play.http.logging.Mdc
-import utils.FutureUtils.FutureOps
+import utils.encryption.AesGcmAdCrypto
 
 import java.time.{Clock, Instant}
 import java.util.concurrent.TimeUnit
@@ -34,26 +32,21 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SessionRepository @Inject()(
-                                   mongoComponent: MongoComponent,
-                                   appConfig: FrontendAppConfig,
-                                   clock: Clock
-                                 )(implicit ec: ExecutionContext)
-  extends PlayMongoRepository[UserAnswers](
+class SessionRepository @Inject()(mongoComponent: MongoComponent,
+                                  appConfig: FrontendAppConfig,
+                                  clock: Clock)
+                                 (implicit ec: ExecutionContext, aesGcmAdCrypto: AesGcmAdCrypto)
+  extends PlayMongoRepository[EncryptedUserAnswers](
     collectionName = "user-answers",
     mongoComponent = mongoComponent,
-    domainFormat   = UserAnswers.format,
-    indexes        = Seq(
-      IndexModel(
-        Indexes.ascending("lastUpdated"),
-        IndexOptions()
-          .name("lastUpdatedIdx")
-          .expireAfter(appConfig.sessionDataTtl, TimeUnit.SECONDS)
-      )
-    )
+    domainFormat = EncryptedUserAnswers.format,
+    indexes = Seq(IndexModel(
+      keys = Indexes.ascending("lastUpdated"),
+      indexOptions = IndexOptions()
+        .name("lastUpdatedIdx")
+        .expireAfter(appConfig.sessionDataTtl, TimeUnit.SECONDS)
+    ))
   ) {
-
-  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
 
   private def byId(id: String): Bson = Filters.equal("_id", id)
 
@@ -68,26 +61,29 @@ class SessionRepository @Inject()(
   }
 
   def get(id: String): Future[Option[UserAnswers]] = Mdc.preservingMdc {
+    implicit val associatedText: String = id
+
     keepAlive(id).flatMap {
       _ =>
         collection
-          .find(byId(id))
+          .find[EncryptedUserAnswers](byId(id))
           .headOption()
+          .map(_.map(_.toUserAnswers))
     }
   }
 
   def set(answers: UserAnswers): Future[Unit] = Mdc.preservingMdc {
-
     val updatedAnswers = answers.copy(lastUpdated = Instant.now(clock))
+    implicit val associatedText: String = updatedAnswers.id
 
     collection
       .replaceOne(
         filter      = byId(updatedAnswers.id),
-        replacement = updatedAnswers,
+        replacement = updatedAnswers.encrypt,
         options     = ReplaceOptions().upsert(true)
       )
       .toFuture()
-      .as(())
+      .map(_ => ())
   }
 
   def clear(id: String): Future[Boolean] = Mdc.preservingMdc {

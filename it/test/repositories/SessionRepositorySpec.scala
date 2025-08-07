@@ -17,7 +17,7 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.UserAnswers
+import models.userAnswers.{EncryptedUserAnswers, UserAnswers}
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position
@@ -39,7 +39,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class SessionRepositorySpec
   extends AnyFreeSpec
     with Matchers
-    with DefaultPlayMongoRepositorySupport[UserAnswers]
+    with DefaultPlayMongoRepositorySupport[EncryptedUserAnswers]
     with ScalaFutures
     with IntegrationPatience
     with OptionValues
