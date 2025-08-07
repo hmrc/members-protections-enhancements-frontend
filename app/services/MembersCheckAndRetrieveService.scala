@@ -31,6 +31,7 @@ class MembersCheckAndRetrieveServiceImpl @Inject()(checkAndRetrieveConnector: Me
 
   override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
                                (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[Either[MpeError, ProtectionRecordDetails]] = {
+
     checkAndRetrieveConnector.checkAndRetrieve(pensionSchemeMemberRequest)
   }
 }
