@@ -18,6 +18,7 @@ package controllers
 
 import base.SpecBase
 import models._
+import models.userAnswers.UserAnswers
 import pages._
 import play.api.Application
 import play.api.mvc.Results.Redirect
@@ -100,8 +101,12 @@ class NoResultsControllerSpec extends SpecBase {
 
 
     "must redirect to start page for a GET if user journey is already successful" in new Test {
-
-      val application = applicationBuilder(userAnswers.set(page = ResultsPage, value = MembersResult(true)).success.value).build()
+      val application: Application = applicationBuilder(
+        userAnswers.set(
+          page = ResultsPage,
+          value = MembersResult(true)
+        ).success.value
+      ).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.NoResultsController.onPageLoad().url)

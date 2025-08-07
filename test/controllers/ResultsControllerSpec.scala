@@ -25,6 +25,7 @@ import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
+import models.userAnswers.UserAnswers
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
