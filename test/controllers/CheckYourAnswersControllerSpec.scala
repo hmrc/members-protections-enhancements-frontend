@@ -18,6 +18,7 @@ package controllers
 
 import base.SpecBase
 import models._
+import models.userAnswers.UserAnswers
 import pages._
 import play.api.http.Status.OK
 import play.api.i18n.Messages

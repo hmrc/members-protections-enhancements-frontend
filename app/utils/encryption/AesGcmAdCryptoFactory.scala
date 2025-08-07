@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package queries
+package utils.encryption
 
-import models.userAnswers.UserAnswers
-import play.api.libs.json.JsPath
+import config.FrontendAppConfig
+import uk.gov.hmrc.crypto.{AdDecrypter, AdEncrypter, SymmetricCryptoFactory}
 
-import scala.util.{Success, Try}
+import javax.inject.{Inject, Singleton}
 
-sealed trait Query {
+@Singleton
+class AesGcmAdCryptoFactory @Inject()(appConfig: FrontendAppConfig) {
+  private lazy val aesGcmAdCrypto = SymmetricCryptoFactory.aesGcmAdCrypto(appConfig.encryptionKey)
 
-  def path: JsPath
-}
-
-trait Gettable[A] extends Query
-
-trait Settable[A] extends Query {
-
-  def cleanup(value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
+  def instance(): AdEncrypter with AdDecrypter = aesGcmAdCrypto
 }

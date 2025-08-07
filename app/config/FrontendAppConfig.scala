@@ -40,6 +40,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val sessionDataTtl: Long = configuration.get[Int]("mongodb.sessionDataTtl")
   val failedAttemptTtl: Long = configuration.get[Int]("mongodb.failedAttemptTtl")
   val lockoutTtl: Long = configuration.get[Int]("mongodb.lockoutTtl")
+  val useEncryption: Boolean = configuration.get[Boolean]("mongodb.encryption.enabled")
+  val encryptionKey: String = configuration.get[String]("mongodb.encryption.key")
 
   //URLs
   val loginUrl: String         = loadConfig("urls.login")

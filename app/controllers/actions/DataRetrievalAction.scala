@@ -16,8 +16,8 @@
 
 package controllers.actions
 
-import models.UserAnswers
 import models.requests.{DataRequest, IdentifierRequest}
+import models.userAnswers.UserAnswers
 import play.api.mvc.ActionTransformer
 import repositories.SessionRepository
 

@@ -17,7 +17,7 @@
 package services
 
 import com.google.inject.ImplementedBy
-import models.UserAnswers
+import models.userAnswers.UserAnswers
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 

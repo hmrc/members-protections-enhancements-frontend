@@ -17,7 +17,8 @@
 package controllers
 
 import base.SpecBase
-import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, UserAnswers}
+import models.userAnswers.UserAnswers
+import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.test.FakeRequest
