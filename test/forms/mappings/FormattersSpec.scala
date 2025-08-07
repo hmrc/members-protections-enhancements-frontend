@@ -176,8 +176,24 @@ class FormattersSpec extends AnyFreeSpec with Matchers with OptionValues with Ma
       validateMonth("Jan", "value", "err") mustBe Right(1)
     }
 
+    "should complete successfully for a valid lower case short submission" in {
+      validateMonth("jan", "value", "err") mustBe Right(1)
+    }
+
+    "should complete successfully for a valid upper case short submission" in {
+      validateMonth("JAN", "value", "err") mustBe Right(1)
+    }
+
     "should complete successfully for a valid long submission" in {
       validateMonth("March", "value", "err") mustBe Right(3)
+    }
+
+    "should complete successfully for a valid lower case long submission" in {
+      validateMonth("march", "value", "err") mustBe Right(3)
+    }
+
+    "should complete successfully for a valid upper case long submission" in {
+      validateMonth("MARCH", "value", "err") mustBe Right(3)
     }
 
     "should return an error for an invalid string" in {
