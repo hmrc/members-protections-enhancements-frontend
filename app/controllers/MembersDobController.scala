@@ -17,13 +17,12 @@
 package controllers
 
 import com.google.inject.Inject
-import controllers.MembersDobController.consolidateMissingFieldErrors
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersDobFormProvider
 import models.{MembersDob, Mode}
 import navigation.Navigator
 import pages.MembersDobPage
-import play.api.data.{Form, FormError}
+import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import services.SessionCacheService
@@ -60,7 +59,7 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
         form.bindFromRequest().fold(
           formWithErrors => {
             Future.successful(BadRequest(view(
-              form = consolidateMissingFieldErrors(formWithErrors),
+              form = formWithErrors,
               viewModel = viewModel(mode, MembersDobPage),
               name = memberDetails.fullName
             )))
@@ -74,32 +73,5 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
             }
           }
         )
-  }
-}
-
-object MembersDobController {
-  def consolidateMissingFieldErrors(form: Form[MembersDob]): Form[MembersDob] = {
-    val errs: Seq[FormError] = form.errors
-
-    val missingFieldBaseError: String = "membersDob.error.missing"
-    val missingDayOpt: Option[FormError] = errs.find(_.message == s"$missingFieldBaseError.day")
-    val missingMonthOpt: Option[FormError] = errs.find(_.message == s"$missingFieldBaseError.month")
-    val missingYearOpt: Option[FormError] = errs.find(_.message == s"$missingFieldBaseError.year")
-
-    val missingFieldErrs: Seq[FormError] = Seq(missingDayOpt, missingMonthOpt, missingYearOpt).flatten
-
-    lazy val singleConsolidatedMessage = s"$missingFieldBaseError" +
-      missingFieldErrs.map(err => {
-        err.message.stripPrefix(missingFieldBaseError)
-      }
-      ).mkString("")
-
-    missingFieldErrs match {
-      case Nil => form
-      case singleMissing@_ :: Nil => form.copy(errors = singleMissing)
-      case _ => form.copy(
-        errors = Seq(FormError("dateOfBirth", singleConsolidatedMessage))
-      )
-    }
   }
 }

@@ -27,6 +27,8 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import views.html.NoResultsView
 
+import java.time.LocalDate
+
 class NoResultsViewSpec extends SpecBase {
 
   "view" - {
@@ -66,7 +68,7 @@ class NoResultsViewSpec extends SpecBase {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
     val memberDetails: MemberDetails = MemberDetails("Pearl", "Harvey")
-    val membersDob: MembersDob = MembersDob(1, 1, 2022)
+    val membersDob: MembersDob = MembersDob(LocalDate.of(2022, 1, 1))
     val membersNino: MembersNino = MembersNino("AB123456A")
     val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
 

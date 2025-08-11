@@ -24,11 +24,13 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.UnauthorisedView
 
+import java.time.LocalDate
+
 class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
 
   val userAnswers: UserAnswers = emptyUserAnswers
     .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-    .set(page = MembersDobPage, value = MembersDob(1, 1, 2000)).success.value
+    .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2000, 1, 1))).success.value
     .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
     .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
 

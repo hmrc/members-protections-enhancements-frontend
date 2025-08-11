@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import views.html.components._
+@import views.html.components.h1
 @import viewmodels.formPage._
 @import viewmodels.govuk._
 @import viewmodels._
@@ -24,8 +24,8 @@
 @this(
     layout: templates.Layout,
     heading: h1,
-    formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
+    formHelper: FormWithCSRF,
     govukDateInput: GovukDateInput,
     govukButton: GovukButton
 )
@@ -36,19 +36,18 @@
 
     @formHelper(action = viewModel.onSubmit, Symbol("autoComplete") -> "off") {
 
-        @if(form.hasErrors) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
-        }
+
+    @if(form.hasErrors) {
+        @govukErrorSummary(ErrorSummaryViewModel(form, "dateOfBirth"))
+    }
 
         @govukDateInput(DateInput(
-                id = form("dateOfBirth").id,
-                namePrefix = None,
-                fieldset = Some(Fieldset(
-                                    legend = Some(Legend(content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("membersDob.heading", name)}</h1>")))
-                                )),
-                hint = Some(Hint(content = Text(messages("membersDob.hint")))),
-                errorMessage = form("dateOfBirth").error.map(e => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(e.message, e.args:_*))))
-                ).withDayMonthYearFormField(form("dateOfBirth")).asDateOfBirth())
+            id = "dateOfBirth",
+            hint = Some(Hint(content = Text(messages("membersNino.hint")))),
+            fieldset = Some(Fieldset(
+legend = Some(Legend(content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("membersDob.heading", name)}</h1>")))
+            ))
+        ).withFormField(form("dateOfBirth")))
 
         @govukButton(
             ButtonViewModel(viewModel.buttonText.toMessage)

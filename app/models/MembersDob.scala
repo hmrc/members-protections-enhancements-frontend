@@ -22,10 +22,10 @@ import utils.DateTimeFormats
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-case class MembersDob(day: Int, month: Int, year: Int) {
-  lazy val date: LocalDate = LocalDate.of(year, month, day)
-  lazy val dob: String = date.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
-  lazy val dateOfBirth: String = date.format(DateTimeFormats.apiDateTimeFormat)
+case class MembersDob(dateOfBirth: LocalDate) {
+
+  lazy val dob: String = dateOfBirth.format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
+  lazy val strDateOfBirth: String = dateOfBirth.format(DateTimeFormats.apiDateTimeFormat)
 }
 
 object MembersDob {

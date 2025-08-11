@@ -26,13 +26,15 @@ import play.api.test.Helpers._
 import viewmodels.formPage.FormPageViewModel
 import views.html.MembersDobView
 
+import java.time.LocalDate
+
 class MembersDobControllerSpec extends SpecBase {
 
   private lazy val onPageLoad = routes.MembersDobController.onPageLoad(NormalMode).url
   private lazy val onSubmit = routes.MembersDobController.onSubmit(NormalMode)
   private lazy val backLinkUrl = routes.WhatIsTheMembersNameController.onSubmit(NormalMode).url
 
-  private val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
+  private val formProvider = new MembersDobFormProvider()
   private val form: Form[MembersDob] = formProvider()
 
   "Member Dob Controller" - {
@@ -57,7 +59,7 @@ class MembersDobControllerSpec extends SpecBase {
     "must return OK and pre-fill the form when data is already present" in {
       val userAnswers = emptyUserAnswers
         .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        .set(MembersDobPage, MembersDob(10, 3, 2014)).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2014, 3, 10))).success.value
 
       val application = applicationBuilder(userAnswers).build()
 
@@ -70,7 +72,7 @@ class MembersDobControllerSpec extends SpecBase {
         val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(MembersDob(10, 3, 2014)), viewModel, "Pearl Harvey")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(MembersDob(LocalDate.of(2014, 3, 10))), viewModel, "Pearl Harvey")(request, messages(application)).toString
       }
     }
 
@@ -112,7 +114,7 @@ class MembersDobControllerSpec extends SpecBase {
 
         val formWithErrors: Form[MembersDob] = form
           .bind(Map("dateOfBirth.day" -> "", "dateOfBirth.month" -> "", "dateOfBirth.year" -> ""))
-          .copy(errors = Seq(FormError("dateOfBirth", "membersDob.error.missing.day.month.year")))
+          .copy(errors = Seq(FormError("dateOfBirth", "membersDob.error.missing.all")))
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString
@@ -150,51 +152,5 @@ class MembersDobControllerSpec extends SpecBase {
         redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
       }
     }
-
-    ".consolidateMissingFieldErrors" - {
-      "must return original form when no errors exist" in {
-        val boundForm = form.bind(Map(
-          "dateOfBirth.day" -> "11",
-          "dateOfBirth.month" -> "11",
-          "dateOfBirth.year" -> "1900"
-        ))
-
-        MembersDobController.consolidateMissingFieldErrors(boundForm) mustBe boundForm
-      }
-
-      "must return original form with errors when no fields are missing" in {
-        val boundForm = form.bind(Map(
-          "dateOfBirth.day" -> "13",
-          "dateOfBirth.month" -> "11",
-          "dateOfBirth.year" -> "1900"
-        ))
-
-        MembersDobController.consolidateMissingFieldErrors(boundForm) mustBe boundForm
-      }
-
-      "must return original form with only missing field errors when they exist" in {
-        val boundForm = form.bind(Map(
-          "dateOfBirth.day" -> "",
-          "dateOfBirth.month" -> "11",
-          "dateOfBirth.year" -> "1900"
-        ))
-
-        val result: Form[MembersDob] = MembersDobController.consolidateMissingFieldErrors(boundForm)
-        result.errors must have length 1
-        result.errors must contain(FormError("dateOfBirth.day", "membersDob.error.missing.day"))
-      }
-
-      "must return original form with consolidated missing field errors when multiple exist" in {
-        val boundForm = form.bind(Map(
-          "dateOfBirth.day" -> "",
-          "dateOfBirth.year" -> "1900"
-        ))
-
-        val result: Form[MembersDob] = MembersDobController.consolidateMissingFieldErrors(boundForm)
-        result.errors must have length 1
-        result.errors must contain(FormError("dateOfBirth", "membersDob.error.missing.day.month"))
-      }
-    }
   }
-
 }

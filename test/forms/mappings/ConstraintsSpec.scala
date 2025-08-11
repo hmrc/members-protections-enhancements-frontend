@@ -17,24 +17,14 @@
 package forms.mappings
 
 import generators.Generators
-import models.MembersDob
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
-import org.scalacheck.Gen
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.data.validation.{Invalid, Valid, ValidationResult}
-import providers.DateTimeProvider
+import play.api.data.validation.{Invalid, Valid}
 
-import java.time.{LocalDate, ZoneId, ZonedDateTime}
+import java.time.LocalDate
 
 class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with Constraints {
-
-  private def toMembersDob(input: LocalDate): MembersDob = {
-    MembersDob(input.getDayOfMonth, input.getMonthValue, input.getYear)
-  }
 
   "firstError" - {
     "must return Valid when all constraints pass" in {
@@ -114,58 +104,33 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
     }
   }
 
-  "validDate" - {
-    "should return Valid for a valid date" in {
-      val (day, month, year) = (1, 1, 2025)
-      val result: ValidationResult = validDate("some.error")(MembersDob(day, month, year))
-      result mustBe Valid
-    }
-
-    "should return Invalid for an invalid date" in {
-      val (day, month, year) = (30, 2, 2025)
-      val result: ValidationResult = validDate("some.error")(MembersDob(day, month, year))
-      result mustBe a[Invalid]
-    }
-  }
-
-  "futureDate" - {
-    val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
-
-    val mockYear: Int = 2025
-    val mockDateTimeVal: Int = 12
-    val mockCurrentDate: LocalDate = LocalDate.of(mockYear, mockDateTimeVal, mockDateTimeVal)
-
-    when(mockDateTimeProvider.now(any())).thenReturn(
-      ZonedDateTime.of(
-        mockCurrentDate.atStartOfDay(),
-        ZoneId.of("Europe/London")
-      )
-    )
+  "maxDate" - {
 
     "must return Valid for a date before or equal to the maximum" in {
-      val gen: Gen[LocalDate] = for {
-        date <- datesBetween(LocalDate.of(2000, 1, 1), mockCurrentDate)
-      } yield date
-
-      forAll(gen) {
-        date =>
-
-          val result = futureDate("error.future", mockDateTimeProvider)(toMembersDob(date))
-          result mustEqual Valid
-      }
+       val result = maxDate(LocalDate.now() ,"error.future")(LocalDate.of(2025, 1, 2))
+       result mustEqual Valid
     }
 
     "must return Invalid for a date after the maximum" in {
-      val gen: Gen[LocalDate] = for {
-        date <- datesBetween(mockCurrentDate.plusDays(1), LocalDate.of(3000, 1, 2))
-      } yield date
 
-      forAll(gen) {
-        date =>
-          val result = futureDate("error.future", mockDateTimeProvider, "foo")(toMembersDob(date))
-          result mustEqual Invalid("error.future", "foo")
-      }
+      val result = maxDate(LocalDate.of(2025, 1, 2) ,"error.future")(LocalDate.of(2025, 1, 2).plusDays(1))
+      result mustEqual Invalid("error.future")
     }
   }
 
+  "minDate" - {
+
+    "must return Valid for a date after or equal to the minimum" in {
+
+      val result = minDate(LocalDate.of(2025, 1, 2) ,"error.past")(LocalDate.of(2025, 1, 2))
+      result mustEqual Valid
+    }
+
+    "must return Invalid for a date before the minimum" in {
+
+      val result = minDate(LocalDate.of(2025, 1, 2), "error.past")(LocalDate.of(2025, 1, 2).minusDays(1))
+      result mustEqual Invalid("error.past")
+
+    }
+  }
 }

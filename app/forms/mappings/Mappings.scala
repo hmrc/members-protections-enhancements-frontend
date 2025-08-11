@@ -16,57 +16,38 @@
 
 package forms.mappings
 
-import models.MembersDob
-import play.api.data.Forms.{mapping, of}
-import play.api.data.{FieldMapping, Mapping}
-import providers.DateTimeProvider
+import play.api.data.FieldMapping
+import play.api.data.Forms.of
+
+import java.time.LocalDate
 
 trait Mappings extends Formatters with Constraints {
 
   protected def text(errorKey: String = "error.required", args: Seq[String] = Seq.empty): FieldMapping[String] =
     of(stringFormatter(errorKey, args))
 
-  protected def dateOfBirth(dateTimeProvider: DateTimeProvider): Mapping[MembersDob] = {
-    val baseError = "membersDob.error"
-    val baseFormatError = s"$baseError.format"
-    val baseMissingError = s"$baseError.missing"
+  protected def localDate(
+                           dayInvalidKey: String,
+                           monthInvalidKey: String,
+                           yearInvalidKey: String,
+                           monthTextInvalidKey: String,
+                           multipleInvalidKey: String,
+                           allRequiredKey: String,
+                           twoRequiredKey: String,
+                           oneRequiredKey: String,
+                           realDateKey: String
+                         ): FieldMapping[LocalDate] = of(
+    new LocalDateFormatter(
+      dayInvalidKey,
+      monthInvalidKey,
+      yearInvalidKey,
+      monthTextInvalidKey,
+      multipleInvalidKey,
+      oneRequiredKey,
+      twoRequiredKey,
+      allRequiredKey,
+      realDateKey
+    )
+  )
 
-    val dayString: String = "day"
-    val monthString: String = "month"
-    val yearString: String = "year"
-
-    val dayError = s"$baseFormatError.$dayString"
-    val monthError = s"$baseFormatError.$monthString"
-    val yearError = s"$baseFormatError.$yearString"
-
-    mapping(
-      dayString -> int(
-        requiredKey = s"$baseMissingError.$dayString",
-        wholeNumberKey = dayError,
-        nonNumericKey = dayError
-      ).verifying(dayError, day => day > 0 && day < 32),
-      monthString -> month(
-        requiredKey = s"$baseMissingError.$monthString",
-        wholeNumberKey = monthError,
-        nonNumericKey = monthError,
-        invalidMonthKey = s"$monthError.nonNumeric"
-      ).verifying(monthError, month => month >= 1 && month <= 12),
-      yearString -> int(
-        requiredKey = s"$baseMissingError.$yearString",
-        wholeNumberKey = yearError,
-        nonNumericKey = yearError
-      ).verifying(yearError, year => year >= minYear && year <= dateTimeProvider.now().getYear)
-    )(MembersDob.apply)(MembersDob.unapply)
-  }
-
-  protected def int(requiredKey: String,
-                    wholeNumberKey: String,
-                    nonNumericKey: String): FieldMapping[Int] =
-    of(intFormatter(requiredKey, wholeNumberKey, nonNumericKey))
-
-  protected def month(requiredKey: String,
-                      wholeNumberKey: String,
-                      nonNumericKey: String,
-                      invalidMonthKey: String): FieldMapping[Int] =
-    of(monthFormatter(requiredKey, wholeNumberKey, nonNumericKey, invalidMonthKey))
 }
