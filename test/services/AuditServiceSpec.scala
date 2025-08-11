@@ -56,7 +56,7 @@ class AuditServiceSpec extends SpecBase {
           .sendExtendedEvent(any[ExtendedDataEvent]())(any(), any()))
           .thenReturn(expected)
 
-        val event: AuditEvent[String] = AuditEvent(auditType, transactionName = transactionName, "{}")
+        val event: AuditEvent[String] = AuditEvent(auditType, transactionName = transactionName,"/foo", "{}")
         target.auditEvent(event) mustBe expected
       }
     }
