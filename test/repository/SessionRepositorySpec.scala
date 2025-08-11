@@ -30,7 +30,7 @@ import play.api.libs.json.Json
 import repositories.SessionRepository
 import uk.gov.hmrc.crypto.EncryptedValue
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
-import utils.encryption.AesGcmAdCrypto
+import utils.encryption.{AesGcmAdCrypto, MockAesGcmAdCrypto}
 
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, Instant, ZoneId}
@@ -41,39 +41,22 @@ class SessionRepositorySpec extends AnyFreeSpec
   with DefaultPlayMongoRepositorySupport[EncryptedUserAnswers]
   with ScalaFutures
   with MockitoSugar
-  with OptionValues {
+  with OptionValues
+  with MockAesGcmAdCrypto {
 
   private val instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
-  private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
-
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.sessionDataTtl) thenReturn 1
-
-  implicit val associatedText: String = "id"
-
-  private implicit val mockAesGcmAdCrypto: AesGcmAdCrypto = new AesGcmAdCrypto {
-    override def encrypt(valueToEncrypt: String)
-                        (implicit associatedText: String): EncryptedValue = EncryptedValue(
-      value = "some-value",
-      nonce = "some-nonce"
-    )
-
-    override def decrypt(encryptedValue: EncryptedValue)
-                        (implicit associatedText: String): String =
-      """
-        |{
-        | "foo": "bar"
-        |}
-      """.stripMargin
-  }
 
   protected override val repository = new SessionRepository(
     mongoComponent = mongoComponent,
     appConfig = mockAppConfig,
     clock = stubClock
   )
+
+  private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
 
   ".set" - {
     "must set the last updated time on the supplied user answers to `now`, and save them" in {

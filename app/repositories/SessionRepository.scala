@@ -68,7 +68,7 @@ class SessionRepository @Inject()(mongoComponent: MongoComponent,
         collection
           .find[EncryptedUserAnswers](byId(id))
           .headOption()
-          .map(_.map(_.toUserAnswers))
+          .map(_.map(_.decrypt))
     }
   }
 
