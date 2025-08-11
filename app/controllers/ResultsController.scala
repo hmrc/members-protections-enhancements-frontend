@@ -66,7 +66,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
         checkAndRetrieveService.checkAndRetrieve(pensionSchemeMemberRequest).flatMap {
           case Right(value) =>
             logInfo(s"$fullLoggingContext", s"Successfully retrieved results for supplied details redirecting to Results page")
-            auditSubmission("CompleteMemberSearch",
+            auditSubmission("CompleteMemberSearch", routes.ResultsController.onPageLoad().url,
               auditDetail.copy(journey = "resultsDisplayed", searchAPIMatchResult = Some("MATCH")))
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ResultsPage, MembersResult(isSuccessful = true)))
@@ -86,7 +86,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
             }
           case Left(error) if error.code == "NO_MATCH" || error.code == "EMPTY_DATA" =>
             val (journey, searchAPIMatchResult): (String, String) = auditParams(error.code)
-            auditSubmission("CompleteMemberSearch",
+            auditSubmission("CompleteMemberSearch", routes.NoResultsController.onPageLoad().url,
               auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult)))(hc, ec, correlationId)
 
             implicit val req: IdentifierRequest[AnyContent] = request.toIdentifierRequest
@@ -101,10 +101,10 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
             logger.warn(s"$fullLoggingContext - Failure to get the results due to ${error.code}")
             error.source match {
               case MatchPerson =>
-                auditSubmission("CompleteMemberSearch",
+                auditSubmission("CompleteMemberSearch", routes.ClearCacheController.defaultError().url,
                   auditDetail.copy(journey = "searchAPIError", searchAPIFailureReason = Some(error.code)))
               case _ =>
-                auditSubmission("CompleteMemberSearch",
+                auditSubmission("CompleteMemberSearch", routes.ClearCacheController.defaultError().url,
                   auditDetail.copy(journey = "retrieveAPIError", retrieveAPIFailureReason = Some(error.code)))
             }
             Future.successful(Redirect(routes.ClearCacheController.defaultError()))
@@ -114,13 +114,14 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
     }
   })
 
-  private def auditSubmission(auditType: String, details: AuditDetail)
+  private def auditSubmission(auditType: String, path: String, details: AuditDetail)
                              (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[AuditResult] = {
 
     val event: AuditEvent[AuditDetail] = AuditEvent(
       auditType = auditType,
       detail = details,
-      transactionName = "member-search-results"
+      transactionName = "member-search-results",
+      path = path
     )
     auditService.auditEvent(event)
   }
