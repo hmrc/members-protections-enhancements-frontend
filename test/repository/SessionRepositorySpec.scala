@@ -28,9 +28,8 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import repositories.SessionRepository
-import uk.gov.hmrc.crypto.EncryptedValue
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
-import utils.encryption.{AesGcmAdCrypto, MockAesGcmAdCrypto}
+import utils.encryption.MockAesGcmAdCrypto
 
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, Instant, ZoneId}

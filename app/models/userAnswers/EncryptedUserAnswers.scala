@@ -29,7 +29,7 @@ import java.time.Instant
 final case class EncryptedUserAnswers(id: String,
                                       encryptedValue: EncryptedValue,
                                       lastUpdated: Instant = Instant.now) {
-  def toUserAnswers(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): UserAnswers = UserAnswers(
+  def decrypt(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): UserAnswers = UserAnswers(
     id = id,
     data = encryptedValue.decrypted[JsObject],
     lastUpdated = lastUpdated
