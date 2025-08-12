@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package models
+package models.userAnswers
 
 import play.api.libs.json._
 import queries.{Gettable, Settable}
-import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+import utils.encryption.AesGcmAdCrypto
+import utils.encryption.Cypher.jsObjectCypher
+import utils.encryption.CypherSyntax._
 
 import java.time.Instant
 import scala.util.{Failure, Success, Try}
 
-final case class UserAnswers(
-                              id: String,
-                              data: JsObject = Json.obj(),
-                              lastUpdated: Instant = Instant.now
-                            ) {
+final case class UserAnswers(id: String,
+                             data: JsObject = Json.obj(),
+                             lastUpdated: Instant = Instant.now) {
 
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
     Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
@@ -47,31 +47,11 @@ final case class UserAnswers(
         page.cleanup(Some(value), updatedAnswers)
     }
   }
-}
 
-object UserAnswers {
+  def encrypt(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedUserAnswers = EncryptedUserAnswers(
+    id = id,
+    encryptedValue = data.encrypted,
+    lastUpdated = lastUpdated
+  )
 
-  val reads: Reads[UserAnswers] = {
-
-    import play.api.libs.functional.syntax._
-
-    (
-      (__ \ "_id").read[String] and
-      (__ \ "data").read[JsObject] and
-      (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
-    ) (UserAnswers.apply _)
-  }
-
-  val writes: OWrites[UserAnswers] = {
-
-    import play.api.libs.functional.syntax._
-
-    (
-      (__ \ "_id").write[String] and
-      (__ \ "data").write[JsObject] and
-      (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
-    ) (ua => (ua.id, ua.data, ua.lastUpdated))
-  }
-
-  implicit val format: OFormat[UserAnswers] = OFormat(reads, writes)
 }

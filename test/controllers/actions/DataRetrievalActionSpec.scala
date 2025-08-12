@@ -17,10 +17,10 @@
 package controllers.actions
 
 import base.SpecBase
-import models.UserAnswers
 import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.PSA
 import models.requests.{DataRequest, IdentifierRequest}
+import models.userAnswers.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar

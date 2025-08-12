@@ -17,7 +17,7 @@
 package repository
 
 import config.FrontendAppConfig
-import models.UserAnswers
+import models.userAnswers.{EncryptedUserAnswers, UserAnswers}
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
 import org.scalatest.OptionValues
@@ -29,18 +29,22 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import repositories.SessionRepository
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+import utils.encryption.MockAesGcmAdCrypto
 
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, Instant, ZoneId}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SessionRepositorySpec extends AnyFreeSpec with Matchers with DefaultPlayMongoRepositorySupport[UserAnswers]
-  with ScalaFutures with MockitoSugar with OptionValues {
+class SessionRepositorySpec extends AnyFreeSpec
+  with Matchers
+  with DefaultPlayMongoRepositorySupport[EncryptedUserAnswers]
+  with ScalaFutures
+  with MockitoSugar
+  with OptionValues
+  with MockAesGcmAdCrypto {
 
   private val instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
-
-  private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
 
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.sessionDataTtl) thenReturn 1
@@ -51,13 +55,13 @@ class SessionRepositorySpec extends AnyFreeSpec with Matchers with DefaultPlayMo
     clock = stubClock
   )
 
+  private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
+
   ".set" - {
-
     "must set the last updated time on the supplied user answers to `now`, and save them" in {
+      val expectedResult = userAnswers.copy(lastUpdated = instant).encrypt
 
-      val expectedResult = userAnswers.copy(lastUpdated = instant)
-
-      val setResult = repository.set(userAnswers).futureValue
+      val setResult: Unit = repository.set(userAnswers).futureValue
       val updatedRecord = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
 
       setResult mustEqual ()
@@ -66,12 +70,9 @@ class SessionRepositorySpec extends AnyFreeSpec with Matchers with DefaultPlayMo
   }
 
   ".get" - {
-
     "when there is a record for this id" - {
-
       "must update the lastUpdated time and get the record" in {
-
-        insert(userAnswers).futureValue
+        insert(userAnswers.encrypt).futureValue
 
         val result = repository.get(userAnswers.id).futureValue
         val expectedResult = userAnswers copy (lastUpdated = instant)
@@ -81,19 +82,15 @@ class SessionRepositorySpec extends AnyFreeSpec with Matchers with DefaultPlayMo
     }
 
     "when there is no record for this id" - {
-
       "must return None" in {
-
         repository.get("id that does not exist").futureValue must not be defined
       }
     }
   }
 
   ".clear" - {
-
     "must remove a record" in {
-
-      insert(userAnswers).futureValue
+      insert(userAnswers.encrypt).futureValue
 
       val result = repository.clear(userAnswers.id).futureValue
 
@@ -109,16 +106,12 @@ class SessionRepositorySpec extends AnyFreeSpec with Matchers with DefaultPlayMo
   }
 
   ".keepAlive" - {
-
     "when there is a record for this id" - {
-
       "must update its lastUpdated to `now` and return true" in {
-
-        insert(userAnswers).futureValue
+        insert(userAnswers.encrypt).futureValue
 
         val result = repository.keepAlive(userAnswers.id).futureValue
-
-        val expectedUpdatedAnswers = userAnswers copy (lastUpdated = instant)
+        val expectedUpdatedAnswers = userAnswers.copy(lastUpdated = instant).encrypt
 
         result mustEqual true
         val updatedAnswers = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
@@ -127,9 +120,7 @@ class SessionRepositorySpec extends AnyFreeSpec with Matchers with DefaultPlayMo
     }
 
     "when there is no record for this id" - {
-
       "must return true" in {
-
         repository.keepAlive("id that does not exist").futureValue mustEqual true
       }
     }

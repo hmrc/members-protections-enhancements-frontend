@@ -31,21 +31,27 @@ class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
   val firstName = "firstName"
   val lastName = "lastName"
 
+  private[forms] def stripWhitespace(str: String): String = str.strip().replaceAll(" {2,}", " ")
+
   def apply(): Form[MemberDetails] =
     Form(
       mapping(
-        firstName -> text("membersName.error.required.firstName").verifying(
-          firstError(
-            regexp(nameRegex, "membersName.error.invalid.firstName"),
-            maxLength(nameMaxLength, "membersName.error.tooLong.firstName")
-          )
+        firstName -> text("membersName.error.required.firstName")
+          .transform(stripWhitespace, identity[String])
+          .verifying(
+            firstError(
+              regexp(nameRegex, "membersName.error.invalid.firstName"),
+              maxLength(nameMaxLength, "membersName.error.tooLong.firstName")
+            )
         ),
-        lastName -> text("membersName.error.required.lastName").verifying(
-          firstError(
-            regexp(nameRegex, "membersName.error.invalid.lastName"),
-            minLength(lastNameMinLength, "membersName.error.tooShort.lastName"),
-            maxLength(nameMaxLength, "membersName.error.tooLong.lastName")
-          )
+        lastName -> text("membersName.error.required.lastName")
+          .transform(stripWhitespace, identity[String])
+          .verifying(
+            firstError(
+              regexp(nameRegex, "membersName.error.invalid.lastName"),
+              minLength(lastNameMinLength, "membersName.error.tooShort.lastName"),
+              maxLength(nameMaxLength, "membersName.error.tooLong.lastName")
+            )
         ),
       )(MemberDetails.apply)(MemberDetails.unapply)
     )
