@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.requests.{DataRequest, PensionSchemeMemberRequest}
-import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, Mode, NormalMode}
+import models._
 import pages._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Call, Result}
