@@ -52,7 +52,6 @@ class NoResultsViewSpec extends SpecBase {
       "with expected footer content" in new Setup {
         view.html must include (messages(app)("results.checkedOn"))
         view.html must include (messages(app)("site.print"))
-        view.html must include (messages(app)("noResults.noMatch"))
         view.html must include (messages(app)("noResults.lh"))
         view.html must include (messages(app)("noResults.li.1"))
         view.html must include (messages(app)("noResults.li.2"))

@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models.errors
+@this(h2: h2)
 
-import play.api.libs.json.{Json, OFormat}
+@()(implicit request: Request[_], messages: Messages)
 
-sealed case class MpeError(code: String, message: String, reasons: Option[Seq[String]] = None,
-                           source: ErrorSource = Internal)
-
-object MpeError {
-  implicit val format: OFormat[MpeError] = Json.format[MpeError]
-}
-
-object InternalError
-    extends MpeError(
-      code = "INTERNAL_SERVER_ERROR",
-      message = "An internal server error occurred"
-    )
-
-object NotFoundError
-  extends MpeError(
-    code = "NOT_FOUND",
-    message = "Matching not found"
-  )
+<nav role="navigation" class="govuk-!-margin-top-8 results-navigation">
+ @h2("results.relatedContent", marginBottom = "6")
+ <ul class="govuk-list govuk-!-margin-bottom-6">
+  <li>
+   <a class="govuk-link" href="@routes.ClearCacheController.onPageLoad()">
+    @messages("results.checkAnotherMpe")
+   </a>
+  </li>
+  <li>
+   <a class="govuk-link" href="@routes.MpsDashboardController.redirectToMps()">
+    @messages("results.mpsDashboard")
+   </a>
+  </li>
+ </ul>
+</nav>

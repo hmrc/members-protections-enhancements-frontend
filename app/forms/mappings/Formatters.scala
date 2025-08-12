@@ -24,12 +24,13 @@ trait Formatters {
                                         args: Seq[String] = Seq.empty): Formatter[String] = new Formatter[String] {
     override def bind(key: String, data: Map[String, String]): ValidationResult[String] =
       data.get(key) match {
-        case None                      => Left(Seq(FormError(key, errorKey, args)))
+        case None => Left(Seq(FormError(key, errorKey, args)))
         case Some(s) if s.trim.isEmpty => Left(Seq(FormError(key, errorKey, args)))
-        case Some(s)                   => Right(s)
+        case Some(s) => Right(s)
       }
 
     override def unbind(key: String, value: String): Map[String, String] =
       Map(key -> value)
   }
 }
+

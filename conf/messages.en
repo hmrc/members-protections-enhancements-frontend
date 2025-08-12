@@ -131,15 +131,14 @@ membersPsaCheckRef.heading = What is {0}''s pension scheme administrator check r
 membersPsaCheckRef.hint = For example, PSA 12 34 56 78 A
 membersPsaCheckRef.pensionSchemeAdminCheckRef = Pension scheme administrator check reference
 membersPsaCheckRef.error.required = Enter a pension scheme administrator check reference
-membersPsaCheckRef.error.invalid = Enter the member''s pension scheme administrator check reference in a valid format
+membersPsaCheckRef.error.invalid = The member's pension scheme administrator check reference must only include letters A to Z and numbers 0 to 9
 
-noResults.title = Your search didn''t return any results
-noResults.heading = Your search didn''t return any results
-noResults.noMatch = The details you entered didn''t match an existing protection certificate
+noResults.title = The details you entered did not match an existing protection certificate
+noResults.heading = The details you entered did not match an existing protection certificate
 noResults.lh = This could be because you''ve:
 noResults.li.1 = been given the wrong information by the member
 noResults.li.2 = entered one or more of the details incorrectly
-noResults.checkInformation = Check the information you''ve been given and
+noResults.checkInformation = Check the member''s details and
 noResults.tryAgain = try again
 noResults.period = .
 
@@ -147,7 +146,7 @@ results.title = Results of protections and enhancements check
 results.heading = Results of protections and enhancements check
 results.memberDetails.heading = Member''s details
 results.relatedContent = What you can do next
-results.mpsDashboard = Managing pension schemes dashboard
+results.mpsDashboard = Return to Managing pension schemes dashboard
 results.checkAnotherMpe = Check another pension scheme member''s protections and enhancements
 results.checkedOn =  Checked on
 

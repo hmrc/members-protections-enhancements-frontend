@@ -100,7 +100,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
 
       val onSubmit = routes.CheckYourAnswersController.onSubmit()
       running(application) {
-        val request = FakeRequest(GET, onSubmit.url)
+        val request = FakeRequest(POST, onSubmit.url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

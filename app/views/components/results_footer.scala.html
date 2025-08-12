@@ -1,5 +1,5 @@
-/*
- * Copyright 2024 HM Revenue & Customs
+@*
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,20 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package utils
+@this(
+ printSection: print_section,
+ resultsNav: results_navigation
+)
 
-import play.api.libs.json._
-import uk.gov.hmrc.http._
+@(formattedTimestamp: String)(implicit request: Request[_], messages: Messages)
 
-trait HttpResponseHelper extends HttpErrorFunctions {
-
-  implicit val httpResponseReads: HttpReads[HttpResponse] = (method: String, url: String, response: HttpResponse) => response
-
-  def handleResponse[A](response: JsValue)(implicit reads: Reads[A]): A =
-    response.validate[A] match {
-      case JsSuccess(value, _) => value
-      case JsError(errors) => throw JsResultException(errors)
-    }
-}
+@printSection(formattedTimestamp)
+@resultsNav()

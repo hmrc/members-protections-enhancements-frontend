@@ -32,6 +32,12 @@ class WhatYouWillNeedController @Inject()(override val messagesApi: MessagesApi,
                                           view: WhatYouWillNeedView)
   extends MpeBaseController(identify, checkLockout, getData) {
 
+  def start(): Action[AnyContent] = Action.async { _ =>
+    Future.successful(
+      Redirect(controllers.routes.WhatYouWillNeedController.onPageLoad())
+    )
+  }
+
   def onPageLoad(): Action[AnyContent] = handle { implicit request =>
     Future.successful(Ok(view(Some(routes.MpsDashboardController.redirectToMps().url))))
   }
