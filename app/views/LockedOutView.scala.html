@@ -29,7 +29,8 @@
 }
 
 @layout(
-    pageTitle = titleNoForm(messages("lockedOut.title"))
+    pageTitle = titleNoForm(messages("lockedOut.title")),
+    withReportTechnicalIssueLink = false
 ) {
 
     <h1 class="govuk-heading-l">@messages("lockedOut.heading")</h1>

@@ -40,7 +40,8 @@
     showHmrcBanner: Boolean = false,
     backLinkUrl: Option[String] = None,
     beforeContent: Option[Html] = None,
-    fullWidthContent: Boolean = false
+    fullWidthContent: Boolean = false,
+    withReportTechnicalIssueLink: Boolean = true
 )(
     contentBlock: Html
 )(
@@ -75,9 +76,11 @@
     <div class=@mainTemplateClass>
         @content
 
-        <div class="govuk-!-margin-top-8">
-            @hmrcReportTechnicalIssueHelper()
-        </div>
+        @if(withReportTechnicalIssueLink) {
+            <div class="govuk-!-margin-top-8">
+                @hmrcReportTechnicalIssueHelper()
+            </div>
+        }
     </div>
 </div>
 }
