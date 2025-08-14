@@ -28,7 +28,6 @@ class LocalDateFormatterSpec extends SpecBase {
   val monthInvalidKey      = "monthInvalidKey"
   val yearInvalidKey      = "yearInvalidKey"
   val monthTextInvalidKey      = "monthTextInvalidKey"
-  val multipleInvalidKey = "multipleInvalidKey"
   val oneRequiredKey     = "oneRequiredKey"
   val twoRequiredKey     = "twoRequiredKey"
   val allRequiredKey     = "allRequiredKey"
@@ -38,7 +37,6 @@ class LocalDateFormatterSpec extends SpecBase {
     monthInvalidKey,
     yearInvalidKey,
     monthTextInvalidKey,
-    multipleInvalidKey,
     oneRequiredKey,
     twoRequiredKey,
     allRequiredKey,

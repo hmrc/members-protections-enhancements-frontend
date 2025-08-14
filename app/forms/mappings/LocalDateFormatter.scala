@@ -32,7 +32,6 @@ private[mappings] class LocalDateFormatter(
   monthInvalidKey: String,
   yearInvalidKey: String,
   monthTextInvalidKey: String,
-  multipleInvalidKey: String,
   oneRequiredKey: String,
   twoRequiredKey: String,
   allRequiredKey: String,

@@ -27,11 +27,14 @@ trait ErrorSummaryFluency {
              (implicit messages: Messages): ErrorSummary = {
 
       val errors: Seq[ErrorLink] = form.errors.foldLeft(Seq.empty[ErrorLink])((errorLinks, error) => {
-          if(error.message.contains("missing")){
-            Seq(ErrorLink(
-              href = if (error.key == formId) Some(s"#${formId}.day") else Some(s"#${error.key}"),
-              content = Text(messages(error.message, error.args: _*))
-            ))
+          if(error.message.contains("missing")) {
+            errorLinks match {
+              case Nil =>
+                errorLinks ++ Seq(ErrorLink(
+                  href = if (error.key == formId) Some(s"#${formId}.day") else Some(s"#${error.key}"),
+                  content = Text(messages(error.message, error.args: _*))))
+              case _ => errorLinks
+            }
           }
         else{
           errorLinks :+ ErrorLink(

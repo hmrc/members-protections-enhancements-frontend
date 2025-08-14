@@ -31,7 +31,6 @@ class MembersDobFormProvider @Inject()() extends Mappings {
       monthInvalidKey = "membersDob.error.invalid.month",
       yearInvalidKey = "membersDob.error.invalid.year",
       monthTextInvalidKey = "membersDob.error.invalid.month.nonNumeric",
-      multipleInvalidKey = "membersDob.error.missing.invalid.multiple",
       oneRequiredKey = "membersDob.error.missing.one",
       twoRequiredKey = "membersDob.error.missing.two",
       allRequiredKey = "membersDob.error.missing.all",
