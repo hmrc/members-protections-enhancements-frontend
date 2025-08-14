@@ -172,10 +172,10 @@ results.protection.FP.2014 = Fixed Protection 2014
 results.protection.FP.2016 = Fixed Protection 2016
 results.protection.PP = Primary Protection
 results.protection.EP = Enhanced Protection
-results.protection.PCR.COM = Pension Credit (pre-commencement)
-results.protection.PCR.CRY = Pension Credit (from previously crystallised rights)
-results.protection.IE.RI = International Enhancement (individuals who are relevant overseas individuals)
-results.protection.IE.T = International Enhancement (transfer from a recognised overseas pension scheme)
+results.protection.PCR.COM = Pension credit factor for pre-commencement pension credit rights
+results.protection.PCR.CRY = Pension credit factor for pension credits for previously crystallised rights
+results.protection.IE.RI = Non-residence factor for a relevant overseas individual
+results.protection.IE.T = Non-residence factor for a transfer from an overseas pension scheme
 
 results.breadcrumbs.mps = Managing pension schemes
 results.breadcrumbs.mpe = Check a pension scheme member'’s protections and enhancements

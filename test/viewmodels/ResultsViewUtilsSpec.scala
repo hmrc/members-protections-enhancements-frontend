@@ -90,7 +90,7 @@ class ResultsViewUtilsSpec extends SpecBase {
 
     "should return the expected SummaryList model for an enhancement" in new Test {
       override val recordType: String = "enhancement"
-      override val recordName: String = "International Enhancement (transfer from a recognised overseas pension scheme)"
+      override val recordName: String = "Non-residence factor for a transfer from an overseas pension scheme"
       override val recordId: String = "InternationalEnhancementTransfer"
 
       val result: SummaryList = protectionRecordToSummaryList(
