@@ -98,7 +98,7 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
                              membersPsaCheckRef: MembersPsaCheckRef): PensionSchemeMemberRequest =
       PensionSchemeMemberRequest(memberDetails.firstName,
         memberDetails.lastName,
-        membersDob.dateOfBirth,
+        membersDob.strDateOfBirth,
         membersNino.nino.filterNot(_.isWhitespace),
         membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace))
 

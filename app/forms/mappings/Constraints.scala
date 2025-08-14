@@ -16,15 +16,11 @@
 
 package forms.mappings
 
-import models.MembersDob
 import play.api.data.validation.{Constraint, Invalid, Valid}
-import providers.DateTimeProvider
 
 import java.time.LocalDate
-import scala.util.Try
 
 trait Constraints {
-  val minYear: Int = 1900
 
   protected def firstError[A](constraints: Constraint[A]*): Constraint[A] =
     Constraint {
@@ -59,27 +55,20 @@ trait Constraints {
         Invalid(errorKey, maximum)
     }
 
-  protected def validDate(errorKey: String, args: Any*): Constraint[MembersDob] =
+  protected def maxDate(maximum: LocalDate, errorKey: String, args: Any*): Constraint[LocalDate] =
     Constraint {
-      case membersDob if isValidDate(membersDob) => Valid
-      case _ => Invalid(errorKey, args: _*)
-    }
-
-  protected def futureDate(errorKey: String, dateTimeProvider: DateTimeProvider, args: Any*): Constraint[MembersDob] =
-    Constraint {
-      case membersDob if isFutureDate(membersDob, dateTimeProvider) =>
+      case date if date.isAfter(maximum) =>
         Invalid(errorKey, args: _*)
-      case _ =>
+      case _                             =>
         Valid
     }
 
-  private def isValidDate(input: MembersDob): Boolean = Try(
-    LocalDate.of(input.year, input.month, input.day)
-  ).isSuccess
-
-  private def toLocalDate(input: MembersDob): LocalDate = LocalDate.of(input.year, input.month, input.day)
-
-  private def isFutureDate(input: MembersDob, dateTimeProvider: DateTimeProvider): Boolean =
-    if (isValidDate(input) && toLocalDate(input).isAfter(dateTimeProvider.now().toLocalDate)) true else false
+  protected def minDate(minimum: LocalDate, errorKey: String, args: Any*): Constraint[LocalDate] =
+    Constraint {
+      case date if date.isBefore(minimum) =>
+        Invalid(errorKey, args: _*)
+      case _                              =>
+        Valid
+    }
 
 }

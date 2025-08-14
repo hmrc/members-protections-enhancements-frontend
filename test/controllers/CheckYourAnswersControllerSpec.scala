@@ -29,11 +29,13 @@ import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
 
+import java.time.LocalDate
+
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
 
   val userAnswers: UserAnswers = emptyUserAnswers
     .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-    .set(page = MembersDobPage, value = MembersDob(1, 1, 2000)).success.value
+    .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2000, 1, 1))).success.value
     .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
     .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
 
@@ -53,7 +55,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
         val list: Seq[SummaryListRow] = Seq(
           membersFirstNameRow(MemberDetails("Pearl", "Harvey")),
           membersLastNameRow(MemberDetails("Pearl", "Harvey")),
-          membersDobRow(MembersDob(1, 1, 2000)),
+          membersDobRow(MembersDob(LocalDate.of(2000, 1, 1))),
           membersNinoRow(MembersNino("AB123456A")),
           membersPsaCheckRefRow(MembersPsaCheckRef("PSA12345678A"))
         )

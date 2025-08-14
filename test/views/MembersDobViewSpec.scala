@@ -46,7 +46,7 @@ class MembersDobViewSpec extends SpecBase {
     val app: Application = applicationBuilder(emptyUserAnswers).build()
     implicit val msg: Messages = messages(app)
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
-    private val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
+    private val formProvider = new MembersDobFormProvider()
     private val form: Form[MembersDob] = formProvider()
     private val onSubmit = routes.MembersDobController.onSubmit(NormalMode)
     private val backLinkUrl = routes.WhatIsTheMembersNameController.onSubmit(NormalMode).url

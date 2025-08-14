@@ -30,6 +30,8 @@ import uk.gov.hmrc.govukfrontend.views.html.components.GovukSummaryList
 import viewmodels.ResultsViewUtils
 import views.html.ResultsView
 
+import java.time.LocalDate
+
 class ResultsViewSpec extends SpecBase {
 
   "view" - {
@@ -85,7 +87,7 @@ class ResultsViewSpec extends SpecBase {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
     val memberDetails: MemberDetails = MemberDetails("Pearl", "Harvey")
-    val membersDob: MembersDob = MembersDob(1, 1, 2022)
+    val membersDob: MembersDob = MembersDob(LocalDate.of(2022, 1, 1))
     val membersNino: MembersNino = MembersNino("AB123456A")
     val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
 

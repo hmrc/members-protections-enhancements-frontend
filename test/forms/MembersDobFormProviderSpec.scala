@@ -44,7 +44,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
     )
   )
 
-  private val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
+  private val formProvider = new MembersDobFormProvider()
   private val form: Form[MembersDob] = formProvider()
 
   val messages: Messages = Helpers.stubMessagesApi().preferred(FakeRequest())
@@ -64,9 +64,8 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         )
         val result = form.bind(data)
         result.value.value shouldEqual MembersDob(
-          date.getDayOfMonth,
-          date.getMonthValue,
-          date.getYear)
+          LocalDate.of(date.getYear,
+          date.getMonthValue, date.getDayOfMonth))
       }
     }
 
@@ -79,9 +78,8 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         )
         val result = form.bind(data)
         result.value.value shouldEqual MembersDob(
-          date.getDayOfMonth,
-          date.getMonthValue,
-          date.getYear)
+          LocalDate.of(date.getYear,
+            date.getMonthValue, date.getDayOfMonth))
       }
     }
 
@@ -95,7 +93,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
           s"$formField.year" -> "2 0 1 0"
         )
         val result = form.bind(data)
-        result.value.value shouldEqual MembersDob(day, month, year)
+        result.value.value shouldEqual MembersDob(LocalDate.of(year, month, day))
     }
 
     "fail to bind" when {
@@ -112,9 +110,9 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         val result = form.bind(data)
         result.errors must have length 3
         result.errors.flatMap(_.messages) mustBe Seq(
-          "membersDob.error.format.day",
-          "membersDob.error.format.month",
-          "membersDob.error.format.year"
+          "membersDob.error.invalid.day",
+          "membersDob.error.invalid.month",
+          "membersDob.error.invalid.year"
         )
       }
 
@@ -131,9 +129,9 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         val result = form.bind(data)
         result.errors must have length 3
         result.errors.flatMap(_.messages) mustBe Seq(
-          "membersDob.error.format.day",
-          "membersDob.error.format.month",
-          "membersDob.error.format.year"
+          "membersDob.error.invalid.day",
+          "membersDob.error.invalid.month",
+          "membersDob.error.invalid.year"
         )
       }
 
@@ -150,9 +148,9 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         val result = form.bind(data)
         result.errors must have length 3
         result.errors.flatMap(_.messages) mustBe Seq(
-          "membersDob.error.format.day",
-          "membersDob.error.format.month.nonNumeric",
-          "membersDob.error.format.year"
+          "membersDob.error.invalid.day",
+          "membersDob.error.invalid.month.nonNumeric",
+          "membersDob.error.invalid.year"
         )
       }
 
@@ -162,11 +160,9 @@ class MembersDobFormProviderSpec extends DateBehaviours {
           s"$formField.month" -> "",
         )
         val result = form.bind(data)
-        result.errors must have length 3
+        result.errors must have length 1
         result.errors.flatMap(_.messages) mustBe Seq(
-          "membersDob.error.missing.day",
-          "membersDob.error.missing.month",
-          "membersDob.error.missing.year"
+          "membersDob.error.missing.all"
         )
       }
 
@@ -182,7 +178,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         )
         val result = form.bind(data)
         result.errors must have length 1
-        result.errors.flatMap(_.messages) must contain("membersDob.error.invalidDate")
+        result.errors.flatMap(_.messages) must contain("membersDob.error.missing.real")
       }
 
       "supplied data represents a future date" in {
@@ -196,7 +192,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         )
         val result = form.bind(data)
         result.errors must have length 1
-        result.errors.flatMap(_.messages) must contain(messages("membersDob.error.futureDate"))
+        result.errors.flatMap(_.messages) must contain(messages("membersDob.error.missing.future"))
       }
 
       "supplied data represents a less than min date" in {
@@ -210,7 +206,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
         )
         val result = form.bind(data)
         result.errors must have length 1
-        result.errors.flatMap(_.messages) must contain(messages("membersDob.error.format.year"))
+        result.errors.flatMap(_.messages) must contain(messages("membersDob.error.invalid.year"))
       }
     }
   }

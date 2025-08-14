@@ -20,19 +20,35 @@ import com.google.inject.Inject
 import forms.mappings.Mappings
 import models._
 import play.api.data.Form
-import providers.DateTimeProvider
 
-class MembersDobFormProvider @Inject()(dateTimeProvider: DateTimeProvider) extends Mappings {
+import java.time.LocalDate
 
-  def apply(): Form[MembersDob] =
-    Form(
-      "dateOfBirth" -> dateOfBirth(dateTimeProvider)
-        .verifying(
-          firstError(
-            validDate("membersDob.error.invalidDate"),
-            futureDate("membersDob.error.futureDate", dateTimeProvider)
-          )
-        )
+class MembersDobFormProvider @Inject()() extends Mappings {
+
+  def apply(): Form[MembersDob] = Form[MembersDob](
+    "dateOfBirth" -> localDate(
+      dayInvalidKey = "membersDob.error.invalid.day",
+      monthInvalidKey = "membersDob.error.invalid.month",
+      yearInvalidKey = "membersDob.error.invalid.year",
+      monthTextInvalidKey = "membersDob.error.invalid.month.nonNumeric",
+      oneRequiredKey = "membersDob.error.missing.one",
+      twoRequiredKey = "membersDob.error.missing.two",
+      allRequiredKey = "membersDob.error.missing.all",
+      realDateKey = "membersDob.error.missing.real"
+    ).verifying(
+      minDate(MembersDobFormProvider.minDate, "membersDob.error.missing.past"),
+      maxDate(MembersDobFormProvider.maxDate, "membersDob.error.missing.future")
+    ).transform[MembersDob](
+      MembersDob(_),
+      _.dateOfBirth
     )
+  )
+}
+
+object MembersDobFormProvider {
+
+  val minDate: LocalDate = LocalDate.of(1900, 1, 1)
+
+  def maxDate: LocalDate = LocalDate.now()
 }
 

@@ -29,6 +29,8 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import views.html.CheckYourAnswersView
 
+import java.time.LocalDate
+
 class CheckYourAnswersViewSpec extends SpecBase {
 
   "view" - {
@@ -55,7 +57,7 @@ class CheckYourAnswersViewSpec extends SpecBase {
     val summaryList: Seq[SummaryListRow] = Seq(
       membersFirstNameRow(MemberDetails("Pearl", "Harvey")),
       membersLastNameRow(MemberDetails("Pearl", "Harvey")),
-      membersDobRow(MembersDob(1, 1, 2000)),
+      membersDobRow(MembersDob(LocalDate.of(2000, 1, 1))),
       membersNinoRow(MembersNino("AB123456A")),
       membersPsaCheckRefRow(MembersPsaCheckRef("PSA12345678A"))
     )

@@ -45,7 +45,7 @@ import utils.IdGenerator
 import views.html.ResultsView
 
 import java.time.format.DateTimeFormatter
-import java.time.{ZoneId, ZonedDateTime}
+import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import java.util.Locale
 import scala.concurrent.Future
 
@@ -55,7 +55,7 @@ class ResultsControllerSpec extends SpecBase {
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val memberDetails: MemberDetails = MemberDetails("Pearl", "Harvey")
-    val membersDob: MembersDob = MembersDob(1, 1, 2022)
+    val membersDob: MembersDob = MembersDob(LocalDate.of(2022, 1, 1))
     val membersNino: MembersNino = MembersNino("AB123456A")
     val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
 
