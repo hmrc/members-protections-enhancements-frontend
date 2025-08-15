@@ -62,15 +62,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   lazy val pspDashboardUrl: String = loadConfig("urls.pspDashboard")
   lazy val mpsRegistrationUrl: String = loadConfig("urls.mpsRegistration")
 
-  //Beta feedback config
-//  private def redirectUrl(implicit request: RequestHeader) = SafeRedirectUrl(host + request.uri).encodedUrl
-//  private val contactFormServiceIdentifier: String = appName
-//  private val contactFrontendUrl: String = configuration.get[Service]("microservice.services.contact-frontend").baseUrl
-
-//  def betaFeedbackUrl(implicit request: RequestHeader): String =
-//    s"$contactFrontendUrl/contact/beta-feedback" +
-//      s"?service=$contactFormServiceIdentifier&backUrl=$redirectUrl"
-
   val checkLtaGuidanceUrl: String = loadConfig("urls.guidance.checkLta")
 
   //Feature switches

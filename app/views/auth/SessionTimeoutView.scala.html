@@ -20,7 +20,8 @@
 
 @layout(
     pageTitle = titleNoForm(messages("sessionTimeout.title")),
-    timeout   = false
+    timeout   = false,
+    withReportTechnicalIssueLink = false
 ) {
     <h1 class="govuk-heading-l">@messages("sessionTimeout.heading")</h1>
 
