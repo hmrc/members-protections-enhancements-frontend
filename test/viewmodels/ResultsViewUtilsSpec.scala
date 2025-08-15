@@ -33,7 +33,7 @@ class ResultsViewUtilsSpec extends SpecBase {
     implicit val msg: Messages = messages(app)
 
     val recordType: String = "protection"
-    val recordName: String = "Individual Protection 2014"
+    val recordName: String = "Individual protection 2014"
     val recordId: String = "IndividualProtection2014"
 
     lazy val expectedResult: SummaryList = SummaryList(
