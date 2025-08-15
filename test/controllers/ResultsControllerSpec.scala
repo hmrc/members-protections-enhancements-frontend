@@ -216,8 +216,26 @@ class ResultsControllerSpec extends SpecBase {
     }
 
 
-    "must throw an exception when InternalError response received" in new Test {
+    "must throw an exception when InternalError response received for source MatchPerson" in new Test {
       setUpStubs(FORBIDDEN, errorResponse("FORBIDDEN", "MatchPerson"))
+      override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
+        .overrides(
+          inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
+          inject.bind(classOf[AuditService]).to(mockAuditService)
+        ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.ClearCacheController.defaultError().url
+        verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
+      }
+    }
+
+    "must throw an exception when InternalError response received for source RetrieveMpe" in new Test {
+      setUpStubs(FORBIDDEN, errorResponse("FORBIDDEN", "RetrieveMpe"))
       override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
         .overrides(
           inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
@@ -250,9 +268,9 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to default error page when received Mpe error with code NOT_FOUND" in new Test {
-      mockFailedAttemptCheck(checkResult = true)
-      mockHandleFailedAttempt(Redirect(routes.LockedOutController.onPageLoad()))
+    "must redirect to no results page when received Mpe error with code NOT_FOUND" in new Test {
+      mockFailedAttemptCheck()
+      mockHandleFailedAttempt(Redirect(routes.NoResultsController.onPageLoad()))
       setUpStubs(NOT_FOUND, errorResponse("NOT_FOUND", "RetrieveMpe"))
 
       running(application) {
@@ -260,7 +278,7 @@ class ResultsControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.ClearCacheController.defaultError().url
+        redirectLocation(result).value mustEqual routes.NoResultsController.onPageLoad().url
         verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
