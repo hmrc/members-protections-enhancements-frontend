@@ -33,7 +33,7 @@ class ResultsViewUtilsSpec extends SpecBase {
     implicit val msg: Messages = messages(app)
 
     val recordType: String = "protection"
-    val recordName: String = "Individual Protection 2014"
+    val recordName: String = "Individual protection 2014"
     val recordId: String = "IndividualProtection2014"
 
     lazy val expectedResult: SummaryList = SummaryList(
@@ -90,7 +90,7 @@ class ResultsViewUtilsSpec extends SpecBase {
 
     "should return the expected SummaryList model for an enhancement" in new Test {
       override val recordType: String = "enhancement"
-      override val recordName: String = "International Enhancement (transfer from a recognised overseas pension scheme)"
+      override val recordName: String = "Non-residence factor for a transfer from an overseas pension scheme"
       override val recordId: String = "InternationalEnhancementTransfer"
 
       val result: SummaryList = protectionRecordToSummaryList(
