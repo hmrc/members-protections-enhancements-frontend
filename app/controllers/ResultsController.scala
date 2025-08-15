@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.MembersResult
 import models.audit.{AuditDetail, AuditEvent}
-import models.errors.MatchPerson
+import models.errors.{MatchPerson, MpeError}
 import models.requests.{IdentifierRequest, PensionSchemeMemberRequest, UserDetails}
 import pages.ResultsPage
 import play.api.i18n.MessagesApi
@@ -84,8 +84,8 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                 )
               )
             }
-          case Left(error) if error.code == "NO_MATCH" || error.code == "EMPTY_DATA" =>
-            val (journey, searchAPIMatchResult): (String, String) = auditParams(error.code)
+          case Left(error) if error.code == "NO_MATCH" || error.code == "EMPTY_DATA" || error.code == "NOT_FOUND"=>
+            val (journey, searchAPIMatchResult): (String, String) = auditParams(error)
             auditSubmission("CompleteMemberSearch", routes.NoResultsController.onPageLoad().url,
               auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult)))(hc, ec, correlationId)
 
@@ -131,8 +131,11 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
       request = pensionSchemeMemberRequest,
       userDetails = userDetails)
 
-  private lazy val auditParams: String => (String, String) = {
-    case "NO_MATCH" => ("noMemberMatched", "NO MATCH")
-    case "EMPTY_DATA" => ("memberMatchedNoData", "MATCH")
+  private lazy val auditParams: MpeError => (String, String) = error => {
+    error.code match {
+      case "NO_MATCH" => ("noMemberMatched", "NO MATCH")
+      case "NOT_FOUND" if error.source == MatchPerson => ("noMemberMatched", "NO MATCH")
+      case _ => ("memberMatchedNoData", "MATCH")
+    }
   }
 }
