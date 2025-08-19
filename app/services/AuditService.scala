@@ -45,7 +45,7 @@ class AuditService @Inject()(auditConnector: AuditConnector, appConfig: Configur
     )
     logInfo("[AuditService][auditEvent]",
       s"Audit event :- extendedDataEvent.tags :: ${extendedDataEvent.tags} --  auditSource:: ${extendedDataEvent.auditSource}" +
-        s" --- auditType :: ${extendedDataEvent.auditType}")
+        s" --- detail :: ${extendedDataEvent.detail}")
     auditConnector.sendExtendedEvent(extendedDataEvent)
   }
 
