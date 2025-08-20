@@ -58,7 +58,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json._
 import play.api.mvc.{BodyParsers, Call, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.running
+import play.api.test.Helpers.{AUTHORIZATION, running}
 import providers.DateTimeProvider
 import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import viewmodels.formPage.FormPageViewModel
@@ -114,7 +114,8 @@ trait SpecBase
 
   protected def applicationBuilder(userAnswers: UserAnswers,
                                    identifierAction: IdentifierAction = fakePsaIdentifierAction,
-                                   checkLockoutResult: Option[Result] = None): GuiceApplicationBuilder =
+                                   checkLockoutResult: Option[Result] = None,
+                                   servicesConfig: Map[String, Any] = servicesConfig): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(servicesConfig)
       .overrides(
@@ -133,7 +134,7 @@ trait SpecBase
   def getFormPageViewModel(onSubmit: Call, backLinkUrl: String): FormPageViewModel =
     FormPageViewModel(onSubmit = onSubmit, backLinkUrl = Some(backLinkUrl))
 
-  def servicesConfig: Map[String, Any] = Map(
+  val servicesConfig: Map[String, Any] = Map(
     "microservice.services.mpe-backend.host"           -> wireMockHost,
     "microservice.services.mpe-backend.port"           -> wireMockPort,
     "microservice.services.bas-gateway-frontend.host"  -> wireMockHost,
@@ -162,6 +163,15 @@ trait SpecBase
     wireMockServer.stubFor(
       post(urlEqualTo(url))
         .withHeader("Content-Type", equalTo("application/json"))
+        .withRequestBody(equalTo(requestBody))
+        .willReturn(response)
+    )
+
+  def stubPostWithAuth(url: String, requestBody: String, response: ResponseDefinitionBuilder): StubMapping =
+    wireMockServer.stubFor(
+      post(urlEqualTo(url))
+        .withHeader("Content-Type", equalTo("application/json"))
+        .withHeader(AUTHORIZATION, equalTo("token"))
         .withRequestBody(equalTo(requestBody))
         .willReturn(response)
     )

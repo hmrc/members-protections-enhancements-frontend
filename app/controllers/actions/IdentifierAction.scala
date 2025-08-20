@@ -18,6 +18,7 @@ package controllers.actions
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.{Constants, FrontendAppConfig}
+import connectors.UserAllowListConnector
 import controllers.routes
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.requests.{IdentifierRequest, UserType}
@@ -37,6 +38,7 @@ trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent]
 
 @Singleton
 class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthConnector,
+                                              userAllowListConnector: UserAllowListConnector,
                                               config: FrontendAppConfig,
                                               playBodyParsers: BodyParsers.Default)
                                              (implicit override val executionContext: ExecutionContext)
@@ -50,9 +52,9 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
       .retrieve(internalId and affinityGroup and authorisedEnrolments) {
 
         case Some(internalId) ~ Some(affGroup) ~ IsPSA(psaId) if hasValidSession(hc) =>
-          block(AdministratorRequest(affGroup, internalId, psaId.value, UserType.PSA, request))
+          isValidUser(AdministratorRequest(affGroup, internalId, psaId.value, UserType.PSA, request), block)
         case Some(internalId) ~ Some(affGroup) ~ IsPSP(pspId) if hasValidSession(hc) =>
-          block(PractitionerRequest(affGroup, internalId, pspId.value, UserType.PSP, request))
+          isValidUser(PractitionerRequest(affGroup, internalId, pspId.value, UserType.PSP, request), block)
         case Some(_) ~ Some(_) ~ _ if !hasValidSession(hc) =>
           Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
         case _ =>
@@ -67,6 +69,17 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
         Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }
+
+  private def isValidUser[A](request: IdentifierRequest[A], block: IdentifierRequest[A] => Future[Result])
+                                 (implicit hc: HeaderCarrier): Future[Result] =
+    if(config.privateBetaEnabled) {
+      userAllowListConnector.check("psrId", request.userDetails.psrUserId) flatMap {
+        case true => block(request)
+        case false => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+      }
+    }else {
+      block(request)
+    }
 
   private val hasValidSession: HeaderCarrier => Boolean = hc => hc.sessionId match {
     case Some(_) => true

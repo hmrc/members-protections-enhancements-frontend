@@ -67,4 +67,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   //Feature switches
   val betaBannerEnabled: Boolean = configuration.get[Boolean]("feature-switch.betaBannerEnabled")
   val lockoutEnabled: Boolean = configuration.get[Boolean]("feature-switch.lockoutEnabled")
+  val privateBetaEnabled: Boolean = configuration.get[Boolean]("feature-switch.privateBetaEnabled")
+
+  // User allow list
+  val userAllowListService: Service = configuration.get[Service]("microservice.services.user-allow-list")
+  val internalAuthToken: String = configuration.get[String]("internal-auth.token")
 }
