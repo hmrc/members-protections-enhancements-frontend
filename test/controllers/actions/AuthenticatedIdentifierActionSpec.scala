@@ -18,12 +18,15 @@ package controllers.actions
 
 import base.SpecBase
 import config.{Constants, FrontendAppConfig}
+import connectors.UserAllowListConnector
 import controllers.routes
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.requests.UserDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc.{Action, AnyContent, BodyParsers, Result}
@@ -38,9 +41,14 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParsersFactory {
 
+  private val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  private val mockUserAllowListConnector: UserAllowListConnector = mock[UserAllowListConnector]
+  private val bodyParsers: BodyParsers.Default = mock[BodyParsers.Default]
+
   def authAction(appConfig: FrontendAppConfig) =
     new AuthenticatedIdentifierAction(
       authConnector = mockAuthConnector,
+      userAllowListConnector = mockUserAllowListConnector,
       config = appConfig,
       playBodyParsers = bodyParsers
     )(ExecutionContext.global)
@@ -71,9 +79,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
   val pspEnrolment: Enrolment =
     Enrolment(Constants.pspEnrolmentKey, Seq(EnrolmentIdentifier(Constants.pspIdKey, "21000002")), "Activated")
-
-  private val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  private val bodyParsers: BodyParsers.Default = mock[BodyParsers.Default]
 
   def setAuthValue(value: Option[String] ~ Option[AffinityGroup] ~ Enrolments): Unit =
     setAuthValue(Future.successful(value))
@@ -130,6 +135,29 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
           await(result)
         )
       }
+
+      "Redirect to Unauthorised page when user is valid but not in user allow list" in {
+
+        val servicesConfig: Map[String, Any] = Map(
+          "feature-switch.privateBetaEnabled"  -> true
+        )
+        val application: Application = new GuiceApplicationBuilder()
+          .configure(servicesConfig)
+          .overrides(
+            bind[IdentifierAction].toInstance(fakePsaIdentifierAction),
+            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(emptyUserAnswers))
+          ).build()
+
+        running(application) {
+          setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
+          when(mockUserAllowListConnector.check(any(), any())(any())).thenReturn(Future.successful(false))
+          val result = handler(application).run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
+
+          val expectedUrl = routes.UnauthorisedController.onPageLoad().url
+
+          redirectLocation(result) mustBe Some(expectedUrl)
+        }
+      }
     }
 
     "return an IdentifierRequest" - {
@@ -153,6 +181,29 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         (contentAsJson(result) \ "psaId").asOpt[String] mustBe None
         (contentAsJson(result) \ "pspId").asOpt[String] mustBe Some("21000002")
         (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
+      }
+
+      "user is valid and exists in user allow list" in {
+
+        val servicesConfig: Map[String, Any] = Map(
+          "feature-switch.privateBetaEnabled"  -> true
+        )
+        val application: Application = new GuiceApplicationBuilder()
+          .configure(servicesConfig)
+          .overrides(
+            bind[IdentifierAction].toInstance(fakePsaIdentifierAction),
+            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(emptyUserAnswers))
+          ).build()
+
+        running(application) {
+          setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
+          when(mockUserAllowListConnector.check(any(), any())(any())).thenReturn(Future.successful(true))
+          val result = handler(application).run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
+
+          status(result) mustBe OK
+          (contentAsJson(result) \ "psaId").asOpt[String] mustBe Some("A2100001")
+          (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
+        }
       }
     }
 
