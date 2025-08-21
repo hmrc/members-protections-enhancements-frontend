@@ -36,7 +36,7 @@ class UserAllowListConnector @Inject() (
                                        )(implicit ec: ExecutionContext) {
 
   def check(feature: String, value: String)(implicit hc: HeaderCarrier): Future[Boolean] =
-    httpClient.post(url"${config.userAllowListService.baseUrl}/user-allow-list/$feature/check")
+    httpClient.post(url"${config.userAllowListService.baseUrl}/user-allow-list/${config.appName}/$feature/check")
       .setHeader("Authorization" -> config.internalAuthToken)
       .withBody(Json.toJson(CheckRequest(value)))
       .execute[HttpResponse]
