@@ -23,7 +23,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.UnauthorisedView
+import views.html.ErrorTemplate
 
 import java.time.LocalDate
 
@@ -60,10 +60,11 @@ class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
 
       val result = route(application, request).value
 
-      val view = application.injector.instanceOf[UnauthorisedView]
+      val view = application.injector.instanceOf[ErrorTemplate]
 
       status(result) mustEqual OK
-      contentAsString(result) mustEqual view()(request, messages(application)).toString
+      contentAsString(result) mustEqual view("",
+        messages(application).messages("journeyRecovery.startAgain.heading"), "")(request, messages(application)).toString
     }
   }
 }
