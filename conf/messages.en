@@ -51,6 +51,7 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+unauthorised.guidance = This service is currently in private beta and available only for the allowed list of users.
 
 lockedOut.title = You''ve been locked out
 lockedOut.heading = You''ve been locked out

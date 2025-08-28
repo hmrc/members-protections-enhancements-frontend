@@ -18,7 +18,6 @@ package repositories
 
 import config.FrontendAppConfig
 import models.userAnswers.{EncryptedUserAnswers, UserAnswers}
-import org.mongodb.scala.SingleObservableFuture
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import uk.gov.hmrc.mongo.MongoComponent

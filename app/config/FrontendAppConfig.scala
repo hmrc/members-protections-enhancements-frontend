@@ -18,6 +18,9 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
+import play.api.mvc.RequestHeader
+import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative, RedirectUrl}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration) {
@@ -57,7 +60,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   private val backendUrl: String = getServiceBaseUrl("microservice.services.mpe-backend")
   val checkAndRetrieveUrl = s"$backendUrl/${loadConfig("urls.checkAndRetrieve")}"
 
-
   lazy val psaOverviewUrl: String = loadConfig("urls.psaOverview")
   lazy val pspDashboardUrl: String = loadConfig("urls.pspDashboard")
   lazy val mpsRegistrationUrl: String = loadConfig("urls.mpsRegistration")
@@ -72,4 +74,18 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   // User allow list
   val userAllowListService: Service = configuration.get[Service]("microservice.services.user-allow-list")
   val internalAuthToken: String = configuration.get[String]("internal-auth.token")
+
+  //Beta feedback config
+  private val allowedRedirectUrls: Seq[String] = configuration.get[Seq[String]]("urls.allowedRedirects")
+  private val redirectUrlPolicy = AbsoluteWithHostnameFromAllowlist(allowedRedirectUrls.toSet) | OnlyRelative
+
+  private val contactFormServiceIdentifier: String = appName
+  private val contactFrontendUrl: String = configuration.get[Service]("microservice.services.contact-frontend").baseUrl
+
+  def betaFeedbackUrl(implicit request: RequestHeader): String = {
+    val redirectUrl: String = RedirectUrl(host + request.uri).get(redirectUrlPolicy).encodedUrl
+    s"$contactFrontendUrl/contact/beta-feedback" +
+      s"?service=$contactFormServiceIdentifier&backUrl=$redirectUrl"
+  }
+
 }

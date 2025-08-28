@@ -21,12 +21,12 @@
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("journeyRecovery.startAgain.title")),
-    timeout   = false,
-    withReportTechnicalIssueLink = false
+pageTitle = titleNoForm(messages("unauthorised.title")),
+timeout   = false,
+showSignOut  = false
 ) {
 
-<h1 class="govuk-heading-l">@messages("journeyRecovery.startAgain.heading")</h1>
+<h1 class="govuk-heading-xl">@messages("unauthorised.heading")</h1>
 
-<p class="govuk-body">@messages("error.try.again") <a class="govuk-link" href="https://www.gov.uk/find-hmrc-contacts/pension-schemes-general-enquiries">@messages("error.contact")</a></p>
+<p class="govuk-body">@messages("unauthorised.guidance")</p>
 }

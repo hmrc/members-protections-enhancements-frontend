@@ -17,21 +17,22 @@
 package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.UnauthorisedView
+import views.html.ErrorTemplate
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class ClearCacheController @Inject()(val controllerComponents: MessagesControllerComponents,
+class ClearCacheController @Inject()(override val messagesApi: MessagesApi,
+                                     val controllerComponents: MessagesControllerComponents,
                                      identify: IdentifierAction,
                                      checkLockout: CheckLockoutAction,
                                      getData: DataRetrievalAction,
                                      sessionCacheService: SessionCacheService,
-                                     view: UnauthorisedView)(implicit ec: ExecutionContext)
+                                     view: ErrorTemplate)(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async { implicit request =>
@@ -49,7 +50,7 @@ class ClearCacheController @Inject()(val controllerComponents: MessagesControlle
       .clear(request.userAnswers)
       .map {
         _ =>
-          Ok(view())
+          Ok(view(heading = request.messages(messagesApi).messages("journeyRecovery.startAgain.heading")))
       }
   }
 }
