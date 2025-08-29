@@ -102,7 +102,7 @@
     ),
     banners = Banners(
         displayHmrcBanner = showHmrcBanner,
-        phaseBanner = if (appConfig.betaBannerEnabled) Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)) else None
+        phaseBanner = if (appConfig.betaBannerEnabled) Some(standardBetaBanner(url = appConfig.contactFrontendUrl)) else None
     ),
     backLink = if (showBackLink && backLinkUrl != None) Some(BackLink.withDefaultText(backLinkUrl.get)) else None
 ))(content)
