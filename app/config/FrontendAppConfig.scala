@@ -80,7 +80,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   private val redirectUrlPolicy = AbsoluteWithHostnameFromAllowlist(allowedRedirectUrls.toSet) | OnlyRelative
 
   private val contactFormServiceIdentifier: String = appName
-  private val contactFrontendUrl: String = configuration.get[Service]("microservice.services.contact-frontend").baseUrl
+  private val contactFrontendUrl: String = getServiceBaseUrl("microservice.services.contact-frontend")
 
   def betaFeedbackUrl(implicit request: RequestHeader): String = {
     val redirectUrl: String = RedirectUrl(host + request.uri).get(redirectUrlPolicy).encodedUrl
