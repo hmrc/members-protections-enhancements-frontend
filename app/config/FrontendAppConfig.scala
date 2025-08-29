@@ -18,9 +18,6 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.api.mvc.RequestHeader
-import uk.gov.hmrc.play.bootstrap.binders.{AbsoluteWithHostnameFromAllowlist, OnlyRelative, RedirectUrl}
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
 
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration) {
@@ -76,16 +73,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val internalAuthToken: String = configuration.get[String]("internal-auth.token")
 
   //Beta feedback config
-  private val allowedRedirectUrls: Seq[String] = configuration.get[Seq[String]]("urls.allowedRedirects")
-  private val redirectUrlPolicy = AbsoluteWithHostnameFromAllowlist(allowedRedirectUrls.toSet) | OnlyRelative
-
-  private val contactFormServiceIdentifier: String = appName
-  private val contactFrontendUrl: String = getServiceBaseUrl("microservice.services.contact-frontend")
-
-  def betaFeedbackUrl(implicit request: RequestHeader): String = {
-    val redirectUrl: String = RedirectUrl(host + request.uri).get(redirectUrlPolicy).encodedUrl
-    s"$contactFrontendUrl/contact/beta-feedback" +
-      s"?service=$contactFormServiceIdentifier&backUrl=$redirectUrl"
-  }
+  val contactFrontendUrl: String = s"${loadConfig("urls.betaFeedbackUrl")}/?service=$appName"
 
 }
