@@ -18,9 +18,11 @@ package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.i18n.{I18nSupport, MessagesApi}
+import models.CorrelationId
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.Logging
 import views.html.ErrorTemplate
 
 import javax.inject.Inject
@@ -33,24 +35,36 @@ class ClearCacheController @Inject()(override val messagesApi: MessagesApi,
                                      getData: DataRetrievalAction,
                                      sessionCacheService: SessionCacheService,
                                      view: ErrorTemplate)(implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport {
+  extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async { implicit request =>
+    val methodLoggingContext: String = "onPageLoad"
+    implicit val correlationId: CorrelationId = request.correlationId
+    val infoLogger = infoLog(methodLoggingContext, correlationIdLogString(correlationId))
+
+    infoLogger("Attempting to clear user session data, and redirect to start of journey")
 
     sessionCacheService
       .clear(request.userAnswers)
       .map {
         _ =>
+          infoLogger("Successfully cleared user session data. Redirecting to start of journey")
           Redirect(routes.WhatYouWillNeedController.onPageLoad().url)
       }
   }
 
   def defaultError(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async { implicit request =>
+    val methodLoggingContext: String = "defaultError"
+    implicit val correlationId: CorrelationId = request.correlationId
+    val infoLogger = infoLog(methodLoggingContext, correlationIdLogString(correlationId))
+
+    infoLogger("Attempting to clear user session data, and serve 'unauthorised' view")
+
     sessionCacheService
       .clear(request.userAnswers)
-      .map {
-        _ =>
-          Ok(view(heading = request.messages(messagesApi).messages("journeyRecovery.startAgain.heading")))
+      .map { _ =>
+        infoLogger("Successfully cleared user session data. Attempting to serve 'unauthorised' view")
+        Ok(view(heading = request.messages(messagesApi).messages("journeyRecovery.startAgain.heading")))
       }
   }
 }

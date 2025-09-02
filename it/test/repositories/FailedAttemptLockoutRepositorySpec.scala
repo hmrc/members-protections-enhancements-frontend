@@ -19,7 +19,7 @@ package repositories
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.mongo.CacheUserDetails.mongoFormat
-import models.requests.IdentifierRequest
+import models.requests.{IdentifierRequest, RequestWithCorrelationId}
 import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.PSA
 import org.mockito.Mockito.when
@@ -75,7 +75,7 @@ class FailedAttemptLockoutRepositorySpec
     userId = "userId",
     psaId = "psaId",
     psrUserType = PSA,
-    request = FakeRequest()
+    request = RequestWithCorrelationId(FakeRequest(), "X-ID")
   )
 
   val cacheUserDetails: CacheUserDetails = CacheUserDetails(
@@ -127,7 +127,7 @@ class FailedAttemptLockoutRepositorySpec
     "must successfully retrieve a lockout expiry when one exists" in {
       val result: Future[Option[Instant]] =
         lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ =>
-          lockoutRepo.getLockoutExpiry("psaId")
+          lockoutRepo.getLockoutExpiry("psaId")("X-ID")
         )
 
       await(result) mustBe Some(instantTime)

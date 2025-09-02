@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package models
 
-import models.requests.{DataRequest, IdentifierRequest}
-import models.userAnswers.UserAnswers
+import scala.language.implicitConversions
 
-import scala.concurrent.{ExecutionContext, Future}
+case class CorrelationId(value: String)
 
-class FakeDataRetrievalAction(dataToReturn: UserAnswers) extends DataRetrievalAction {
-
-  override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] =
-    Future(DataRequest(request, request.userDetails, dataToReturn, request.correlationId))
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+object CorrelationId {
+  implicit def correlationIdConverter(str: String): CorrelationId = CorrelationId(str)
 }

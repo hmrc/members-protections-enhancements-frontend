@@ -16,10 +16,13 @@
 
 package utils
 
-import models.errors.{MatchPerson, MpeError}
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.JsonMappingException
+import models.CorrelationId
+import models.errors.{ErrorWrapper, MatchPerson, MpeError}
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
-import models.response.{ProtectionRecord, ProtectionRecordDetails}
+import models.response.{ProtectionRecord, ProtectionRecordDetails, ResponseWrapper}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
@@ -43,16 +46,25 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
         |}""".stripMargin
 
     val response = responseFor(BAD_REQUEST, body)
-    failure()(response) shouldBe MpeError("BAD_REQUEST", "message", None, MatchPerson)
+    failure()(response).error shouldBe MpeError("BAD_REQUEST", "message", None, MatchPerson)
   }
 
-  "handleResponse" should "throw JsResultException for invalid json" in {
+  "handleResponse" should "throw JsonMappingException for empty json" in {
+    val response = HttpResponse(OK, "")
+    a[JsonMappingException] should be thrownBy success()(response)
+  }
+
+  "handleResponse" should "throw JsonParseException for invalid json" in {
+    val response = HttpResponse(OK, "{foo}")
+    a[JsonParseException] should be thrownBy success()(response)
+  }
+
+  "handleResponse" should "throw JsResultException for valid json with incorrect format" in {
     val response = HttpResponse(OK, "{}")
     a[JsResultException] should be thrownBy success()(response)
   }
 
   "handleResponse" should "return a valid response" in {
-
     val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
       ProtectionRecord(
         protectionReference = Some("some-id"),
@@ -82,7 +94,7 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
         |}""".stripMargin
 
     val response = HttpResponse(OK, res)
-    testModel shouldBe success()(response)
+    testModel shouldBe success()(response).responseData
   }
 
   it should "transform FORBIDDEN into MpeError" in {
@@ -95,7 +107,7 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
         |}""".stripMargin
 
     val response = responseFor(FORBIDDEN, body)
-    failure()(response) shouldBe MpeError("FORBIDDEN", "message", None, MatchPerson)
+    failure()(response).error shouldBe MpeError("FORBIDDEN", "message", None, MatchPerson)
   }
 
   it should "transform INTERNAL_SERVER_ERROR into MpeError" in {
@@ -107,18 +119,24 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
         | "source": "MatchPerson"
         |}""".stripMargin
     val response = responseFor(INTERNAL_SERVER_ERROR, body)
-    failure()(response) shouldBe MpeError("INTERNAL_SERVER_ERROR", "message", None, MatchPerson)
+    failure()(response).error shouldBe MpeError("INTERNAL_SERVER_ERROR", "message", None, MatchPerson)
   }
 }
 
 object HttpResponseHelperSpec {
+  implicit val correlationId: CorrelationId = "X-ID"
+  class DummyClass extends Logging with HttpResponseHelper
 
-  def failure(): HttpResponse => MpeError = res => {
-    new HttpResponseHelper {}.handleResponse[MpeError](res.json)
+  def failure(): HttpResponse => ErrorWrapper = res => {
+    new DummyClass {}.handleResponse[MpeError, ErrorWrapper](
+      res, ErrorWrapper.wrap, None, correlationId
+    )
   }
 
-  def success(): HttpResponse => ProtectionRecordDetails = res => {
-    new HttpResponseHelper {}.handleResponse[ProtectionRecordDetails](res.json)
+  def success(): HttpResponse => ResponseWrapper[ProtectionRecordDetails] = res => {
+    new DummyClass {}.handleResponse[ProtectionRecordDetails, ResponseWrapper[ProtectionRecordDetails]](
+      res, ResponseWrapper.wrap, None, correlationId
+    )
   }
 
   def responseFor(status: Int, response: String): HttpResponse = HttpResponse(status, response)

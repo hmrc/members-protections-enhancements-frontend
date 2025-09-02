@@ -19,15 +19,19 @@ package controllers.auth
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.Logging
 import views.html.auth.SessionTimeoutView
 
 import javax.inject.Inject
 
 class SessionTimeoutController @Inject()(val controllerComponents: MessagesControllerComponents,
                                          view: SessionTimeoutView)
-  extends FrontendBaseController with I18nSupport {
+  extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
+    val correlationId: String = request.headers.get("correlationId").getOrElse("N/A")
+    logger.info("onPageLoad", "Attempting to serve 'session timeout' view", correlationIdLogString(correlationId))
+
     Ok(view())
   }
 }

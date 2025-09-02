@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package controllers.actions
+import models.errors.ErrorWrapper
+import models.response.{ProtectionRecordDetails, ResponseWrapper}
 
-import models.requests.{DataRequest, IdentifierRequest}
-import models.userAnswers.UserAnswers
+import scala.concurrent.Future
 
-import scala.concurrent.{ExecutionContext, Future}
-
-class FakeDataRetrievalAction(dataToReturn: UserAnswers) extends DataRetrievalAction {
-
-  override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] =
-    Future(DataRequest(request, request.userDetails, dataToReturn, request.correlationId))
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+package object models {
+  type ResultType = Future[Either[ErrorWrapper, ResponseWrapper[ProtectionRecordDetails]]]
 }

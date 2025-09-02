@@ -16,6 +16,7 @@
 
 package services
 
+import models.CorrelationId
 import models.audit.AuditEvent
 import play.api.Configuration
 import play.api.libs.json.{Json, Writes}
@@ -31,11 +32,19 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AuditService @Inject()(auditConnector: AuditConnector, appConfig: Configuration) extends Logging {
-
-  def auditEvent[T](event: AuditEvent[T])(implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String, writer: Writes[T]): Future[AuditResult] = {
+  def auditEvent[T](event: AuditEvent[T])
+                   (implicit hc: HeaderCarrier,
+                    ec: ExecutionContext,
+                    correlationId: CorrelationId,
+                    writer: Writes[T]): Future[AuditResult] = {
+    val methodLoggingContext: String = "auditEvent"
 
     val eventTags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags() +
-      ("transactionName" -> event.transactionName, "correlationId" -> correlationId, "path" -> event.path)
+      (
+        "transactionName" -> event.transactionName,
+        "correlationId" -> correlationId.value,
+        "path" -> event.path
+      )
 
     val extendedDataEvent = ExtendedDataEvent(
       auditSource = AppName.fromConfiguration(appConfig),
@@ -43,9 +52,14 @@ class AuditService @Inject()(auditConnector: AuditConnector, appConfig: Configur
       detail = Json.toJson(event.detail),
       tags = eventTags
     )
-    logInfo("[AuditService][auditEvent]",
-      s"Audit event :- extendedDataEvent.tags :: ${extendedDataEvent.tags} --  auditSource:: ${extendedDataEvent.auditSource}" +
-        s" --- detail :: ${extendedDataEvent.detail}")
+
+    logger.info(
+      secondaryContext = methodLoggingContext,
+      message = s"Audit event :- extendedDataEvent.tags :: ${extendedDataEvent.tags} --  " +
+        s"auditSource:: ${extendedDataEvent.auditSource} --- " +
+        s"detail :: ${extendedDataEvent.detail}",
+      dataLog = correlationIdLogString(correlationId)
+    )
     auditConnector.sendExtendedEvent(extendedDataEvent)
   }
 

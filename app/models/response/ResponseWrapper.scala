@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package models.response
 
-import models.requests.{DataRequest, IdentifierRequest}
-import models.userAnswers.UserAnswers
+import models.CorrelationId
 
-import scala.concurrent.{ExecutionContext, Future}
+case class ResponseWrapper[+A](correlationId: CorrelationId, responseData: A) {
+  def map[B](f: A => B): ResponseWrapper[B] = ResponseWrapper(correlationId, f(responseData))
+}
 
-class FakeDataRetrievalAction(dataToReturn: UserAnswers) extends DataRetrievalAction {
-
-  override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] =
-    Future(DataRequest(request, request.userDetails, dataToReturn, request.correlationId))
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+object ResponseWrapper {
+  def wrap[A](data: A)(implicit correlationId: CorrelationId): ResponseWrapper[A] =
+    ResponseWrapper(correlationId, data)
 }

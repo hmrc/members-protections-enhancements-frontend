@@ -17,6 +17,7 @@
 package services
 
 import base.SpecBase
+import models.CorrelationId
 import models.audit.AuditEvent
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -38,7 +39,7 @@ class AuditServiceSpec extends SpecBase {
     val mockAuditConnector: AuditConnector = mock[AuditConnector]
     val auditType: String = "auditType"
     val transactionName = "transactionName"
-    implicit val correlationId: String = "X-123"
+    implicit val correlationId: CorrelationId = "X-123"
     private val mockConfig: Configuration          = mock[Configuration]
 
     when(mockConfig.get[String]("appName")).thenReturn(mockedAppName)

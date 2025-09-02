@@ -20,11 +20,11 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
-import play.api.Logging
 import play.api.mvc.Results._
 import play.api.mvc._
 import repositories.SessionRepository
 import services.FailedAttemptService
+import utils.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,27 +37,27 @@ class CheckLockoutActionImpl @Inject()(val config: FrontendAppConfig,
                                        sessionRepository: SessionRepository)
                                       (implicit override val executionContext: ExecutionContext)
   extends CheckLockoutAction with Logging {
-
-  val classLoggingContext: String = "CheckLockoutAction"
-
   override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] = {
     val methodLoggingContext: String = "filter"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+    val warnLogger: (String, Option[Throwable]) => Unit = warnLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
 
     if (config.lockoutEnabled) {
-      logger.info(s"$fullLoggingContext - Checking to see to user has been locked out for failed attempts")
+      infoLogger("Checking to see to user has been locked out for failed attempts")
       failedAttemptService.checkForLockout()(request, executionContext).flatMap {
         case false =>
-          logger.info(s"$fullLoggingContext - User has not been locked out. Continuing with request")
+          infoLogger("User has not been locked out. Continuing with action")
           Future.successful(None)
         case true =>
-          logger.warn(s"$fullLoggingContext - User has been locked out. Redirecting to lockout page")
+          warnLogger("User has been locked out. Redirecting to lockout page", None)
           sessionRepository
             .clear(request.userDetails.userId)
             .map(_ => Some(Redirect(routes.LockedOutController.onPageLoad())))
       }
     } else {
-      logger.info(s"$fullLoggingContext - Lockout service disabled")
+      infoLogger(s"Lockout service disabled")
       Future.successful(None)
     }
   }

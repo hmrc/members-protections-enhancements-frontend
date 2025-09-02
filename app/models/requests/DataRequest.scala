@@ -16,6 +16,7 @@
 
 package models.requests
 
+import models.CorrelationId
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.userAnswers.UserAnswers
 import play.api.mvc.{Request, WrappedRequest}
@@ -23,10 +24,10 @@ import play.api.mvc.{Request, WrappedRequest}
 case class DataRequest[A] (request: Request[A],
                            userDetails: UserDetails,
                            userAnswers: UserAnswers,
-                           correlationId: Option[String] = None) extends WrappedRequest[A](request) {
+                           correlationId: CorrelationId) extends WrappedRequest[A](request) {
   def toIdentifierRequest: IdentifierRequest[A] = userDetails.psrUserType match {
-    case UserType.PSA => new AdministratorRequest[A](userDetails, request)
-    case UserType.PSP => new PractitionerRequest[A](userDetails, request)
+    case UserType.PSA => new AdministratorRequest[A](request, userDetails, correlationId)
+    case UserType.PSP => new PractitionerRequest[A](request, userDetails, correlationId)
   }
 }
 

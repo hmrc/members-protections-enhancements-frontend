@@ -18,7 +18,7 @@ package repositories
 
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
-import models.requests.IdentifierRequest
+import models.requests.{IdentifierRequest, RequestWithCorrelationId}
 import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.PSA
 import org.mockito.Mockito.when
@@ -67,7 +67,7 @@ class FailedAttemptCountRepositorySpec
     userId = "userId",
     psaId = "psaId",
     psrUserType = PSA,
-    request = FakeRequest()
+    request = RequestWithCorrelationId(FakeRequest(), "X-ID")
   )
 
   "addFailedAttempt" - {

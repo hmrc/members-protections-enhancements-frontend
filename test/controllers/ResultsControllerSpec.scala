@@ -58,6 +58,7 @@ class ResultsControllerSpec extends SpecBase {
     val membersDob: MembersDob = MembersDob(LocalDate.of(2022, 1, 1))
     val membersNino: MembersNino = MembersNino("AB123456A")
     val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
+    val correlationId: CorrelationId = "X-123"
 
     val mockService: FailedAttemptService = mock[FailedAttemptService]
     val checkLockoutResult: Option[Result] = None
@@ -120,7 +121,7 @@ class ResultsControllerSpec extends SpecBase {
     def setUpStubs(status: Int, response: String): StubMapping = stubPost(
       url = checkAndRetrieveUrl,
       requestBody = Json.toJson(pensionSchemeMemberRequest).toString(),
-      response = aResponse().withStatus(status).withBody(response)
+      response = aResponse().withStatus(status).withBody(response).withHeader("correlationId", correlationId.value)
     )
 
     val response: String =
@@ -182,7 +183,6 @@ class ResultsControllerSpec extends SpecBase {
           testModel
         )(request, messages(application)).toString
 
-        verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
@@ -210,7 +210,6 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.NoResultsController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
@@ -263,7 +262,6 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.LockedOutController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
@@ -279,7 +277,6 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.NoResultsController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
@@ -296,7 +293,6 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
       }
     }
 

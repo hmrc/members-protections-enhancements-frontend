@@ -19,6 +19,7 @@ package controllers
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import utils.Logging
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -28,10 +29,17 @@ class KeepAliveController @Inject()(val controllerComponents: MessagesController
                                     checkLockout: CheckLockoutAction,
                                     getData: DataRetrievalAction,
                                     sessionRepository: SessionRepository)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
-  def keepAlive(): Action[AnyContent] = handle { implicit request =>
+  def keepAlive(): Action[AnyContent] = handle("keepAlive") { implicit request =>
+    val methodLoggingContext: String = "keepAlive"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
 
-    sessionRepository.keepAlive(request.userAnswers.id).map(_ => Ok)
+    infoLogger("Attempting to keep user session alive")
+
+    sessionRepository.keepAlive(request.userAnswers.id).map(_ => {
+      infoLogger("Successfully updated user session expiry. Returning success status")
+      Ok
+    })
   }
 }

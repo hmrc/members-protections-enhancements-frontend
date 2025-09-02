@@ -16,6 +16,7 @@
 
 package generators
 
+import models.CorrelationId
 import models.PensionSchemeId.{PsaId, PspId}
 import models.requests.{IdentifierRequest, UserDetails}
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
@@ -28,23 +29,27 @@ trait ModelGenerators extends Generators {
 
   val psaIdGen: Gen[PsaId] = nonEmptyString.map(PsaId)
   val pspIdGen: Gen[PspId] = nonEmptyString.map(PspId)
+  val correlationIdGen: Gen[CorrelationId] = nonEmptyString.map(CorrelationId(_))
 
   def administratorRequestGen[A](request: Request[A]): Gen[AdministratorRequest[A]] = {
     for {
       userId <- nonEmptyString
       psaId <- psaIdGen
-    } yield AdministratorRequest(UserDetails(PSA, psaId.value, userId, AffinityGroup.Individual), request)
+      correlationId <- correlationIdGen
+    } yield AdministratorRequest(request, UserDetails(PSA, psaId.value, userId, AffinityGroup.Individual), correlationId)
   }
 
   def practitionerRequestGen[A](request: Request[A]): Gen[PractitionerRequest[A]] = {
     for {
       userId <- nonEmptyString
       pspId <- pspIdGen
-    } yield PractitionerRequest(UserDetails(PSA, pspId.value, userId, AffinityGroup.Individual), request)
+      correlationId <- correlationIdGen
+    } yield PractitionerRequest(request, UserDetails(PSA, pspId.value, userId, AffinityGroup.Individual), correlationId)
   }
 
-  def identifierRequestGen[A](request: Request[A]): Gen[IdentifierRequest[A]] =
-    Gen.oneOf(administratorRequestGen[A](request), practitionerRequestGen[A](request))
-
+  def identifierRequestGen[A](request: Request[A]): Gen[IdentifierRequest[A]] = Gen.oneOf(
+    administratorRequestGen[A](request),
+    practitionerRequestGen[A](request)
+  )
 
 }

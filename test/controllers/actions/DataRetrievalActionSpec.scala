@@ -17,9 +17,10 @@
 package controllers.actions
 
 import base.SpecBase
+import models.CorrelationId
 import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.PSA
-import models.requests.{DataRequest, IdentifierRequest}
+import models.requests.{DataRequest, IdentifierRequest, RequestWithCorrelationId}
 import models.userAnswers.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
@@ -40,18 +41,22 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
   }
 
   "Data Retrieval Action" - {
-
     val userAnswers = UserAnswers("id", lastUpdated = Instant.now())
+    implicit val correlationId: CorrelationId = "X-ID"
 
     "when there is no data in the cache" - {
-
       "must set userAnswers to 'None' in the request" in {
-
         val sessionRepository = mock[SessionRepository]
         when(sessionRepository.get(any())) thenReturn Future(None)
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id","A2100001", PSA, FakeRequest())).futureValue
+        val result = action.callTransform(AdministratorRequest.apply(
+          affGroup = AffinityGroup.Individual,
+          userId = "id",
+          psaId = "A2100001",
+          psrUserType = PSA,
+          request = RequestWithCorrelationId(FakeRequest(), correlationId)
+        )).futureValue
 
         result.userAnswers.data mustBe JsObject.empty
         result.userAnswers.id mustBe "id"
@@ -59,15 +64,18 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
     }
 
     "when there is data in the cache" - {
-
       "must build a userAnswers object and add it to the request" in {
-
-
         val sessionRepository = mock[SessionRepository]
         when(sessionRepository.get(any())) thenReturn Future(Some(userAnswers))
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id","A2100001", PSA, FakeRequest())).futureValue
+        val result = action.callTransform(AdministratorRequest.apply(
+          affGroup = AffinityGroup.Individual,
+          userId = "id",
+          psaId = "A2100001",
+          psrUserType = PSA,
+          request = RequestWithCorrelationId(FakeRequest(), correlationId)
+        )).futureValue
 
         result.userAnswers mustBe userAnswers
       }

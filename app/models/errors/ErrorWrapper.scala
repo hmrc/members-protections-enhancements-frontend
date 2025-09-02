@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package models.errors
 
-import models.requests.{DataRequest, IdentifierRequest}
-import models.userAnswers.UserAnswers
+import models.CorrelationId
 
-import scala.concurrent.{ExecutionContext, Future}
+case class ErrorWrapper(correlationId: CorrelationId, error: MpeError)
 
-class FakeDataRetrievalAction(dataToReturn: UserAnswers) extends DataRetrievalAction {
-
-  override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] =
-    Future(DataRequest(request, request.userDetails, dataToReturn, request.correlationId))
-
-  override protected implicit val executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+object ErrorWrapper {
+  def wrap(err: MpeError)(implicit correlationId: CorrelationId): ErrorWrapper = ErrorWrapper(correlationId, err)
 }

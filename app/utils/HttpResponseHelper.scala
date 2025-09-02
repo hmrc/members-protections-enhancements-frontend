@@ -16,16 +16,71 @@
 
 package utils
 
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.JsonMappingException
+import models.CorrelationId
 import play.api.libs.json._
 import uk.gov.hmrc.http._
 
-trait HttpResponseHelper extends HttpErrorFunctions {
+trait HttpResponseHelper extends HttpErrorFunctions {_: Logging =>
 
-  implicit val httpResponseReads: HttpReads[HttpResponse] = (method: String, url: String, response: HttpResponse) => response
+  implicit def httpResponseReads: HttpReads[HttpResponse] = (method: String,
+                                                             url: String,
+                                                             response: HttpResponse) => {
+    logger.info(
+      secondaryContext = "httpResponseReads",
+      message = s"HTTP call with method: $method, url: $url completed with status: ${response.status}",
+      dataLog = correlationIdLogString(CorrelationId(response.header("correlationId").getOrElse("N/A")))
+    )
+    response
+  }
 
-  def handleResponse[A](response: JsValue)(implicit reads: Reads[A]): A =
-    response.validate[A] match {
-      case JsSuccess(value, _) => value
-      case JsError(errors) => throw JsResultException(errors)
+  def handleResponse[A, F](response: HttpResponse, wrap: A => F, context: Option[String], correlationId: CorrelationId)
+                          (implicit reads: Reads[A]): F = {
+    val methodLoggingContext: String = "handleResponse"
+
+    val infoLogger: String => Unit = infoLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(correlationId), extraContext = context
+    )
+
+    val errorLogger: (String, Option[Throwable]) => Unit = errorLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(correlationId),
+      extraContext = context
+    )
+
+    infoLogger("Attempting to parse HTTP response body to JSON")
+
+    try {
+      val json: JsValue = Json.parse(response.body)
+      infoLogger("Successfully parsed HTTP response body to JSON. Attempting to parse JSON to expected format")
+
+      json.validate[A] match {
+        case JsSuccess(value, _) =>
+          infoLogger("Successfully parsed response body JSON to expected format. Returning parsed data")
+          wrap(value)
+        case JsError(errors) =>
+          val err: JsResultException = JsResultException(errors)
+          errorLogger(
+            s"Failed to parse response body JSON to expected format with error: ${err.getMessage}",
+            Some(err)
+          )
+          throw err
+      }
+    } catch {
+      case ex: JsonParseException =>
+        errorLogger(
+          s"Failed to parse response body string to JSON with error: ${ex.getMessage}",
+          Some(ex)
+        )
+        throw ex
+      case ex: JsonMappingException =>
+        errorLogger(
+          s"Failed to parse response body string to JSON with error: ${ex.getMessage}",
+          Some(ex)
+        )
+        throw ex
     }
+  }
 }

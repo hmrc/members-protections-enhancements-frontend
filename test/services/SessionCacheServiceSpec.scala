@@ -17,6 +17,7 @@
 package services
 
 import base.SpecBase
+import models.CorrelationId
 import models.userAnswers.UserAnswers
 import org.mockito.ArgumentMatchers.{any, eq => meq}
 import org.mockito.Mockito.{reset, times, verify, when}
@@ -28,8 +29,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class SessionCacheServiceSpec extends SpecBase with ScalaCheckPropertyChecks {
-
   implicit val hc: HeaderCarrier = HeaderCarrier()
+  implicit val correlationId: CorrelationId = "X-ID"
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
   val service = new SessionCacheServiceImpl(mockSessionRepository)
@@ -41,7 +42,6 @@ class SessionCacheServiceSpec extends SpecBase with ScalaCheckPropertyChecks {
 
   "save" - {
     "save user answers to sessionRepository" in {
-
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(()))
 
       val userAnswers = UserAnswers("test-id")
@@ -49,5 +49,4 @@ class SessionCacheServiceSpec extends SpecBase with ScalaCheckPropertyChecks {
       verify(mockSessionRepository, times(1)).set(meq(userAnswers))
     }
   }
-
 }
