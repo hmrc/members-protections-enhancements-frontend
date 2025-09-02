@@ -35,22 +35,6 @@ trait HttpResponseHelper extends HttpErrorFunctions {_: Logging =>
     response
   }
 
-  protected def checkIdsMatch(requestCorrelationId: CorrelationId,
-                              responseCorrelationId: CorrelationId,
-                              extraLoggingContext: Option[String]): CorrelationId = {
-    if (requestCorrelationId.value != responseCorrelationId.value) {
-      logger.error(
-        secondaryContext = "checkIdsMatch",
-        message = "Correlation ID was either missing from response, or did not match ID from request. " +
-          "Reverting to ID from request for consistency in logs. Be aware of potential ID inconsistencies" +
-          s"Request C-ID: ${requestCorrelationId.value}, Response C-ID: ${responseCorrelationId.value}",
-        extraContext = extraLoggingContext
-      )
-    }
-
-    requestCorrelationId
-  }
-
   def handleResponse[A, F](response: HttpResponse, wrap: A => F, context: Option[String], correlationId: CorrelationId)
                           (implicit reads: Reads[A]): F = {
     val methodLoggingContext: String = "handleResponse"

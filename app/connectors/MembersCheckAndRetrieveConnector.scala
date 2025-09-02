@@ -44,6 +44,22 @@ class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2,
   private def retrieveCorrelationId(response: HttpResponse): CorrelationId =
     CorrelationId(response.header("correlationId").getOrElse("No correlationId"))
 
+  private def checkIdsMatch(requestCorrelationId: CorrelationId,
+                              responseCorrelationId: CorrelationId,
+                              extraLoggingContext: Option[String]): CorrelationId = {
+    if (requestCorrelationId.value != responseCorrelationId.value) {
+      logger.error(
+        secondaryContext = "checkIdsMatch",
+        message = "Correlation ID was either missing from response, or did not match ID from request. " +
+          "Reverting to ID from request for consistency in logs. Be aware of potential ID inconsistencies" +
+          s"Request C-ID: ${requestCorrelationId.value}, Response C-ID: ${responseCorrelationId.value}",
+        extraContext = extraLoggingContext
+      )
+    }
+
+    requestCorrelationId
+  }
+
   override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
                                (implicit hc: HeaderCarrier,
                                 ec: ExecutionContext,
