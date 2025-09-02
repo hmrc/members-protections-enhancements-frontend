@@ -43,10 +43,10 @@ class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
 
   private val form: Form[MembersNino] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDob {
     implicit request =>
 
-      memberDetails =>
+      memberDetails => _ =>
         request.userAnswers.get(MembersNinoPage) match {
           case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
           case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), memberDetails.fullName)))
