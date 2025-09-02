@@ -18,8 +18,13 @@ package models.errors
 
 import play.api.libs.json.{Json, OFormat}
 
-sealed case class MpeError(code: String, message: String, reasons: Option[Seq[String]] = None,
-                           source: ErrorSource = Internal)
+sealed case class MpeError(code: String,
+                           message: String,
+                           reasons: Option[Seq[String]] = None,
+                           source: ErrorSource = Internal) {
+  def toLogString: String = s"code: $code, message: $message, source: $source" +
+    reasons.map(rs => s", reasons: $rs").getOrElse("")
+}
 
 object MpeError {
   implicit val format: OFormat[MpeError] = Json.format[MpeError]

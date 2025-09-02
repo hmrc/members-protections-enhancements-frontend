@@ -17,13 +17,13 @@
 package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import models.requests.{DataRequest, PensionSchemeMemberRequest}
 import models._
+import models.requests.{DataRequest, PensionSchemeMemberRequest}
 import pages._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.Logging
+import utils.NewLogging
 import viewmodels.formPage.FormPageViewModel
 
 import javax.inject.Inject
@@ -31,35 +31,67 @@ import scala.concurrent.Future
 
 abstract class MpeBaseController @Inject()(identify: IdentifierAction,
                                            checkLockout: CheckLockoutAction,
-                                           getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport with Logging {
+                                           getData: DataRetrievalAction)
+  extends FrontendBaseController with I18nSupport {_: NewLogging =>
 
-  def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
-    handle {
-      implicit request =>
-        withMemberDetails { memberDetails =>
+  def handleWithMemberDetails(context: String)(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
+    handle(context) { implicit request =>
+      val methodLoggingContext: String = "handleWithMemberDetails"
+
+      val infoLogger: String => Unit = infoLog(
+        secondaryContext = methodLoggingContext,
+        dataLog = correlationIdLogString(request.correlationId),
+        extraContext = Some(context)
+      )
+
+      val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+        secondaryContext = methodLoggingContext,
+        dataLog = correlationIdLogString(request.correlationId),
+        extraContext = Some(context)
+      )
+
+      infoLogger("Checking if user session has existing member details")
+
+      request.userAnswers.get(WhatIsTheMembersNamePage) match {
+        case None =>
+          warnLogger("No member details exist for the user session. Redirecting to start page", None)
+          Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
+        case Some(memberDetails) =>
+          infoLogger("Member details already exist for the user session. Continuing with block action")
           block(request)(memberDetails)
-        }
+      }
     }
 
-  def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
-    (identify andThen checkLockout andThen getData).async{
-      implicit request => isResultsSuccessful(block(_))
-    }
+  def handle(context: String)(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] = {
+    val methodLoggingContext: String = "handle"
+    logger.info(
+      secondaryContext = methodLoggingContext,
+      message = "Attempting to handle request. Carrying out pre-requisite checks",
+      extraContext = Some(context)
+    )
+    (identify andThen checkLockout andThen getData).async { implicit request =>
+      val infoLogger: String => Unit = infoLog(
+        secondaryContext = methodLoggingContext,
+        dataLog = correlationIdLogString(request.correlationId),
+        extraContext = Some(context)
+      )
 
-  private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
-    request.userAnswers.get(WhatIsTheMembersNamePage) match {
-      case None =>
-        Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
-      case Some(memberDetails) =>
-        f(memberDetails)
-    }
-  }
+      val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+        secondaryContext = methodLoggingContext,
+        dataLog = correlationIdLogString(request.correlationId),
+        extraContext = Some(context)
+      )
 
-  private def isResultsSuccessful(block: DataRequest[AnyContent] => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
-    request.userAnswers.get(ResultsPage) match {
-      case Some(_) =>
-        Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
-      case None => block(request)
+      infoLogger("Request successfully completed all pre-requisite checks. Checking if previous result exists")
+
+      request.userAnswers.get(ResultsPage) match {
+        case Some(_) =>
+          warnLogger("User session already has results. Redirecting to clear cache and restart journey", None)
+          Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
+        case None =>
+          infoLogger("No previous result exists. Continuing with block action")
+          block(request)
+      }
     }
   }
 
@@ -96,10 +128,12 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
                              membersDob:MembersDob,
                              membersNino:MembersNino,
                              membersPsaCheckRef: MembersPsaCheckRef): PensionSchemeMemberRequest =
-      PensionSchemeMemberRequest(memberDetails.firstName,
-        memberDetails.lastName,
-        membersDob.strDateOfBirth,
-        membersNino.nino.filterNot(_.isWhitespace),
-        membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace))
+      PensionSchemeMemberRequest(
+        firstName = memberDetails.firstName,
+        lastName = memberDetails.lastName,
+        dateOfBirth = membersDob.strDateOfBirth,
+        nino = membersNino.nino.filterNot(_.isWhitespace),
+        psaCheckRef = membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)
+      )
 
 }

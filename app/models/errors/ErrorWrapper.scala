@@ -19,3 +19,7 @@ package models.errors
 import models.CorrelationId
 
 case class ErrorWrapper(correlationId: CorrelationId, error: MpeError)
+
+object ErrorWrapper {
+  def wrap(err: MpeError)(implicit correlationId: CorrelationId): ErrorWrapper = ErrorWrapper(correlationId, err)
+}

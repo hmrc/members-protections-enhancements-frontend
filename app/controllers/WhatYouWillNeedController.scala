@@ -20,6 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import utils.NewLogging
 import views.html.WhatYouWillNeedView
 
 import scala.concurrent.Future
@@ -30,15 +31,27 @@ class WhatYouWillNeedController @Inject()(override val messagesApi: MessagesApi,
                                           getData: DataRetrievalAction,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: WhatYouWillNeedView)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
 
-  def start(): Action[AnyContent] = Action.async { _ =>
+  def start(): Action[AnyContent] = Action.async { request =>
+    val methodLoggingContext: String = "start"
+    val correlationId = request.headers.get("correlationId").getOrElse("N/A")
+
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(correlationId))
+
+    infoLogger("Attempting to redirect to start page")
+
     Future.successful(
       Redirect(controllers.routes.WhatYouWillNeedController.onPageLoad())
     )
   }
 
-  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(): Action[AnyContent] = handle("onPageLoad") { implicit request =>
+    val methodLoggingContext: String = "start"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
+    infoLogger("Attempting to serve 'what you will need' view")
+
     Future.successful(Ok(view(Some(routes.MpsDashboardController.redirectToMps().url))))
   }
 }

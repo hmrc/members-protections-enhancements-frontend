@@ -18,11 +18,12 @@ package services
 
 import base.SpecBase
 import connectors.MembersCheckAndRetrieveConnector
-import models.errors.NotFoundError
+import models.CorrelationId
+import models.errors.{ErrorWrapper, NotFoundError}
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
-import models.response.{ProtectionRecord, ProtectionRecordDetails}
+import models.response.{ProtectionRecord, ProtectionRecordDetails, ResponseWrapper}
 import org.mockito.Mockito.when
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.test.Helpers._
@@ -34,7 +35,7 @@ import scala.concurrent.Future
 class MembersCheckAndRetrieveServiceSpec extends SpecBase with ScalaCheckPropertyChecks {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  implicit val correlationId: String = "X-123"
+  implicit val correlationId: CorrelationId = "X-123"
   val mockConnector: MembersCheckAndRetrieveConnector = mock[MembersCheckAndRetrieveConnector]
   val service = new MembersCheckAndRetrieveServiceImpl(mockConnector)
 
@@ -54,17 +55,20 @@ class MembersCheckAndRetrieveServiceSpec extends SpecBase with ScalaCheckPropert
   "checkAndRetrieve" - {
     "return a valid response body for a valid data" in {
 
-      val response: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
-        ProtectionRecord(
-          protectionReference = Some("some-id"),
-          `type` = FixedProtection2016,
-          status = Active,
-          protectedAmount = Some(1),
-          lumpSumAmount = Some(1),
-          lumpSumPercentage = Some(1),
-          enhancementFactor = Some(0.5)
-        )
-      ))
+      val response = ResponseWrapper(
+        correlationId = correlationId,
+        responseData = ProtectionRecordDetails(Seq(
+          ProtectionRecord(
+            protectionReference = Some("some-id"),
+            `type` = FixedProtection2016,
+            status = Active,
+            protectedAmount = Some(1),
+            lumpSumAmount = Some(1),
+            lumpSumPercentage = Some(1),
+            enhancementFactor = Some(0.5)
+          )
+        ))
+      )
 
       when(mockConnector.checkAndRetrieve(request)).thenReturn(Future.successful(Right(response)))
 
@@ -73,8 +77,7 @@ class MembersCheckAndRetrieveServiceSpec extends SpecBase with ScalaCheckPropert
     }
 
     "return a NotFoundError for an invalid submission" in {
-
-      val response = Left(NotFoundError)
+      val response = Left(ErrorWrapper(correlationId, NotFoundError))
 
       when(mockConnector.checkAndRetrieve(request)).thenReturn(Future.successful(response))
 

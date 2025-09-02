@@ -20,11 +20,12 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.errors.{MatchPerson, MpeError}
+import models.CorrelationId
+import models.errors.{ErrorWrapper, MatchPerson, MpeError}
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
-import models.response.{ProtectionRecord, ProtectionRecordDetails}
+import models.response.{ProtectionRecord, ProtectionRecordDetails, ResponseWrapper}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import play.api.Application
 import play.api.http.Status._
@@ -38,7 +39,7 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
 
   trait Test {
     implicit val hc: HeaderCarrier = HeaderCarrier()
-    implicit val correlationId: String = "X-123"
+    implicit val correlationId: CorrelationId = "X-123"
     val app: Application = applicationBuilder(emptyUserAnswers).build()
 
     val connector: MembersCheckAndRetrieveConnector = app.injector.instanceOf[MembersCheckAndRetrieveConnector]
@@ -47,17 +48,20 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
 
     val checkAndRetrieveUrl = "/members-protections-and-enhancements/check-and-retrieve"
 
-    val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
-      ProtectionRecord(
-        protectionReference = Some("some-id"),
-        `type` = FixedProtection2016,
-        status = Active,
-        protectedAmount = Some(1),
-        lumpSumAmount = Some(1),
-        lumpSumPercentage = Some(1),
-        enhancementFactor = Some(0.5)
-      )
-    ))
+    val testModel: ResponseWrapper[ProtectionRecordDetails] = ResponseWrapper(
+      correlationId = correlationId,
+      responseData = ProtectionRecordDetails(Seq(
+        ProtectionRecord(
+          protectionReference = Some("some-id"),
+          `type` = FixedProtection2016,
+          status = Active,
+          protectedAmount = Some(1),
+          lumpSumAmount = Some(1),
+          lumpSumPercentage = Some(1),
+          enhancementFactor = Some(0.5)
+        )
+      ))
+    )
 
     def setUpStubs(status: Int, response: String): StubMapping = stubPost(checkAndRetrieveUrl, Json.toJson(pensionSchemeMemberRequest).toString(),
       aResponse().withStatus(status).withBody(response).withHeader("correlationId", "X-123"))
@@ -102,7 +106,7 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
     setUpStubs(NOT_FOUND, response)
 
     private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
-    result shouldBe Left(MpeError("CODE", "message", None, MatchPerson))
+    result shouldBe Left(ErrorWrapper(correlationId, MpeError("CODE", "message", None, MatchPerson)))
     WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 
@@ -118,7 +122,7 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
     setUpStubs(BAD_REQUEST, response)
 
     private val result = await(connector.checkAndRetrieve(pensionSchemeMemberRequest))
-    result shouldBe Left(MpeError("BAD_REQUEST", "message", None, MatchPerson))
+    result shouldBe Left(ErrorWrapper(correlationId, MpeError("BAD_REQUEST", "message", None, MatchPerson)))
     WireMock.verify(postRequestedFor(urlEqualTo(checkAndRetrieveUrl)))
   }
 }

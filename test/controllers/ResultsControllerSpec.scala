@@ -58,6 +58,7 @@ class ResultsControllerSpec extends SpecBase {
     val membersDob: MembersDob = MembersDob(LocalDate.of(2022, 1, 1))
     val membersNino: MembersNino = MembersNino("AB123456A")
     val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
+    val correlationId: CorrelationId = "X-123"
 
     val mockService: FailedAttemptService = mock[FailedAttemptService]
     val checkLockoutResult: Option[Result] = None
@@ -120,7 +121,7 @@ class ResultsControllerSpec extends SpecBase {
     def setUpStubs(status: Int, response: String): StubMapping = stubPost(
       url = checkAndRetrieveUrl,
       requestBody = Json.toJson(pensionSchemeMemberRequest).toString(),
-      response = aResponse().withStatus(status).withBody(response)
+      response = aResponse().withStatus(status).withBody(response).withHeader("correlationId", correlationId.value)
     )
 
     val response: String =

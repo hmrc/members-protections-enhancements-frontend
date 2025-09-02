@@ -22,6 +22,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.NewLogging
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -31,40 +32,57 @@ class AuthController @Inject()(val controllerComponents: MessagesControllerCompo
                                config: FrontendAppConfig,
                                sessionRepository: SessionRepository,
                                identify: IdentifierAction)
-                              (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                              (implicit ec: ExecutionContext)
+  extends FrontendBaseController with I18nSupport with NewLogging {
 
-  def signOut(): Action[AnyContent] = identify.async {
-    implicit request =>
-      sessionRepository
-        .clear(request.userDetails.userId)
-        .map {
-          _ =>
-            Redirect(config.exitSurveyUrl).withNewSession
-        }
+  def signOut(): Action[AnyContent] = identify.async { implicit request =>
+    val methodLoggingContext: String = "signOut"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
+    infoLogger("Attempting to clear user session data and redirect to sign out flow with exit survey")
+
+    sessionRepository
+      .clear(request.userDetails.userId)
+      .map {
+        _ =>
+          infoLogger("Successfully cleared user session data, redirecting to sign out flow with exit survey")
+          Redirect(config.exitSurveyUrl).withNewSession
+      }
   }
 
-  def signOutNoSurvey(): Action[AnyContent] = identify.async {
-    implicit request =>
-      sessionRepository
-        .clear(request.userDetails.userId)
-        .map {
-          _ =>
-            Redirect(config.signOutUrl, Map("continue" -> Seq(routes.SignedOutController.onPageLoad().url)))
-        }
+  def signOutNoSurvey(): Action[AnyContent] = identify.async { implicit request =>
+    val methodLoggingContext: String = "signOutNoSurvey"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
+    infoLogger("Attempting to clear user session data and redirect to sign out flow")
+
+    sessionRepository
+      .clear(request.userDetails.userId)
+      .map {
+        _ =>
+          infoLogger("Successfully cleared user session data, redirecting to sign out flow")
+          Redirect(config.signOutUrl, Map("continue" -> Seq(routes.SignedOutController.onPageLoad().url)))
+      }
   }
 
-  def sessionTimeout(): Action[AnyContent] = identify.async {
-    implicit request =>
-      sessionRepository
-        .clear(request.userDetails.userId)
-        .map { _ =>
-          Redirect(
-            url = config.signOutUrl,
-            queryStringParams = Map(
-              "continue" -> Seq(config.host + routes.SessionTimeoutController.onPageLoad().url),
-              "origin" -> Seq(config.appName)
-            )
-          ).withNewSession
-        }
+  def sessionTimeout(): Action[AnyContent] = identify.async { implicit request =>
+    val methodLoggingContext: String = "sessionTimeout"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
+    infoLogger("Attempting to handle user session timeout")
+
+    sessionRepository
+      .clear(request.userDetails.userId)
+      .map { _ =>
+        infoLogger("Successfully cleared user session data. Redirecting to 'session timeout' page via sign out flow")
+
+        Redirect(
+          url = config.signOutUrl,
+          queryStringParams = Map(
+            "continue" -> Seq(config.host + routes.SessionTimeoutController.onPageLoad().url),
+            "origin" -> Seq(config.appName)
+          )
+        ).withNewSession
+      }
   }
 }

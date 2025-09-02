@@ -18,35 +18,36 @@ package connectors
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.FrontendAppConfig
-import models.errors.MpeError
+import models.{CorrelationId, ResultType}
+import models.errors.{ErrorWrapper, MpeError}
 import models.requests.PensionSchemeMemberRequest
-import models.response.ProtectionRecordDetails
+import models.response.{ProtectionRecordDetails, ResponseWrapper}
 import play.api.http.Status._
 import play.api.libs.json._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import utils.{HttpResponseHelper, Logging}
+import utils.{HttpResponseHelper, Logging, NewLogging}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.Failure
 
 @ImplementedBy(classOf[MembersCheckAndRetrieveConnectorImpl])
 trait MembersCheckAndRetrieveConnector extends Logging {
 
   def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
-                      (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String):  Future[Either[MpeError, ProtectionRecordDetails]]
+                      (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: CorrelationId): ResultType
 }
 
 class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: FrontendAppConfig)
-  extends MembersCheckAndRetrieveConnector
-    with HttpResponseHelper {
+  extends MembersCheckAndRetrieveConnector with HttpResponseHelper with NewLogging {
 
-  val classLoggingContext: String = "MembersCheckAndRetrieveConnector"
-
-  private def retrieveCorrelationId(response: HttpResponse): Option[String] = response.header("correlationId")
+  private def retrieveCorrelationId(response: HttpResponse): CorrelationId =
+    CorrelationId(response.header("correlationId").getOrElse("No correlationId"))
 
   override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
-                               (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String):  Future[Either[MpeError, ProtectionRecordDetails]] = {
+                               (implicit hc: HeaderCarrier,
+                                ec: ExecutionContext,
+                                correlationId: CorrelationId): ResultType = {
 
     val checkAndRetrieveUrl = url"${config.checkAndRetrieveUrl}"
     val methodLoggingContext: String = "checkAndRetrieve"
@@ -56,19 +57,23 @@ class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2,
     httpClientV2.post(checkAndRetrieveUrl)
       .withBody(Json.toJson(pensionSchemeMemberRequest))
       .setHeader(
-        ("correlationId", correlationId))
+        ("correlationId", correlationId.value))
       .execute[HttpResponse].map { response =>
-        response.status match {
+        val responseCorrelationId: CorrelationId = retrieveCorrelationId(response)
+        val resultCorrelationId: CorrelationId = checkIdsMatch(correlationId, responseCorrelationId)
+         val result: Either[ErrorWrapper, ResponseWrapper[ProtectionRecordDetails]] = response.status match {
             case OK =>
               logInfo(fullLoggingContext, s"Success response received" +
                 s" with status ${response.status}, and correlationId: ${retrieveCorrelationId(response)}")
-              Right(handleResponse[ProtectionRecordDetails](response.json))
+              Right(handleResponse[ProtectionRecordDetails, ResponseWrapper[ProtectionRecordDetails]](response.json, ResponseWrapper.wrap))
             case _ =>
               logError(fullLoggingContext, s"Error response received" +
                 s" with status: ${response.status}, and correlationId: ${retrieveCorrelationId(response)} " +
                 s" due to ${response.body}")
-              Left(handleResponse[MpeError](response.json))
+              Left(handleResponse[MpeError, ErrorWrapper](response.json, ErrorWrapper.wrap))
           }
+
+      result
       } andThen {
         case Failure(t: Throwable) => logger.warn("Unable to retrieve the data", t)
       }

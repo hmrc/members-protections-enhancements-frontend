@@ -16,16 +16,54 @@
 
 package utils
 
+import models.CorrelationId
 import play.api.libs.json._
 import uk.gov.hmrc.http._
 
-trait HttpResponseHelper extends HttpErrorFunctions {
+trait HttpResponseHelper extends HttpErrorFunctions {_: NewLogging =>
 
-  implicit val httpResponseReads: HttpReads[HttpResponse] = (method: String, url: String, response: HttpResponse) => response
+  implicit def httpResponseReads: HttpReads[HttpResponse] = (method: String,
+                                                             url: String,
+                                                             response: HttpResponse) => {
+    logger.info(
+      secondaryContext = "httpResponseReads",
+      message = s"HTTP call with method: $method, url: $url completed with status: ${response.status}",
+      dataLog = correlationIdLogString(response.header("correlationId").getOrElse("N/A"))
+    )
+    response
+  }
 
-  def handleResponse[A](response: JsValue)(implicit reads: Reads[A]): A =
-    response.validate[A] match {
-      case JsSuccess(value, _) => value
+  private def checkIdsMatch(requestCorrelationId: CorrelationId,
+                            responseCorrelationId: CorrelationId,
+                            extraLoggingContext: Option[String]): CorrelationId =
+    if (requestCorrelationId.value == responseCorrelationId.value) {
+      responseCorrelationId
+    } else {
+      logger.error(
+        secondaryContext = "checkIdsMatch",
+        message = "Correlation ID was either missing from response, or did not match ID from request. " +
+          "Reverting to ID from request for consistency in logs. Be aware of potential ID inconsistencies" +
+          s"Request C-ID: ${requestCorrelationId.value}, Response C-ID: ${responseCorrelationId.value}",
+        extraContext = extraLoggingContext
+      )
+      requestCorrelationId
+    }
+
+  def handleResponse[A, F](response: HttpResponse, wrap: A => F)
+                          (implicit reads: Reads[A], requestCorrelationId: CorrelationId): F = {
+    val methodLoggingContext: String = "handleResponse"
+
+    val correlationId = checkIdsMatch(
+      requestCorrelationId = requestCorrelationId,
+      responseCorrelationId = response.header("correlationId").getOrElse("N/A"),
+      extraLoggingContext = Some(methodLoggingContext)
+    )
+
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(correlationId))
+
+    response.json.validate[A] match {
+      case JsSuccess(value, _) => wrap(value)
       case JsError(errors) => throw JsResultException(errors)
     }
+  }
 }

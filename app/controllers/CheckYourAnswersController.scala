@@ -23,6 +23,7 @@ import pages.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import utils.NewLogging
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import views.html.CheckYourAnswersView
 
@@ -34,16 +35,38 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            getData: DataRetrievalAction,
                                            implicit val controllerComponents: MessagesControllerComponents,
                                            view: CheckYourAnswersView)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
 
-  def onPageLoad(): Action[AnyContent] = handle {
-    implicit request =>
-      getUserData(request) match {
-        case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) => Future.successful(Ok(
-          view(rows(memberDetails, membersDob, membersNino, membersPsaCheckRef), memberDetails.fullName,
-            Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))))
-        case None => Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
-      }
+  def onPageLoad(): Action[AnyContent] = handle("onPageLoad") { implicit request =>
+    val methodLoggingContext: String = "onPageLoad"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
+    val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(request.correlationId)
+    )
+
+    infoLogger("Attempting to check for existing user answers to all questions")
+
+    getUserData(request) match {
+      case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
+        infoLogger("Existing user answers found for all questions. Attempting to serve 'check your answers' view")
+        Future.successful(Ok(
+          view(
+            rows(
+              memberDetails = memberDetails,
+              membersDob = membersDob,
+              membersNino = membersNino,
+              membersPsaCheckRef = membersPsaCheckRef
+            ),
+            name = memberDetails.fullName,
+            backLinkUrl = Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url)
+          )
+        ))
+      case None =>
+        warnLogger("Could not find existing user answers for all questions. Redirecting to clear user cache", None)
+        Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
+    }
   }
 
   private def rows(memberDetails: MemberDetails,
@@ -59,7 +82,12 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
     )
   }
 
-  def onSubmit: Action[AnyContent] = handle { _ =>
-      Future.successful(Redirect(submitUrl(NormalMode, CheckYourAnswersPage)))
+  def onSubmit: Action[AnyContent] = handle("onSubmit") { request =>
+    logger.info(
+      secondaryContext = "onSubmit",
+      message = "Redirecting to ",
+      dataLog = correlationIdLogString(request.correlationId)
+    )
+    Future.successful(Redirect(submitUrl(NormalMode, CheckYourAnswersPage)))
   }
 }

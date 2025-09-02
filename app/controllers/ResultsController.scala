@@ -18,19 +18,20 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import models.MembersResult
+import models.{CorrelationId, MembersResult}
 import models.audit.{AuditDetail, AuditEvent}
-import models.errors.{MatchPerson, MpeError}
-import models.requests.{IdentifierRequest, PensionSchemeMemberRequest, UserDetails}
+import models.errors.{ErrorWrapper, MatchPerson, MpeError}
+import models.requests.{DataRequest, IdentifierRequest, PensionSchemeMemberRequest, UserDetails}
+import models.response.ProtectionRecordDetails
 import pages.ResultsPage
 import play.api.i18n.MessagesApi
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import providers.DateTimeProvider
 import services.{AuditService, FailedAttemptService, MembersCheckAndRetrieveService, SessionCacheService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.{DateTimeFormats, IdGenerator, Logging}
+import utils.{DateTimeFormats, IdGenerator, Logging, NewLogging}
 import views.html.ResultsView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,77 +46,136 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   checkAndRetrieveService: MembersCheckAndRetrieveService,
                                   failedAttemptService: FailedAttemptService,
                                   service: SessionCacheService,
-                                  auditService: AuditService,
-                                  idGenerator: IdGenerator)
+                                  auditService: AuditService)
                                  (implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) with Logging {
+  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
 
-  val classLoggingContext: String = "ResultsController"
-
-  def onPageLoad(): Action[AnyContent] = handle(implicit request => {
-    implicit val correlationId: String = idGenerator.getCorrelationId
+  def onPageLoad(): Action[AnyContent] = handle("onPageLoad"){ implicit request =>
     val methodLoggingContext: String = "onPageLoad"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
-    logInfo(fullLoggingContext, s"with correlationId: $correlationId")
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
+    infoLogger("Attempting to check for existing user answers to all questions")
 
     getUserData(request) match {
       case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
-        val pensionSchemeMemberRequest = retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)
+        infoLogger("Existing answers found. Attempting to match member and retrieve protection record details")
+
+        val pensionSchemeMemberRequest = retrieveMembersRequest(
+          memberDetails = memberDetails,
+          membersDob = membersDob,
+          membersNino = membersNino,
+          membersPsaCheckRef = membersPsaCheckRef
+        )
+
         val auditDetail = generateAuditDetail(pensionSchemeMemberRequest, request.userDetails)
+
+        implicit val correlationId: CorrelationId = request.correlationId
+
         checkAndRetrieveService.checkAndRetrieve(pensionSchemeMemberRequest).flatMap {
-          case Right(value) =>
-            logInfo(s"$fullLoggingContext", s"Successfully retrieved results for supplied details redirecting to Results page")
-            auditSubmission("CompleteMemberSearch", routes.ResultsController.onPageLoad().url,
-              auditDetail.copy(journey = "resultsDisplayed", searchAPIMatchResult = Some("MATCH")))
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ResultsPage, MembersResult(isSuccessful = true)))
-              _ <- service.save(updatedAnswers)
-            } yield {
-              Ok(
-                view(
-                  memberDetails = memberDetails,
-                  membersDob = membersDob,
-                  membersNino = membersNino,
-                  membersPsaCheckRef = membersPsaCheckRef,
-                  backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
-                  formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
-                  protectionRecordDetails = value
-                )
-              )
-            }
-          case Left(error) if error.code == "NO_MATCH" || error.code == "EMPTY_DATA" || error.code == "NOT_FOUND"=>
-            val (journey, searchAPIMatchResult): (String, String) = auditParams(error)
-            auditSubmission("CompleteMemberSearch", routes.NoResultsController.onPageLoad().url,
-              auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult)))(hc, ec, correlationId)
-
-            implicit val req: IdentifierRequest[AnyContent] = request.toIdentifierRequest
-            logger.warn(s"$fullLoggingContext - No results found due to ${error.code}")
-
-            failedAttemptService.handleFailedAttempt(
-              Redirect(routes.LockedOutController.onPageLoad())
-            )(
-              Redirect(routes.NoResultsController.onPageLoad())
-            )
-          case Left(error) =>
-            logger.warn(s"$fullLoggingContext - Failure to get the results due to ${error.code}")
-            error.source match {
-              case MatchPerson =>
-                auditSubmission("CompleteMemberSearch", routes.ClearCacheController.defaultError().url,
-                  auditDetail.copy(journey = "searchAPIError", searchAPIFailureReason = Some(error.code)))
-              case _ =>
-                auditSubmission("CompleteMemberSearch", routes.ClearCacheController.defaultError().url,
-                  auditDetail.copy(journey = "retrieveAPIError", retrieveAPIFailureReason = Some(error.code)))
-            }
-            Future.successful(Redirect(routes.ClearCacheController.defaultError()))
+          case Right(value) => handleSuccess(
+            context = methodLoggingContext,
+            auditDetail = auditDetail,
+            resultBuilder = _ => Ok(view(
+              memberDetails = memberDetails,
+              membersDob = membersDob,
+              membersNino = membersNino,
+              membersPsaCheckRef = membersPsaCheckRef,
+              backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
+              formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
+              protectionRecordDetails = value.responseData
+            ))
+          )
+          case Left(value) => handleError(value, auditDetail, methodLoggingContext)
         }
       case _ =>
         Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
     }
-  })
+  }
+
+  private def handleSuccess[A](context: String,
+                               auditDetail: AuditDetail,
+                               resultBuilder: Unit => Result)(implicit request: DataRequest[A]): Future[Result] = {
+    val methodLoggingContext = "handleSuccess"
+    implicit val correlationId: CorrelationId = request.correlationId
+
+    val infoLogger: String => Unit = infoLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(correlationId),
+      extraContext = Some(context)
+    )
+
+    infoLogger("Successfully matched member and retrieved protection record details. Updating session data cache")
+
+    auditSubmission(
+      auditType = "CompleteMemberSearch",
+      path = routes.ResultsController.onPageLoad().url,
+      details = auditDetail.copy(journey = "resultsDisplayed", searchAPIMatchResult = Some("MATCH"))
+    )
+
+    for {
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(ResultsPage, MembersResult(isSuccessful = true)))
+      _ <- service.save(updatedAnswers)
+    } yield {
+      infoLogger("Successfully updated session data cache. Attempting to serve 'results' view with data")
+      resultBuilder()
+    }
+  }
+
+  private def handleError[A](errorWrapper: ErrorWrapper, auditDetail: AuditDetail, context: String)
+                            (implicit request: DataRequest[A], hc: HeaderCarrier): Future[Result] = {
+    val methodLoggingContext = "handleError"
+    implicit val correlationId: CorrelationId = errorWrapper.correlationId
+
+    val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(correlationId),
+      extraContext = Some(context)
+    )
+
+    val errorLogger: (String, Option[Throwable]) => Unit = errorLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(correlationId),
+      extraContext = Some(context)
+    )
+
+    errorWrapper.error match {
+      case MpeError(code, _, _, _) if code == "NO_MATCH" || code == "EMPTY_DATA" || code == "NOT_FOUND"=>
+        val (journey, searchAPIMatchResult): (String, String) = auditParams(errorWrapper.error)
+        auditSubmission(
+          auditType = "CompleteMemberSearch",
+          path = routes.NoResultsController.onPageLoad().url,
+          details = auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult))
+        )
+
+        warnLogger(s"No results could be found for the supplied member details with error reason: $code", None)
+
+        failedAttemptService.handleFailedAttempt(
+          Redirect(routes.LockedOutController.onPageLoad())
+        )(
+          Redirect(routes.NoResultsController.onPageLoad())
+        )(request.toIdentifierRequest, ec)
+      case error =>
+        implicit val correlationId: CorrelationId = errorWrapper.correlationId
+        auditSubmission(
+          auditType = "CompleteMemberSearch",
+          path = routes.ClearCacheController.defaultError().url,
+          details = error.source match {
+            case MatchPerson => auditDetail.copy(journey = "searchAPIError", searchAPIFailureReason = Some(error.code))
+            case _ => auditDetail.copy(journey = "retrieveAPIError", retrieveAPIFailureReason = Some(error.code))
+          }
+        )
+
+        errorLogger(
+          s"Attempt failed due to error with ${error.toLogString}. Redirecting to clear user session data cache",
+          None
+        )
+
+        Future.successful(Redirect(routes.ClearCacheController.defaultError()))
+    }
+  }
 
   private def auditSubmission(auditType: String, path: String, details: AuditDetail)
-                             (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[AuditResult] = {
+                             (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: CorrelationId): Future[AuditResult] = {
 
     val event: AuditEvent[AuditDetail] = AuditEvent(
       auditType = auditType,

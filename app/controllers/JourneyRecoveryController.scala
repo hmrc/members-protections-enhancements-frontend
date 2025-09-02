@@ -17,12 +17,13 @@
 package controllers
 
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
+import models.CorrelationId
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
 import uk.gov.hmrc.play.bootstrap.binders._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.Logging
+import utils.{Logging, NewLogging}
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
 import javax.inject.Inject
@@ -32,24 +33,35 @@ class JourneyRecoveryController @Inject()(val controllerComponents: MessagesCont
                                           getData: DataRetrievalAction,
                                           continueView: JourneyRecoveryContinueView,
                                           startAgainView: JourneyRecoveryStartAgainView)
-  extends FrontendBaseController with I18nSupport with Logging {
+  extends FrontendBaseController with I18nSupport with NewLogging {
 
-  def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = (identify andThen getData) {
-    implicit request =>
+  def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] =
+    (identify andThen getData) { implicit request =>
+      val methodLoggingContext: String = "onPageLoad"
+      val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
 
-      val safeUrl: Option[String] = continueUrl.flatMap {
-        unsafeUrl =>
-          unsafeUrl.getEither(OnlyRelative) match {
-            case Right(safeUrl) =>
-              Some(safeUrl.url)
-            case Left(message) =>
-              logger.info(message)
+      val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+        secondaryContext = methodLoggingContext,
+        dataLog = correlationIdLogString(request.correlationId)
+      )
+
+      infoLogger("Attempting to recover journey")
+
+      continueUrl.fold{
+        infoLogger("No continue URL was provided. Attempting to serve 'start again' view")
+        Ok(startAgainView())
+      }{ url =>
+        url.getEither(OnlyRelative) match {
+          case Left(message) =>
+            warnLogger(
+              s"Continue URL failed to validate with error message: $message. Attempting to serve 'start again' view",
               None
-          }
+            )
+            Ok(startAgainView())
+          case Right(safeUrl) =>
+            infoLogger("Supplied continue URL validated successfully. Attempting to serve 'continue' view")
+            Ok(continueView(safeUrl.url))
+        }
       }
-
-      safeUrl
-        .map(url => Ok(continueView(url)))
-        .getOrElse(Ok(startAgainView()))
-  }
+    }
 }

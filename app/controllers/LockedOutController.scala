@@ -24,6 +24,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
 import services.FailedAttemptService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.NewLogging
 import views.html.LockedOutView
 
 import javax.inject.Inject
@@ -35,9 +36,14 @@ class LockedOutController @Inject()(val controllerComponents: MessagesController
                                     frontendAppConfig: FrontendAppConfig,
                                     dateTimeProvider: DateTimeProvider,
                                     view: LockedOutView)(implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport {
+  extends FrontendBaseController with I18nSupport with NewLogging {
 
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
+    val methodLoggingContext: String = "keepAlive"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
+    infoLogger("Attempting to check if user is locked out due to multiple failed attempts")
+
     failedAttemptService.getLockoutExpiry().map {
       case Some(expiry) =>
         lazy val lockoutExpiry: LockoutExpiry = LockoutExpiry(
@@ -45,9 +51,11 @@ class LockedOutController @Inject()(val controllerComponents: MessagesController
           lockoutExpiry = frontendAppConfig.lockoutTtl,
           currentTime = dateTimeProvider.now().toInstant
         )
+        infoLogger("Lockout entry successfully located for user. Attempting to serve locked out view")
         Ok(view(lockoutExpiry.roundedUpMins))
-
-      case None => Redirect(routes.ClearCacheController.onPageLoad())
+      case None =>
+        infoLogger("No lockout entry could be found for user. Redirecting to clear user session data cache")
+        Redirect(routes.ClearCacheController.onPageLoad())
     }
   }
 }

@@ -22,6 +22,7 @@ import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierA
 import models.requests.UserType.PSA
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.NewLogging
 
 import scala.concurrent.Future
 
@@ -30,15 +31,21 @@ class MpsDashboardController @Inject()(identify: IdentifierAction,
                                        getData: DataRetrievalAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        val appConfig: FrontendAppConfig)
-  extends FrontendBaseController {
+  extends FrontendBaseController with NewLogging {
 
-  def redirectToMps(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async{ implicit request =>
+  def redirectToMps(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async { implicit request =>
+    val methodLoggingContext: String = "redirectToMps"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
 
-    val mpsUrl =
+    Future.successful(Redirect{
       request.userDetails.psrUserType match {
-        case PSA => appConfig.psaOverviewUrl
-        case _ => appConfig.pspDashboardUrl
+        case PSA =>
+          infoLogger("Attempting to redirect PSA user to MPS dashboard")
+          appConfig.psaOverviewUrl
+        case _ =>
+          infoLogger("Attempting to redirect PSP user to MPS dashboard")
+          appConfig.pspDashboardUrl
       }
-    Future.successful(Redirect(mpsUrl))
+    })
   }
 }
