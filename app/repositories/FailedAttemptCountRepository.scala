@@ -18,6 +18,7 @@ package repositories
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.FrontendAppConfig
+import models.CorrelationId
 import models.mongo.CacheUserDetails
 import models.requests.IdentifierRequest
 import org.mongodb.scala.MongoException
@@ -25,6 +26,7 @@ import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
 import play.api.Logging
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
+import utils.NewLogging
 
 import java.util.concurrent.TimeUnit
 import javax.cache.CacheException
@@ -59,15 +61,22 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       )
     ),
     replaceIndexes = true
-  ) with FailedAttemptCountRepository with Logging {
-
-  val classLoggingContext: String = "FailedAttemptCountRepository"
+  ) with FailedAttemptCountRepository with NewLogging {
 
   def addFailedAttempt()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Unit] = {
     val methodLoggingContext: String = "addFailedAttempt"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
-    logger.info(s"$fullLoggingContext - Received request to add failed attempt to cache for user")
+    val infoLogger: String => Unit = infoLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(request.correlationId)
+    )
+
+    val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(request.correlationId)
+    )
+
+    infoLogger("Attempting to add user failed attempt to cache")
 
     collection
       .insertOne(
@@ -80,25 +89,33 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       .toFuture()
       .map {
         case res if res.wasAcknowledged() =>
-          logger.info(s"$fullLoggingContext - Successfully cached failed attempt")
+          infoLogger("Successfully cached user failed attempt")
         case _ =>
-          logger.warn(s"$fullLoggingContext - Failed attempt was not added successfully to cache")
-          throw new CacheException("Failed to add user failed attempt to cache")
+          val error: CacheException = new CacheException("Result was not acknowledged")
+          warnLogger("Failed attempt was not added successfully to cache", Some(error))
+          throw error
       }
       .recover {
         case ex: MongoException =>
-          logger.warn(s"$fullLoggingContext - " +
-            s"MongoDB returned an error while attempting to cache failed attempt with error message: ${ex.getMessage}"
-          )
+          warnLogger("MongoDB returned an error while attempting to cache user failed attempt", Some(ex))
           throw ex
       }
   }
 
   def countFailedAttempts()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Long] = {
     val methodLoggingContext: String = "countFailedAttempts"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
-    logger.info(s"$fullLoggingContext - Received request to count failed attempts for user")
+    val infoLogger: String => Unit = infoLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(request.correlationId)
+    )
+
+    val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(request.correlationId)
+    )
+
+    infoLogger("Attempting to retrieve user failed attempt count")
 
     collection
       .countDocuments(
@@ -106,14 +123,12 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       )
       .toFuture()
       .map(res => {
-        logger.info(s"Successfully retrieved failed attempt count of: $res")
+        infoLogger(s"Successfully retrieved user failed attempt count of: $res")
         res
       })
       .recover {
         case ex: MongoException =>
-          logger.warn(s"$fullLoggingContext - " +
-            s"MongoDB returned an error during failed attempt count with error message: ${ex.getMessage}"
-          )
+          warnLogger(s"A MongoDB error occurred while attempting to retrieve user failed attempt count", Some(ex))
           throw ex
       }
   }

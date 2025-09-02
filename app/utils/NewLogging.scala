@@ -19,7 +19,7 @@ package utils
 import models.CorrelationId
 import play.api.Logger
 
-trait Logging {
+trait NewLogging {
   private val primaryContext: String = this.getClass.getSimpleName.replace("$", "")
   protected lazy val logger: LoggerWithContext = LoggerWithContext(Logger(this.getClass), primaryContext)
 

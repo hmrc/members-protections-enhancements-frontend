@@ -19,13 +19,14 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersDobFormProvider
-import models.{MembersDob, Mode}
+import models.{CorrelationId, MembersDob, Mode}
 import navigation.Navigator
 import pages.MembersDobPage
 import play.api.data.Form
 import play.api.i18n.MessagesApi
-import play.api.mvc._
+import play.api.mvc.{request, _}
 import services.SessionCacheService
+import utils.NewLogging
 import views.html.MembersDobView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,39 +40,60 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
                                      formProvider: MembersDobFormProvider,
                                      implicit val controllerComponents: MessagesControllerComponents,
                                      view: MembersDobView)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
 
   private val form: Form[MembersDob] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails("onPageLoad") { implicit request =>
+    val methodLoggingContext: String = "onPageLoad"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
 
-      memberDetails =>
-        request.userAnswers.get(MembersDobPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), memberDetails.fullName)))
-          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), memberDetails.fullName)))
-        }
+    infoLogger("Attempting to find existing user answers for 'member dob' page")
+
+    memberDetails =>
+      request.userAnswers.get(MembersDobPage) match {
+        case None =>
+          infoLogger("No user answers exist for 'member DOB' page. Attempting to serve blank view")
+          Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), memberDetails.fullName)))
+        case Some(value) =>
+          infoLogger("Previous user answers exist for 'member DOB' page. Attempting to serve pre-filled view")
+          Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), memberDetails.fullName)))
+      }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
-    implicit request =>
-      memberDetails =>
-        form.bindFromRequest().fold(
-          formWithErrors => {
-            Future.successful(BadRequest(view(
-              form = formWithErrors,
-              viewModel = viewModel(mode, MembersDobPage),
-              name = memberDetails.fullName
-            )))
-          },
-          answer => {
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
-              _ <- service.save(updatedAnswers)
-            } yield {
-              Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
-            }
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails("onSubmit") { implicit request =>
+    val methodLoggingContext: String = "onSubmit"
+    implicit val correlationId: CorrelationId = request.correlationId
+
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(correlationId))
+
+    val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(correlationId)
+    )
+
+    infoLogger("Attempting to validate and save submitted user answers for 'member DOB' page")
+
+    memberDetails =>
+      form.bindFromRequest().fold(
+        formWithErrors => {
+          warnLogger(s"Failed to validate user submission with errors: ${formWithErrors.errors}", None)
+          Future.successful(BadRequest(view(
+            form = formWithErrors,
+            viewModel = viewModel(mode, MembersDobPage),
+            name = memberDetails.fullName
+          )))
+        },
+        answer => {
+          infoLogger("Successfully validated user submission. Attempting to update session data cache")
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
+            _ <- service.save(updatedAnswers)
+          } yield {
+            infoLogger("Successfully updated session data cache. Redirecting to next page")
+            Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
           }
-        )
+        }
+      )
   }
 }

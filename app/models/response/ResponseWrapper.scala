@@ -21,3 +21,8 @@ import models.CorrelationId
 case class ResponseWrapper[+A](correlationId: CorrelationId, responseData: A) {
   def map[B](f: A => B): ResponseWrapper[B] = ResponseWrapper(correlationId, f(responseData))
 }
+
+object ResponseWrapper {
+  def wrap[A](data: A)(implicit correlationId: CorrelationId): ResponseWrapper[A] =
+    ResponseWrapper(correlationId, data)
+}

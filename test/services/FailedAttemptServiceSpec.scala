@@ -44,9 +44,9 @@ class FailedAttemptServiceSpec extends SpecBase {
     val mockConfig: FrontendAppConfig = mock[FrontendAppConfig]
 
     val service: FailedAttemptServiceImpl = new FailedAttemptServiceImpl(
-      failedAttemptLockoutRepository = mockLockoutRepo,
-      failedAttemptCountRepository = mockCountRepo,
-      frontendAppConfig = mockConfig
+      lockoutRepo = mockLockoutRepo,
+      countRepo = mockCountRepo,
+      appConfig = mockConfig
     )
 
     lazy val lockoutThreshold: Int = 5

@@ -18,26 +18,35 @@ package services
 
 import com.google.inject.ImplementedBy
 import connectors.MembersCheckAndRetrieveConnector
-import models.errors.MpeError
+import models.{CorrelationId, ResultType}
 import models.requests.PensionSchemeMemberRequest
-import models.response.ProtectionRecordDetails
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.NewLogging
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
-
-@Singleton
-class MembersCheckAndRetrieveServiceImpl @Inject()(checkAndRetrieveConnector: MembersCheckAndRetrieveConnector) extends MembersCheckAndRetrieveService {
-
-  override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
-                               (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[Either[MpeError, ProtectionRecordDetails]] = {
-
-    checkAndRetrieveConnector.checkAndRetrieve(pensionSchemeMemberRequest)
-  }
-}
+import scala.concurrent.ExecutionContext
 
 @ImplementedBy(classOf[MembersCheckAndRetrieveServiceImpl])
 trait MembersCheckAndRetrieveService {
   def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
-                      (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[Either[MpeError, ProtectionRecordDetails]]
+                      (implicit hc: HeaderCarrier,
+                       ec: ExecutionContext,
+                       correlationId: CorrelationId): ResultType
+}
+
+@Singleton
+class MembersCheckAndRetrieveServiceImpl @Inject()(connector: MembersCheckAndRetrieveConnector)
+  extends MembersCheckAndRetrieveService with NewLogging {
+
+  override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
+                               (implicit hc: HeaderCarrier,
+                                ec: ExecutionContext,
+                                correlationId: CorrelationId): ResultType = {
+    logger.info(
+      secondaryContext = "checkAndRetrieve",
+      message = "Attempting to find match for supplied member, and retrieve associated protection record details",
+      dataLog = correlationIdLogString(correlationId)
+    )
+    connector.checkAndRetrieve(pensionSchemeMemberRequest)
+  }
 }

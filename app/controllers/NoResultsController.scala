@@ -20,7 +20,7 @@ import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierA
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
-import utils.DateTimeFormats
+import utils.{DateTimeFormats, NewLogging}
 import views.html.NoResultsView
 
 import javax.inject.Inject
@@ -33,12 +33,22 @@ class NoResultsController @Inject()(override val messagesApi: MessagesApi,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: NoResultsView,
                                     dateTimeProvider: DateTimeProvider)
-  extends MpeBaseController(identify, checkLockout, getData) {
+  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
 
-  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(): Action[AnyContent] = handle("onPageLoad") { implicit request =>
+    val methodLoggingContext: String = "onPageLoad"
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
+    val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(request.correlationId)
+    )
+
+    infoLogger("Attempting to check for existing user answers to all questions")
 
     getUserData(request) match {
       case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
+        infoLogger("Existing user answers found for all questions. Attempting to serve 'no results' view")
         Future.successful(Ok(
           view(
             memberDetails = memberDetails,
@@ -47,7 +57,9 @@ class NoResultsController @Inject()(override val messagesApi: MessagesApi,
             membersPsaCheckRef = membersPsaCheckRef,
             formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now())
           )))
-      case _ => Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
+      case _ =>
+        warnLogger("Could not find existing user answers for all questions. Redirecting to clear user cache", None)
+        Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
     }
   }
 }

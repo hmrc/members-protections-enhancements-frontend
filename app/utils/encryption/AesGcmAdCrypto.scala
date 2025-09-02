@@ -30,7 +30,7 @@ trait AesGcmAdCrypto {
 
 @Singleton
 class AesGcmAdCryptoImpl @Inject()(appConfig: FrontendAppConfig,
-                                   aesGcmAdCryptoFactory: AesGcmAdCryptoFactory) extends  AesGcmAdCrypto {
+                                   aesGcmAdCryptoFactory: AesGcmAdCryptoFactory) extends AesGcmAdCrypto {
   private lazy val aesGcmAdCrypto = aesGcmAdCryptoFactory.instance()
 
   def encrypt(valueToEncrypt: String)

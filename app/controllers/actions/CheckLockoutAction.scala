@@ -25,6 +25,7 @@ import play.api.mvc.Results._
 import play.api.mvc._
 import repositories.SessionRepository
 import services.FailedAttemptService
+import utils.NewLogging
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,21 +37,20 @@ class CheckLockoutActionImpl @Inject()(val config: FrontendAppConfig,
                                        failedAttemptService: FailedAttemptService,
                                        sessionRepository: SessionRepository)
                                       (implicit override val executionContext: ExecutionContext)
-  extends CheckLockoutAction with Logging {
-
-  val classLoggingContext: String = "CheckLockoutAction"
-
+  extends CheckLockoutAction with NewLogging {
   override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] = {
     val methodLoggingContext: String = "filter"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
-    logger.info(s"$fullLoggingContext - Checking to see to user has been locked out for failed attempts")
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+    val warnLogger: (String, Option[Throwable]) => Unit = warnLog(methodLoggingContext, correlationIdLogString(request.correlationId))
+
+    infoLogger("Checking to see to user has been locked out for failed attempts")
     failedAttemptService.checkForLockout()(request, executionContext).flatMap {
       case false =>
-        logger.info(s"$fullLoggingContext - User has not been locked out. Continuing with request")
+        infoLogger("User has not been locked out. Continuing with action")
         Future.successful(None)
       case true =>
-        logger.warn(s"$fullLoggingContext - User has been locked out. Redirecting to lockout page")
+        warnLogger("User has been locked out. Redirecting to lockout page", None)
         sessionRepository
           .clear(request.userDetails.userId)
           .map(_ => Some(Redirect(routes.LockedOutController.onPageLoad())))
