@@ -26,7 +26,7 @@ import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
-import utils.NewLogging
+import utils.Logging
 import views.html.MembersNinoView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +40,7 @@ class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
                                       formProvider: MembersNinoFormProvider,
                                       implicit val controllerComponents: MessagesControllerComponents,
                                       view: MembersNinoView)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) with NewLogging{
+  extends MpeBaseController(identify, checkLockout, getData) with Logging{
 
   private val form: Form[MembersNino] = formProvider()
 

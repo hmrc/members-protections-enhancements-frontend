@@ -22,7 +22,7 @@ import models.mongo.CacheUserDetails
 import models.requests.IdentifierRequest
 import play.api.mvc.Result
 import repositories.{FailedAttemptCountRepository, FailedAttemptLockoutRepository}
-import utils.NewLogging
+import utils.Logging
 
 import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +40,7 @@ trait FailedAttemptService {
 @Singleton
 class FailedAttemptServiceImpl @Inject()(lockoutRepo: FailedAttemptLockoutRepository,
                                          countRepo: FailedAttemptCountRepository,
-                                         appConfig: FrontendAppConfig) extends FailedAttemptService with NewLogging {
+                                         appConfig: FrontendAppConfig) extends FailedAttemptService with Logging {
   
   def checkForLockout()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean] = {
     import request.userDetails._

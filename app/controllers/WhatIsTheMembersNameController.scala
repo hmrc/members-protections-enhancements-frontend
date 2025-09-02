@@ -26,7 +26,7 @@ import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
-import utils.NewLogging
+import utils.Logging
 import views.html.WhatIsTheMembersNameView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +40,7 @@ class WhatIsTheMembersNameController @Inject()(override val messagesApi: Message
                                                val controllerComponents: MessagesControllerComponents,
                                                formProvider: WhatIsTheMembersNameFormProvider,
                                                view: WhatIsTheMembersNameView)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
   private val form: Form[MemberDetails] = formProvider()
 

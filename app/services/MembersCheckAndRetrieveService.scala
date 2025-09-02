@@ -21,7 +21,7 @@ import connectors.MembersCheckAndRetrieveConnector
 import models.requests.PensionSchemeMemberRequest
 import models.{CorrelationId, ResultType}
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.NewLogging
+import utils.Logging
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -36,7 +36,7 @@ trait MembersCheckAndRetrieveService {
 
 @Singleton
 class MembersCheckAndRetrieveServiceImpl @Inject()(connector: MembersCheckAndRetrieveConnector)
-  extends MembersCheckAndRetrieveService with NewLogging {
+  extends MembersCheckAndRetrieveService with Logging {
 
   override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)
                                (implicit hc: HeaderCarrier,

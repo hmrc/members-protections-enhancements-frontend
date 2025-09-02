@@ -18,8 +18,9 @@ package services
 
 import base.SpecBase
 import config.FrontendAppConfig
+import models.CorrelationId
 import models.mongo.CacheUserDetails
-import models.requests.IdentifierRequest
+import models.requests.{IdentifierRequest, RequestWithCorrelationId}
 import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.{PSA, PSP}
 import org.mockito.ArgumentMatchers
@@ -42,6 +43,8 @@ class FailedAttemptServiceSpec extends SpecBase {
     val mockCountRepo: FailedAttemptCountRepository = mock[FailedAttemptCountRepository]
     val mockLockoutRepo: FailedAttemptLockoutRepository = mock[FailedAttemptLockoutRepository]
     val mockConfig: FrontendAppConfig = mock[FrontendAppConfig]
+
+    implicit val correlationId: CorrelationId = "X-ID"
 
     val service: FailedAttemptServiceImpl = new FailedAttemptServiceImpl(
       lockoutRepo = mockLockoutRepo,
@@ -85,7 +88,7 @@ class FailedAttemptServiceSpec extends SpecBase {
 
     lazy val getExpiryResult: Future[Option[Instant]] = Future.successful(instantTime)
     when(
-      mockLockoutRepo.getLockoutExpiry(ArgumentMatchers.any())
+      mockLockoutRepo.getLockoutExpiry(ArgumentMatchers.any())(ArgumentMatchers.any())
     ).thenReturn(getExpiryResult)
 
     implicit val request: IdentifierRequest[AnyContentAsEmpty.type] = AdministratorRequest(
@@ -93,7 +96,7 @@ class FailedAttemptServiceSpec extends SpecBase {
       userId = "internalId",
       psaId = "psaId",
       psrUserType = PSA,
-      request = FakeRequest()
+      request = RequestWithCorrelationId(FakeRequest(), correlationId)
     )
   }
 

@@ -30,7 +30,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, authorisedEn
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.{IdGenerator, NewLogging}
+import utils.{IdGenerator, Logging}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,7 +44,7 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
                                               config: FrontendAppConfig,
                                               playBodyParsers: BodyParsers.Default)
                                              (implicit override val executionContext: ExecutionContext)
-  extends IdentifierAction with AuthorisedFunctions with NewLogging {
+  extends IdentifierAction with AuthorisedFunctions with Logging {
 
   private[actions] def handleWithCorrelationId[A](request: Request[A],
                                                   extraContext: String)
@@ -107,11 +107,11 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
             warnLogger("Authorisation completed successfully, but session is invalid. Redirecting user to log in", None)
             Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
           case _ =>
-            val err: UnauthorizedException = new UnauthorizedException(
+            val err: InternalError = InternalError(
               message = "Unable to retrieve user details or type from authorisation response"
             )
             warnLogger("Authorisation completed successfully, but could not retrieve user details or type", Some(err))
-            throw err
+            Future.failed(err)
         } recoverWith {
         case err: NoActiveSession =>
           warnLogger("No active session could be found. Redirecting user to log in", Some(err))
@@ -120,6 +120,9 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
           warnLogger("User does not have sufficient enrolments. Redirecting user to MPS registration", Some(err))
           Future.successful(Redirect(config.mpsRegistrationUrl))
         case err: AuthorisationException =>
+          errorLog(methodLoggingContext, idLogString)("An unexpected authorisation error occurred", Some(err))
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+        case err: UnauthorizedException =>
           errorLog(methodLoggingContext, idLogString)("An unexpected authorisation error occurred", Some(err))
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       }

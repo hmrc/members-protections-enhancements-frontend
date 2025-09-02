@@ -23,7 +23,7 @@ import pages.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import utils.NewLogging
+import utils.Logging
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import views.html.CheckYourAnswersView
 
@@ -35,7 +35,7 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            getData: DataRetrievalAction,
                                            implicit val controllerComponents: MessagesControllerComponents,
                                            view: CheckYourAnswersView)
-  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
   def onPageLoad(): Action[AnyContent] = handle("onPageLoad") { implicit request =>
     val methodLoggingContext: String = "onPageLoad"

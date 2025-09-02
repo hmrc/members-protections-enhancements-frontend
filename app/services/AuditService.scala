@@ -25,13 +25,13 @@ import uk.gov.hmrc.play.audit.AuditExtensions
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import uk.gov.hmrc.play.bootstrap.config.AppName
-import utils.NewLogging
+import utils.Logging
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuditService @Inject()(auditConnector: AuditConnector, appConfig: Configuration) extends NewLogging {
+class AuditService @Inject()(auditConnector: AuditConnector, appConfig: Configuration) extends Logging {
   def auditEvent[T](event: AuditEvent[T])
                    (implicit hc: HeaderCarrier,
                     ec: ExecutionContext,
@@ -39,7 +39,7 @@ class AuditService @Inject()(auditConnector: AuditConnector, appConfig: Configur
                     writer: Writes[T]): Future[AuditResult] = {
     val methodLoggingContext: String = "auditEvent"
 
-    val eventTags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags() ++
+    val eventTags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags() +
       (
         "transactionName" -> event.transactionName,
         "correlationId" -> correlationId.value,

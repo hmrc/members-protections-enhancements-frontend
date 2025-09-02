@@ -24,7 +24,7 @@ import org.mongodb.scala.MongoException
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
-import utils.NewLogging
+import utils.Logging
 
 import java.util.concurrent.TimeUnit
 import javax.cache.CacheException
@@ -59,7 +59,7 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       )
     ),
     replaceIndexes = true
-  ) with FailedAttemptCountRepository with NewLogging {
+  ) with FailedAttemptCountRepository with Logging {
 
   def addFailedAttempt()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Unit] = {
     val methodLoggingContext: String = "addFailedAttempt"

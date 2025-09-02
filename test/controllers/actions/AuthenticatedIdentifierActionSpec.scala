@@ -20,6 +20,7 @@ import base.SpecBase
 import config.{Constants, FrontendAppConfig}
 import connectors.UserAllowListConnector
 import controllers.routes
+import models.CorrelationId
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.requests.UserDetails
 import org.mockito.ArgumentMatchers.any
@@ -36,6 +37,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.SessionKeys
+import utils.IdGenerator
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,24 +46,39 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
   private val mockUserAllowListConnector: UserAllowListConnector = mock[UserAllowListConnector]
   private val bodyParsers: BodyParsers.Default = mock[BodyParsers.Default]
+  private val idGenerator: IdGenerator = mock[IdGenerator]
+
+  val defaultCorrelationId: CorrelationId = "X-ID"
 
   def authAction(appConfig: FrontendAppConfig) =
     new AuthenticatedIdentifierAction(
       authConnector = mockAuthConnector,
       userAllowListConnector = mockUserAllowListConnector,
       config = appConfig,
-      playBodyParsers = bodyParsers
+      playBodyParsers = bodyParsers,
+      idGenerator = idGenerator
     )(ExecutionContext.global)
 
   class Handler(appConfig: FrontendAppConfig) {
-    def run: Action[AnyContent] = authAction(appConfig) { request =>
-      request match {
-        case AdministratorRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
-          Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "psaId" -> psrUserId, "affinityGroup" -> affinityGroup))
+    def run: Action[AnyContent] = authAction(appConfig) { request => request match {
+      case AdministratorRequest(_, UserDetails(psrUserType, psrUserId, userId, affinityGroup), corrId) =>
+        Ok(Json.obj(
+          "psrUserType" -> psrUserType,
+          "userId" -> userId,
+          "psaId" -> psrUserId,
+          "affinityGroup" -> affinityGroup,
+          "correlationId" -> corrId.value
+        ))
 
-        case PractitionerRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
-          Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "pspId" -> psrUserId, "affinityGroup" -> affinityGroup))
-      }
+      case PractitionerRequest(_, UserDetails(psrUserType, psrUserId, userId, affinityGroup), corrId) =>
+        Ok(Json.obj(
+          "psrUserType" -> psrUserType,
+          "userId" -> userId,
+          "pspId" -> psrUserId,
+          "affinityGroup" -> affinityGroup,
+          "correlationId" -> corrId.value
+        ))
+    }
     }
   }
 
@@ -150,7 +167,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
         running(application) {
           setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
-          when(mockUserAllowListConnector.check(any(), any())(any())).thenReturn(Future.successful(false))
+          when(mockUserAllowListConnector.check(any(), any())(any(), any())).thenReturn(Future.successful(false))
           val result = handler(application).run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
 
           val expectedUrl = routes.UnauthorisedController.onPageLoad().url
@@ -162,6 +179,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
     "return an IdentifierRequest" - {
       "User has a psa enrolment and has a valid session" in runningApplication { implicit app =>
+        when(idGenerator.getCorrelationId).thenReturn(defaultCorrelationId.value)
         setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
 
         val result = handler.run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
@@ -170,10 +188,12 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         (contentAsJson(result) \ "psaId").asOpt[String] mustBe Some("A2100001")
         (contentAsJson(result) \ "pspId").asOpt[String] mustBe None
         (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
+        (contentAsJson(result) \ "correlationId").asOpt[String] mustBe Some(defaultCorrelationId.value)
       }
 
       "User has a psp enrolment and has a valid session" in runningApplication { implicit app =>
         setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), pspEnrolment))
+        when(idGenerator.getCorrelationId).thenReturn(defaultCorrelationId.value)
 
         val result = handler.run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
 
@@ -181,10 +201,27 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         (contentAsJson(result) \ "psaId").asOpt[String] mustBe None
         (contentAsJson(result) \ "pspId").asOpt[String] mustBe Some("21000002")
         (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
+        (contentAsJson(result) \ "correlationId").asOpt[String] mustBe Some(defaultCorrelationId.value)
+      }
+
+      "User has a psp enrolment, valid session, and existing correlationId in request" in runningApplication { implicit app =>
+        setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), pspEnrolment))
+
+        val result = handler.run(
+          FakeRequest()
+            .withSession(SessionKeys.sessionId -> "foo")
+            .withHeaders("correlationId" -> "some-id")
+        )
+
+        status(result) mustBe OK
+        (contentAsJson(result) \ "psaId").asOpt[String] mustBe None
+        (contentAsJson(result) \ "pspId").asOpt[String] mustBe Some("21000002")
+        (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
+        (contentAsJson(result) \ "correlationId").asOpt[String] mustBe Some("some-id")
       }
 
       "user is valid and exists in user allow list" in {
-
+        when(idGenerator.getCorrelationId).thenReturn(defaultCorrelationId.value)
         val servicesConfig: Map[String, Any] = Map(
           "feature-switch.privateBetaEnabled"  -> true
         )
@@ -197,12 +234,13 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
         running(application) {
           setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
-          when(mockUserAllowListConnector.check(any(), any())(any())).thenReturn(Future.successful(true))
+          when(mockUserAllowListConnector.check(any(), any())(any(), any())).thenReturn(Future.successful(true))
           val result = handler(application).run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
 
           status(result) mustBe OK
           (contentAsJson(result) \ "psaId").asOpt[String] mustBe Some("A2100001")
           (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
+          (contentAsJson(result) \ "correlationId").asOpt[String] mustBe Some(defaultCorrelationId.value)
         }
       }
     }

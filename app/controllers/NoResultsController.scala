@@ -20,7 +20,7 @@ import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierA
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
-import utils.{DateTimeFormats, NewLogging}
+import utils.{DateTimeFormats, Logging}
 import views.html.NoResultsView
 
 import javax.inject.Inject
@@ -33,7 +33,7 @@ class NoResultsController @Inject()(override val messagesApi: MessagesApi,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: NoResultsView,
                                     dateTimeProvider: DateTimeProvider)
-  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
   def onPageLoad(): Action[AnyContent] = handle("onPageLoad") { implicit request =>
     val methodLoggingContext: String = "onPageLoad"

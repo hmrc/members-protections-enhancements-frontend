@@ -24,7 +24,7 @@ import play.api.mvc.Results._
 import play.api.mvc._
 import repositories.SessionRepository
 import services.FailedAttemptService
-import utils.NewLogging
+import utils.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,7 +36,7 @@ class CheckLockoutActionImpl @Inject()(val config: FrontendAppConfig,
                                        failedAttemptService: FailedAttemptService,
                                        sessionRepository: SessionRepository)
                                       (implicit override val executionContext: ExecutionContext)
-  extends CheckLockoutAction with NewLogging {
+  extends CheckLockoutAction with Logging {
   override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] = {
     val methodLoggingContext: String = "filter"
 

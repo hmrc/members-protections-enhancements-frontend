@@ -22,7 +22,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.NewLogging
+import utils.Logging
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -33,7 +33,7 @@ class AuthController @Inject()(val controllerComponents: MessagesControllerCompo
                                sessionRepository: SessionRepository,
                                identify: IdentifierAction)
                               (implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport with NewLogging {
+  extends FrontendBaseController with I18nSupport with Logging {
 
   def signOut(): Action[AnyContent] = identify.async { implicit request =>
     val methodLoggingContext: String = "signOut"

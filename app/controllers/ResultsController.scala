@@ -29,7 +29,7 @@ import providers.DateTimeProvider
 import services.{AuditService, FailedAttemptService, MembersCheckAndRetrieveService, SessionCacheService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import utils.{DateTimeFormats, NewLogging}
+import utils.{DateTimeFormats, Logging}
 import views.html.ResultsView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -46,7 +46,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                                   service: SessionCacheService,
                                   auditService: AuditService)
                                  (implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
   def onPageLoad(): Action[AnyContent] = handle("onPageLoad"){ implicit request =>
     val methodLoggingContext: String = "onPageLoad"
