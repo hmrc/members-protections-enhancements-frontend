@@ -16,6 +16,8 @@
 
 package utils
 
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.JsonMappingException
 import models.CorrelationId
 import play.api.libs.json._
 import uk.gov.hmrc.http._
@@ -33,12 +35,10 @@ trait HttpResponseHelper extends HttpErrorFunctions {_: NewLogging =>
     response
   }
 
-  private def checkIdsMatch(requestCorrelationId: CorrelationId,
-                            responseCorrelationId: CorrelationId,
-                            extraLoggingContext: Option[String]): CorrelationId =
-    if (requestCorrelationId.value == responseCorrelationId.value) {
-      responseCorrelationId
-    } else {
+  protected def checkIdsMatch(requestCorrelationId: CorrelationId,
+                              responseCorrelationId: CorrelationId,
+                              extraLoggingContext: Option[String]): CorrelationId = {
+    if (requestCorrelationId.value != responseCorrelationId.value) {
       logger.error(
         secondaryContext = "checkIdsMatch",
         message = "Correlation ID was either missing from response, or did not match ID from request. " +
@@ -46,24 +46,57 @@ trait HttpResponseHelper extends HttpErrorFunctions {_: NewLogging =>
           s"Request C-ID: ${requestCorrelationId.value}, Response C-ID: ${responseCorrelationId.value}",
         extraContext = extraLoggingContext
       )
-      requestCorrelationId
     }
 
-  def handleResponse[A, F](response: HttpResponse, wrap: A => F)
-                          (implicit reads: Reads[A], requestCorrelationId: CorrelationId): F = {
+    requestCorrelationId
+  }
+
+  def handleResponse[A, F](response: HttpResponse, wrap: A => F, context: Option[String], correlationId: CorrelationId)
+                          (implicit reads: Reads[A]): F = {
     val methodLoggingContext: String = "handleResponse"
 
-    val correlationId = checkIdsMatch(
-      requestCorrelationId = requestCorrelationId,
-      responseCorrelationId = response.header("correlationId").getOrElse("N/A"),
-      extraLoggingContext = Some(methodLoggingContext)
+    val infoLogger: String => Unit = infoLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(correlationId), extraContext = context
     )
 
-    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(correlationId))
+    val errorLogger: (String, Option[Throwable]) => Unit = errorLog(
+      secondaryContext = methodLoggingContext,
+      dataLog = correlationIdLogString(correlationId),
+      extraContext = context
+    )
 
-    response.json.validate[A] match {
-      case JsSuccess(value, _) => wrap(value)
-      case JsError(errors) => throw JsResultException(errors)
+    infoLogger("Attempting to parse HTTP response body to JSON")
+
+    try {
+      val json: JsValue = Json.parse(response.body)
+      infoLogger("Successfully parsed HTTP response body to JSON. Attempting to parse JSON to expected format")
+
+      json.validate[A] match {
+        case JsSuccess(value, _) =>
+          infoLogger("Successfully parsed response body JSON to expected format. Returning parsed data")
+          wrap(value)
+        case JsError(errors) =>
+          val err: JsResultException = JsResultException(errors)
+          errorLogger(
+            s"Failed to parse response body JSON to expected format with error: ${err.getMessage}",
+            Some(err)
+          )
+          throw err
+      }
+    } catch {
+      case ex: JsonParseException =>
+        errorLogger(
+          s"Failed to parse response body string to JSON with error: ${ex.getMessage}",
+          Some(ex)
+        )
+        throw ex
+      case ex: JsonMappingException =>
+        errorLogger(
+          s"Failed to parse response body string to JSON with error: ${ex.getMessage}",
+          Some(ex)
+        )
+        throw ex
     }
   }
 }

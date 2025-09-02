@@ -18,11 +18,10 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import models.{CorrelationId, MembersResult}
 import models.audit.{AuditDetail, AuditEvent}
 import models.errors.{ErrorWrapper, MatchPerson, MpeError}
-import models.requests.{DataRequest, IdentifierRequest, PensionSchemeMemberRequest, UserDetails}
-import models.response.ProtectionRecordDetails
+import models.requests.{DataRequest, PensionSchemeMemberRequest, UserDetails}
+import models.{CorrelationId, MembersResult}
 import pages.ResultsPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -30,8 +29,7 @@ import providers.DateTimeProvider
 import services.{AuditService, FailedAttemptService, MembersCheckAndRetrieveService, SessionCacheService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.{DateTimeFormats, IdGenerator, Logging, NewLogging}
+import utils.{DateTimeFormats, NewLogging}
 import views.html.ResultsView
 
 import scala.concurrent.{ExecutionContext, Future}
