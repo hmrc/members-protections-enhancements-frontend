@@ -20,10 +20,7 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.FrontendAppConfig
 import models.CorrelationId
 import models.mongo.CacheUserDetails
-import org.bson.codecs.Codec
-import org.mongodb.scala.model.IndexModel
 import org.mongodb.scala.{MongoException, MongoWriteException}
-import play.api.Logging
 import play.api.libs.json.{Format, Json, Writes}
 import uk.gov.hmrc.mongo.cache._
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}

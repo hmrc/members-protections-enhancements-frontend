@@ -18,8 +18,8 @@ package services
 
 import com.google.inject.ImplementedBy
 import connectors.MembersCheckAndRetrieveConnector
-import models.{CorrelationId, ResultType}
 import models.requests.PensionSchemeMemberRequest
+import models.{CorrelationId, ResultType}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.NewLogging
 

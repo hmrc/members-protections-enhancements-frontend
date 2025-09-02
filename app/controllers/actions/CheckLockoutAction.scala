@@ -20,7 +20,6 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
-import play.api.Logging
 import play.api.mvc.Results._
 import play.api.mvc._
 import repositories.SessionRepository

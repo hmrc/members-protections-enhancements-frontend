@@ -18,10 +18,10 @@ package connectors
 
 import com.google.inject.{ImplementedBy, Inject}
 import config.FrontendAppConfig
-import models.{CorrelationId, ResultType}
 import models.errors.{ErrorWrapper, MpeError}
 import models.requests.PensionSchemeMemberRequest
 import models.response.{ProtectionRecordDetails, ResponseWrapper}
+import models.{CorrelationId, ResultType}
 import play.api.http.Status._
 import play.api.libs.json._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -48,34 +48,50 @@ class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2,
                                (implicit hc: HeaderCarrier,
                                 ec: ExecutionContext,
                                 correlationId: CorrelationId): ResultType = {
-
     val checkAndRetrieveUrl = url"${config.checkAndRetrieveUrl}"
+
     val methodLoggingContext: String = "checkAndRetrieve"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
-    logInfo(fullLoggingContext, s"with correlationId: $correlationId")
+    val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(correlationId))
+    infoLogger("Attempting to match member, and retrieve protection record details using the provided user answers")
 
     httpClientV2.post(checkAndRetrieveUrl)
       .withBody(Json.toJson(pensionSchemeMemberRequest))
-      .setHeader(
-        ("correlationId", correlationId.value))
+      .setHeader(("correlationId", correlationId.value))
       .execute[HttpResponse].map { response =>
-        val responseCorrelationId: CorrelationId = retrieveCorrelationId(response)
-        val resultCorrelationId: CorrelationId = checkIdsMatch(correlationId, responseCorrelationId)
-         val result: Either[ErrorWrapper, ResponseWrapper[ProtectionRecordDetails]] = response.status match {
-            case OK =>
-              logInfo(fullLoggingContext, s"Success response received" +
-                s" with status ${response.status}, and correlationId: ${retrieveCorrelationId(response)}")
-              Right(handleResponse[ProtectionRecordDetails, ResponseWrapper[ProtectionRecordDetails]](response.json, ResponseWrapper.wrap))
-            case _ =>
-              logError(fullLoggingContext, s"Error response received" +
-                s" with status: ${response.status}, and correlationId: ${retrieveCorrelationId(response)} " +
-                s" due to ${response.body}")
-              Left(handleResponse[MpeError, ErrorWrapper](response.json, ErrorWrapper.wrap))
-          }
+        val resultCorrelationId: CorrelationId = checkIdsMatch(
+          requestCorrelationId = correlationId,
+          responseCorrelationId = retrieveCorrelationId(response),
+          extraLoggingContext = Some(methodLoggingContext)
+        )
 
-      result
+        val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(resultCorrelationId))
+        val warnLogger: (String, Option[Throwable]) => Unit = warnLog(
+          secondaryContext = methodLoggingContext,
+          dataLog = correlationIdLogString(resultCorrelationId)
+        )
+        infoLogger("Successfully completed check and retrieve. Attempting to parse HTTP response")
+
+        val result: Either[ErrorWrapper, ResponseWrapper[ProtectionRecordDetails]] = response.status match {
+          case OK =>
+            infoLogger("Success response received with 200 status. Attempting to parse protection record details")
+            Right(handleResponse[ProtectionRecordDetails, ResponseWrapper[ProtectionRecordDetails]](
+              response, ResponseWrapper.wrap, Some(methodLoggingContext), resultCorrelationId
+            ))
+          case errStatus =>
+            warnLogger(s"Error response received with $errStatus status. Attempting to parse error", None)
+            Left(handleResponse[MpeError, ErrorWrapper](
+              response, ErrorWrapper.wrap, Some(methodLoggingContext), resultCorrelationId
+            ))
+        }
+
+        result
       } andThen {
-        case Failure(t: Throwable) => logger.warn("Unable to retrieve the data", t)
-      }
+      case Failure(t: Throwable) => logger.errorWithException(
+        secondaryContext = methodLoggingContext,
+        message = s"Attempt to complete check and retrieve failed with error: ${t.getMessage}",
+        ex = t,
+        dataLog = correlationIdLogString(correlationId)
+      )
+    }
   }
 }

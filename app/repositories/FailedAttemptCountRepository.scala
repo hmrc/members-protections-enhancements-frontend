@@ -18,12 +18,10 @@ package repositories
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.FrontendAppConfig
-import models.CorrelationId
 import models.mongo.CacheUserDetails
 import models.requests.IdentifierRequest
 import org.mongodb.scala.MongoException
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
-import play.api.Logging
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
 import utils.NewLogging
