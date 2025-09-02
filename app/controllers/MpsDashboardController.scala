@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.NewLogging
+import utils.Logging
 
 import scala.concurrent.Future
 
@@ -30,7 +30,7 @@ class MpsDashboardController @Inject()(identify: IdentifierAction,
                                        getData: DataRetrievalAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        val appConfig: FrontendAppConfig)
-  extends FrontendBaseController with NewLogging {
+  extends FrontendBaseController with Logging {
 
   def redirectToMps(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async{ implicit request =>
     val methodLoggingContext: String = "redirectToMps"

@@ -19,14 +19,14 @@ package controllers
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.NewLogging
+import utils.Logging
 import views.html.UnauthorisedView
 
 import javax.inject.Inject
 
 class UnauthorisedController @Inject()(val controllerComponents: MessagesControllerComponents,
                                        view: UnauthorisedView)
-  extends FrontendBaseController with I18nSupport with NewLogging {
+  extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
     val methodLoggingContext: String = "onPageLoad"

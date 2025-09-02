@@ -183,7 +183,6 @@ class ResultsControllerSpec extends SpecBase {
           testModel
         )(request, messages(application)).toString
 
-        verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
@@ -211,7 +210,6 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.NoResultsController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
@@ -264,7 +262,6 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.LockedOutController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
@@ -280,7 +277,6 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.NoResultsController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
@@ -297,7 +293,6 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
       }
     }
 

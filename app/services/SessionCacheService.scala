@@ -21,7 +21,7 @@ import models.CorrelationId
 import models.userAnswers.UserAnswers
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.NewLogging
+import utils.Logging
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,7 +38,7 @@ trait SessionCacheService {
 }
 
 @Singleton
-class SessionCacheServiceImpl @Inject()(sessionRepository: SessionRepository) extends SessionCacheService with NewLogging {
+class SessionCacheServiceImpl @Inject()(sessionRepository: SessionRepository) extends SessionCacheService with Logging {
   override def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier,
                                               ec: ExecutionContext,
                                               correlationId: CorrelationId): Future[Unit] = {

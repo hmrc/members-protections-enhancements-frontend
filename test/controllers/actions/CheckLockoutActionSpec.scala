@@ -19,7 +19,8 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
-import models.requests.IdentifierRequest
+import models.CorrelationId
+import models.requests.{IdentifierRequest, RequestWithCorrelationId}
 import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.PSA
 import org.mockito.ArgumentMatchers
@@ -40,6 +41,7 @@ class CheckLockoutActionSpec extends SpecBase {
     val mockConfig: FrontendAppConfig = mock[FrontendAppConfig]
     val mockService: FailedAttemptService = mock[FailedAttemptService]
     val mockSessionRepo: SessionRepository = mock[SessionRepository]
+    implicit val correlationId: CorrelationId = "X-ID"
 
     val testAction: CheckLockoutActionImpl = new CheckLockoutActionImpl(
       config = mockConfig,
@@ -59,11 +61,17 @@ class CheckLockoutActionSpec extends SpecBase {
       ).thenReturn(
         Future.successful(false)
       )
-
       val result: Future[Result] = testAction.invokeBlock(
-        request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", PSA, FakeRequest()),
+        request = AdministratorRequest(
+          affGroup = AffinityGroup.Individual,
+          userId = "anId",
+          psaId = "anotherId",
+          psrUserType = PSA,
+          request = RequestWithCorrelationId(FakeRequest(), correlationId)
+        ),
         block = (_: IdentifierRequest[AnyContentAsEmpty.type]) => unauthorisedResult
       )
+
 
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
@@ -79,7 +87,13 @@ class CheckLockoutActionSpec extends SpecBase {
       when(mockSessionRepo.clear(ArgumentMatchers.any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = testAction.invokeBlock(
-        request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", PSA, FakeRequest()),
+        request = AdministratorRequest(
+          affGroup = AffinityGroup.Individual,
+          userId = "anId",
+          psaId = "anotherId",
+          psrUserType = PSA,
+          request = RequestWithCorrelationId(FakeRequest(), correlationId)
+        ),
         block = (_: IdentifierRequest[AnyContentAsEmpty.type]) => unauthorisedResult
       )
 

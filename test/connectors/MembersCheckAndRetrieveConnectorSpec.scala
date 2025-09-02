@@ -69,7 +69,6 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
 
   "checkAndRetrieve" - {
     "return valid response with status 200 for a valid submission" in new Test {
-
       val response: String =
         """
           |{

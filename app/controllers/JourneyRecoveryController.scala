@@ -22,7 +22,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
 import uk.gov.hmrc.play.bootstrap.binders._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.NewLogging
+import utils.Logging
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
 import javax.inject.Inject
@@ -32,7 +32,7 @@ class JourneyRecoveryController @Inject()(val controllerComponents: MessagesCont
                                           getData: DataRetrievalAction,
                                           continueView: JourneyRecoveryContinueView,
                                           startAgainView: JourneyRecoveryStartAgainView)
-  extends FrontendBaseController with I18nSupport with NewLogging {
+  extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] =
     (identify andThen getData) { implicit request =>

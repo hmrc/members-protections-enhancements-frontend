@@ -22,7 +22,8 @@ import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model._
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import uk.gov.hmrc.mdc.Mdc
+import uk.gov.hmrc.play.http.logging.Mdc
+import utils.Logging
 import utils.encryption.AesGcmAdCrypto
 
 import java.time.{Clock, Instant}
@@ -45,7 +46,7 @@ class SessionRepository @Inject()(mongoComponent: MongoComponent,
         .name("lastUpdatedIdx")
         .expireAfter(appConfig.sessionDataTtl, TimeUnit.SECONDS)
     ))
-  ) {
+  ) with Logging {
 
   private def byId(id: String): Bson = Filters.equal("_id", id)
 

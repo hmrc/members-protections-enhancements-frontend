@@ -22,7 +22,7 @@ import models.CorrelationId
 import play.api.libs.json._
 import uk.gov.hmrc.http._
 
-trait HttpResponseHelper extends HttpErrorFunctions {_: NewLogging =>
+trait HttpResponseHelper extends HttpErrorFunctions {_: Logging =>
 
   implicit def httpResponseReads: HttpReads[HttpResponse] = (method: String,
                                                              url: String,
@@ -30,7 +30,7 @@ trait HttpResponseHelper extends HttpErrorFunctions {_: NewLogging =>
     logger.info(
       secondaryContext = "httpResponseReads",
       message = s"HTTP call with method: $method, url: $url completed with status: ${response.status}",
-      dataLog = correlationIdLogString(response.header("correlationId").getOrElse("N/A"))
+      dataLog = correlationIdLogString(CorrelationId(response.header("correlationId").getOrElse("N/A")))
     )
     response
   }

@@ -20,14 +20,14 @@ import models.requests.{DataRequest, IdentifierRequest}
 import models.userAnswers.UserAnswers
 import play.api.mvc.ActionTransformer
 import repositories.SessionRepository
-import utils.NewLogging
+import utils.Logging
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DataRetrievalActionImpl @Inject()(val sessionRepository: SessionRepository)
                                        (implicit val executionContext: ExecutionContext)
-  extends DataRetrievalAction with NewLogging {
+  extends DataRetrievalAction with Logging {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] = {
     val methodLoggingContext: String = "transform"

@@ -26,7 +26,7 @@ import play.api.http.Status._
 import play.api.libs.json._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import utils.{HttpResponseHelper, Logging, NewLogging}
+import utils.{HttpResponseHelper, Logging}
 
 import scala.concurrent.ExecutionContext
 import scala.util.Failure
@@ -39,7 +39,7 @@ trait MembersCheckAndRetrieveConnector extends Logging {
 }
 
 class MembersCheckAndRetrieveConnectorImpl @Inject()(httpClientV2: HttpClientV2, config: FrontendAppConfig)
-  extends MembersCheckAndRetrieveConnector with HttpResponseHelper with NewLogging {
+  extends MembersCheckAndRetrieveConnector with HttpResponseHelper {
 
   private def retrieveCorrelationId(response: HttpResponse): CorrelationId =
     CorrelationId(response.header("correlationId").getOrElse("No correlationId"))

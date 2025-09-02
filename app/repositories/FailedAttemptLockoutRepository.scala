@@ -24,7 +24,7 @@ import org.mongodb.scala.{MongoException, MongoWriteException}
 import play.api.libs.json.{Format, Json, Writes}
 import uk.gov.hmrc.mongo.cache._
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
-import utils.NewLogging
+import utils.Logging
 
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -44,7 +44,7 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
                                                    frontendAppConfig: FrontendAppConfig,
                                                    timestampSupport: TimestampSupport)
                                                   (implicit ec: ExecutionContext)
-  extends EntityCache[String, CacheUserDetails] with FailedAttemptLockoutRepository with NewLogging {
+  extends EntityCache[String, CacheUserDetails] with FailedAttemptLockoutRepository with Logging {
 
   lazy val format: Format[CacheUserDetails] = CacheUserDetails.mongoFormat
 

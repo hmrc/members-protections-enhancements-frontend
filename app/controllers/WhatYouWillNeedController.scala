@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import utils.NewLogging
+import utils.Logging
 import views.html.WhatYouWillNeedView
 
 import scala.concurrent.Future
@@ -31,7 +31,7 @@ class WhatYouWillNeedController @Inject()(override val messagesApi: MessagesApi,
                                           getData: DataRetrievalAction,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: WhatYouWillNeedView)
-  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
   def start(): Action[AnyContent] = Action.async { request =>
     val methodLoggingContext: String = "start"

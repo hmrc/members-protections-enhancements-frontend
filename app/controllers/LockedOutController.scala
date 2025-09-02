@@ -24,7 +24,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
 import services.FailedAttemptService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.NewLogging
+import utils.Logging
 import views.html.LockedOutView
 
 import javax.inject.Inject
@@ -36,7 +36,7 @@ class LockedOutController @Inject()(val controllerComponents: MessagesController
                                     frontendAppConfig: FrontendAppConfig,
                                     dateTimeProvider: DateTimeProvider,
                                     view: LockedOutView)(implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport with NewLogging {
+  extends FrontendBaseController with I18nSupport with Logging {
 
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
     val methodLoggingContext: String = "keepAlive"

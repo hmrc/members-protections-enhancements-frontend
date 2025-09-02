@@ -26,7 +26,7 @@ import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc._
 import services.SessionCacheService
-import utils.NewLogging
+import utils.Logging
 import views.html.MembersDobView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +40,7 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
                                      formProvider: MembersDobFormProvider,
                                      implicit val controllerComponents: MessagesControllerComponents,
                                      view: MembersDobView)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) with NewLogging {
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
   private val form: Form[MembersDob] = formProvider()
 
