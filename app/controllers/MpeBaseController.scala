@@ -55,6 +55,47 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
     }
   }
 
+  def handleWithMemberDob(block: DataRequest[AnyContent] => MemberDetails => MembersDob => Future[Result]): Action[AnyContent] = {
+    handle {
+      implicit request =>
+        withMemberDetails { memberDetails =>
+          withMembersDob { membersDob =>
+            block(request)(memberDetails)(membersDob)
+          }
+        }
+    }
+  }
+
+  private def withMembersDob(f: MembersDob => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
+    request.userAnswers.get(MembersDobPage) match {
+      case None =>
+        Future.successful(Redirect(routes.MembersDobController.onPageLoad(NormalMode)))
+      case Some(memberDob) =>
+        f(memberDob)
+    }
+  }
+
+  def handleWithMemberNino(block: DataRequest[AnyContent] => MemberDetails => MembersDob => MembersNino => Future[Result]): Action[AnyContent] =
+    handle {
+      implicit request =>
+        withMemberDetails { memberDetails =>
+          withMembersDob { membersDob =>
+            withMembersNino { membersNino =>
+              block(request)(memberDetails)(membersDob)(membersNino)
+            }
+          }
+        }
+    }
+
+  private def withMembersNino(f: MembersNino => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
+    request.userAnswers.get(MembersNinoPage) match {
+      case None =>
+        Future.successful(Redirect(routes.MembersNinoController.onPageLoad(NormalMode)))
+      case Some(memberNino) =>
+        f(memberNino)
+    }
+  }
+
   private def isResultsSuccessful(block: DataRequest[AnyContent] => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
     request.userAnswers.get(ResultsPage) match {
       case Some(_) =>

@@ -43,10 +43,10 @@ class MembersPsaCheckRefController @Inject()(override val messagesApi: MessagesA
 
   private val form: Form[MembersPsaCheckRef] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberNino {
     implicit request =>
 
-      membersDetails =>
+      membersDetails => _ => _ =>
         request.userAnswers.get(MembersPsaCheckRefPage) match {
           case None => Future.successful(Ok(view(form, viewModel(mode, MembersPsaCheckRefPage), membersDetails.fullName)))
           case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersPsaCheckRefPage), membersDetails.fullName)))

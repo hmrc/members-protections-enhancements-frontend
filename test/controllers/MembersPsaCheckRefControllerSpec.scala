@@ -18,13 +18,15 @@ package controllers
 
 import base.SpecBase
 import forms.MembersPsaCheckRefFormProvider
-import models.{MemberDetails, MembersPsaCheckRef, MembersResult, NormalMode}
-import pages.{MembersPsaCheckRefPage, ResultsPage, WhatIsTheMembersNamePage}
+import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, MembersResult, NormalMode}
+import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import viewmodels.formPage.FormPageViewModel
 import views.html.MembersPsaCheckRefView
+
+import java.time.LocalDate
 
 class MembersPsaCheckRefControllerSpec extends SpecBase {
 
@@ -38,7 +40,10 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
 
   "Members Psa Check Reference Controller" - {
     "must return OK and the correct view for a GET" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
+        .set(MembersNinoPage, MembersNino("AA123456C")).success.value
 
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
@@ -75,6 +80,8 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
     "must return OK and pre-fill the form when data is already present" in {
       val userAnswers = emptyUserAnswers
         .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
+        .set(MembersNinoPage, MembersNino("AA123456C")).success.value
         .set(MembersPsaCheckRefPage, MembersPsaCheckRef("PSA12345678A")).success.value
 
       val application = applicationBuilder(userAnswers).build()
@@ -90,6 +97,41 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(
           MembersPsaCheckRef("PSA12345678A")), viewModel, "Pearl Harvey")(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to MembersNino page when user haven't submitted NINO details" in {
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
+
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.MembersNinoController.onPageLoad(NormalMode).url
+
+      }
+    }
+
+    "must redirect to MembersDob page when user haven't submitted DOB details" in {
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.MembersDobController.onPageLoad(NormalMode).url
+
       }
     }
 

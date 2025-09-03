@@ -18,13 +18,15 @@ package controllers
 
 import base.SpecBase
 import forms.MembersNinoFormProvider
-import models.{MemberDetails, MembersNino, MembersResult, NormalMode}
-import pages.{MembersNinoPage, ResultsPage, WhatIsTheMembersNamePage}
+import models.{MemberDetails, MembersDob, MembersNino, MembersResult, NormalMode}
+import pages.{MembersDobPage, MembersNinoPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import viewmodels.formPage.FormPageViewModel
 import views.html.MembersNinoView
+
+import java.time.LocalDate
 
 class MembersNinoControllerSpec extends SpecBase {
 
@@ -38,7 +40,9 @@ class MembersNinoControllerSpec extends SpecBase {
   "Members Nino Controller" - {
     "must return OK and the correct view for a GET" in {
 
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
       running(application) {
@@ -75,6 +79,7 @@ class MembersNinoControllerSpec extends SpecBase {
     "must return OK and pre-fill the form when data is already present" in {
       val userAnswers = emptyUserAnswers
         .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
         .set(MembersNinoPage, MembersNino("AA123456C")).success.value
 
       val application = applicationBuilder(userAnswers).build()
@@ -90,6 +95,21 @@ class MembersNinoControllerSpec extends SpecBase {
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(
           MembersNino("AA123456C")), viewModel, "Pearl Harvey")(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to MembersDob page when user haven't submitted DOB details" in {
+      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoad)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.MembersDobController.onPageLoad(NormalMode).url
+
       }
     }
 
