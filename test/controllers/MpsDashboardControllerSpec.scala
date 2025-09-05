@@ -53,7 +53,7 @@ class MpsDashboardControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustBe "http://localhost:8204/manage-pension-schemes/dashboard"
+        redirectLocation(result).value mustBe "http://localhost:8204/manage-pension-schemes/overview"
       }
     }
   }
