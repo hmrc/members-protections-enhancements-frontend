@@ -44,21 +44,16 @@ class CheckLockoutActionImpl @Inject()(val config: FrontendAppConfig,
     val methodLoggingContext: String = "filter"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
-    if (config.lockoutEnabled) {
-      logger.info(s"$fullLoggingContext - Checking to see to user has been locked out for failed attempts")
-      failedAttemptService.checkForLockout()(request, executionContext).flatMap {
-        case false =>
-          logger.info(s"$fullLoggingContext - User has not been locked out. Continuing with request")
-          Future.successful(None)
-        case true =>
-          logger.warn(s"$fullLoggingContext - User has been locked out. Redirecting to lockout page")
-          sessionRepository
-            .clear(request.userDetails.userId)
-            .map(_ => Some(Redirect(routes.LockedOutController.onPageLoad())))
-      }
-    } else {
-      logger.info(s"$fullLoggingContext - Lockout service disabled")
-      Future.successful(None)
+    logger.info(s"$fullLoggingContext - Checking to see to user has been locked out for failed attempts")
+    failedAttemptService.checkForLockout()(request, executionContext).flatMap {
+      case false =>
+        logger.info(s"$fullLoggingContext - User has not been locked out. Continuing with request")
+        Future.successful(None)
+      case true =>
+        logger.warn(s"$fullLoggingContext - User has been locked out. Redirecting to lockout page")
+        sessionRepository
+          .clear(request.userDetails.userId)
+          .map(_ => Some(Redirect(routes.LockedOutController.onPageLoad())))
     }
   }
 }
