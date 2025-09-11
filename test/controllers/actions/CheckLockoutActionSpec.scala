@@ -53,27 +53,13 @@ class CheckLockoutActionSpec extends SpecBase {
   }
 
   "invokeBlock" -> {
-    "should invoke block when lockout is disabled" in new Test {
-      when(mockConfig.lockoutEnabled).thenReturn(false)
-
-      val result: Future[Result] = testAction.invokeBlock(
-        request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", PSA, FakeRequest()),
-        block = (_: IdentifierRequest[AnyContentAsEmpty.type]) => unauthorisedResult
-      )
-
-      status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
-    }
-
-    "should invoke block when a user is not locked out and lockout is enabled" in new Test {
+    "should invoke block when a user is not locked out" in new Test {
       when(
         mockService.checkForLockout()(ArgumentMatchers.any(), ArgumentMatchers.any())
       ).thenReturn(
         Future.successful(false)
       )
 
-      when(mockConfig.lockoutEnabled).thenReturn(true)
-
       val result: Future[Result] = testAction.invokeBlock(
         request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", PSA, FakeRequest()),
         block = (_: IdentifierRequest[AnyContentAsEmpty.type]) => unauthorisedResult
@@ -83,14 +69,13 @@ class CheckLockoutActionSpec extends SpecBase {
       redirectLocation(result) mustBe Some(controllers.routes.UnauthorisedController.onPageLoad().url)
     }
 
-    "should return lockout redirect when user is locked out and lockout is enabled" in new Test {
+    "should return lockout redirect when user is locked out" in new Test {
       when(
         mockService.checkForLockout()(ArgumentMatchers.any(), ArgumentMatchers.any())
       ).thenReturn(
         Future.successful(true)
       )
 
-      when(mockConfig.lockoutEnabled).thenReturn(true)
       when(mockSessionRepo.clear(ArgumentMatchers.any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = testAction.invokeBlock(
