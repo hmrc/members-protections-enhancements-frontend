@@ -153,7 +153,7 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
           when(mockUserAllowListConnector.check(any(), any())(any())).thenReturn(Future.successful(false))
           val result = handler(application).run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
 
-          val expectedUrl = routes.UnauthorisedController.onPageLoad().url
+          val expectedUrl = routes.PrivateBetaUnauthorisedController.onPageLoad().url
 
           redirectLocation(result) mustBe Some(expectedUrl)
         }

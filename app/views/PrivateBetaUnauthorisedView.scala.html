@@ -14,18 +14,24 @@
  * limitations under the License.
  *@
 
+@import config.FrontendAppConfig
+
 @this(
-    layout: templates.Layout
+    layout: templates.Layout,
+    appConfig: FrontendAppConfig
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(
-pageTitle = titleNoForm(messages("unauthorised.title")),
+pageTitle = titleNoForm(messages("privateBeta.unauthorised.title")),
 timeout   = false,
 showSignOut  = false
 ) {
 
-<h1 class="govuk-heading-xl">@messages("unauthorised.heading")</h1>
+<h1 class="govuk-heading-xl">@messages("privateBeta.unauthorised.heading")</h1>
 
+<p class="govuk-body">@messages("privateBeta.unauthorised.guidance.preform")
+ <a class="govuk-link" href="@appConfig.contactFrontendUrl">@messages("privateBeta.unauthorised.guidance.formLink")</a>
+ @messages("privateBeta.unauthorised.guidance.postform")</p>
 }
