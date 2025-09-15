@@ -75,7 +75,7 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
     if(config.privateBetaEnabled) {
       userAllowListConnector.check("psrId", request.userDetails.psrUserId) flatMap {
         case true => block(request)
-        case false => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+        case false => Future.successful(Redirect(routes.PrivateBetaUnauthorisedController.onPageLoad()))
       }
     }else {
       block(request)

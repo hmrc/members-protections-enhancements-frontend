@@ -23,14 +23,17 @@ import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import views.html.UnauthorisedView
+import views.html.PrivateBetaUnauthorisedView
 
-class UnauthorisedViewSpec extends SpecBase {
+class PrivateBetaUnauthorisedViewSpec extends SpecBase {
 
   "view" - {
     "display correct error information" in new Setup {
       
-      view.getElementsByTag("h1").text() mustBe messages(app)("unauthorised.heading")
+      view.getElementsByTag("h1").text() mustBe messages(app)("privateBeta.unauthorised.heading")
+      view.getElementsByClass("govuk-body").text().contains(messages(app)("privateBeta.unauthorised.guidance.preform"))
+      view.getElementsByClass("govuk-body").text().contains(messages(app)("privateBeta.unauthorised.guidance.formLink"))
+      view.getElementsByClass("govuk-body").text().contains(messages(app)("privateBeta.unauthorised.guidance.postform"))
     }
   }
 
@@ -42,7 +45,7 @@ class UnauthorisedViewSpec extends SpecBase {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[UnauthorisedView].apply().body)
+      Jsoup.parse(app.injector.instanceOf[PrivateBetaUnauthorisedView].apply().body)
   }
 
 }

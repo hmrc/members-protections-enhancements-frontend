@@ -50,6 +50,7 @@ GET         /multiple-attempts                                                  
 GET         /service-timeout-idle                                               controllers.auth.SessionTimeoutController.onPageLoad()
 GET         /account/signed-out                                                 controllers.auth.SignedOutController.onPageLoad()
 GET         /unauthorised                                                       controllers.UnauthorisedController.onPageLoad()
+GET         /private-beta-unauthorised                                          controllers.PrivateBetaUnauthorisedController.onPageLoad()
 
 # Session actions
 GET         /refresh-session                                                    controllers.KeepAliveController.keepAlive()

@@ -16,22 +16,18 @@
 
 package controllers
 
-import com.google.inject.Inject
-import config.FrontendAppConfig
-import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.PrivateBetaUnauthorisedView
 
-import scala.concurrent.Future
+import javax.inject.Inject
 
-class MpsDashboardController @Inject()(identify: IdentifierAction,
-                                       checkLockout: CheckLockoutAction,
-                                       getData: DataRetrievalAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       val appConfig: FrontendAppConfig)
-  extends FrontendBaseController {
+class PrivateBetaUnauthorisedController @Inject()(val controllerComponents: MessagesControllerComponents,
+                                                  view: PrivateBetaUnauthorisedView)
+  extends FrontendBaseController with I18nSupport {
 
-  def redirectToMps(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async{ implicit request =>
-    Future.successful(Redirect(appConfig.mpsDashboardUrl))
+  def onPageLoad(): Action[AnyContent] = Action { implicit request =>
+    Ok(view())
   }
 }
