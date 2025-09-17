@@ -31,6 +31,9 @@ class UnauthorisedViewSpec extends SpecBase {
     "display correct error information" in new Setup {
       
       view.getElementsByTag("h1").text() mustBe messages(app)("unauthorised.heading")
+      view.getElementsByClass("govuk-body").text().contains(messages(app)("unauthorised.guidance.preform"))
+      view.getElementsByClass("govuk-body").text().contains(messages(app)("unauthorised.guidance.formLink"))
+      view.getElementsByClass("govuk-body").text().contains(messages(app)("unauthorised.guidance.postform"))
     }
   }
 

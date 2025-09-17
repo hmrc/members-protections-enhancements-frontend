@@ -67,4 +67,8 @@ class AuthController @Inject()(val controllerComponents: MessagesControllerCompo
           ).withNewSession
         }
   }
+
+  def privateBetaSignOut(): Action[AnyContent] = Action {
+    Redirect(config.exitSurveyUrl).withNewSession
+  }
 }
