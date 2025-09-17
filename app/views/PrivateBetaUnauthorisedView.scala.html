@@ -24,14 +24,15 @@
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(
-pageTitle = titleNoForm(messages("privateBeta.unauthorised.title")),
-timeout   = false,
-showSignOut  = false
+    pageTitle = titleNoForm(messages("privateBeta.unauthorised.title")),
+    timeout   = false,
+    showSignOut  = true,
+    signOutUrl = controllers.auth.routes.AuthController.privateBetaSignOut.url
 ) {
 
 <h1 class="govuk-heading-xl">@messages("privateBeta.unauthorised.heading")</h1>
 
-<p class="govuk-body">@messages("privateBeta.unauthorised.guidance.preform")
- <a class="govuk-link" href="@appConfig.contactFrontendUrl">@messages("privateBeta.unauthorised.guidance.formLink")</a>
- @messages("privateBeta.unauthorised.guidance.postform")</p>
+<p class="govuk-body">@messages("unauthorised.guidance.preform")
+ <a class="govuk-link" href="@appConfig.contactFrontendUrl">@messages("unauthorised.guidance.formLink")</a>
+ @messages("unauthorised.guidance.postform")</p>
 }

@@ -14,8 +14,11 @@
  * limitations under the License.
  *@
 
+@import config.FrontendAppConfig
+
 @this(
-    layout: templates.Layout
+    layout: templates.Layout,
+    appConfig: FrontendAppConfig
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -23,9 +26,12 @@
 @layout(
 pageTitle = titleNoForm(messages("unauthorised.title")),
 timeout   = false,
-showSignOut  = false
+showSignOut  = true
 ) {
 
 <h1 class="govuk-heading-xl">@messages("unauthorised.heading")</h1>
 
+<p class="govuk-body">@messages("unauthorised.guidance.preform")
+ <a class="govuk-link" href="@appConfig.contactFrontendUrl">@messages("unauthorised.guidance.formLink")</a>
+ @messages("unauthorised.guidance.postform")</p>
 }

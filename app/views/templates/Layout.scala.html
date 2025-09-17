@@ -41,7 +41,8 @@
     backLinkUrl: Option[String] = None,
     beforeContent: Option[Html] = None,
     fullWidthContent: Boolean = false,
-    withReportTechnicalIssueLink: Boolean = true
+    withReportTechnicalIssueLink: Boolean = true,
+    signOutUrl: String = controllers.auth.routes.AuthController.signOut().url
 )(
     contentBlock: Html
 )(
@@ -57,7 +58,7 @@
             countdown           = Some(appConfig.countdown),
             keepAliveUrl        = Some(routes.KeepAliveController.keepAlive().url),
             keepAliveButtonText = Some(messages("timeout.keepAlive")),
-            signOutUrl          = Some(controllers.auth.routes.AuthController.signOut().url),
+            signOutUrl          = Some(signOutUrl),
             signOutButtonText   = Some(messages("timeout.signOut")),
             timeoutUrl          = Some(controllers.auth.routes.AuthController.sessionTimeout().url),
             title               = Some(messages("timeout.title")),
@@ -98,7 +99,7 @@
     ),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(routes.ClearCacheController.onPageLoad().url),
-        signOutUrl = if(showSignOut) Some(controllers.auth.routes.AuthController.signOut().url) else None
+        signOutUrl = if(showSignOut) Some(signOutUrl) else None
     ),
     banners = Banners(
         displayHmrcBanner = showHmrcBanner,
