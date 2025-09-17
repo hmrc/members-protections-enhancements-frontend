@@ -40,7 +40,7 @@ class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
                                       formProvider: MembersNinoFormProvider,
                                       implicit val controllerComponents: MessagesControllerComponents,
                                       view: MembersNinoView)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) with Logging{
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
   private val form: Form[MembersNino] = formProvider()
 
@@ -50,7 +50,7 @@ class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
 
     infoLogger("Attempting to find existing user answers for 'member NINO' page")
 
-    memberDetails => _ =>
+    memberDetails =>
       request.userAnswers.get(MembersNinoPage) match {
         case None =>
           infoLogger("No user answers exist for 'member NINO' page. Attempting to serve blank view")
@@ -61,7 +61,7 @@ class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails("onSubmit") { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDob("onSubmit") { implicit request =>
     val methodLoggingContext: String = "onSubmit"
     implicit val correlationId: CorrelationId = request.correlationId
 
@@ -98,5 +98,4 @@ class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
           }
         )
   }
-
 }

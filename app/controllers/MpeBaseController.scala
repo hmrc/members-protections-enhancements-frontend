@@ -21,6 +21,7 @@ import models._
 import models.requests.{DataRequest, PensionSchemeMemberRequest}
 import pages._
 import play.api.i18n.I18nSupport
+import play.api.libs.json.Reads
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.Logging
@@ -34,7 +35,10 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
                                            getData: DataRetrievalAction)
   extends FrontendBaseController with I18nSupport {_: Logging =>
 
-  def handleWithMemberDetails(context: String)(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
+  private def handleWithMemberDetails[Model: Reads](context: String,
+                                                    page: QuestionPage[Model],
+                                                    notFoundRedirect: Call)
+                                                   (block: DataRequest[AnyContent] => Model => Future[Result]): Action[AnyContent] =
     handle(context) { implicit request =>
       val methodLoggingContext: String = "handleWithMemberDetails"
 
@@ -50,14 +54,16 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
         extraContext = Some(context)
       )
 
-      infoLogger("Checking if user session has existing member details")
+      val pageName: String = page.toString
 
-      request.userAnswers.get(WhatIsTheMembersNamePage) match {
+      infoLogger(s"Checking if user session has existing answers to $pageName question page")
+
+      request.userAnswers.get(page) match {
         case None =>
-          warnLogger("No member details exist for the user session. Redirecting to start page", None)
-          Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
+          warnLogger(s"No $pageName question page answers exist for the user session. Redirecting to $pageName page", None)
+          Future.successful(Redirect(notFoundRedirect))
         case Some(memberDetails) =>
-          infoLogger("Member details already exist for the user session. Continuing with block action")
+          infoLogger(s"$pageName question page answers already exist for the user session. Continuing with block action")
           block(request)(memberDetails)
       }
     }
@@ -95,44 +101,35 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
     }
   }
 
-  def handleWithMemberDob(block: DataRequest[AnyContent] => MemberDetails => MembersDob => Future[Result]): Action[AnyContent] = {
-    handle {
-      implicit request =>
-        withMemberDetails { memberDetails =>
-          withMembersDob { membersDob =>
-            block(request)(memberDetails)(membersDob)
-          }
-        }
+  def handleWithMemberName(context: String)(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] = {
+    handleWithMemberDetails(
+      context = context,
+      page = WhatIsTheMembersNamePage,
+      notFoundRedirect = routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)
+    )(block)
+  }
+
+  def handleWithMemberDob(context: String)(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] = {
+    handleWithMemberName(context) { implicit request => details =>
+      val result = handleWithMemberDetails(
+        context,
+        page = MembersDobPage,
+        notFoundRedirect = routes.MembersDobController.onPageLoad(NormalMode)
+      )(_ => _ => block(request)(details))
+
+      result(request)
     }
   }
 
-  private def withMembersDob(f: MembersDob => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
-    request.userAnswers.get(MembersDobPage) match {
-      case None =>
-        Future.successful(Redirect(routes.MembersDobController.onPageLoad(NormalMode)))
-      case Some(memberDob) =>
-        f(memberDob)
-    }
-  }
+  def handleWithMemberNino(context: String)(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] = {
+    handleWithMemberDob(context) { implicit request => details =>
+      val result: Action[AnyContent] = handleWithMemberDetails(
+        context,
+        page = MembersNinoPage,
+        notFoundRedirect = routes.MembersNinoController.onPageLoad(NormalMode)
+      )(_ => _ => block(request)(details))
 
-  def handleWithMemberNino(block: DataRequest[AnyContent] => MemberDetails => MembersDob => MembersNino => Future[Result]): Action[AnyContent] =
-    handle {
-      implicit request =>
-        withMemberDetails { memberDetails =>
-          withMembersDob { membersDob =>
-            withMembersNino { membersNino =>
-              block(request)(memberDetails)(membersDob)(membersNino)
-            }
-          }
-        }
-    }
-
-  private def withMembersNino(f: MembersNino => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
-    request.userAnswers.get(MembersNinoPage) match {
-      case None =>
-        Future.successful(Redirect(routes.MembersNinoController.onPageLoad(NormalMode)))
-      case Some(memberNino) =>
-        f(memberNino)
+      result(request)
     }
   }
 

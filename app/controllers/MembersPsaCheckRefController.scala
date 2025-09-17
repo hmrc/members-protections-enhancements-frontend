@@ -40,7 +40,7 @@ class MembersPsaCheckRefController @Inject()(override val messagesApi: MessagesA
                                              formProvider: MembersPsaCheckRefFormProvider,
                                              implicit val controllerComponents: MessagesControllerComponents,
                                              view: MembersPsaCheckRefView)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) with Logging{
+  extends MpeBaseController(identify, checkLockout, getData) with Logging {
 
   private val form: Form[MembersPsaCheckRef] = formProvider()
 
@@ -50,7 +50,7 @@ class MembersPsaCheckRefController @Inject()(override val messagesApi: MessagesA
 
     infoLogger("Attempting to find existing user answers for 'member PSA check ref' page")
 
-    membersDetails => _ => _ =>
+    membersDetails =>
       request.userAnswers.get(MembersPsaCheckRefPage) match {
         case None =>
           infoLogger("No user answers exist for 'member PSA check ref' page. Attempting to serve blank view")
@@ -61,7 +61,7 @@ class MembersPsaCheckRefController @Inject()(override val messagesApi: MessagesA
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails("onSubmit") { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberNino("onSubmit") { implicit request =>
     val methodLoggingContext: String = "onSubmit"
     implicit val correlationId: CorrelationId = request.correlationId
 

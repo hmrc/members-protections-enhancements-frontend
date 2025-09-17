@@ -44,7 +44,7 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
 
   private val form: Form[MembersDob] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails("onPageLoad") { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberName("onPageLoad") { implicit request =>
     val methodLoggingContext: String = "onPageLoad"
     val infoLogger: String => Unit = infoLog(methodLoggingContext, correlationIdLogString(request.correlationId))
 
@@ -61,7 +61,7 @@ class MembersDobController @Inject()(override val messagesApi: MessagesApi,
       }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails("onSubmit") { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberName("onSubmit") { implicit request =>
     val methodLoggingContext: String = "onSubmit"
     implicit val correlationId: CorrelationId = request.correlationId
 

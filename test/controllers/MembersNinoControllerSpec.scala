@@ -59,7 +59,10 @@ class MembersNinoControllerSpec extends SpecBase {
     }
 
     "must save the form data and redirect on valid submission" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
+
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
@@ -114,7 +117,10 @@ class MembersNinoControllerSpec extends SpecBase {
     }
 
     "must save the form data and redirect on valid submission when Nino is added with spaces" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
+
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
@@ -131,9 +137,9 @@ class MembersNinoControllerSpec extends SpecBase {
     }
 
     "must redirect to start page for a GET if user journey is already successful" in {
-
       val userAnswers = emptyUserAnswers
         .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
         .set(page = ResultsPage, value = MembersResult(true)).success.value
 
       val application = applicationBuilder(userAnswers).build()
@@ -149,7 +155,10 @@ class MembersNinoControllerSpec extends SpecBase {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
+
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
