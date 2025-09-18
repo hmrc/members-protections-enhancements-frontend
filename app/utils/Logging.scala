@@ -26,7 +26,7 @@ trait Logging {
   private def formatStringOpt(valueOpt: Option[String]): String = valueOpt.fold("")(value => " " + value)
 
   protected def correlationIdLogString(correlationId: CorrelationId, requestContext: Option[String] = None): String =
-    s" for${formatStringOpt(requestContext)} request with correlationId: $correlationId"
+    s" for${formatStringOpt(requestContext)} request with correlationId: ${correlationId.value}"
 
   protected def infoLog(
     secondaryContext: String,
