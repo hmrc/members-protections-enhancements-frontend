@@ -112,4 +112,27 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
   }
+
+  "privateBetaSignOut" - {
+
+    "must redirect to feedback page" in {
+
+      val application =
+        applicationBuilder(emptyUserAnswers)
+          .build()
+
+      running(application) {
+
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val request   = FakeRequest(GET, routes.AuthController.privateBetaSignOut().url)
+
+        val result = route(application, request).value
+
+        val expectedRedirectUrl = s"${appConfig.exitSurveyUrl}"
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual expectedRedirectUrl
+      }
+    }
+  }
 }

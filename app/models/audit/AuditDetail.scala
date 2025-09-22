@@ -28,6 +28,10 @@ case class AuditDetail(journey: String,
                        searchAPIMatchResult: Option[String],
                        retrieveAPIFailureReason: Option[String],
                        searchAPIFailureReason: Option[String],
+                       numberOfProtectionsAndEnhancementsTotal: Option[Int],
+                       numberOfProtectionsAndEnhancementsActive: Option[Int],
+                       numberOfProtectionsAndEnhancementsDormant: Option[Int],
+                       numberOfProtectionsAndEnhancementsWithdrawn: Option[Int],
                        roleLoggedInAs: String,
                        affinityGroup: String,
                        requesterIdentifier: String)
@@ -55,7 +59,11 @@ object AuditDetail {
       searchAPIFailureReason = searchAPIFailureReason,
       roleLoggedInAs = userDetails.psrUserType.toString,
       affinityGroup = userDetails.affinityGroup.toString,
-      requesterIdentifier = userDetails.psrUserId
+      requesterIdentifier = userDetails.psrUserId,
+      numberOfProtectionsAndEnhancementsActive = None,
+      numberOfProtectionsAndEnhancementsTotal = None,
+      numberOfProtectionsAndEnhancementsDormant = None,
+      numberOfProtectionsAndEnhancementsWithdrawn = None
     )
   }
 
