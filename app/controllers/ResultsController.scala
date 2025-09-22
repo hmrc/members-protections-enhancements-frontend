@@ -22,6 +22,7 @@ import models.MembersResult
 import models.audit.{AuditDetail, AuditEvent}
 import models.errors.{MatchPerson, MpeError}
 import models.requests.{IdentifierRequest, PensionSchemeMemberRequest, UserDetails}
+import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import pages.ResultsPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -67,7 +68,11 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
           case Right(value) =>
             logInfo(s"$fullLoggingContext", s"Successfully retrieved results for supplied details redirecting to Results page")
             auditSubmission("CompleteMemberSearch", routes.ResultsController.onPageLoad().url,
-              auditDetail.copy(journey = "resultsDisplayed", searchAPIMatchResult = Some("MATCH")))
+              auditDetail.copy(journey = "resultsDisplayed", searchAPIMatchResult = Some("MATCH"),
+                numberOfProtectionsAndEnhancementsTotal = Some(value.protectionRecords.size),
+                numberOfProtectionsAndEnhancementsActive = Some(value.protectionRecords.count(_.status == Active)),
+                numberOfProtectionsAndEnhancementsDormant = Some(value.protectionRecords.count(_.status == Dormant)),
+                numberOfProtectionsAndEnhancementsWithdrawn = Some(value.protectionRecords.count(_.status == Withdrawn))))
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(ResultsPage, MembersResult(isSuccessful = true)))
               _ <- service.save(updatedAnswers)
