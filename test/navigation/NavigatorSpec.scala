@@ -36,6 +36,11 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.WhatYouWillNeedController.onPageLoad()
       }
 
+      "must go to CheckYourAnswers page" in {
+
+        navigator.nextPage(ResultsPage, NormalMode, UserAnswers("id")) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
       "must go to WhatIsTheMembersNameController page" in {
 
         navigator.nextPage(WhatYouWillNeedPage, NormalMode, UserAnswers("id")) mustBe

@@ -87,6 +87,29 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
         }
     }
 
+  def handleWithAll(block: DataRequest[AnyContent] => MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]): Action[AnyContent] =
+    handle {
+      implicit request =>
+        withMemberDetails { memberDetails =>
+          withMembersDob { membersDob =>
+            withMembersNino { membersNino =>
+              withMembersPsaCheckRef { membersPsaCheckRef =>
+                block(request)(memberDetails)(membersDob)(membersNino)(membersPsaCheckRef)
+              }
+            }
+          }
+        }
+    }
+
+  private def withMembersPsaCheckRef(f: MembersPsaCheckRef => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
+    request.userAnswers.get(MembersPsaCheckRefPage) match {
+      case None =>
+        Future.successful(Redirect(routes.MembersPsaCheckRefController.onPageLoad(NormalMode)))
+      case Some(membersPsaCheckRef) =>
+        f(membersPsaCheckRef)
+    }
+  }
+
   private def withMembersNino(f: MembersNino => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
     request.userAnswers.get(MembersNinoPage) match {
       case None =>
@@ -115,7 +138,7 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
     case MembersDobPage => routes.MembersDobController.onSubmit(mode)
     case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
     case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
-    case _ => routes.ResultsController.onPageLoad()
+    case _ => routes.ResultsController.onPageLoad(Some(mode))
   }
 
   private def backLinkUrl(mode: Mode, page: Page): String = page match {
@@ -124,14 +147,6 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
     case MembersPsaCheckRefPage => routes.MembersNinoController.onPageLoad(mode).url
     case _ => routes.WhatYouWillNeedController.onPageLoad().url
   }
-
-  def getUserData[A](request: DataRequest[A]): Option[(MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef)] =
-    for {
-      memberDetails <- request.userAnswers.get(WhatIsTheMembersNamePage)
-      dob <- request.userAnswers.get(MembersDobPage)
-      nino <- request.userAnswers.get(MembersNinoPage)
-      psaRefCheck <- request.userAnswers.get(MembersPsaCheckRefPage)
-    } yield (memberDetails, dob, nino, psaRefCheck)
 
   def retrieveMembersRequest(memberDetails: MemberDetails,
                              membersDob:MembersDob,
