@@ -167,7 +167,7 @@ class ResultsControllerSpec extends SpecBase {
       setUpStubs(OK, response)
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
         val result = route(application, request).value
         val view = application.injector.instanceOf[ResultsView]
 
@@ -184,6 +184,19 @@ class ResultsControllerSpec extends SpecBase {
 
         verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
+      }
+    }
+
+    "must return to CheckYourAnswers page if used results page via bookmark" in new Test {
+      setUpStubs(OK, response)
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[ResultsView]
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.CheckYourAnswersController.onPageLoad().url
       }
     }
 
@@ -205,7 +218,7 @@ class ResultsControllerSpec extends SpecBase {
       mockHandleFailedAttempt(Redirect(routes.NoResultsController.onPageLoad()))
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -225,7 +238,7 @@ class ResultsControllerSpec extends SpecBase {
         ).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -243,7 +256,7 @@ class ResultsControllerSpec extends SpecBase {
         ).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -258,7 +271,7 @@ class ResultsControllerSpec extends SpecBase {
       setUpStubs(NOT_FOUND, errorResponse("EMPTY_DATA", "RetrieveMpe"))
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -274,7 +287,7 @@ class ResultsControllerSpec extends SpecBase {
       setUpStubs(NOT_FOUND, errorResponse("NOT_FOUND", "RetrieveMpe"))
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -286,17 +299,14 @@ class ResultsControllerSpec extends SpecBase {
 
     "must redirect to start page for a GET if no existing data is found" in new Test {
 
-      override lazy val application: Application = applicationBuilder(userAnswers = emptyUserAnswers).overrides(
-        inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-      ).build()
+      override lazy val application: Application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
+        redirectLocation(result).value mustEqual routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
       }
     }
 

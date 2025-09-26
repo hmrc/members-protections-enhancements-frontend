@@ -36,14 +36,12 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            view: CheckYourAnswersView)
   extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handle {
+  def onPageLoad(): Action[AnyContent] = handleWithAll {
     implicit request =>
-      getUserData(request) match {
-        case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) => Future.successful(Ok(
+      memberDetails => membersDob => membersNino => membersPsaCheckRef =>
+      Future.successful(Ok(
           view(rows(memberDetails, membersDob, membersNino, membersPsaCheckRef), memberDetails.fullName,
             Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))))
-        case None => Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
-      }
   }
 
   private def rows(memberDetails: MemberDetails,
@@ -60,6 +58,6 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
   }
 
   def onSubmit: Action[AnyContent] = handle { _ =>
-      Future.successful(Redirect(submitUrl(NormalMode, CheckYourAnswersPage)))
+      Future.successful(Redirect(submitUrl(CheckMode, CheckYourAnswersPage)))
   }
 }

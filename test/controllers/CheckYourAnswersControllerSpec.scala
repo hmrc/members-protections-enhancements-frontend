@@ -66,7 +66,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
       }
     }
 
-    "must redirect to start page for a GET if no existing data is found" in {
+    "must redirect to form start page, members name page for a GET if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
@@ -76,7 +76,26 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
+      }
+    }
+
+    "must redirect to MembersPsaCheckRef page for a GET when psaCheckRef form is not filled" in {
+
+      val userAnswers: UserAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2000, 1, 1))).success.value
+        .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
+
+      val application = applicationBuilder(userAnswers = userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url
       }
     }
 
@@ -105,7 +124,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.ResultsController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.ResultsController.onPageLoad(Some(CheckMode)).url
       }
     }
   }
