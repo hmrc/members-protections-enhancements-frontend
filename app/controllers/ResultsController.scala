@@ -65,7 +65,6 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                 val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
                 logInfo(fullLoggingContext, s"with correlationId: $correlationId")
                 implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
                 val pensionSchemeMemberRequest = retrieveMembersRequest(memberDetails, membersDob, membersNino, membersPsaCheckRef)
                 val auditDetail = generateAuditDetail(pensionSchemeMemberRequest, request.userDetails)
                 checkAndRetrieveService.checkAndRetrieve(pensionSchemeMemberRequest).flatMap {
@@ -96,7 +95,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                   case Left(error) if error.code == "NO_MATCH" || error.code == "EMPTY_DATA" || error.code == "NOT_FOUND" =>
                     val (journey, searchAPIMatchResult): (String, String) = auditParams(error)
                     auditSubmission("CompleteMemberSearch", routes.NoResultsController.onPageLoad().url,
-                      auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult)))(hc, ec, correlationId)
+                      auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult)))
 
                     implicit val req: IdentifierRequest[AnyContent] = request.toIdentifierRequest
                     logger.warn(s"$fullLoggingContext - No results found due to ${error.code}")
@@ -123,7 +122,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
   }
 
   private def auditSubmission(auditType: String, path: String, details: AuditDetail)
-                             (implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String): Future[AuditResult] = {
+                             (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AuditResult] = {
 
     val event: AuditEvent[AuditDetail] = AuditEvent(
       auditType = auditType,
@@ -134,10 +133,14 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
     auditService.auditEvent(event)
   }
 
-  private def generateAuditDetail(pensionSchemeMemberRequest: PensionSchemeMemberRequest, userDetails: UserDetails): AuditDetail =
-    AuditDetail(journey = "journey",
+  private def generateAuditDetail(pensionSchemeMemberRequest: PensionSchemeMemberRequest,
+                                  userDetails: UserDetails)
+                                 (implicit correlationId: String): AuditDetail =
+    AuditDetail(
+      journey = "journey",
       request = pensionSchemeMemberRequest,
-      userDetails = userDetails)
+      userDetails = userDetails
+    )
 
   private lazy val auditParams: MpeError => (String, String) = error => {
     error.code match {
