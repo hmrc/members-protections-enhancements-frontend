@@ -32,10 +32,10 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class AuditService @Inject()(auditConnector: AuditConnector, appConfig: Configuration) extends Logging {
 
-  def auditEvent[T](event: AuditEvent[T])(implicit hc: HeaderCarrier, ec: ExecutionContext, correlationId: String, writer: Writes[T]): Future[AuditResult] = {
+  def auditEvent[T](event: AuditEvent[T])(implicit hc: HeaderCarrier, ec: ExecutionContext, writer: Writes[T]): Future[AuditResult] = {
 
-    val eventTags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags() +
-      ("transactionName" -> event.transactionName, "correlationId" -> correlationId, "path" -> event.path)
+    val eventTags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags() ++
+      Map("transactionName" -> event.transactionName, "path" -> event.path)
 
     val extendedDataEvent = ExtendedDataEvent(
       auditSource = AppName.fromConfiguration(appConfig),

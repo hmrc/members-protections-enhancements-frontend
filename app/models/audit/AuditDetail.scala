@@ -34,10 +34,10 @@ case class AuditDetail(journey: String,
                        numberOfProtectionsAndEnhancementsWithdrawn: Option[Int],
                        roleLoggedInAs: String,
                        affinityGroup: String,
-                       requesterIdentifier: String)
+                       requesterIdentifier: String,
+                       correlationId: String)
 
 object AuditDetail {
-
   implicit val writes: OWrites[AuditDetail] = Json.writes[AuditDetail]
 
   def apply(journey: String,
@@ -45,8 +45,8 @@ object AuditDetail {
             searchAPIMatchResult: Option[String] = None,
             retrieveAPIFailureReason: Option[String] = None,
             searchAPIFailureReason: Option[String] = None,
-            userDetails: UserDetails): AuditDetail = {
-
+            userDetails: UserDetails)
+           (implicit correlationId: String): AuditDetail =
     AuditDetail(
       journey = journey,
       firstName = request.firstName,
@@ -63,8 +63,8 @@ object AuditDetail {
       numberOfProtectionsAndEnhancementsActive = None,
       numberOfProtectionsAndEnhancementsTotal = None,
       numberOfProtectionsAndEnhancementsDormant = None,
-      numberOfProtectionsAndEnhancementsWithdrawn = None
+      numberOfProtectionsAndEnhancementsWithdrawn = None,
+      correlationId = correlationId
     )
-  }
 
 }
