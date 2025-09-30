@@ -69,6 +69,7 @@ class ResultsControllerSpec extends SpecBase {
       .set(page = MembersDobPage, value = membersDob).success.value
       .set(page = MembersNinoPage, value = membersNino).success.value
       .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
+      .set(page = CheckYourAnswersPage, CheckMembersDetails(true)).success.value
 
     lazy val application: Application = applicationBuilder(
       userAnswers = userAnswers,
@@ -167,7 +168,7 @@ class ResultsControllerSpec extends SpecBase {
       setUpStubs(OK, response)
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
         val result = route(application, request).value
         val view = application.injector.instanceOf[ResultsView]
 
@@ -190,10 +191,15 @@ class ResultsControllerSpec extends SpecBase {
     "must return to CheckYourAnswers page if used results page via bookmark" in new Test {
       setUpStubs(OK, response)
 
+      override val userAnswers: UserAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = memberDetails).success.value
+        .set(page = MembersDobPage, value = membersDob).success.value
+        .set(page = MembersNinoPage, value = membersNino).success.value
+        .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
+
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
         val result = route(application, request).value
-        val view = application.injector.instanceOf[ResultsView]
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.CheckYourAnswersController.onPageLoad().url
@@ -210,7 +216,6 @@ class ResultsControllerSpec extends SpecBase {
         identifierAction = fakePspIdentifierAction
       ).overrides(
           inject.bind(classOf[FailedAttemptService]).toInstance(mockService),
-          inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
           inject.bind(classOf[AuditService]).to(mockAuditService)
         )
         .build()
@@ -218,12 +223,11 @@ class ResultsControllerSpec extends SpecBase {
       mockHandleFailedAttempt(Redirect(routes.NoResultsController.onPageLoad()))
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.NoResultsController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any(), any())
       }
     }
@@ -238,7 +242,7 @@ class ResultsControllerSpec extends SpecBase {
         ).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -256,7 +260,7 @@ class ResultsControllerSpec extends SpecBase {
         ).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -271,7 +275,7 @@ class ResultsControllerSpec extends SpecBase {
       setUpStubs(NOT_FOUND, errorResponse("EMPTY_DATA", "RetrieveMpe"))
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
@@ -287,7 +291,7 @@ class ResultsControllerSpec extends SpecBase {
       setUpStubs(NOT_FOUND, errorResponse("NOT_FOUND", "RetrieveMpe"))
 
       running(application) {
-        val request = FakeRequest(GET, routes.ResultsController.onPageLoad(Some(CheckMode)).url)
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER

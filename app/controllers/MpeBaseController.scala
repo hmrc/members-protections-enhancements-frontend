@@ -138,7 +138,7 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
     case MembersDobPage => routes.MembersDobController.onSubmit(mode)
     case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
     case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
-    case _ => routes.ResultsController.onPageLoad(Some(mode))
+    case _ => routes.ResultsController.onPageLoad()
   }
 
   private def backLinkUrl(mode: Mode, page: Page): String = page match {

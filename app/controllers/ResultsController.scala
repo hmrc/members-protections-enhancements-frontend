@@ -18,12 +18,12 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import models.MembersResult
 import models.audit.{AuditDetail, AuditEvent}
 import models.errors.{MatchPerson, MpeError}
 import models.requests.{IdentifierRequest, PensionSchemeMemberRequest, UserDetails}
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
-import models.{CheckMode, MembersResult, Mode}
-import pages.ResultsPage
+import pages.{CheckYourAnswersPage, ResultsPage}
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
@@ -53,13 +53,13 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
 
   val classLoggingContext: String = "ResultsController"
 
-  def onPageLoad(mode: Option[Mode] = None): Action[AnyContent] = handleWithAll { implicit request =>
+  def onPageLoad(): Action[AnyContent] = handleWithAll { implicit request =>
     memberDetails =>
       membersDob =>
         membersNino =>
           membersPsaCheckRef =>
-            mode match {
-              case Some(CheckMode) =>
+            request.userAnswers.get(CheckYourAnswersPage) match {
+              case Some(_) =>
                 implicit val correlationId: String = idGenerator.getCorrelationId
                 val methodLoggingContext: String = "onPageLoad"
                 val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"

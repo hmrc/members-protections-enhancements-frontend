@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import models.CheckMembersDetails
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-case object CheckYourAnswersPage  extends QuestionPage[CheckMembersDetails] {
+case class CheckMembersDetails(isChecked: Boolean)
 
-  override def path: JsPath                    = JsPath \ toString
-  override def toString: String                = "isChecked"
+object CheckMembersDetails {
+  implicit val format: OFormat[CheckMembersDetails] = Json.format[CheckMembersDetails]
 }

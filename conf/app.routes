@@ -37,7 +37,7 @@ GET         /check-your-answers                                                 
 POST        /check-your-answers                                                 controllers.CheckYourAnswersController.onSubmit()
 
 # Results pages
-GET         /results                                                            controllers.ResultsController.onPageLoad(mode: Option[Mode] ?= None)
+GET         /results                                                            controllers.ResultsController.onPageLoad()
 GET         /no-results                                                         controllers.NoResultsController.onPageLoad()
 
 # Auth actions

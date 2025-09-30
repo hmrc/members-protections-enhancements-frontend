@@ -31,7 +31,7 @@ class MpsDashboardController @Inject()(identify: IdentifierAction,
                                        val appConfig: FrontendAppConfig)
   extends FrontendBaseController {
 
-  def redirectToMps(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async{ implicit request =>
+  def redirectToMps(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async{ _ =>
     Future.successful(Redirect(appConfig.mpsDashboardUrl))
   }
 }

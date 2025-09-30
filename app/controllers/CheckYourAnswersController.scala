@@ -22,16 +22,19 @@ import models._
 import pages.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.SessionCacheService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import views.html.CheckYourAnswersView
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
                                            identify: IdentifierAction,
                                            checkLockout: CheckLockoutAction,
                                            getData: DataRetrievalAction,
+                                           service: SessionCacheService,
                                            implicit val controllerComponents: MessagesControllerComponents,
                                            view: CheckYourAnswersView)
   extends MpeBaseController(identify, checkLockout, getData) {
@@ -57,7 +60,12 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
     )
   }
 
-  def onSubmit: Action[AnyContent] = handle { _ =>
-      Future.successful(Redirect(submitUrl(CheckMode, CheckYourAnswersPage)))
+  def onSubmit: Action[AnyContent] = handle { implicit request =>
+    for {
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourAnswersPage, CheckMembersDetails(isChecked = true)))
+      _ <- service.save(updatedAnswers)
+    } yield {
+      Redirect(submitUrl(NormalMode, CheckYourAnswersPage))
+    }
   }
 }
