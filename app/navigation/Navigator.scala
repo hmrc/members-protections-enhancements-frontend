@@ -33,6 +33,7 @@ class Navigator @Inject()() {
     case MembersDobPage => _ => routes.MembersNinoController.onPageLoad(NormalMode)
     case MembersNinoPage => _ => routes.MembersPsaCheckRefController.onPageLoad(NormalMode)
     case MembersPsaCheckRefPage => _ => routes.CheckYourAnswersController.onPageLoad()
+    case ResultsPage => _ => routes.CheckYourAnswersController.onPageLoad()
     case _ => _ => routes.WhatYouWillNeedController.onPageLoad()
   }
 

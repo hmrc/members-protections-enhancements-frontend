@@ -35,19 +35,15 @@ class NoResultsController @Inject()(override val messagesApi: MessagesApi,
                                     dateTimeProvider: DateTimeProvider)
   extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
-
-    getUserData(request) match {
-      case Some((memberDetails, membersDob, membersNino, membersPsaCheckRef)) =>
-        Future.successful(Ok(
-          view(
-            memberDetails = memberDetails,
-            membersDob = membersDob,
-            membersNino = membersNino,
-            membersPsaCheckRef = membersPsaCheckRef,
-            formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now())
-          )))
-      case _ => Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
-    }
+  def onPageLoad(): Action[AnyContent] = handleWithAll { implicit request =>
+    memberDetails => membersDob => membersNino => membersPsaCheckRef =>
+      Future.successful(Ok(
+        view(
+          memberDetails = memberDetails,
+          membersDob = membersDob,
+          membersNino = membersNino,
+          membersPsaCheckRef = membersPsaCheckRef,
+          formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now())
+        )))
   }
 }

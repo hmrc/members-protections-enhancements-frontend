@@ -69,6 +69,7 @@ class ResultsControllerSpec extends SpecBase {
       .set(page = MembersDobPage, value = membersDob).success.value
       .set(page = MembersNinoPage, value = membersNino).success.value
       .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
+      .set(page = CheckYourAnswersPage, CheckMembersDetails(true)).success.value
 
     lazy val application: Application = applicationBuilder(
       userAnswers = userAnswers,
@@ -187,6 +188,24 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
+    "must return to CheckYourAnswers page if used results page via bookmark" in new Test {
+      setUpStubs(OK, response)
+
+      override val userAnswers: UserAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = memberDetails).success.value
+        .set(page = MembersDobPage, value = membersDob).success.value
+        .set(page = MembersNinoPage, value = membersNino).success.value
+        .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.CheckYourAnswersController.onPageLoad().url
+      }
+    }
+
     "must redirect to NoResults page when failed attempt threshold not exceeded for a failed attempt" in new Test {
       mockFailedAttemptCheck()
       setUpStubs(NOT_FOUND, errorResponse("NO_MATCH", "MatchPerson"))
@@ -197,7 +216,6 @@ class ResultsControllerSpec extends SpecBase {
         identifierAction = fakePspIdentifierAction
       ).overrides(
           inject.bind(classOf[FailedAttemptService]).toInstance(mockService),
-          inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
           inject.bind(classOf[AuditService]).to(mockAuditService)
         )
         .build()
@@ -210,7 +228,7 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.NoResultsController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
+
         verify(mockAuditService, times(1)).auditEvent[AuditDetail](any())(any(), any(), any())
       }
     }
@@ -286,17 +304,14 @@ class ResultsControllerSpec extends SpecBase {
 
     "must redirect to start page for a GET if no existing data is found" in new Test {
 
-      override lazy val application: Application = applicationBuilder(userAnswers = emptyUserAnswers).overrides(
-        inject.bind(classOf[IdGenerator]).to(mockIdGenerator)
-      ).build()
+      override lazy val application: Application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.ClearCacheController.onPageLoad().url
-        verify(mockIdGenerator, times(1)).getCorrelationId
+        redirectLocation(result).value mustEqual routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
       }
     }
 
