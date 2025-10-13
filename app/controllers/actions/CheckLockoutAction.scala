@@ -45,7 +45,7 @@ class CheckLockoutActionImpl @Inject()(val config: FrontendAppConfig,
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
     logger.info(s"$fullLoggingContext - Checking to see to user has been locked out for failed attempts")
-    failedAttemptService.checkForLockout()(request, executionContext).flatMap {
+    failedAttemptService.checkForLockout()(request.userDetails, executionContext).flatMap {
       case false =>
         logger.info(s"$fullLoggingContext - User has not been locked out. Continuing with request")
         Future.successful(None)

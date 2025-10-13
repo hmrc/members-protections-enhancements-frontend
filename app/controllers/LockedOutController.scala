@@ -19,6 +19,7 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions.IdentifierAction
 import models.LockoutExpiry
+import models.requests.UserDetails
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
@@ -38,6 +39,7 @@ class LockedOutController @Inject()(val controllerComponents: MessagesController
   extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
+    implicit val userDetails: UserDetails = request.userDetails
     failedAttemptService.getLockoutExpiry().map {
       case Some(expiry) =>
         lazy val lockoutExpiry: LockoutExpiry = LockoutExpiry(
