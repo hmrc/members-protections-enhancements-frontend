@@ -19,15 +19,13 @@ package services
 import base.SpecBase
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
-import models.requests.IdentifierRequest
-import models.requests.IdentifierRequest.AdministratorRequest
+import models.requests.UserDetails
 import models.requests.UserType.{PSA, PSP}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.http.Status.IM_A_TEAPOT
+import play.api.mvc.Result
 import play.api.mvc.Results._
-import play.api.mvc.{AnyContentAsEmpty, Result}
-import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, contentAsString, defaultAwaitTimeout, status}
 import repositories.{FailedAttemptCountRepository, FailedAttemptLockoutRepository}
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -88,13 +86,7 @@ class FailedAttemptServiceSpec extends SpecBase {
       mockLockoutRepo.getLockoutExpiry(ArgumentMatchers.any())
     ).thenReturn(getExpiryResult)
 
-    implicit val request: IdentifierRequest[AnyContentAsEmpty.type] = AdministratorRequest(
-      affGroup = AffinityGroup.Individual,
-      userId = "internalId",
-      psaId = "psaId",
-      psrUserType = PSA,
-      request = FakeRequest()
-    )
+    implicit val userDetails: UserDetails  = UserDetails(PSA, "anId", "anotherId", AffinityGroup.Individual)
   }
 
   "checkForLockout" - {

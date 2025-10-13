@@ -19,7 +19,7 @@ package repositories
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
-import models.requests.IdentifierRequest
+import models.requests.UserDetails
 import org.mongodb.scala.MongoException
 import org.mongodb.scala.model.{Filters, IndexModel, IndexOptions, Indexes}
 import play.api.Logging
@@ -32,8 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[FailedAttemptCountRepositoryImpl])
 trait FailedAttemptCountRepository {
-  def addFailedAttempt()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Unit]
-  def countFailedAttempts()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Long]
+  def addFailedAttempt()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit]
+  def countFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Long]
 }
 
 @Singleton
@@ -63,7 +63,7 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
 
   val classLoggingContext: String = "FailedAttemptCountRepository"
 
-  def addFailedAttempt()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Unit] = {
+  def addFailedAttempt()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit] = {
     val methodLoggingContext: String = "addFailedAttempt"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
@@ -72,7 +72,7 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
     collection
       .insertOne(
         document = CacheUserDetails(
-          userDetails = request.userDetails,
+          userDetails = userDetails,
           withPsrUserId = true,
           createdAt = Some(timestampSupport.timestamp())
         )
@@ -94,7 +94,7 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
       }
   }
 
-  def countFailedAttempts()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Long] = {
+  def countFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Long] = {
     val methodLoggingContext: String = "countFailedAttempts"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
@@ -102,7 +102,7 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
 
     collection
       .countDocuments(
-        filter = Filters.equal(fieldName = "psrUserId", value = request.userDetails.psrUserId)
+        filter = Filters.equal(fieldName = "psrUserId", value = userDetails.psrUserId)
       )
       .toFuture()
       .map(res => {

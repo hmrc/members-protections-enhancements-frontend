@@ -21,7 +21,7 @@ import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierA
 import models.MembersResult
 import models.audit.{AuditDetail, AuditEvent}
 import models.errors.{MatchPerson, MpeError}
-import models.requests.{IdentifierRequest, PensionSchemeMemberRequest, UserDetails}
+import models.requests.{PensionSchemeMemberRequest, UserDetails}
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import pages.{CheckYourAnswersPage, ResultsPage}
 import play.api.i18n.MessagesApi
@@ -97,7 +97,7 @@ class ResultsController @Inject()(override val messagesApi: MessagesApi,
                     auditSubmission("CompleteMemberSearch", routes.NoResultsController.onPageLoad().url,
                       auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult)))
 
-                    implicit val req: IdentifierRequest[AnyContent] = request.toIdentifierRequest
+                    implicit val userDetails: UserDetails = request.userDetails
                     logger.warn(s"$fullLoggingContext - No results found due to ${error.code}")
 
                     failedAttemptService.handleFailedAttempt(

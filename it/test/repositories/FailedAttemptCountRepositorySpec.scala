@@ -18,8 +18,7 @@ package repositories
 
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
-import models.requests.IdentifierRequest
-import models.requests.IdentifierRequest.AdministratorRequest
+import models.requests.UserDetails
 import models.requests.UserType.PSA
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
@@ -28,10 +27,8 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
-import uk.gov.hmrc.auth.core.AffinityGroup.Individual
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.mongo.TimestampSupport
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
@@ -62,13 +59,7 @@ class FailedAttemptCountRepositorySpec
     timestampSupport = mockTimestampSupport
   )
 
-  implicit val request: IdentifierRequest[AnyContentAsEmpty.type] = AdministratorRequest(
-    affGroup = Individual,
-    userId = "userId",
-    psaId = "psaId",
-    psrUserType = PSA,
-    request = FakeRequest()
-  )
+  implicit val userDetails: UserDetails  = UserDetails(PSA, "psaId", "anotherId", AffinityGroup.Individual)
 
   "addFailedAttempt" - {
     "must successfully add a new failed attempt" in {

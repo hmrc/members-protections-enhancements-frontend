@@ -19,7 +19,7 @@ package services
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
-import models.requests.IdentifierRequest
+import models.requests.UserDetails
 import play.api.Logging
 import play.api.mvc.Result
 import repositories.{FailedAttemptCountRepository, FailedAttemptLockoutRepository}
@@ -29,12 +29,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[FailedAttemptServiceImpl])
 trait FailedAttemptService {
-  def checkForLockout()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean]
+  def checkForLockout()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Boolean]
 
   def handleFailedAttempt(lockoutResult: Result)(noLockoutResult: Result)
-                         (implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Result]
+                         (implicit userDetails: UserDetails, ec: ExecutionContext): Future[Result]
 
-  def getLockoutExpiry()(implicit request: IdentifierRequest[_]): Future[Option[Instant]]
+  def getLockoutExpiry()(implicit userDetails: UserDetails): Future[Option[Instant]]
 }
 
 @Singleton
@@ -45,15 +45,15 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
 
   private val classLoggingContext: String = "FailedAttemptService"
 
-  def checkForLockout()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean] = {
-    import request.userDetails._
+  def checkForLockout()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Boolean] = {
+    import userDetails._
 
     val methodLoggingContext: String = "checkForLockout"
     val loggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
     logger.info(s"$loggingContext - Received request to check for matching lockout for user")
 
-    failedAttemptLockoutRepository.getFromCache(request.userDetails.psrUserId).map {
+    failedAttemptLockoutRepository.getFromCache(userDetails.psrUserId).map {
       case Some(value) if value.psrUserType == psrUserType =>
         logger.warn(s"$loggingContext - User has been locked out")
         true
@@ -66,7 +66,7 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
     }
   }
 
-  private def checkThresholdExceeded()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Boolean] = {
+  private def checkThresholdExceeded()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Boolean] = {
     val methodLoggingContext: String = "checkThresholdExceeded"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
@@ -82,8 +82,8 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
     }
   }
 
-  private def createLockout()(implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Unit] = {
-    import request.userDetails._
+  private def createLockout()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit] = {
+    import userDetails._
 
     val methodLoggingContext: String = "createLockout"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
@@ -91,13 +91,13 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
     logger.info(s"$fullLoggingContext - Attempting to create lockout for user")
 
     failedAttemptLockoutRepository.putCache(psrUserId)(
-      CacheUserDetails(userDetails = request.userDetails, withPsrUserId = false)
+      CacheUserDetails(userDetails = userDetails, withPsrUserId = false)
     )
   }
 
   def handleFailedAttempt(lockoutResult: Result)
                          (noLockoutResult: Result)
-                         (implicit request: IdentifierRequest[_], ec: ExecutionContext): Future[Result] = {
+                         (implicit userDetails: UserDetails, ec: ExecutionContext): Future[Result] = {
     val methodLoggingContext: String = "createLockout"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
@@ -119,13 +119,13 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
 
   }
 
-  override def getLockoutExpiry()(implicit request: IdentifierRequest[_]): Future[Option[Instant]] = {
+  override def getLockoutExpiry()(implicit userDetails: UserDetails): Future[Option[Instant]] = {
     val methodLoggingContext: String = "getLockoutExpiry"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 
     logger.info(s"$fullLoggingContext - Received request to retrieve lockout expiry for user")
 
     failedAttemptLockoutRepository
-      .getLockoutExpiry(request.userDetails.psrUserId)
+      .getLockoutExpiry(userDetails.psrUserId)
   }
 }
