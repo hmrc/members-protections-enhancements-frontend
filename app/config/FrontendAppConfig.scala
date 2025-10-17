@@ -71,6 +71,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val internalAuthToken: String = configuration.get[String]("internal-auth.token")
 
   //Beta feedback config
-  val contactFrontendUrl: String = s"${loadConfig("urls.betaFeedbackUrl")}/?service=$appName"
+  val contactFrontendUrl: String = s"${loadConfig("urls.betaFeedbackUrl")}/?service=members-protections-and-enhancements"
 
 }
