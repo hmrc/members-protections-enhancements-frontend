@@ -27,8 +27,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
 import views.html.CheckYourAnswersView
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
                                            identify: IdentifierAction,
@@ -36,6 +35,7 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            getData: DataRetrievalAction,
                                            service: SessionCacheService,
                                            implicit val controllerComponents: MessagesControllerComponents,
+                                           implicit val ec: ExecutionContext,
                                            view: CheckYourAnswersView)
   extends MpeBaseController(identify, checkLockout, getData) {
 
