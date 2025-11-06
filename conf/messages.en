@@ -1,4 +1,4 @@
-service.name = Check a pension scheme member'’s protections and enhancements
+service.name = Check a pension scheme member''s protections and enhancements
 
 site.back = Back
 site.remove = Remove
@@ -20,7 +20,7 @@ date.error.day = day
 date.error.month = month
 date.error.year = year
 
-timeout.title = You’re about to be signed out
+timeout.title = You''re about to be signed out
 timeout.message = For your security, we will sign you out in
 timeout.keepAlive = Stay signed in
 timeout.signOut = Sign out
@@ -49,8 +49,8 @@ signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
 signedOut.guidance = We did not save your answers.
 
-unauthorised.title = You can’t access this service with this account
-unauthorised.heading = You can’t access this service with this account
+unauthorised.title = You can''t access this service with this account
+unauthorised.heading = You can''t access this service with this account
 unauthorised.guidance.preform = If you think you need access to this service, you can
 unauthorised.guidance.formLink = request it through the feedback form
 unauthorised.guidance.postform = . We will respond to you within 5 working days.
@@ -192,4 +192,4 @@ results.protection.IE.RI = Non-residence factor for a relevant overseas individu
 results.protection.IE.T = Non-residence factor for a transfer from an overseas pension scheme
 
 results.breadcrumbs.mps = Managing pension schemes
-results.breadcrumbs.mpe = Check a pension scheme member'’s protections and enhancements
+results.breadcrumbs.mpe = Check a pension scheme member''s protections and enhancements

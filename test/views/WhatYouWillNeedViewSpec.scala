@@ -31,9 +31,11 @@ class WhatYouWillNeedViewSpec extends SpecBase {
   "view" - {
 
     "with correct Mpe gov banner" in new Setup {
-      view.getElementsByClass("govuk-header__link govuk-header__service-name").text() mustBe messages(app)("service.name")
+      view.getElementsByClass("govuk-service-navigation__service-name").text() mustBe messages(app)("service.name")
       view.getElementsByClass("govuk-link hmrc-sign-out-nav__link").attr("href") mustBe
         "/members-protections-and-enhancements/account/sign-out-survey"
+      view.getElementsByClass("govuk-service-navigation__link").attr("href") mustBe
+        "/members-protections-and-enhancements/clear-cache"
     }
 
     "with correct back link" in new Setup {
