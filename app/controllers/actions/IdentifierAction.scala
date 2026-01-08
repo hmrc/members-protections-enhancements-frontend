@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,9 +52,9 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
       .retrieve(internalId and affinityGroup and authorisedEnrolments) {
 
         case Some(internalId) ~ Some(affGroup) ~ IsPSA(psaId) if hasValidSession(hc) =>
-          isValidUser(AdministratorRequest(affGroup, internalId, psaId.value, UserType.PSA, request), block)
+          isValidUser(AdministratorRequest(affGroup, internalId, psaId.value, UserType.Psa, request), block)
         case Some(internalId) ~ Some(affGroup) ~ IsPSP(pspId) if hasValidSession(hc) =>
-          isValidUser(PractitionerRequest(affGroup, internalId, pspId.value, UserType.PSP, request), block)
+          isValidUser(PractitionerRequest(affGroup, internalId, pspId.value, UserType.Psp, request), block)
         case Some(_) ~ Some(_) ~ _ if !hasValidSession(hc) =>
           Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
         case _ =>

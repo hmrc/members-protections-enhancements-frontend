@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ package controllers.actions
 
 import base.SpecBase
 import models.requests.IdentifierRequest.AdministratorRequest
-import models.requests.UserType.PSA
+import models.requests.UserType.Psa
 import models.requests.{DataRequest, IdentifierRequest}
 import models.userAnswers.UserAnswers
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.JsObject
 import play.api.test.FakeRequest
@@ -51,7 +51,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get(any())) thenReturn Future(None)
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id","A2100001", PSA, FakeRequest())).futureValue
+        val result = action.callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id","A2100001", Psa, FakeRequest())).futureValue
 
         result.userAnswers.data mustBe JsObject.empty
         result.userAnswers.id mustBe "id"
@@ -67,7 +67,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get(any())) thenReturn Future(Some(userAnswers))
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id","A2100001", PSA, FakeRequest())).futureValue
+        val result = action.callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id","A2100001", Psa, FakeRequest())).futureValue
 
         result.userAnswers mustBe userAnswers
       }

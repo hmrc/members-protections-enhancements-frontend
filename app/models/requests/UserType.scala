@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,32 @@
 
 package models.requests
 
-import play.api.libs.json.Format
-import utils.enums.Enums
+import play.api.libs.json._
 
-sealed trait UserType
+sealed trait UserType {
+  def value: String
+}
 
-object UserType extends Enumeration {
+object UserType {
 
-  case object PSA extends UserType
-  case object PSP extends UserType
+  private val PSA: String = "PSA"
+  private val PSP: String = "PSP"
 
-  implicit val formatApiVersion: Format[UserType] = Enums.format[UserType]
-  val parser: PartialFunction[String, UserType] = Enums.parser[UserType]
+  case object Psa extends UserType {
+    override val value: String = PSA
+  }
+  
+  case object Psp extends UserType {
+    override val value: String = PSP
+  }
+
+  implicit val reads: Reads[UserType] = Reads[UserType] {
+    case JsString(PSA) => JsSuccess(Psa)
+    case JsString(PSP) => JsSuccess(Psp)
+    case _ => JsError("error.usertype.invalid")
+  }
+
+  implicit val writes: Writes[UserType] = Writes[UserType] { userType =>
+    JsString(userType.value)
+  }
 }

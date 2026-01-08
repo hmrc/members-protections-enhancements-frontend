@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,36 @@
 
 package models.errors
 
-import play.api.libs.json.Format
-import utils.enums.Enums
+import play.api.libs.json._
 
-sealed trait ErrorSource
-
-case object MatchPerson extends ErrorSource
-case object RetrieveMpe extends ErrorSource
-case object Internal extends ErrorSource
+sealed trait ErrorSource {
+  def value: String
+}
 
 object ErrorSource {
-  implicit val format: Format[ErrorSource] = Enums.format[ErrorSource]
+
+  private val MATCH_PERSON: String = "MatchPerson"
+  private val RETRIEVE_MPE: String = "RetrieveMpe"
+  private val INTERNAL: String = "Internal"
+
+  case object MatchPerson extends ErrorSource {
+    override val value: String = MATCH_PERSON
+  }
+  case object RetrieveMpe extends ErrorSource {
+    override val value: String = RETRIEVE_MPE
+  }
+  case object Internal extends ErrorSource {
+    override val value: String = INTERNAL
+  }
+
+  implicit val reads: Reads[ErrorSource] = Reads[ErrorSource] {
+    case JsString(MATCH_PERSON) => JsSuccess(MatchPerson)
+    case JsString(RETRIEVE_MPE) => JsSuccess(RetrieveMpe)
+    case JsString(INTERNAL) => JsSuccess(Internal)
+    case _ => JsError("error.usertype.invalid")
+  }
+
+  implicit val writes: Writes[ErrorSource] = Writes[ErrorSource] { errorSource =>
+    JsString(errorSource.value)
+  }
 }

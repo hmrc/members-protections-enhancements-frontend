@@ -21,14 +21,16 @@ import config.FrontendAppConfig
 import models.errors.MpeError
 import models.requests.PensionSchemeMemberRequest
 import models.response.ProtectionRecordDetails
-import play.api.http.Status._
-import play.api.libs.json._
+import play.api.http.Status.*
+import play.api.libs.json.*
+import play.api.libs.json.Format.GenericFormat
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import utils.{HttpResponseHelper, Logging}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
+import play.api.libs.ws.writeableOf_JsValue
 
 @ImplementedBy(classOf[MembersCheckAndRetrieveConnectorImpl])
 trait MembersCheckAndRetrieveConnector extends Logging {

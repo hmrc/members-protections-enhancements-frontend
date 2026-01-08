@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,4 +27,6 @@ object MembersPsaCheckRef {
     val ref = psaCheckRef.toUpperCase.filterNot(_.isWhitespace).splitAt(3)
     new MembersPsaCheckRef(s"${ref._1} ${ref._2.replaceAll("..(?!$)", "$0 ")}")
   }
+
+  def unapply(membersPsaCheckRef: MembersPsaCheckRef): Option[String] = Some(membersPsaCheckRef.psaCheckRef)
 }

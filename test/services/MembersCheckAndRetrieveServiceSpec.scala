@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@ package services
 
 import base.SpecBase
 import connectors.MembersCheckAndRetrieveConnector
-import models.errors.NotFoundError
+import models.errors.MpeError.NotFoundError
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import org.mockito.Mockito.when
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global

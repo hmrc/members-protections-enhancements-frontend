@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import config.FrontendAppConfig
 import controllers.routes
 import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.AdministratorRequest
-import models.requests.UserType.PSA
+import models.requests.UserType.Psa
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.{times, verify, when}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import repositories.SessionRepository
 import services.FailedAttemptService
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -61,7 +61,7 @@ class CheckLockoutActionSpec extends SpecBase {
       )
 
       val result: Future[Result] = testAction.invokeBlock(
-        request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", PSA, FakeRequest()),
+        request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", Psa, FakeRequest()),
         block = (_: IdentifierRequest[AnyContentAsEmpty.type]) => unauthorisedResult
       )
 
@@ -79,7 +79,7 @@ class CheckLockoutActionSpec extends SpecBase {
       when(mockSessionRepo.clear(ArgumentMatchers.any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = testAction.invokeBlock(
-        request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", PSA, FakeRequest()),
+        request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", Psa, FakeRequest()),
         block = (_: IdentifierRequest[AnyContentAsEmpty.type]) => unauthorisedResult
       )
 

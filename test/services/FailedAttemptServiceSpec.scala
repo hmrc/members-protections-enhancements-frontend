@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import base.SpecBase
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.requests.UserDetails
-import models.requests.UserType.{PSA, PSP}
+import models.requests.UserType.{Psa, Psp}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.http.Status.IM_A_TEAPOT
 import play.api.mvc.Result
-import play.api.mvc.Results._
+import play.api.mvc.Results.*
 import play.api.test.Helpers.{await, contentAsString, defaultAwaitTimeout, status}
 import repositories.{FailedAttemptCountRepository, FailedAttemptLockoutRepository}
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -50,7 +50,7 @@ class FailedAttemptServiceSpec extends SpecBase {
     lazy val lockoutThreshold: Int = 5
     when(mockConfig.lockoutThreshold).thenReturn(lockoutThreshold)
 
-    lazy val addAttemptResult: Future[Unit] = Future.successful()
+    lazy val addAttemptResult: Future[Unit] = Future.unit
     when(
       mockCountRepo.addFailedAttempt()(ArgumentMatchers.any(), ArgumentMatchers.any())
     )
@@ -63,7 +63,7 @@ class FailedAttemptServiceSpec extends SpecBase {
     )
       .thenReturn(countAttemptResult)
 
-    lazy val createLockoutResult: Future[Unit] = Future.successful()
+    lazy val createLockoutResult: Future[Unit] = Future.unit
     when(
       mockLockoutRepo.putCache(ArgumentMatchers.any())(ArgumentMatchers.any())(ArgumentMatchers.any())
     ).thenReturn(createLockoutResult)
@@ -72,7 +72,7 @@ class FailedAttemptServiceSpec extends SpecBase {
     val instantTime: Option[Instant] = Some(Instant.ofEpochSecond(timestampSeconds))
     lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(Some(
       CacheUserDetails(
-        psrUserType = PSA,
+        psrUserType = Psa,
         psrUserId = None,
         createdAt = instantTime
       )
@@ -86,7 +86,7 @@ class FailedAttemptServiceSpec extends SpecBase {
       mockLockoutRepo.getLockoutExpiry(ArgumentMatchers.any())
     ).thenReturn(getExpiryResult)
 
-    implicit val userDetails: UserDetails  = UserDetails(PSA, "anId", "anotherId", AffinityGroup.Individual)
+    implicit val userDetails: UserDetails  = UserDetails(Psa, "anId", "anotherId", AffinityGroup.Individual)
   }
 
   "checkForLockout" - {
@@ -105,7 +105,7 @@ class FailedAttemptServiceSpec extends SpecBase {
     "should return an exception for a non matching lockout" in new Test {
       override lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(Some(
         CacheUserDetails(
-          psrUserType = PSP,
+          psrUserType = Psp,
           psrUserId = None,
           createdAt = Some(Instant.ofEpochSecond(timestampSeconds))
         )

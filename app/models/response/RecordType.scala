@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import models.response.PensionCreditLegislation.{`PARAGRAPH 18 SCHEDULE 36 FINAN
 import models.response.RecordTypeMapped._
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
-import utils.enums.Enums
 
 sealed trait RecordType {
   val mapping: RecordTypeMapped
@@ -96,8 +95,30 @@ object RecordType {
   implicit val reads: Reads[RecordType] = (json: JsValue) => {
     val pensionCreditRightsString: String = "PENSION CREDIT RIGHTS"
 
-    val enumReadsProtection: Reads[Protection] = Enums.reads[Protection]
-    val enumReadsEnhancement: Reads[Enhancement] = Enums.reads[Enhancement]
+    val enumReadsProtection: Reads[Protection] = Reads[Protection] {
+      case JsString("FIXED PROTECTION") => JsSuccess(`FIXED PROTECTION`)
+      case JsString("FIXED PROTECTION 2014") => JsSuccess(`FIXED PROTECTION 2014`)
+      case JsString("FIXED PROTECTION 2016") => JsSuccess(`FIXED PROTECTION 2016`)
+      case JsString("INDIVIDUAL PROTECTION 2014") => JsSuccess(`INDIVIDUAL PROTECTION 2014`)
+      case JsString("INDIVIDUAL PROTECTION 2016") => JsSuccess(`INDIVIDUAL PROTECTION 2016`)
+      case JsString("ENHANCED PROTECTION") => JsSuccess(`ENHANCED PROTECTION`)
+      case JsString("PRIMARY PROTECTION") => JsSuccess(`PRIMARY PROTECTION`)
+      case JsString("FIXED PROTECTION LTA") => JsSuccess(`FIXED PROTECTION`)
+      case JsString("FIXED PROTECTION 2014 LTA") => JsSuccess(`FIXED PROTECTION 2014`)
+      case JsString("FIXED PROTECTION 2016 LTA") => JsSuccess(`FIXED PROTECTION 2016`)
+      case JsString("INDIVIDUAL PROTECTION 2014 LTA") => JsSuccess(`INDIVIDUAL PROTECTION 2014`)
+      case JsString("INDIVIDUAL PROTECTION 2016 LTA") => JsSuccess(`INDIVIDUAL PROTECTION 2016`)
+      case JsString("ENHANCED PROTECTION LTA") => JsSuccess(`ENHANCED PROTECTION`)
+      case JsString("PRIMARY PROTECTION LTA") => JsSuccess(`PRIMARY PROTECTION`)
+      case _ => JsError("error.recordType.invalid")
+    }
+
+    val enumReadsEnhancement: Reads[Enhancement] = Reads[Enhancement]{
+      case JsString("INTERNATIONAL ENHANCEMENT S221") => JsSuccess(`INTERNATIONAL ENHANCEMENT S221`)
+      case JsString("INTERNATIONAL ENHANCEMENT S224") => JsSuccess(`INTERNATIONAL ENHANCEMENT S224`)
+      case _ => JsError("error.recordType.invalid")
+    }
+
     val typeReads: Reads[JsString] = (JsPath \ "type").read[JsString]
     val fallbackErrorReads: Reads[RecordType] = Reads.failed("error.expected.RecordType")
 

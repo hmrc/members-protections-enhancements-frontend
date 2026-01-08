@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package models.mongo
 import base.SpecBase
 import models.mongo.CacheUserDetails.mongoFormat
 import models.requests.UserDetails
-import models.requests.UserType.PSA
-import play.api.libs.json._
+import models.requests.UserType.Psa
+import play.api.libs.json.*
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 import java.time.Instant
@@ -43,7 +43,7 @@ class CacheUserDetailsSpec extends SpecBase {
   )
 
   val testModel: CacheUserDetails = CacheUserDetails(
-    psrUserType = PSA,
+    psrUserType = Psa,
     psrUserId = Some("anId"),
     createdAt = Some(Instant.ofEpochMilli(instantLong))
   )
@@ -70,18 +70,18 @@ class CacheUserDetailsSpec extends SpecBase {
   "apply" -> {
     "should not include PSR ID when flag is false" in {
       CacheUserDetails.apply(
-        userDetails = UserDetails(PSA, "anId", "anotherId", AffinityGroup.Individual),
+        userDetails = UserDetails(Psa, "anId", "anotherId", AffinityGroup.Individual),
         withPsrUserId = false,
         createdAt = None
-      ) mustBe CacheUserDetails(PSA, None, None)
+      ) mustBe CacheUserDetails(Psa, None, None)
     }
 
     "should include PSR ID when flag is true" in {
       CacheUserDetails.apply(
-        userDetails = UserDetails(PSA, "anId", "anotherId", AffinityGroup.Individual),
+        userDetails = UserDetails(Psa, "anId", "anotherId", AffinityGroup.Individual),
         withPsrUserId = true,
         createdAt = Some(Instant.ofEpochMilli(instantLong))
-      ) mustBe CacheUserDetails(PSA, Some("anId"), Some(Instant.ofEpochMilli(instantLong)))
+      ) mustBe CacheUserDetails(Psa, Some("anId"), Some(Instant.ofEpochMilli(instantLong)))
     }
   }
 }

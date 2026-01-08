@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ class AuthController @Inject()(val controllerComponents: MessagesControllerCompo
         }
   }
 
-  def privateBetaSignOut(): Action[AnyContent] = Action {
+  def privateBetaSignOut: Action[AnyContent] = Action {
     Redirect(config.exitSurveyUrl).withNewSession
   }
 }
