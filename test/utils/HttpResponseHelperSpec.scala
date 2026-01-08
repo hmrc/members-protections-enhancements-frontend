@@ -16,7 +16,8 @@
 
 package utils
 
-import models.errors.{MatchPerson, MpeError}
+import models.errors.ErrorSource.MatchPerson
+import models.errors.MpeError
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
 import models.response.{ProtectionRecord, ProtectionRecordDetails}

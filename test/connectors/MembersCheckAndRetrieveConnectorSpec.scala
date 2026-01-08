@@ -18,16 +18,17 @@ package connectors
 
 import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.errors.{MatchPerson, MpeError}
+import models.errors.ErrorSource.MatchPerson
+import models.errors.MpeError
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.FixedProtection2016
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.shouldBe
 import play.api.Application
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.http.HeaderCarrier

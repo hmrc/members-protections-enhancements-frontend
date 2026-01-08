@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,29 @@
 
 package models.errors
 
-import play.api.libs.json.{Json, OFormat}
+import models.errors.ErrorSource.Internal
+import play.api.libs.json.*
 
 sealed case class MpeError(code: String, message: String, reasons: Option[Seq[String]] = None,
                            source: ErrorSource = Internal)
 
 object MpeError {
-  implicit val format: OFormat[MpeError] = Json.format[MpeError]
-}
 
-object InternalError
+  object InternalError
     extends MpeError(
       code = "INTERNAL_SERVER_ERROR",
       message = "An internal server error occurred"
     )
 
-object NotFoundError
-  extends MpeError(
-    code = "NOT_FOUND",
-    message = "Matching not found"
-  )
+  object NotFoundError
+    extends MpeError(
+      code = "NOT_FOUND",
+      message = "Matching not found"
+    )
+
+  implicit val reads: Reads[MpeError] = Reads[MpeError]{
+    case JsString("INTERNAL_SERVER_ERROR") => JsSuccess(InternalError)
+    case JsString("NOT_FOUND") => JsSuccess(NotFoundError)
+    case _ => JsError("")
+  }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,9 +47,9 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
 
   val classLoggingContext: String = "FailedAttemptLockoutRepository"
 
-  lazy val format: Format[CacheUserDetails] = CacheUserDetails.mongoFormat
+  val format: Format[CacheUserDetails] = CacheUserDetails.mongoFormat
 
-  lazy val cacheRepo: MongoCacheRepository[String] = new MongoCacheRepository[String](
+  val cacheRepo: MongoCacheRepository[String] = new MongoCacheRepository[String](
       mongoComponent = mongoComponent,
       collectionName = "failed-attempt-lockout",
       ttl = Duration(frontendAppConfig.lockoutTtl, TimeUnit.SECONDS),

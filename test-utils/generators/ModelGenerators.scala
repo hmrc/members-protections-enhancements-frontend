@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package generators
 import models.PensionSchemeId.{PsaId, PspId}
 import models.requests.{IdentifierRequest, UserDetails}
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
-import models.requests.UserType.PSA
+import models.requests.UserType.{PSA, Psa}
 import org.scalacheck.Gen
 import play.api.mvc.Request
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -33,14 +33,14 @@ trait ModelGenerators extends Generators {
     for {
       userId <- nonEmptyString
       psaId <- psaIdGen
-    } yield AdministratorRequest(UserDetails(PSA, psaId.value, userId, AffinityGroup.Individual), request)
+    } yield AdministratorRequest(UserDetails(Psa, psaId.value, userId, AffinityGroup.Individual), request)
   }
 
   def practitionerRequestGen[A](request: Request[A]): Gen[PractitionerRequest[A]] = {
     for {
       userId <- nonEmptyString
       pspId <- pspIdGen
-    } yield PractitionerRequest(UserDetails(PSA, pspId.value, userId, AffinityGroup.Individual), request)
+    } yield PractitionerRequest(UserDetails(Psa, pspId.value, userId, AffinityGroup.Individual), request)
   }
 
   def identifierRequestGen[A](request: Request[A]): Gen[IdentifierRequest[A]] =

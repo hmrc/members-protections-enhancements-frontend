@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ trait FieldBehaviours extends FormSpec with ScalaCheckPropertyChecks with Genera
 
   def errorField(testName: String, form: Form[_], fieldName: String, error: FormError, gen: Gen[String]): Unit =
     s"not bind when $testName" in {
-      forAll(gen -> "validDataItem") { value: String =>
+      forAll(gen -> "validDataItem") { value =>
         val result = form.bind(Map(fieldName -> value))(fieldName)
         result.errors mustEqual Seq(error)
       }

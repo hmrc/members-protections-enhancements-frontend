@@ -29,6 +29,7 @@ import utils.{HttpResponseHelper, Logging}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
+import play.api.libs.ws.writeableOf_JsValue
 
 @ImplementedBy(classOf[MembersCheckAndRetrieveConnectorImpl])
 trait MembersCheckAndRetrieveConnector extends Logging {
