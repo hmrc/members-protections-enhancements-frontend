@@ -23,7 +23,6 @@ import org.mongodb.scala.model.Filters
 import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers.mustEqual
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
@@ -48,9 +47,9 @@ class SessionRepositorySpec extends AnyFreeSpec
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
   private val mockAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.sessionDataTtl) thenReturn 1
+  when(mockAppConfig.sessionDataTtl) thenReturn 1L
 
-  protected override val repository = new SessionRepository(
+  protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
     appConfig = mockAppConfig,
     clock = stubClock
@@ -71,8 +70,8 @@ class SessionRepositorySpec extends AnyFreeSpec
       val setResult: Unit = repository.set(userAnswers).futureValue
       val updatedRecord = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
 
-      setResult mustEqual ()
-      updatedRecord mustEqual expectedResult
+      setResult shouldBe ()
+      updatedRecord shouldBe expectedResult
     }
   }
 
@@ -84,13 +83,13 @@ class SessionRepositorySpec extends AnyFreeSpec
         val result = repository.get(userAnswers.id).futureValue
         val expectedResult = userAnswers copy (lastUpdated = instant)
 
-        result.value mustEqual expectedResult
+        result.value shouldBe expectedResult
       }
     }
 
     "when there is no record for this id" - {
       "must return None" in {
-        repository.get("id that does not exist").futureValue must not be defined
+        repository.get("id that does not exist").futureValue should not be defined
       }
     }
   }
@@ -101,14 +100,14 @@ class SessionRepositorySpec extends AnyFreeSpec
 
       val result = repository.clear(userAnswers.id).futureValue
 
-      result mustEqual true
-      repository.get(userAnswers.id).futureValue must not be defined
+      result shouldBe true
+      repository.get(userAnswers.id).futureValue should not be defined
     }
 
     "must return true when there is no record to remove" in {
       val result = repository.clear("id that does not exist").futureValue
 
-      result mustEqual true
+      result shouldBe true
     }
   }
 
@@ -120,15 +119,15 @@ class SessionRepositorySpec extends AnyFreeSpec
         val result = repository.keepAlive(userAnswers.id).futureValue
         val expectedUpdatedAnswers = userAnswers.copy(lastUpdated = instant).encrypt
 
-        result mustEqual true
+        result shouldBe true
         val updatedAnswers = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
-        updatedAnswers mustEqual expectedUpdatedAnswers
+        updatedAnswers shouldBe expectedUpdatedAnswers
       }
     }
 
     "when there is no record for this id" - {
       "must return true" in {
-        repository.keepAlive("id that does not exist").futureValue mustEqual true
+        repository.keepAlive("id that does not exist").futureValue shouldBe true
       }
     }
   }
