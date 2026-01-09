@@ -74,7 +74,7 @@ class ResultsControllerSpec extends SpecBase {
     lazy val application: Application = applicationBuilder(
       userAnswers = userAnswers,
       checkLockoutResult = checkLockoutResult
-    ).overrides().overrides(
+    ).overrides(
         inject.bind(classOf[FailedAttemptService]).toInstance(mockService),
         inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
         inject.bind(classOf[AuditService]).to(mockAuditService)
