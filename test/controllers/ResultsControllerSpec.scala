@@ -44,8 +44,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.IdGenerator
 import views.html.ResultsView
 
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import java.util.Locale
 import scala.concurrent.Future
 
@@ -98,9 +98,8 @@ class ResultsControllerSpec extends SpecBase {
 
     val backLinkRoute: String = routes.CheckYourAnswersController.onPageLoad().url
 
-    val dateTimeWithZone: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Europe/London"))
     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' h:mma")
-    val localDateTime: String = dateTimeWithZone.format(formatter.withLocale(Locale.UK))
+    val localDateTime: String = mockZonedDateTime.format(formatter.withLocale(Locale.UK))
 
     val pensionSchemeMemberRequest: PensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2022-01-01", "AB123456A", "PSA12345678A")
 

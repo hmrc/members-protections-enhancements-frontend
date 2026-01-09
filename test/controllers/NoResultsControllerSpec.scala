@@ -27,8 +27,8 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.NoResultsView
 
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import java.util.Locale
 
 class NoResultsControllerSpec extends SpecBase {
@@ -45,10 +45,8 @@ class NoResultsControllerSpec extends SpecBase {
     val membersDob: MembersDob = MembersDob(LocalDate.of(2022, 1, 1))
     val membersNino: MembersNino = MembersNino("AB123456A")
     val membersPsaCheckRef: MembersPsaCheckRef = MembersPsaCheckRef("PSA12345678A")
-
-    val dateTimeWithZone: ZonedDateTime = ZonedDateTime.now(ZoneId.of("Europe/London"))
     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' h:mma")
-    val localDateTime: String = dateTimeWithZone.format(formatter.withLocale(Locale.UK))
+    val localDateTime: String = mockZonedDateTime.format(formatter.withLocale(Locale.UK))
   }
 
   "No Results Controller" - {

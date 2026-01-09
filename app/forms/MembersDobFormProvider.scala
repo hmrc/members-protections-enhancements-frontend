@@ -20,10 +20,11 @@ import com.google.inject.Inject
 import forms.mappings.Mappings
 import models._
 import play.api.data.Form
+import providers.DateTimeProvider
 
 import java.time.LocalDate
 
-class MembersDobFormProvider @Inject()() extends Mappings {
+class MembersDobFormProvider @Inject()(dateTimeProvider: DateTimeProvider) extends Mappings {
 
   def apply(): Form[MembersDob] = Form[MembersDob](
     "dateOfBirth" -> localDate(
@@ -37,7 +38,7 @@ class MembersDobFormProvider @Inject()() extends Mappings {
       realDateKey = "membersDob.error.missing.real"
     ).verifying(
       minDate(MembersDobFormProvider.minDate, "membersDob.error.missing.past"),
-      maxDate(MembersDobFormProvider.maxDate, "membersDob.error.missing.future")
+      maxDate(dateTimeProvider.now().toLocalDate, "membersDob.error.missing.future")
     ).transform[MembersDob](
       MembersDob(_),
       _.dateOfBirth
@@ -46,9 +47,6 @@ class MembersDobFormProvider @Inject()() extends Mappings {
 }
 
 object MembersDobFormProvider {
-
   val minDate: LocalDate = LocalDate.of(1900, 1, 1)
-
-  def maxDate: LocalDate = LocalDate.now()
 }
 

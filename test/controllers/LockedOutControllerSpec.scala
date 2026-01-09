@@ -27,7 +27,6 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import providers.DateTimeProvider
 import services.FailedAttemptService
 import views.html.LockedOutView
 
@@ -37,14 +36,12 @@ import scala.concurrent.Future
 class LockedOutControllerSpec extends SpecBase {
 
   trait Test {
-    val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
     val mockService: FailedAttemptService = mock[FailedAttemptService]
 
     val application: Application = applicationBuilder(
       userAnswers = emptyUserAnswers,
     )
       .overrides(
-        bind(classOf[DateTimeProvider]).toInstance(mockDateTimeProvider),
         bind[FailedAttemptService].toInstance(mockService)
       )
       .build()
