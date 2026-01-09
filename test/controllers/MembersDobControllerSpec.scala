@@ -19,10 +19,12 @@ package controllers
 import base.SpecBase
 import forms.MembersDobFormProvider
 import models.{MemberDetails, MembersDob, MembersResult, NormalMode}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.{MembersDobPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.{Form, FormError}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import providers.DateTimeProvider
 import viewmodels.formPage.FormPageViewModel
 import views.html.MembersDobView
 
@@ -33,8 +35,7 @@ class MembersDobControllerSpec extends SpecBase {
   private lazy val onPageLoad = routes.MembersDobController.onPageLoad(NormalMode).url
   private lazy val onSubmit = routes.MembersDobController.onSubmit(NormalMode)
   private lazy val backLinkUrl = routes.WhatIsTheMembersNameController.onSubmit(NormalMode).url
-
-  private val formProvider = new MembersDobFormProvider()
+  private val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
   private val form: Form[MembersDob] = formProvider()
 
   "Member Dob Controller" - {

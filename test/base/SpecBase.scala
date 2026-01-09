@@ -99,18 +99,18 @@ trait SpecBase
   val mockYear: Int = 2025
   val mockDateTimeVal: Int = 12
 
-  when(mockDateTimeProvider.now(any())).thenReturn(
-    ZonedDateTime.of(
-      mockYear,
-      mockDateTimeVal,
-      mockDateTimeVal,
-      mockDateTimeVal,
-      mockDateTimeVal,
-      mockDateTimeVal,
-      mockDateTimeVal,
-      ZoneId.of("Europe/London")
-    )
+  val mockZonedDateTime: ZonedDateTime = ZonedDateTime.of(
+    mockYear,
+    mockDateTimeVal,
+    mockDateTimeVal,
+    mockDateTimeVal,
+    mockDateTimeVal,
+    mockDateTimeVal,
+    mockDateTimeVal,
+    ZoneId.of("Europe/London")
   )
+
+  when(mockDateTimeProvider.now(any())).thenReturn(mockZonedDateTime)
 
   protected def applicationBuilder(userAnswers: UserAnswers,
                                    identifierAction: IdentifierAction = fakePsaIdentifierAction,
@@ -121,7 +121,8 @@ trait SpecBase
       .overrides(
         bind[IdentifierAction].toInstance(identifierAction),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[CheckLockoutAction].toInstance(new FakeCheckLockoutAction(checkLockoutResult))
+        bind[CheckLockoutAction].toInstance(new FakeCheckLockoutAction(checkLockoutResult)),
+        bind[DateTimeProvider].toInstance(mockDateTimeProvider)
       )
 
   def runningApplication(block: Application => Unit): Unit =
