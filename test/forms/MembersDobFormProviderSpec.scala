@@ -44,7 +44,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
     )
   )
 
-  private val formProvider = new MembersDobFormProvider()
+  private val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
   private val form: Form[MembersDob] = formProvider()
 
   val messages: Messages = Helpers.stubMessagesApi().preferred(FakeRequest())
@@ -56,6 +56,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
 
   ".dateOfBirth" must {
     "bind valid data with numeric month values" in {
+      println()
       forAll(datesBetween(minDate, maxDate)) { date =>
         val data = Map(
           s"$formField.day" -> date.getDayOfMonth.toString,
