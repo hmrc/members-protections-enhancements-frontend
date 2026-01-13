@@ -19,7 +19,7 @@ package repositories
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.requests.UserDetails
-import models.requests.UserType.PSA
+import models.requests.UserType.Psa
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
 import org.scalatest.OptionValues
@@ -59,7 +59,7 @@ class FailedAttemptCountRepositorySpec
     timestampSupport = mockTimestampSupport
   )
 
-  implicit val userDetails: UserDetails  = UserDetails(PSA, "psaId", "anotherId", AffinityGroup.Individual)
+  implicit val userDetails: UserDetails  = UserDetails(Psa, "psaId", "anotherId", AffinityGroup.Individual)
 
   "addFailedAttempt" - {
     "must successfully add a new failed attempt" in {
@@ -67,7 +67,7 @@ class FailedAttemptCountRepositorySpec
       await(result) mustBe()
       val findResult: Seq[CacheUserDetails] = find(Filters.equal("psrUserId", "psaId")).futureValue
       findResult must have length 1
-      findResult.headOption.get mustBe CacheUserDetails(PSA, Some("psaId"), Some(Instant.ofEpochSecond(timeSecs)))
+      findResult.headOption.get mustBe CacheUserDetails(Psa, Some("psaId"), Some(Instant.ofEpochSecond(timeSecs)))
     }
   }
 

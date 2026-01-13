@@ -28,6 +28,6 @@ object PensionCreditLegislation {
   implicit val reads: Reads[PensionCreditLegislation] = Reads[PensionCreditLegislation] {
     case JsString("PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004") => JsSuccess(`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`)
     case JsString("SECTION 220 FINANCE ACT 2004") => JsSuccess(`SECTION 220 FINANCE ACT 2004`)
-    case _ => JsError("error.usertype.invalid")
+    case _ => JsError("error.expected.PensionCreditLegislation")
   }
 }

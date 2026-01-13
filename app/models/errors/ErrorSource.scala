@@ -24,9 +24,9 @@ sealed trait ErrorSource {
 
 object ErrorSource {
 
-  private val MATCH_PERSON: String = "MATCH_PERSON"
-  private val RETRIEVE_MPE: String = "RETRIEVE_MPE"
-  private val INTERNAL: String = "INTERNAL_SERVER_ERROR"
+  private val MATCH_PERSON: String = "MatchPerson"
+  private val RETRIEVE_MPE: String = "RetrieveMpe"
+  private val INTERNAL: String = "Internal"
 
   case object MatchPerson extends ErrorSource {
     override val value: String = MATCH_PERSON
@@ -41,7 +41,7 @@ object ErrorSource {
   implicit val reads: Reads[ErrorSource] = Reads[ErrorSource] {
     case JsString(MATCH_PERSON) => JsSuccess(MatchPerson)
     case JsString(RETRIEVE_MPE) => JsSuccess(RetrieveMpe)
-    case JsString("INTERNAL_SERVER_ERROR") => JsSuccess(Internal)
+    case JsString(INTERNAL) => JsSuccess(Internal)
     case _ => JsError("error.usertype.invalid")
   }
 

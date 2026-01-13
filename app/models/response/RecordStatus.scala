@@ -32,14 +32,14 @@ object RecordStatus {
     override def toMapped: RecordStatusMapped = Dormant
   }
 
-  case object WITHDRAWN extends RecordStatus{
+  case object WITHDRAWN extends RecordStatus {
     override def toMapped: RecordStatusMapped = Withdrawn
   }
 
   implicit val reads: Reads[RecordStatus] = Reads[RecordStatus] {
-    case JsString(Active.messagesKey) => JsSuccess(OPEN)
-    case JsString(Dormant.messagesKey) => JsSuccess(DORMANT)
-    case JsString(Withdrawn.messagesKey) => JsSuccess(WITHDRAWN)
+    case JsString("OPEN") => JsSuccess(OPEN)
+    case JsString("DORMANT") => JsSuccess(DORMANT)
+    case JsString("WITHDRAWN") => JsSuccess(WITHDRAWN)
     case _ => JsError("error.recordStatus.invalid")
   }
 }

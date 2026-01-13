@@ -21,7 +21,7 @@ import models.mongo.CacheUserDetails
 import models.mongo.CacheUserDetails.mongoFormat
 import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.AdministratorRequest
-import models.requests.UserType.PSA
+import models.requests.UserType.Psa
 import org.mockito.Mockito.when
 import org.mongodb.scala.MongoWriteException
 import org.mongodb.scala.model.Filters
@@ -74,12 +74,12 @@ class FailedAttemptLockoutRepositorySpec
     affGroup = Individual,
     userId = "userId",
     psaId = "psaId",
-    psrUserType = PSA,
+    psrUserType = Psa,
     request = FakeRequest()
   )
 
   val cacheUserDetails: CacheUserDetails = CacheUserDetails(
-    psrUserType = PSA,
+    psrUserType = Psa,
     psrUserId = Some("psaId"),
     createdAt = Some(Instant.ofEpochSecond(timeSecs))
   )

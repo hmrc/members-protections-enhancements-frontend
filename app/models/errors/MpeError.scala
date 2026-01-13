@@ -18,9 +18,11 @@ package models.errors
 
 import models.errors.ErrorSource.Internal
 import play.api.libs.json.*
+ 
 
-sealed case class MpeError(code: String, message: String, reasons: Option[Seq[String]] = None,
+case class MpeError(code: String, message: String, reasons: Option[Seq[String]] = None,
                            source: ErrorSource = Internal)
+
 
 object MpeError {
 
@@ -33,12 +35,8 @@ object MpeError {
   object NotFoundError
     extends MpeError(
       code = "NOT_FOUND",
-      message = "Matching not found"
-    )
+      message = "Matching not found")
 
-  implicit val reads: Reads[MpeError] = Reads[MpeError]{
-    case JsString("INTERNAL_SERVER_ERROR") => JsSuccess(InternalError)
-    case JsString("NOT_FOUND") => JsSuccess(NotFoundError)
-    case _ => JsError("")
-  }
+  implicit val format: OFormat[MpeError] = Json.format[MpeError]
 }
+

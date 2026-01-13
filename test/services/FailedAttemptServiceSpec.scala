@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.requests.UserDetails
-import models.requests.UserType.{PSA, PSP, Psa}
+import models.requests.UserType.{Psa, Psp}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.http.Status.IM_A_TEAPOT
@@ -33,7 +33,6 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.runtime.Nothing$
 
 class FailedAttemptServiceSpec extends SpecBase {
 
@@ -106,7 +105,7 @@ class FailedAttemptServiceSpec extends SpecBase {
     "should return an exception for a non matching lockout" in new Test {
       override lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(Some(
         CacheUserDetails(
-          psrUserType = Psa,
+          psrUserType = Psp,
           psrUserId = None,
           createdAt = Some(Instant.ofEpochSecond(timestampSeconds))
         )
