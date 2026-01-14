@@ -48,7 +48,7 @@ class SessionRepositorySpec extends AnyFreeSpec
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
   private val mockAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.sessionDataTtl) thenReturn 1
+  when(mockAppConfig.sessionDataTtl) thenReturn 1L
 
   protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
