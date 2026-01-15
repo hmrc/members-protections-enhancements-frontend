@@ -16,7 +16,6 @@
 
 package controllers.actions
 
-import generators.ModelGenerators
 import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.PractitionerRequest
 import models.requests.UserType.Psp
@@ -26,7 +25,7 @@ import uk.gov.hmrc.auth.core.AffinityGroup
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakePspIdentifierAction @Inject()(bodyParsers: BodyParsers.Default) extends IdentifierAction with ModelGenerators {
+class FakePspIdentifierAction @Inject()(bodyParsers: BodyParsers.Default) extends IdentifierAction {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
     block(PractitionerRequest(AffinityGroup.Individual, "id","21000002", Psp, request))
