@@ -19,12 +19,10 @@ package controllers
 import base.SpecBase
 import forms.MembersDobFormProvider
 import models.{MemberDetails, MembersDob, MembersResult, NormalMode}
-import org.scalatestplus.mockito.MockitoSugar.mock
 import pages.{MembersDobPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.{Form, FormError}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import providers.DateTimeProvider
+import play.api.test.Helpers.*
 import viewmodels.formPage.FormPageViewModel
 import views.html.MembersDobView
 

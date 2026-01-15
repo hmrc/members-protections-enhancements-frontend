@@ -23,7 +23,6 @@
 
 @this(
     layout: templates.Layout,
-    heading: h1,
     govukErrorSummary: GovukErrorSummary,
     formHelper: FormWithCSRF,
     govukDateInput: GovukDateInput,
@@ -47,7 +46,7 @@
             fieldset = Some(Fieldset(
 legend = Some(Legend(content = HtmlContent(s"<h1 class='govuk-heading-l'>${messages("membersDob.heading", name)}</h1>")))
             ))
-        ).withFormField(form("dateOfBirth")))
+        ).withDayMonthYearFormField(form("dateOfBirth")))
 
         @govukButton(
             ButtonViewModel(viewModel.buttonText.toMessage)

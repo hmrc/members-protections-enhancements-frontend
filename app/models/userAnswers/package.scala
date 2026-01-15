@@ -137,6 +137,7 @@ package object userAnswers {
                   }
                 }
             }
+        case _ =>  JsError(s"Error removing the key on $jsValue")
       }
     }
   }

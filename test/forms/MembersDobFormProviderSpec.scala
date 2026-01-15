@@ -20,7 +20,7 @@ import forms.behaviours.DateBehaviours
 import models.MembersDob
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.matchers.should.Matchers.{shouldBe, shouldEqual}
+import org.scalatest.matchers.should.Matchers.shouldEqual
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.data.Form
 import play.api.i18n.Messages

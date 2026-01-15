@@ -17,9 +17,9 @@
 package generators
 
 import models.PensionSchemeId.{PsaId, PspId}
-import models.requests.{IdentifierRequest, UserDetails}
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
-import models.requests.UserType.{PSA, Psa}
+import models.requests.UserType.Psa
+import models.requests.{IdentifierRequest, UserDetails}
 import org.scalacheck.Gen
 import play.api.mvc.Request
 import uk.gov.hmrc.auth.core.AffinityGroup

@@ -19,7 +19,7 @@ package models.mongo
 import base.SpecBase
 import models.mongo.CacheUserDetails.mongoFormat
 import models.requests.UserDetails
-import models.requests.UserType.{PSA, Psa}
+import models.requests.UserType.Psa
 import play.api.libs.json.*
 import uk.gov.hmrc.auth.core.AffinityGroup
 

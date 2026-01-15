@@ -35,6 +35,6 @@ object CacheUserDetails {
     createdAt = createdAt
   )
 
-  implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
-  val mongoFormat: Format[CacheUserDetails] = Json.format[CacheUserDetails]
+  implicit lazy val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
+  lazy val mongoFormat: Format[CacheUserDetails] = Json.format[CacheUserDetails]
 }
