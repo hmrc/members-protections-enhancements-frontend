@@ -43,10 +43,10 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
                                                frontendAppConfig: FrontendAppConfig,
                                                timestampSupport: TimestampSupport)
                                               (implicit ec: ExecutionContext)
-  extends EntityCache[String, CacheUserDetails] with FailedAttemptLockoutRepository with Logging {
+  extends EntityCacheWorkaround[String, CacheUserDetails] with FailedAttemptLockoutRepository with Logging {
 
   val classLoggingContext: String = "FailedAttemptLockoutRepository"
-
+  
   val format: Format[CacheUserDetails] = CacheUserDetails.mongoFormat
 
   val cacheRepo: MongoCacheRepository[String] = new MongoCacheRepository[String](
@@ -56,6 +56,11 @@ class FailedAttemptLockoutRepositoryImpl @Inject()(mongoComponent: MongoComponen
       timestampSupport = timestampSupport,
       cacheIdType = CacheIdType.SimpleCacheId
     ) {
+    /*
+    We override the `put` method from MongoCacheRepository as the base implementation uses an upsert.
+    In this use case we would rather throw an error if there is an attempt to create a lockout when one
+    already exists as this would suggest that our lockout mechanism has been subverted in some way.    
+     */
     override def put[A: Writes](cacheId: String)(dataKey: DataKey[A], data: A): Future[CacheItem] = {
       val methodLoggingContext: String = "put"
       val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
