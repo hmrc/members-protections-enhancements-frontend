@@ -106,7 +106,7 @@ class SessionRepositorySpec
       }
     }
 
-    //mustPreserveMdc(repository.get(userAnswers.id))
+    mustPreserveMdc(repository.get(userAnswers.id))
   }
 
   ".set" - {
