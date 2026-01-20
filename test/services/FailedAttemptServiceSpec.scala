@@ -86,6 +86,11 @@ class FailedAttemptServiceSpec extends SpecBase {
       mockLockoutRepo.getLockoutExpiry(ArgumentMatchers.any())
     ).thenReturn(getExpiryResult)
 
+    lazy val removeFailedAttemptsResult: Future[Unit] = Future.unit
+    when(
+      mockCountRepo.removeFailedAttempts()(ArgumentMatchers.any(), ArgumentMatchers.any())
+    ).thenReturn(removeFailedAttemptsResult)
+
     implicit val userDetails: UserDetails  = UserDetails(Psa, "anId", "anotherId", AffinityGroup.Individual)
   }
 
@@ -151,6 +156,14 @@ class FailedAttemptServiceSpec extends SpecBase {
     "should return an error when above threshold and lockout creation fails" in new Test {
       override lazy val countAttemptResult: Future[Long] = Future.successful(lockoutThreshold + 1)
       override lazy val createLockoutResult: Future[Unit] = Future.failed(new RuntimeException("error"))
+
+      val result: Future[Result] = service.handleFailedAttempt(Ok(""))(Ok(""))
+      assertThrows[RuntimeException](await(result))
+    }
+
+    "should return an error when above threshold and attempt count removal fails" in new Test {
+      override lazy val countAttemptResult: Future[Long] = Future.successful(lockoutThreshold + 1)
+      override lazy val removeFailedAttemptsResult: Future[Unit] = Future.failed(new RuntimeException("error"))
 
       val result: Future[Result] = service.handleFailedAttempt(Ok(""))(Ok(""))
       assertThrows[RuntimeException](await(result))

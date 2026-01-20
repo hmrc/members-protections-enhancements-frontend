@@ -89,4 +89,19 @@ class FailedAttemptCountRepositorySpec
       await(result) mustBe 0
     }
   }
+
+  "removeFailedAttempts" - {
+    "must successfully remove any existing failed attempts" in {
+      val result: Future[Unit] = {
+        repository.addFailedAttempt().flatMap(_ =>
+          repository.addFailedAttempt().flatMap(_ =>
+            repository.removeFailedAttempts()
+          )
+        )
+      }
+
+      val findResult: Seq[CacheUserDetails] = await(result.map(_ => find(Filters.equal("psrUserId", "psaId")).futureValue))
+      findResult must have length 0
+    }
+  }
 }

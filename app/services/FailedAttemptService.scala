@@ -111,10 +111,13 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
           logger.info(s"$fullLoggingContext - Returning no lockout result")
           Future.successful(noLockoutResult)
         case true =>
-          createLockout().map(_ => {
+          for {
+            _ <- createLockout()
+            _ <- failedAttemptCountRepository.removeFailedAttempts()
+          } yield {
             logger.info(s"$fullLoggingContext - Returning lockout result")
             lockoutResult
-          })
+          }
       }
 
   }
