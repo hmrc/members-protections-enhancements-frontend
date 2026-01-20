@@ -56,7 +56,6 @@ class MembersDobFormProviderSpec extends DateBehaviours {
 
   ".dateOfBirth" must {
     "bind valid data with numeric month values" in {
-      println()
       forAll(datesBetween(minDate, maxDate)) { date =>
         val data = Map(
           s"$formField.day" -> date.getDayOfMonth.toString,
