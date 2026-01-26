@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,15 @@ import config.FrontendAppConfig
 import models.userAnswers.{EncryptedUserAnswers, UserAnswers}
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
-import org.scalatest.OptionValues
+import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatest.matchers.must.Matchers.{must, mustEqual}
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import repositories.SessionRepository
-import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+import uk.gov.hmrc.mongo.test.PlayMongoRepositorySupport
 import utils.encryption.MockAesGcmAdCrypto
 
 import java.time.temporal.ChronoUnit
@@ -37,7 +37,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class SessionRepositorySpec extends AnyFreeSpec
   with Matchers
-  with DefaultPlayMongoRepositorySupport[EncryptedUserAnswers]
+  with PlayMongoRepositorySupport[EncryptedUserAnswers]
+  with BeforeAndAfterEach
   with ScalaFutures
   with MockitoSugar
   with OptionValues
@@ -47,13 +48,19 @@ class SessionRepositorySpec extends AnyFreeSpec
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
   private val mockAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.sessionDataTtl) thenReturn 1
+  when(mockAppConfig.sessionDataTtl) thenReturn 1L
 
-  protected override val repository = new SessionRepository(
+  protected override val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
     appConfig = mockAppConfig,
     clock = stubClock
   )
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    deleteAll().futureValue
+    org.mockito.Mockito.reset()
+  }
 
   private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
 

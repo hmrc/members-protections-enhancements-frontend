@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,10 +111,13 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
           logger.info(s"$fullLoggingContext - Returning no lockout result")
           Future.successful(noLockoutResult)
         case true =>
-          createLockout().map(_ => {
+          for {
+            _ <- createLockout()
+            _ <- failedAttemptCountRepository.removeFailedAttempts()
+          } yield {
             logger.info(s"$fullLoggingContext - Returning lockout result")
             lockoutResult
-          })
+          }
       }
 
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
 
 package controllers.actions
 
-import generators.ModelGenerators
 import models.requests.IdentifierRequest
 import models.requests.IdentifierRequest.PractitionerRequest
-import models.requests.UserType.PSP
-import play.api.mvc._
+import models.requests.UserType.Psp
+import play.api.mvc.*
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakePspIdentifierAction @Inject()(bodyParsers: BodyParsers.Default) extends IdentifierAction with ModelGenerators {
+class FakePspIdentifierAction @Inject()(bodyParsers: BodyParsers.Default) extends IdentifierAction {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-    block(PractitionerRequest(AffinityGroup.Individual, "id","21000002", PSP, request))
+    block(PractitionerRequest(AffinityGroup.Individual, "id","21000002", Psp, request))
   }
 
   override def parser: BodyParser[AnyContent] = bodyParsers

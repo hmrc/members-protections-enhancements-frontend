@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.MembersResult
 import models.audit.{AuditDetail, AuditEvent}
-import models.errors.{MatchPerson, MpeError}
+import models.errors.ErrorSource.MatchPerson
+import models.errors.MpeError
 import models.requests.{PensionSchemeMemberRequest, UserDetails}
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import pages.{CheckYourAnswersPage, ResultsPage}

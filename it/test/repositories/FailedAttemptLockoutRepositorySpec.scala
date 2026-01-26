@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ package repositories
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.mongo.CacheUserDetails.mongoFormat
-import models.requests.IdentifierRequest
+import models.requests.{IdentifierRequest, UserDetails}
 import models.requests.IdentifierRequest.AdministratorRequest
-import models.requests.UserType.PSA
+import models.requests.UserType.Psa
 import org.mockito.Mockito.when
 import org.mongodb.scala.MongoWriteException
 import org.mongodb.scala.model.Filters
@@ -34,6 +34,7 @@ import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.mongo.TimestampSupport
 import uk.gov.hmrc.mongo.cache.CacheItem
@@ -62,6 +63,8 @@ class FailedAttemptLockoutRepositorySpec
   val instantTime: Instant = Instant.ofEpochSecond(timeSecs)
   when(mockTimestampSupport.timestamp()).thenReturn(instantTime)
 
+  implicit val userDetails: UserDetails  = UserDetails(Psa, "psaId", "anotherId", AffinityGroup.Individual)
+
   val lockoutRepo: FailedAttemptLockoutRepositoryImpl = new FailedAttemptLockoutRepositoryImpl(
     mongoComponent = mongoComponent,
     frontendAppConfig = mockAppConfig,
@@ -74,12 +77,12 @@ class FailedAttemptLockoutRepositorySpec
     affGroup = Individual,
     userId = "userId",
     psaId = "psaId",
-    psrUserType = PSA,
+    psrUserType = Psa,
     request = FakeRequest()
   )
 
   val cacheUserDetails: CacheUserDetails = CacheUserDetails(
-    psrUserType = PSA,
+    psrUserType = Psa,
     psrUserId = Some("psaId"),
     createdAt = Some(Instant.ofEpochSecond(timeSecs))
   )

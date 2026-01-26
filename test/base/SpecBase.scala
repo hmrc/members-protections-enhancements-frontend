@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,8 @@ import java.net.URLEncoder
 import java.time.{ZoneId, ZonedDateTime}
 import scala.jdk.CollectionConverters.MapHasAsJava
 import scala.reflect.ClassTag
+
+import scala.language.implicitConversions
 
 trait SpecBase
   extends AnyFreeSpec
@@ -142,7 +144,7 @@ trait SpecBase
     "microservice.services.bas-gateway-frontend.port"  -> wireMockPort
   )
 
-  implicit val queryParamsToJava: Map[String, String] => java.util.Map[String, StringValuePattern] = _.map {
+  given queryParamsToJava: Conversion[Map[String, String], java.util.Map[String, StringValuePattern]] = _.map {
     case (k, v) =>
       k -> equalTo(v)
   }.asJava

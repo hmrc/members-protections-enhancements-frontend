@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,18 @@
 
 package models.response
 
-import play.api.libs.json.Reads
-import utils.enums.Enums
+import play.api.libs.json._
 
 sealed trait PensionCreditLegislation
 
 object PensionCreditLegislation {
+
   case object `PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004` extends PensionCreditLegislation
   case object `SECTION 220 FINANCE ACT 2004` extends PensionCreditLegislation
 
-  implicit val reads: Reads[PensionCreditLegislation] = Enums.reads[PensionCreditLegislation]
+  implicit val reads: Reads[PensionCreditLegislation] = Reads[PensionCreditLegislation] {
+    case JsString("PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004") => JsSuccess(`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`)
+    case JsString("SECTION 220 FINANCE ACT 2004") => JsSuccess(`SECTION 220 FINANCE ACT 2004`)
+    case _ => JsError("error.expected.PensionCreditLegislation")
+  }
 }

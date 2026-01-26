@@ -1,5 +1,5 @@
 @*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,9 @@
 
 @this(
     layout: templates.Layout,
-    govukButton : GovukButton,
-    govukBackLink: GovukBackLink,
     heading: h1,
     heading2: h2,
-    appConfig: FrontendAppConfig,
-    govukBreadcrumbs: GovukBreadcrumbs
+    appConfig: FrontendAppConfig
 )
 
 @(backLinkUrl: Option[String])(implicit request: Request[_], messages: Messages)

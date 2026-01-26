@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,10 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[FailedAttemptCountRepositoryImpl])
 trait FailedAttemptCountRepository {
   def addFailedAttempt()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit]
+
   def countFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Long]
+
+  def removeFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit]
 }
 
 @Singleton
@@ -115,6 +118,35 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
             s"MongoDB returned an error during failed attempt count with error message: ${ex.getMessage}"
           )
           throw ex
+      }
+  }
+
+  def removeFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit] = {
+    val methodLoggingContext: String = "removeFailedAttempts"
+    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
+
+    logger.info(s"$fullLoggingContext - Received request to remove failed attempts for user")
+
+    collection
+      .deleteMany(
+        filter = Filters.equal(fieldName = "psrUserId", value = userDetails.psrUserId)
+      )
+      .toFuture()
+      .map {
+        case res if res.wasAcknowledged() =>
+          logger.info(s"$fullLoggingContext - Successfully removed failed attempts for user")
+        case _ =>
+          logger.error(
+            message = s"$fullLoggingContext - Failed attempts were not removed from cache",
+            error = CacheException("Failed to add remove failed attempts from cache")
+          )
+      }
+      .recover {
+        case ex: MongoException =>
+          logger.error(
+            message = s"$fullLoggingContext - MongoDB returned an error during failed attempt deletion with error message: ${ex.getMessage}",
+            error = ex
+          )
       }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,14 @@ import play.api.data.{Form, FormError}
 
 trait FormSpec extends AnyWordSpec with Matchers with OptionValues {
 
-  def checkForError(form: Form[_], data: Map[String, String], expectedErrors: Seq[FormError]) = {
+  def checkForError(form: Form[_], data: Map[String, String], expectedErrors: Seq[FormError]): Any = {
 
     form.bind(data).fold(
       formWithErrors => {
         for (error <- expectedErrors) formWithErrors.errors must contain(FormError(error.key, error.message, error.args))
         formWithErrors.errors.size mustBe expectedErrors.size
       },
-      form => {
+      _ => {
         fail("Expected a validation error when binding the form, but it was bound successfully.")
       }
     )

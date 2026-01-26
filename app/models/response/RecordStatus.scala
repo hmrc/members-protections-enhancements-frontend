@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,7 @@
 package models.response
 
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
-import play.api.libs.json.Reads
-import utils.enums.Enums
+import play.api.libs.json._
 
 sealed trait RecordStatus {
   def toMapped: RecordStatusMapped
@@ -33,9 +32,14 @@ object RecordStatus {
     override def toMapped: RecordStatusMapped = Dormant
   }
 
-  case object WITHDRAWN extends RecordStatus{
+  case object WITHDRAWN extends RecordStatus {
     override def toMapped: RecordStatusMapped = Withdrawn
   }
 
-  implicit val reads: Reads[RecordStatus] = Enums.reads[RecordStatus]
+  implicit val reads: Reads[RecordStatus] = Reads[RecordStatus] {
+    case JsString("OPEN") => JsSuccess(OPEN)
+    case JsString("DORMANT") => JsSuccess(DORMANT)
+    case JsString("WITHDRAWN") => JsSuccess(WITHDRAWN)
+    case _ => JsError("error.recordStatus.invalid")
+  }
 }
