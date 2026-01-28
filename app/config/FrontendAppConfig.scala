@@ -18,13 +18,14 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   private def loadConfig(key: String): String = configuration.get[String](key)
-  private def getServiceBaseUrl(service: String): String = configuration.get[Service](service)
-
+  private val servicesConfig = ServicesConfig(configuration)
+  
   //Application config
   val host: String    = loadConfig("host")
   val appName: String = loadConfig("appName")
@@ -47,14 +48,14 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val loginUrl: String         = loadConfig("urls.login")
   val loginContinueUrl: String = loadConfig("urls.loginContinue")
 
-  private val basGatewayFrontendBaseUrl: String = getServiceBaseUrl("microservice.services.bas-gateway-frontend")
+  private val basGatewayFrontendBaseUrl: String = servicesConfig.baseUrl("bas-gateway-frontend")
   lazy val signOutUrl: String = basGatewayFrontendBaseUrl + "/bas-gateway/sign-out-without-state"
 
   // Feedback config
   val exitSurveyUrl: String = loadConfig("urls.signOutWithFeedback")
 
 
-  private val backendUrl: String = getServiceBaseUrl("microservice.services.mpe-backend")
+  private val backendUrl: String = servicesConfig.baseUrl("mpe-backend")
   val checkAndRetrieveUrl = s"$backendUrl/${loadConfig("urls.checkAndRetrieve")}"
 
   lazy val mpsDashboardUrl: String = loadConfig("urls.mpsDashboard")
@@ -67,7 +68,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val privateBetaEnabled: Boolean = configuration.get[Boolean]("feature-switch.privateBetaEnabled")
 
   // User allow list
-  val userAllowListService: Service = configuration.get[Service]("microservice.services.user-allow-list")
+  val userAllowListServiceUrl: String = servicesConfig.baseUrl("user-allow-list")
   val internalAuthToken: String = configuration.get[String]("internal-auth.token")
 
   //Beta feedback config
