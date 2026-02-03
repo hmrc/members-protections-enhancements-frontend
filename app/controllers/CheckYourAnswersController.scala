@@ -39,7 +39,7 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            view: CheckYourAnswersView)
   extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handleWithAll {
+  def onPageLoad(): Action[AnyContent] = handleWithAllDetails {
     implicit request =>
       memberDetails => membersDob => membersNino => membersPsaCheckRef =>
       Future.successful(Ok(
