@@ -205,6 +205,25 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
+    "must redirect to CYA page if CYA answers exist, but is flagged as false" in new Test {
+      override val userAnswers: UserAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = memberDetails).success.value
+        .set(page = MembersDobPage, value = membersDob).success.value
+        .set(page = MembersNinoPage, value = membersNino).success.value
+        .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
+        .set(page = CheckYourAnswersPage, CheckMembersDetails(false)).success.value
+
+      setUpStubs(OK, response)
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.CheckYourAnswersController.onPageLoad().url)
+      }
+    }
+
     "must redirect to NoResults page when failed attempt threshold not exceeded for a failed attempt" in new Test {
       mockFailedAttemptCheck()
       setUpStubs(NOT_FOUND, errorResponse("NO_MATCH", "MatchPerson"))
