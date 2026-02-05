@@ -65,7 +65,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   //Feature switches
   val betaBannerEnabled: Boolean = configuration.get[Boolean]("feature-switch.betaBannerEnabled")
-  val privateBetaEnabled: Boolean = configuration.get[Boolean]("feature-switch.privateBetaEnabled")
 
   // User allow list
   val userAllowListServiceUrl: String = servicesConfig.baseUrl("user-allow-list")

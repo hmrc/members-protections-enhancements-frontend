@@ -48,20 +48,17 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
   def authAction(appConfig: FrontendAppConfig) =
     new AuthenticatedIdentifierAction(
       authConnector = mockAuthConnector,
-      userAllowListConnector = mockUserAllowListConnector,
       config = appConfig,
       playBodyParsers = bodyParsers
     )(ExecutionContext.global)
 
   class Handler(appConfig: FrontendAppConfig) {
-    def run: Action[AnyContent] = authAction(appConfig) { request =>
-      request match {
-        case AdministratorRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
-          Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "psaId" -> psrUserId, "affinityGroup" -> affinityGroup))
+    def run: Action[AnyContent] = authAction(appConfig) {
+      case AdministratorRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
+        Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "psaId" -> psrUserId, "affinityGroup" -> affinityGroup))
 
-        case PractitionerRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
-          Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "pspId" -> psrUserId, "affinityGroup" -> affinityGroup))
-      }
+      case PractitionerRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
+        Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "pspId" -> psrUserId, "affinityGroup" -> affinityGroup))
     }
   }
 
@@ -134,29 +131,6 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         assertThrows[RuntimeException](
           await(result)
         )
-      }
-
-      "Redirect to Unauthorised page when user is valid but not in user allow list" in {
-
-        val servicesConfig: Map[String, Any] = Map(
-          "feature-switch.privateBetaEnabled"  -> true
-        )
-        val application: Application = new GuiceApplicationBuilder()
-          .configure(servicesConfig)
-          .overrides(
-            bind[IdentifierAction].toInstance(fakePsaIdentifierAction),
-            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(emptyUserAnswers))
-          ).build()
-
-        running(application) {
-          setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
-          when(mockUserAllowListConnector.check(any(), any())(any())).thenReturn(Future.successful(false))
-          val result = handler(application).run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
-
-          val expectedUrl = routes.PrivateBetaUnauthorisedController.onPageLoad().url
-
-          redirectLocation(result) mustBe Some(expectedUrl)
-        }
       }
     }
 

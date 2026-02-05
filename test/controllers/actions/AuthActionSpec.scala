@@ -50,7 +50,6 @@ class AuthActionSpec extends SpecBase {
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(InvalidBearerToken()),
-            userAllowListConnector = userAllowListConnector,
             config = appConfig,
             playBodyParsers = bodyParsers
           )
@@ -75,7 +74,6 @@ class AuthActionSpec extends SpecBase {
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(MissingBearerToken()),
-            userAllowListConnector = userAllowListConnector,
             config = appConfig,
             playBodyParsers = bodyParsers
           )
@@ -102,7 +100,6 @@ class AuthActionSpec extends SpecBase {
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new InsufficientEnrolments),
-            userAllowListConnector = userAllowListConnector,
             config = appConfig,
             playBodyParsers = bodyParsers
           )
@@ -128,7 +125,6 @@ class AuthActionSpec extends SpecBase {
 
           val authAction = new AuthenticatedIdentifierAction(
             new FakeFailingAuthConnector(new InsufficientConfidenceLevel),
-            userAllowListConnector = userAllowListConnector,
             config = appConfig,
             playBodyParsers = bodyParsers
           )
@@ -154,7 +150,6 @@ class AuthActionSpec extends SpecBase {
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new UnsupportedAuthProvider),
-            userAllowListConnector = userAllowListConnector,
             config = appConfig,
             playBodyParsers = bodyParsers
           )
@@ -180,7 +175,6 @@ class AuthActionSpec extends SpecBase {
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new UnsupportedAffinityGroup),
-            userAllowListConnector = userAllowListConnector,
             config = appConfig,
             playBodyParsers = bodyParsers
           )
@@ -206,7 +200,6 @@ class AuthActionSpec extends SpecBase {
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new UnsupportedCredentialRole),
-            userAllowListConnector = userAllowListConnector,
             config = appConfig,
             playBodyParsers = bodyParsers
           )
@@ -232,7 +225,6 @@ class AuthActionSpec extends SpecBase {
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new RuntimeException()),
-            userAllowListConnector = userAllowListConnector,
             config = appConfig,
             playBodyParsers = bodyParsers
           )
