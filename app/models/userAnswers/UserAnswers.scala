@@ -16,11 +16,13 @@
 
 package models.userAnswers
 
-import play.api.libs.json._
+import models.CheckMembersDetails
+import pages.CheckYourAnswersPage
+import play.api.libs.json.*
 import queries.{Gettable, Settable}
 import utils.encryption.AesGcmAdCrypto
 import utils.encryption.Cypher.jsObjectCypher
-import utils.encryption.CypherSyntax._
+import utils.encryption.CypherSyntax.*
 
 import java.time.Instant
 import scala.util.{Failure, Success, Try}
@@ -28,23 +30,25 @@ import scala.util.{Failure, Success, Try}
 final case class UserAnswers(id: String,
                              data: JsObject = Json.obj(),
                              lastUpdated: Instant = Instant.now) {
-
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
     Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
 
   def set[A](page: Settable[A], value: A)(implicit writes: Writes[A]): Try[UserAnswers] = {
-
-    val updatedData = data.setObject(page.path, Json.toJson(value)) match {
-      case JsSuccess(jsValue, _) =>
-        Success(jsValue)
-      case JsError(errors) =>
-        Failure(JsResultException(errors))
-    }
-
-    updatedData.flatMap {
-      d =>
-        val updatedAnswers = copy (data = d)
-        page.cleanup(Some(value), updatedAnswers)
+    def updateData(userAnswers: UserAnswers = this): Try[UserAnswers] =
+      userAnswers.data.setObject(page.path, Json.toJson(value)) match {
+        case JsSuccess(jsValue, _) => Success(userAnswers.copy(data = jsValue))
+        case JsError(errors) => Failure(JsResultException(errors))
+      }
+    
+    page match {
+      case _: CheckYourAnswersPage.type => updateData()
+      case _ => get(CheckYourAnswersPage).fold(
+        updateData()
+      )(cyaAnswers => if(cyaAnswers.isChecked) {
+        set(CheckYourAnswersPage, CheckMembersDetails(isChecked = false)).flatMap(updateData)
+      } else {
+        updateData()
+      })
     }
   }
 

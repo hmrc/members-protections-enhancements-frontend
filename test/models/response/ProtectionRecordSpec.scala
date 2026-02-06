@@ -19,7 +19,7 @@ package models.response
 import base.SpecBase
 import models.response.RecordStatusMapped.Active
 import models.response.RecordTypeMapped.{FixedProtection2016, PcrPreCommencement}
-import play.api.libs.json._
+import play.api.libs.json.*
 
 class ProtectionRecordSpec extends SpecBase {
   val testModel: ProtectionRecord = ProtectionRecord(

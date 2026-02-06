@@ -18,13 +18,13 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import models._
+import models.*
 import pages.CheckYourAnswersPage
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
+import viewmodels.checkYourAnswers.CheckYourAnswersSummary.*
 import views.html.CheckYourAnswersView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,7 +39,7 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
                                            view: CheckYourAnswersView)
   extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handleWithAll {
+  def onPageLoad(): Action[AnyContent] = handleWithAllDetails {
     implicit request =>
       memberDetails => membersDob => membersNino => membersPsaCheckRef =>
       Future.successful(Ok(

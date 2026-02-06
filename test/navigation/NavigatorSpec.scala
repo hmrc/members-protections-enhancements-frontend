@@ -18,9 +18,9 @@ package navigation
 
 import base.SpecBase
 import controllers.routes
-import models._
+import models.*
 import models.userAnswers.UserAnswers
-import pages._
+import pages.*
 
 class NavigatorSpec extends SpecBase {
 

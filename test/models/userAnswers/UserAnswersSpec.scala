@@ -17,8 +17,9 @@
 package models.userAnswers
 
 import base.SpecBase
-import pages.QuestionPage
-import play.api.libs.json.{JsObject, JsPath, JsString, Json}
+import models.CheckMembersDetails
+import pages.{CheckYourAnswersPage, QuestionPage}
+import play.api.libs.json.*
 import uk.gov.hmrc.crypto.EncryptedValue
 import utils.encryption.MockAesGcmAdCrypto
 
@@ -66,21 +67,68 @@ class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto{
   }
 
   "set" - {
-    "should update data when setting succeeds" in {
-      val result: Try[UserAnswers] = model.set(dummyPage, "some-value")
-      result mustBe a[Success[_]]
-      result.get.data mustBe Json.obj("field" -> "some-value")
+    "when updating the CYA page" - {
+      "should update data when setting succeeds" in {
+        val result: Try[UserAnswers] = model.set(CheckYourAnswersPage, CheckMembersDetails(isChecked = true))
+        result mustBe a[Success[_]]
+        result.get.data mustBe Json.obj("isChecked" -> Json.obj("isChecked" -> true))
+      }
     }
 
-    "should return a failure when setting fails" in {
-      class BadPage extends QuestionPage[String] {
-        override def path: JsPath = JsPath
+    "when updating non-CYA page" - {
+      "if CYA answers don't exist" - {
+        "should update data when setting succeeds" in {
+          val result: Try[UserAnswers] = model.set(dummyPage, "some-value")
+          result mustBe a[Success[_]]
+          result.get.data mustBe Json.obj("field" -> "some-value")
+        }
+
+        "should return a failure when setting fails" in {
+          class BadPage extends QuestionPage[String] {
+            override def path: JsPath = JsPath
+          }
+
+          val badPage: BadPage = new BadPage
+
+          val result: Try[UserAnswers] = model.set(badPage, "some-value")
+          result mustBe a[Failure[_]]
+        }
       }
+      
+      "if CYA answers already exist" - {
+        val cyaModel: UserAnswers = model.copy(data = Json.obj("isChecked" -> Json.obj("isChecked" -> true)))
 
-      val badPage: BadPage = new BadPage
+        "when CYA answer is 'true' should change to 'false' and update data when setting succeeds" in {
+          val result: Try[UserAnswers] = cyaModel.set(dummyPage, "some-value")
+          result mustBe a[Success[_]]
+          result.get.data mustBe Json.obj(
+            "field" -> "some-value",
+            "isChecked" -> Json.obj("isChecked" -> false)
+          )
+        }
 
-      val result: Try[UserAnswers] = model.set(badPage, "some-value")
-      result mustBe a[Failure[_]]
+        "when CYA answer is 'false' should not change, and update data when setting succeeds" in {
+          val cyaModel: UserAnswers = model.copy(data = Json.obj("isChecked" -> Json.obj("isChecked" -> false)))
+
+          val result: Try[UserAnswers] = cyaModel.set(dummyPage, "some-value")
+          result mustBe a[Success[_]]
+          result.get.data mustBe Json.obj(
+            "field" -> "some-value",
+            "isChecked" -> Json.obj("isChecked" -> false)
+          )
+        }
+
+        "should return a failure when setting fails" in {
+          class BadPage extends QuestionPage[String] {
+            override def path: JsPath = JsPath
+          }
+
+          val badPage: BadPage = new BadPage
+
+          val result: Try[UserAnswers] = cyaModel.set(badPage, "some-value")
+          result mustBe a[Failure[_]]
+        }
+      }
     }
   }
 }

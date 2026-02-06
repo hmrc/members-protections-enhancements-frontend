@@ -22,7 +22,7 @@ import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, WhatIsTheMembersNamePage}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import views.html.ErrorTemplate
 
 import java.time.LocalDate
@@ -64,7 +64,7 @@ class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
 
       status(result) mustEqual OK
       contentAsString(result) mustEqual view("",
-        messages(application).messages("journeyRecovery.startAgain.heading"), "")(request, messages(application)).toString
+        messages(application).messages("journeyRecovery.startAgain.heading"))(request, messages(application)).toString
     }
   }
 }

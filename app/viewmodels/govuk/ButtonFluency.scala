@@ -33,7 +33,7 @@ trait ButtonFluency {
   }
 
   implicit class FluentButton(button: Button) {
-    def asLink(href: String, isSubmit: Boolean = false): Button =
+    def asLink(href: String): Button =
       button.copy(
         element = Some("a"),
         href = Some(href),

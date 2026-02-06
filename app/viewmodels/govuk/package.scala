@@ -18,7 +18,7 @@ package viewmodels
 
 package object govuk {
 
-  object all
+  object All
     extends ImplicitConversions
       with ButtonFluency
       with DateFluency

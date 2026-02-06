@@ -6,7 +6,7 @@ import pages.$className$Page
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import viewmodels.Implicits._
 
 object $className$Summary  {
 

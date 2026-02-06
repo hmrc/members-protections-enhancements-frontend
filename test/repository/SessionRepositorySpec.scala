@@ -20,11 +20,11 @@ import config.FrontendAppConfig
 import models.userAnswers.{EncryptedUserAnswers, UserAnswers}
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
-import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers.{must, mustEqual}
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import repositories.SessionRepository

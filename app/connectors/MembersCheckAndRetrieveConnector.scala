@@ -24,13 +24,13 @@ import models.response.ProtectionRecordDetails
 import play.api.http.Status.*
 import play.api.libs.json.*
 import play.api.libs.json.Format.GenericFormat
+import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import utils.{HttpResponseHelper, Logging}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
-import play.api.libs.ws.writeableOf_JsValue
 
 @ImplementedBy(classOf[MembersCheckAndRetrieveConnectorImpl])
 trait MembersCheckAndRetrieveConnector extends Logging {

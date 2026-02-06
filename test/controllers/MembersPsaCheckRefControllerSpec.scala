@@ -18,11 +18,11 @@ package controllers
 
 import base.SpecBase
 import forms.MembersPsaCheckRefFormProvider
-import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, MembersResult, NormalMode}
-import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, ResultsPage, WhatIsTheMembersNamePage}
+import models.*
+import pages.*
 import play.api.data.Form
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import viewmodels.formPage.FormPageViewModel
 import views.html.MembersPsaCheckRefView
 

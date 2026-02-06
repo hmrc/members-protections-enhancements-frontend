@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.actions.FakePspIdentifierAction
-import models._
+import models.*
 import models.audit.AuditDetail
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
@@ -31,13 +31,13 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
-import pages._
+import pages.*
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import services.{AuditService, FailedAttemptService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -202,6 +202,25 @@ class ResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.CheckYourAnswersController.onPageLoad().url
+      }
+    }
+
+    "must redirect to CYA page if CYA answers exist, but is flagged as false" in new Test {
+      override val userAnswers: UserAnswers = emptyUserAnswers
+        .set(page = WhatIsTheMembersNamePage, value = memberDetails).success.value
+        .set(page = MembersDobPage, value = membersDob).success.value
+        .set(page = MembersNinoPage, value = membersNino).success.value
+        .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
+        .set(page = CheckYourAnswersPage, CheckMembersDetails(false)).success.value
+
+      setUpStubs(OK, response)
+
+      running(application) {
+        val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result) mustBe Some(routes.CheckYourAnswersController.onPageLoad().url)
       }
     }
 

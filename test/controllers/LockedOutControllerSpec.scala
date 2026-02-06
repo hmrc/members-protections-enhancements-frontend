@@ -26,7 +26,7 @@ import play.api.inject.bind
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{AnyContent, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.FailedAttemptService
 import views.html.LockedOutView
 

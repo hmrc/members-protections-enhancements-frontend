@@ -19,7 +19,7 @@ package models.response
 import base.SpecBase
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import models.response.RecordTypeMapped.FixedProtection2016
-import play.api.libs.json._
+import play.api.libs.json.*
 
 class ProtectionRecordDetailsSpec extends SpecBase {
   val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(

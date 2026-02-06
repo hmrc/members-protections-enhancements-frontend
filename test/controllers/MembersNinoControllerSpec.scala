@@ -18,11 +18,11 @@ package controllers
 
 import base.SpecBase
 import forms.MembersNinoFormProvider
-import models.{MemberDetails, MembersDob, MembersNino, MembersResult, NormalMode}
+import models.*
 import pages.{MembersDobPage, MembersNinoPage, ResultsPage, WhatIsTheMembersNamePage}
 import play.api.data.Form
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import viewmodels.formPage.FormPageViewModel
 import views.html.MembersNinoView
 

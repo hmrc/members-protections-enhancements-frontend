@@ -35,8 +35,8 @@ class NoResultsController @Inject()(override val messagesApi: MessagesApi,
                                     dateTimeProvider: DateTimeProvider)
   extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handleWithAll { implicit request =>
-    memberDetails => membersDob => membersNino => membersPsaCheckRef =>
+  def onPageLoad(): Action[AnyContent] = handleWithCheckedAnswers { implicit request =>
+    memberDetails => membersDob => membersNino => membersPsaCheckRef => _ =>
       Future.successful(Ok(
         view(
           memberDetails = memberDetails,

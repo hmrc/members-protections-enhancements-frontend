@@ -16,13 +16,13 @@
 
 package models.userAnswers
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
 import uk.gov.hmrc.crypto.EncryptedValue
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 import utils.encryption.AesGcmAdCrypto
 import utils.encryption.Cypher.jsObjectCypher
-import utils.encryption.CypherSyntax._
+import utils.encryption.CypherSyntax.*
 
 import java.time.Instant
 

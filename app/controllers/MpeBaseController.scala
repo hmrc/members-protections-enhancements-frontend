@@ -17,10 +17,11 @@
 package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import models.*
 import models.requests.{DataRequest, PensionSchemeMemberRequest}
-import models._
-import pages._
+import pages.*
 import play.api.i18n.I18nSupport
+import play.api.libs.json.Reads
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.Logging
@@ -33,91 +34,83 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
                                            checkLockout: CheckLockoutAction,
                                            getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport with Logging {
 
-  def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
-    handle {
-      implicit request =>
-        withMemberDetails { memberDetails =>
-          block(request)(memberDetails)
-        }
-    }
-
   def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
-    (identify andThen checkLockout andThen getData).async{
-      implicit request => isResultsSuccessful(block(_))
+    (identify andThen checkLockout andThen getData).async { implicit request =>
+      isResultsSuccessful(block(_))
     }
 
-  private def withMemberDetails(f: MemberDetails => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
-    request.userAnswers.get(WhatIsTheMembersNamePage) match {
+  private def withDetail[D: Reads](questionPage: QuestionPage[D],
+                                   failureRedirect: Call,
+                                   block: D => Future[Result])
+                                  (implicit request: DataRequest[_]) = {
+    request.userAnswers.get[D](questionPage) match {
       case None =>
-        Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
-      case Some(memberDetails) =>
-        f(memberDetails)
+        Future.successful(Redirect(failureRedirect))
+      case Some(value) =>
+        block(value)
     }
   }
 
-  def handleWithMemberDob(block: DataRequest[AnyContent] => MemberDetails => MembersDob => Future[Result]): Action[AnyContent] = {
-    handle {
-      implicit request =>
-        withMemberDetails { memberDetails =>
-          withMembersDob { membersDob =>
-            block(request)(memberDetails)(membersDob)
+  def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
+    handle { implicit request =>
+      withDetail(
+        questionPage = WhatIsTheMembersNamePage,
+        failureRedirect = routes.WhatIsTheMembersNameController.onPageLoad(NormalMode),
+        block = block(request)
+      )
+    }
+
+  private type WithDetailsAndDob = MemberDetails => MembersDob => Future[Result]
+
+  def handleWithMemberDob(block: DataRequest[AnyContent] => WithDetailsAndDob): Action[AnyContent] =
+    handleWithMemberDetails { implicit request =>
+      details => withDetail(
+        questionPage = MembersDobPage,
+        failureRedirect = routes.MembersDobController.onPageLoad(NormalMode),
+        block = block(request)(details)
+      )
+    }
+
+  private type WithDetailsDobAndNino = MemberDetails => MembersDob => MembersNino => Future[Result]
+
+  def handleWithMemberNino(block: DataRequest[AnyContent] => WithDetailsDobAndNino): Action[AnyContent] =
+    handleWithMemberDob { implicit request =>
+      details => dob => withDetail(
+        questionPage = MembersNinoPage,
+        failureRedirect = routes.MembersNinoController.onPageLoad(NormalMode),
+        block = block(request)(details)(dob)
+      )
+    }
+
+  private type WithAllDetails = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]
+  
+  def handleWithAllDetails(block: DataRequest[AnyContent] => WithAllDetails): Action[AnyContent] =
+    handleWithMemberNino { implicit request =>
+      details => dob => nino => withDetail(
+        questionPage = MembersPsaCheckRefPage,
+        failureRedirect = routes.MembersPsaCheckRefController.onPageLoad(NormalMode),
+        block = block(request)(details)(dob)(nino)
+      )
+    }
+    
+  private type WithCheckedAnswers = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => CheckMembersDetails => Future[Result]
+
+  def handleWithCheckedAnswers(block: DataRequest[AnyContent] => WithCheckedAnswers): Action[AnyContent] =
+    handleWithAllDetails { implicit request =>
+      details => dob => nino => psacr => {
+        def redirectCall: Call = routes.CheckYourAnswersController.onPageLoad()
+        
+        withDetail(
+          questionPage = CheckYourAnswersPage,
+          failureRedirect = redirectCall,
+          block = (cya: CheckMembersDetails) => if(cya.isChecked) {
+            block(request)(details)(dob)(nino)(psacr)(cya)
+          } else {
+            Future.successful(Redirect(redirectCall))
           }
-        }
+        )
+      }
     }
-  }
-
-  private def withMembersDob(f: MembersDob => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
-    request.userAnswers.get(MembersDobPage) match {
-      case None =>
-        Future.successful(Redirect(routes.MembersDobController.onPageLoad(NormalMode)))
-      case Some(memberDob) =>
-        f(memberDob)
-    }
-  }
-
-  def handleWithMemberNino(block: DataRequest[AnyContent] => MemberDetails => MembersDob => MembersNino => Future[Result]): Action[AnyContent] =
-    handle {
-      implicit request =>
-        withMemberDetails { memberDetails =>
-          withMembersDob { membersDob =>
-            withMembersNino { membersNino =>
-              block(request)(memberDetails)(membersDob)(membersNino)
-            }
-          }
-        }
-    }
-
-  def handleWithAll(block: DataRequest[AnyContent] => MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]): Action[AnyContent] =
-    handle {
-      implicit request =>
-        withMemberDetails { memberDetails =>
-          withMembersDob { membersDob =>
-            withMembersNino { membersNino =>
-              withMembersPsaCheckRef { membersPsaCheckRef =>
-                block(request)(memberDetails)(membersDob)(membersNino)(membersPsaCheckRef)
-              }
-            }
-          }
-        }
-    }
-
-  private def withMembersPsaCheckRef(f: MembersPsaCheckRef => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
-    request.userAnswers.get(MembersPsaCheckRefPage) match {
-      case None =>
-        Future.successful(Redirect(routes.MembersPsaCheckRefController.onPageLoad(NormalMode)))
-      case Some(membersPsaCheckRef) =>
-        f(membersPsaCheckRef)
-    }
-  }
-
-  private def withMembersNino(f: MembersNino => Future[Result])(implicit request: DataRequest[_]): Future[Result] = {
-    request.userAnswers.get(MembersNinoPage) match {
-      case None =>
-        Future.successful(Redirect(routes.MembersNinoController.onPageLoad(NormalMode)))
-      case Some(memberNino) =>
-        f(memberNino)
-    }
-  }
 
   private def isResultsSuccessful(block: DataRequest[AnyContent] => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
     request.userAnswers.get(ResultsPage) match {

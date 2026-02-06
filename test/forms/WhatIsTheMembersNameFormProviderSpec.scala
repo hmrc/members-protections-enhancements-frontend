@@ -24,7 +24,7 @@ class WhatIsTheMembersNameFormProviderSpec extends StringFieldBehaviours {
 
   private val formProvider = new WhatIsTheMembersNameFormProvider()
 
-  import formProvider._
+  import formProvider.*
 
   val form: Form[MemberDetails] = formProvider()
 

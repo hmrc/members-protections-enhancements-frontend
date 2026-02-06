@@ -28,5 +28,5 @@ case class MemberDetails(
 object MemberDetails {
   implicit val format: OFormat[MemberDetails] = Json.format[MemberDetails]
 
-  def unapply(memberDetails: MemberDetails) = Some(memberDetails.firstName, memberDetails.lastName)
+  def unapply(memberDetails: MemberDetails): Some[(String, String)] = Some(memberDetails.firstName, memberDetails.lastName)
 }

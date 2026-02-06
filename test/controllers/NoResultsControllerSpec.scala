@@ -17,13 +17,13 @@
 package controllers
 
 import base.SpecBase
-import models._
+import models.*
 import models.userAnswers.UserAnswers
-import pages._
+import pages.*
 import play.api.Application
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.NoResultsView
 
@@ -51,7 +51,6 @@ class NoResultsControllerSpec extends SpecBase {
 
   "No Results Controller" - {
     "must redirect to Lockout page if the user is locked out" in new Test {
-
       val application: Application = applicationBuilder(
         userAnswers = userAnswers,
         checkLockoutResult = Some(Redirect(controllers.routes.LockedOutController.onPageLoad()))
@@ -67,7 +66,9 @@ class NoResultsControllerSpec extends SpecBase {
     }
 
     "must return OK and the correct view for a GET" in new Test {
-      private val application = applicationBuilder(userAnswers = userAnswers).build()
+      private val application = applicationBuilder(
+        userAnswers = userAnswers.set(CheckYourAnswersPage, CheckMembersDetails(isChecked = true)).success.value
+      ).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.NoResultsController.onPageLoad().url)
@@ -94,6 +95,35 @@ class NoResultsControllerSpec extends SpecBase {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
+      }
+    }
+
+    "must redirect to CYA page if no CYA page answers exist" in new Test {
+      val application: Application = applicationBuilder(userAnswers).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.NoResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.CheckYourAnswersController.onPageLoad().url
+      }
+    }
+
+    "must redirect to CYA page if answers have not been checked" in new Test {
+      val application: Application = applicationBuilder(
+        userAnswers.set(
+          page = CheckYourAnswersPage,
+          value = CheckMembersDetails(false)
+        ).success.value
+      ).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.NoResultsController.onPageLoad().url)
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.CheckYourAnswersController.onPageLoad().url
       }
     }
 

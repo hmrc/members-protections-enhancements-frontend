@@ -18,7 +18,7 @@ package forms
 
 import com.google.inject.Inject
 import forms.mappings.Mappings
-import models._
+import models.*
 import play.api.data.Form
 import providers.DateTimeProvider
 

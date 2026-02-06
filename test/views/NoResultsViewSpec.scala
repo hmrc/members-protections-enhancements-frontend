@@ -18,7 +18,7 @@ package views
 
 import base.SpecBase
 import controllers.routes
-import models._
+import models.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application

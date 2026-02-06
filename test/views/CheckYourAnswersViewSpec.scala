@@ -18,7 +18,7 @@ package views
 
 import base.SpecBase
 import controllers.routes
-import models._
+import models.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
@@ -26,7 +26,7 @@ import play.api.i18n.Messages
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
+import viewmodels.checkYourAnswers.CheckYourAnswersSummary.*
 import views.html.CheckYourAnswersView
 
 import java.time.LocalDate

@@ -18,7 +18,7 @@ package services
 
 import base.SpecBase
 import models.userAnswers.UserAnswers
-import org.mockito.ArgumentMatchers.{any, eq => meq}
+import org.mockito.ArgumentMatchers.{any, eq as meq}
 import org.mockito.Mockito.{reset, times, verify, when}
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import repositories.SessionRepository

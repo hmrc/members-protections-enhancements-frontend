@@ -19,13 +19,5 @@ package viewmodels.govuk
 import uk.gov.hmrc.govukfrontend.views.viewmodels.dateinput.DateInput
 
 trait DateFluency {
-  implicit class FluentDate(date: DateInput) {
-    def asDateOfBirth(): DateInput =
-      date.copy(
-        items = date.items map {
-          item =>
-            val name = item.id.split('.').last
-            item.copy(autocomplete = Some(s"bday-$name"))
-        })
-  }
+  implicit class FluentDate(date: DateInput)
 }

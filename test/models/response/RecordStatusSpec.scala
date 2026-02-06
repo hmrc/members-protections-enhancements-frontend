@@ -17,7 +17,7 @@
 package models.response
 
 import base.SpecBase
-import models.response.RecordStatus._
+import models.response.RecordStatus.*
 
 class RecordStatusSpec extends SpecBase {
   "round test" -> {

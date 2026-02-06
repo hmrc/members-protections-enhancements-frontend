@@ -16,11 +16,11 @@
 
 package generators
 
-import java.time.{Instant, LocalDate, ZoneOffset}
-
-import org.scalacheck.Arbitrary._
-import org.scalacheck.Gen._
+import org.scalacheck.Arbitrary.*
+import org.scalacheck.Gen.*
 import org.scalacheck.{Gen, Shrink}
+
+import java.time.{Instant, LocalDate, ZoneOffset}
 
 trait Generators {
 
@@ -58,7 +58,7 @@ trait Generators {
     arbitrary[BigInt] suchThat(x => x < Int.MinValue)
 
   def nonNumerics: Gen[String] =
-    alphaStr suchThat(_.size > 0)
+    alphaStr suchThat (_.nonEmpty)
 
   def decimals: Gen[String] =
     arbitrary[BigDecimal]

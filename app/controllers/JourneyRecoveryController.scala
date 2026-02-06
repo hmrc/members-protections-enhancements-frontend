@@ -19,8 +19,8 @@ package controllers
 import controllers.actions.{DataRetrievalAction, IdentifierAction}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl._
-import uk.gov.hmrc.play.bootstrap.binders._
+import uk.gov.hmrc.play.bootstrap.binders.*
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.Logging
 import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}

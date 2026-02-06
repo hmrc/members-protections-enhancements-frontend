@@ -19,9 +19,9 @@ package repositories
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.mongo.CacheUserDetails.mongoFormat
-import models.requests.{IdentifierRequest, UserDetails}
 import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.Psa
+import models.requests.{IdentifierRequest, UserDetails}
 import org.mockito.Mockito.when
 import org.mongodb.scala.MongoWriteException
 import org.mongodb.scala.model.Filters
