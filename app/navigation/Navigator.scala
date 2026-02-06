@@ -17,15 +17,15 @@
 package navigation
 
 import controllers.routes
-import models._
+import models.*
 import models.userAnswers.UserAnswers
-import pages._
+import pages.*
 import play.api.mvc.Call
 
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class Navigator @Inject()() {
+class Navigator @Inject() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
     case WhatYouWillNeedPage => _ => routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)

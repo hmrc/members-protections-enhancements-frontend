@@ -16,7 +16,7 @@
 
 package models.response
 
-import models.response.RecordStatusMapped._
+import models.response.RecordStatusMapped.*
 import play.api.libs.json.{Json, Reads}
 
 case class ProtectionRecordDetails(protectionRecords: Seq[ProtectionRecord]) {

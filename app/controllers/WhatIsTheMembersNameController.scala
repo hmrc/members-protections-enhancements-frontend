@@ -21,7 +21,7 @@ import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierA
 import forms.WhatIsTheMembersNameFormProvider
 import models.{MemberDetails, Mode}
 import navigation.Navigator
-import pages._
+import pages.*
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

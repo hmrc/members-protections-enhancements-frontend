@@ -69,9 +69,11 @@ class MembersDobControllerSpec extends SpecBase {
 
         val view = application.injector.instanceOf[MembersDobView]
         val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
+        val expectedForm: Form[MembersDob] = form.fill(MembersDob(LocalDate.of(2014, 3, 10)))
+        val expectedViewString: String = view(expectedForm, viewModel, "Pearl Harvey")(request, messages(application)).toString
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(MembersDob(LocalDate.of(2014, 3, 10))), viewModel, "Pearl Harvey")(request, messages(application)).toString
+        contentAsString(result) mustEqual expectedViewString
       }
     }
 

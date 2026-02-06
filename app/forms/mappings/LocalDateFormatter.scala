@@ -150,13 +150,13 @@ private[mappings] class LocalDateFormatter(
       s"$key.year"  -> value.getYear.toString
     )
 
-  lazy val getMonth: String => Option[Int] = month => if(month.matches(numericRegexp)){
+  private lazy val getMonth: String => Option[Int] = month => if(month.matches(numericRegexp)){
     month.toIntOption
   } else {
     checkWithPattern(month, shortMonthFormat) orElse checkWithPattern(month, longMonthFormat)
   }
 
-  def checkWithPattern(month: String, pattern: DateTimeFormatter): Option[Int] =
+  private def checkWithPattern(month: String, pattern: DateTimeFormatter): Option[Int] =
     nonFatalCatch.opt(
       pattern
         .parse(month.toLowerCase.capitalize)

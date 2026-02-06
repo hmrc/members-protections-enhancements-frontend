@@ -18,11 +18,11 @@ package base
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import controllers.actions._
+import controllers.actions.*
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import models.response.RecordTypeMapped.{FixedProtection2016, IndividualProtection2014, InternationalEnhancementTransfer, PrimaryProtection}
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
@@ -39,7 +39,7 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.mvc.{BodyParsers, Call, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{AUTHORIZATION, running}
@@ -50,9 +50,8 @@ import viewmodels.formPage.FormPageViewModel
 import java.net.URLEncoder
 import java.time.{ZoneId, ZonedDateTime}
 import scala.jdk.CollectionConverters.MapHasAsJava
-import scala.reflect.ClassTag
-
 import scala.language.implicitConversions
+import scala.reflect.ClassTag
 
 trait SpecBase
   extends AnyFreeSpec

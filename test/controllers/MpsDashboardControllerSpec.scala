@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.actions.FakePspIdentifierAction
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
 class MpsDashboardControllerSpec extends SpecBase {
 

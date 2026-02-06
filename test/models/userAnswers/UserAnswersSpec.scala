@@ -19,7 +19,7 @@ package models.userAnswers
 import base.SpecBase
 import models.CheckMembersDetails
 import pages.{CheckYourAnswersPage, QuestionPage}
-import play.api.libs.json.{JsArray, JsBoolean, JsNull, JsObject, JsPath, JsString, Json}
+import play.api.libs.json.*
 import uk.gov.hmrc.crypto.EncryptedValue
 import utils.encryption.MockAesGcmAdCrypto
 

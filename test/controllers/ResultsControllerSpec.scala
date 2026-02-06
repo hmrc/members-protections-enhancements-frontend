@@ -20,7 +20,7 @@ import base.SpecBase
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.actions.FakePspIdentifierAction
-import models._
+import models.*
 import models.audit.AuditDetail
 import models.requests.PensionSchemeMemberRequest
 import models.response.RecordStatusMapped.Active
@@ -31,13 +31,13 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
 import org.mockito.stubbing.OngoingStubbing
-import pages._
+import pages.*
 import play.api.http.Status.OK
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.{Application, inject}
 import services.{AuditService, FailedAttemptService}
 import uk.gov.hmrc.http.HeaderCarrier

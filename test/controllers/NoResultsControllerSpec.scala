@@ -17,13 +17,13 @@
 package controllers
 
 import base.SpecBase
-import models._
+import models.*
 import models.userAnswers.UserAnswers
-import pages._
+import pages.*
 import play.api.Application
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.NoResultsView
 

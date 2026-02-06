@@ -23,7 +23,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.errorsummary.{ErrorLink, Error
 
 trait ErrorSummaryFluency {
   object ErrorSummaryViewModel {
-    def apply(form: Form[_], formId: String = "", errorLinkOverrides: Map[String, String] = Map.empty)
+    def apply(form: Form[_], formId: String = "")
              (implicit messages: Messages): ErrorSummary = {
 
       val errors: Seq[ErrorLink] = form.errors.foldLeft(Seq.empty[ErrorLink])((errorLinks, error) => {
@@ -31,14 +31,14 @@ trait ErrorSummaryFluency {
             errorLinks match {
               case Nil =>
                 errorLinks ++ Seq(ErrorLink(
-                  href = if (error.key == formId) Some(s"#${formId}.day") else Some(s"#${error.key}"),
+                  href = if (error.key == formId) Some(s"#$formId.day") else Some(s"#${error.key}"),
                   content = Text(messages(error.message, error.args: _*))))
               case _ => errorLinks
             }
           }
         else{
           errorLinks :+ ErrorLink(
-            href = if (error.key == formId) Some(s"#${formId}.day") else Some(s"#${error.key}"),
+            href = if (error.key == formId) Some(s"#$formId.day") else Some(s"#${error.key}"),
             content = Text(messages(error.message, error.args: _*))
           )
         }

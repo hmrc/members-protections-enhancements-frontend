@@ -19,7 +19,7 @@ package viewmodels
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import utils.CurrencyFormats
 
 object ResultsViewUtils {
@@ -35,7 +35,7 @@ object ResultsViewUtils {
 
   def protectionRecordToSummaryList(protectionRecord: ProtectionRecord)
                                    (implicit messages: Messages): SummaryList = {
-    import protectionRecord._
+    import protectionRecord.*
 
     val summaryListRows: Seq[SummaryListRow] = Seq(SummaryListRow(
       key = Key(HtmlContent(messages("results.statusKey"))),

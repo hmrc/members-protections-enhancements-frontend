@@ -17,7 +17,7 @@
 package viewmodels.checkYourAnswers
 
 import controllers.routes
-import models._
+import models.*
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.{Text, Value}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actions, Key, SummaryListRow}

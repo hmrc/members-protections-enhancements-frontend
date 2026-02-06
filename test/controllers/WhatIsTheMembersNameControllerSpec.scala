@@ -24,7 +24,7 @@ import play.api.Application
 import play.api.data.Form
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import viewmodels.formPage.FormPageViewModel
 import views.html.WhatIsTheMembersNameView
 

@@ -24,15 +24,15 @@ import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.JsResultException
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.*
 
 // scalastyle:off magic.number
 
 class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDrivenPropertyChecks {
 
-  import HttpResponseHelperSpec._
+  import HttpResponseHelperSpec.*
 
   "handleResponse" should "transform Bad Request into BadRequestException" in {
     val body: String =

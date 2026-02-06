@@ -17,7 +17,7 @@
 package models.userAnswers
 
 import base.SpecBase
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.crypto.EncryptedValue
 import utils.encryption.MockAesGcmAdCrypto
 

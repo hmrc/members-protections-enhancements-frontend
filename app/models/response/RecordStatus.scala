@@ -17,7 +17,7 @@
 package models.response
 
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
-import play.api.libs.json._
+import play.api.libs.json.*
 
 sealed trait RecordStatus {
   def toMapped: RecordStatusMapped

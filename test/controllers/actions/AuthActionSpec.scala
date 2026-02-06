@@ -19,12 +19,11 @@ package controllers.actions
 import base.SpecBase
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.UserAllowListConnector
 import controllers.routes
-import play.api.mvc._
+import play.api.mvc.*
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
@@ -46,8 +45,7 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val userAllowListConnector = application.injector.instanceOf[UserAllowListConnector]
-
+          
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(InvalidBearerToken()),
             config = appConfig,
@@ -70,7 +68,6 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val userAllowListConnector = application.injector.instanceOf[UserAllowListConnector]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(MissingBearerToken()),
@@ -96,7 +93,6 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val userAllowListConnector = application.injector.instanceOf[UserAllowListConnector]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new InsufficientEnrolments),
@@ -121,7 +117,6 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val userAllowListConnector = application.injector.instanceOf[UserAllowListConnector]
 
           val authAction = new AuthenticatedIdentifierAction(
             new FakeFailingAuthConnector(new InsufficientConfidenceLevel),
@@ -146,7 +141,6 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val userAllowListConnector = application.injector.instanceOf[UserAllowListConnector]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new UnsupportedAuthProvider),
@@ -171,7 +165,6 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val userAllowListConnector = application.injector.instanceOf[UserAllowListConnector]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new UnsupportedAffinityGroup),
@@ -196,7 +189,6 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val userAllowListConnector = application.injector.instanceOf[UserAllowListConnector]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new UnsupportedCredentialRole),
@@ -221,7 +213,6 @@ class AuthActionSpec extends SpecBase {
         running(application) {
           val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
           val appConfig = application.injector.instanceOf[FrontendAppConfig]
-          val userAllowListConnector = application.injector.instanceOf[UserAllowListConnector]
 
           val authAction = new AuthenticatedIdentifierAction(
             authConnector = new FakeFailingAuthConnector(new RuntimeException()),

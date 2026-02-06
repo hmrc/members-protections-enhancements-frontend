@@ -16,7 +16,7 @@
 
 package models.requests
 
-import play.api.libs.json._
+import play.api.libs.json.*
 
 sealed trait UserType {
   def value: String

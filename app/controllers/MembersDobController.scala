@@ -24,7 +24,7 @@ import navigation.Navigator
 import pages.MembersDobPage
 import play.api.data.Form
 import play.api.i18n.MessagesApi
-import play.api.mvc._
+import play.api.mvc.*
 import services.SessionCacheService
 import views.html.MembersDobView
 

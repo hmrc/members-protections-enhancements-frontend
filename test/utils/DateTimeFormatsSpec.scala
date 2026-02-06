@@ -21,7 +21,7 @@ import org.scalatest.matchers.must.Matchers
 import play.api.i18n.Lang
 import utils.DateTimeFormats.{dateTimeFormat, getCurrentDateTimestamp, longMonthFormat, shortMonthFormat}
 
-import java.time.Month._
+import java.time.Month.*
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 import java.time.temporal.ChronoField
 import java.time.{LocalDate, ZoneId, ZonedDateTime}

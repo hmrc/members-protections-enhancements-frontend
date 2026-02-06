@@ -17,15 +17,15 @@
 package controllers
 
 import base.SpecBase
-import models._
+import models.*
 import models.userAnswers.UserAnswers
-import pages._
+import pages.*
 import play.api.http.Status.OK
 import play.api.i18n.Messages
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.checkYourAnswers.CheckYourAnswersSummary._
+import viewmodels.checkYourAnswers.CheckYourAnswersSummary.*
 import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
 

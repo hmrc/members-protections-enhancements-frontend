@@ -16,12 +16,12 @@
 
 package utils
 
-import play.api.libs.json._
-import uk.gov.hmrc.http._
+import play.api.libs.json.*
+import uk.gov.hmrc.http.*
 
 trait HttpResponseHelper extends HttpErrorFunctions {
 
-  implicit val httpResponseReads: HttpReads[HttpResponse] = (method: String, url: String, response: HttpResponse) => response
+  implicit val httpResponseReads: HttpReads[HttpResponse] = (_: String, _: String, response: HttpResponse) => response
 
   def handleResponse[A](response: JsValue)(implicit reads: Reads[A]): A =
     response.validate[A] match {

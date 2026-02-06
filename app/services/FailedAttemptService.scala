@@ -46,7 +46,7 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
   private val classLoggingContext: String = "FailedAttemptService"
 
   def checkForLockout()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Boolean] = {
-    import userDetails._
+    import userDetails.*
 
     val methodLoggingContext: String = "checkForLockout"
     val loggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
@@ -83,7 +83,7 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
   }
 
   private def createLockout()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit] = {
-    import userDetails._
+    import userDetails.*
 
     val methodLoggingContext: String = "createLockout"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"

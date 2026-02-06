@@ -16,7 +16,7 @@
 
 package models.response
 
-import play.api.libs.functional.syntax._
+import play.api.libs.functional.syntax.*
 import play.api.libs.json.{JsPath, Reads}
 
 case class ProtectionRecord(protectionReference: Option[String],

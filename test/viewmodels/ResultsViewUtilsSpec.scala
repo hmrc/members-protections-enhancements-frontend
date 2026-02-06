@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
 import viewmodels.ResultsViewUtils.{optValueToSummaryListRow, protectionRecordDetailsToSummaryLists, protectionRecordToSummaryList}
 
 class ResultsViewUtilsSpec extends SpecBase {

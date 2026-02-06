@@ -22,7 +22,7 @@ import models.mongo.CacheUserDetails
 import org.mongodb.scala.{MongoException, MongoWriteException}
 import play.api.Logging
 import play.api.libs.json.{Format, Json, Writes}
-import uk.gov.hmrc.mongo.cache._
+import uk.gov.hmrc.mongo.cache.*
 import uk.gov.hmrc.mongo.{MongoComponent, TimestampSupport}
 
 import java.time.Instant

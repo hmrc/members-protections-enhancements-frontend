@@ -17,8 +17,8 @@
 package models.response
 
 import base.SpecBase
-import models.response.RecordTypeMapped._
-import play.api.libs.json._
+import models.response.RecordTypeMapped.*
+import play.api.libs.json.*
 
 class RecordTypeMappedSpec extends SpecBase {
   def toTypeJsString: String => JsValue = str => Json.parse(s"""{"type": "$str"}""")
