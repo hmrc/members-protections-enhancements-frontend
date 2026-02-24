@@ -44,24 +44,30 @@ class MembersCheckAndRetrieveConnectorSpec extends SpecBase {
 
     val connector: MembersCheckAndRetrieveConnector = app.injector.instanceOf[MembersCheckAndRetrieveConnector]
 
-    val pensionSchemeMemberRequest: PensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2022-01-01", "AB123456A", "PSA12345678A")
+    val pensionSchemeMemberRequest: PensionSchemeMemberRequest =
+      PensionSchemeMemberRequest("Pearl", "Harvey", "2022-01-01", "AB123456A", "PSA12345678A")
 
     val checkAndRetrieveUrl = "/members-protections-and-enhancements/check-and-retrieve"
 
-    val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
-      ProtectionRecord(
-        protectionReference = Some("some-id"),
-        `type` = FixedProtection2016,
-        status = Active,
-        protectedAmount = Some(1),
-        lumpSumAmount = Some(1),
-        lumpSumPercentage = Some(1),
-        enhancementFactor = Some(0.5)
+    val testModel: ProtectionRecordDetails = ProtectionRecordDetails(
+      Seq(
+        ProtectionRecord(
+          protectionReference = Some("some-id"),
+          `type` = FixedProtection2016,
+          status = Active,
+          protectedAmount = Some(1),
+          lumpSumAmount = Some(1),
+          lumpSumPercentage = Some(1),
+          enhancementFactor = Some(0.5)
+        )
       )
-    ))
+    )
 
-    def setUpStubs(status: Int, response: String): StubMapping = stubPost(checkAndRetrieveUrl, Json.toJson(pensionSchemeMemberRequest).toString(),
-      aResponse().withStatus(status).withBody(response).withHeader("correlationId", "X-123"))
+    def setUpStubs(status: Int, response: String): StubMapping = stubPost(
+      checkAndRetrieveUrl,
+      Json.toJson(pensionSchemeMemberRequest).toString(),
+      aResponse().withStatus(status).withBody(response).withHeader("correlationId", "X-123")
+    )
   }
 
   "checkAndRetrieve" - {

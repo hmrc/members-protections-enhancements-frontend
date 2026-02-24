@@ -70,13 +70,15 @@ class FailedAttemptServiceSpec extends SpecBase {
 
     val timestampSeconds: Long = 100000L
     val instantTime: Option[Instant] = Some(Instant.ofEpochSecond(timestampSeconds))
-    lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(Some(
-      CacheUserDetails(
-        psrUserType = Psa,
-        psrUserId = None,
-        createdAt = instantTime
+    lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(
+      Some(
+        CacheUserDetails(
+          psrUserType = Psa,
+          psrUserId = None,
+          createdAt = instantTime
+        )
       )
-    ))
+    )
     when(
       mockLockoutRepo.getFromCache(ArgumentMatchers.any())
     ).thenReturn(checkLockoutResult)
@@ -91,7 +93,7 @@ class FailedAttemptServiceSpec extends SpecBase {
       mockCountRepo.removeFailedAttempts()(ArgumentMatchers.any(), ArgumentMatchers.any())
     ).thenReturn(removeFailedAttemptsResult)
 
-    implicit val userDetails: UserDetails  = UserDetails(Psa, "anId", "anotherId", AffinityGroup.Individual)
+    implicit val userDetails: UserDetails = UserDetails(Psa, "anId", "anotherId", AffinityGroup.Individual)
   }
 
   "checkForLockout" - {
@@ -108,13 +110,15 @@ class FailedAttemptServiceSpec extends SpecBase {
     }
 
     "should return an exception for a non matching lockout" in new Test {
-      override lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(Some(
-        CacheUserDetails(
-          psrUserType = Psp,
-          psrUserId = None,
-          createdAt = Some(Instant.ofEpochSecond(timestampSeconds))
+      override lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.successful(
+        Some(
+          CacheUserDetails(
+            psrUserType = Psp,
+            psrUserId = None,
+            createdAt = Some(Instant.ofEpochSecond(timestampSeconds))
+          )
         )
-      ))
+      )
 
       val result: Future[Boolean] = service.checkForLockout()
       assertThrows[IllegalStateException](
@@ -122,7 +126,7 @@ class FailedAttemptServiceSpec extends SpecBase {
       )
     }
 
-    "should throw an error when lockout check fails" in new Test{
+    "should throw an error when lockout check fails" in new Test {
       override lazy val checkLockoutResult: Future[Option[CacheUserDetails]] = Future.failed(
         new RuntimeException("error")
       )

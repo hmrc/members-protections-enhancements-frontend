@@ -38,7 +38,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import play.api.{Application, inject}
+import play.api.{inject, Application}
 import services.{AuditService, FailedAttemptService}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.IdGenerator
@@ -65,21 +65,30 @@ class ResultsControllerSpec extends SpecBase {
     val mockIdGenerator: IdGenerator = mock[IdGenerator]
 
     val userAnswers: UserAnswers = emptyUserAnswers
-      .set(page = WhatIsTheMembersNamePage, value = memberDetails).success.value
-      .set(page = MembersDobPage, value = membersDob).success.value
-      .set(page = MembersNinoPage, value = membersNino).success.value
-      .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
-      .set(page = CheckYourAnswersPage, CheckMembersDetails(true)).success.value
+      .set(page = WhatIsTheMembersNamePage, value = memberDetails)
+      .success
+      .value
+      .set(page = MembersDobPage, value = membersDob)
+      .success
+      .value
+      .set(page = MembersNinoPage, value = membersNino)
+      .success
+      .value
+      .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef)
+      .success
+      .value
+      .set(page = CheckYourAnswersPage, CheckMembersDetails(true))
+      .success
+      .value
 
     lazy val application: Application = applicationBuilder(
       userAnswers = userAnswers,
       checkLockoutResult = checkLockoutResult
     ).overrides(
-        inject.bind(classOf[FailedAttemptService]).toInstance(mockService),
-        inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
-        inject.bind(classOf[AuditService]).to(mockAuditService)
-      )
-      .build()
+      inject.bind(classOf[FailedAttemptService]).toInstance(mockService),
+      inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
+      inject.bind(classOf[AuditService]).to(mockAuditService)
+    ).build()
 
     def mockFailedAttemptCheck(checkResult: Boolean = false): OngoingStubbing[Future[Boolean]] = when(
       mockService.checkForLockout()(ArgumentMatchers.any(), ArgumentMatchers.any())
@@ -87,7 +96,7 @@ class ResultsControllerSpec extends SpecBase {
       Future.successful(checkResult)
     )
 
-    def mockHandleFailedAttempt(result: Result): OngoingStubbing[Future[Result]] =       when(
+    def mockHandleFailedAttempt(result: Result): OngoingStubbing[Future[Result]] = when(
       mockService.handleFailedAttempt(ArgumentMatchers.any())(ArgumentMatchers.any())(
         ArgumentMatchers.any(),
         ArgumentMatchers.any()
@@ -101,21 +110,24 @@ class ResultsControllerSpec extends SpecBase {
     val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' h:mma")
     val localDateTime: String = mockZonedDateTime.format(formatter.withLocale(Locale.UK))
 
-    val pensionSchemeMemberRequest: PensionSchemeMemberRequest = PensionSchemeMemberRequest("Pearl", "Harvey", "2022-01-01", "AB123456A", "PSA12345678A")
+    val pensionSchemeMemberRequest: PensionSchemeMemberRequest =
+      PensionSchemeMemberRequest("Pearl", "Harvey", "2022-01-01", "AB123456A", "PSA12345678A")
 
     val checkAndRetrieveUrl = "/members-protections-and-enhancements/check-and-retrieve"
 
-    val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
-      ProtectionRecord(
-        protectionReference = Some("some-id"),
-        `type` = FixedProtection2016,
-        status = Active,
-        protectedAmount = Some(1),
-        lumpSumAmount = Some(1),
-        lumpSumPercentage = Some(1),
-        enhancementFactor = Some(0.5)
+    val testModel: ProtectionRecordDetails = ProtectionRecordDetails(
+      Seq(
+        ProtectionRecord(
+          protectionReference = Some("some-id"),
+          `type` = FixedProtection2016,
+          status = Active,
+          protectedAmount = Some(1),
+          lumpSumAmount = Some(1),
+          lumpSumPercentage = Some(1),
+          enhancementFactor = Some(0.5)
+        )
       )
-    ))
+    )
 
     def setUpStubs(status: Int, response: String): StubMapping = stubPost(
       url = checkAndRetrieveUrl,
@@ -140,8 +152,7 @@ class ResultsControllerSpec extends SpecBase {
         |}""".stripMargin
   }
 
-  val errorResponse: (String, String)  => String = (code, source) =>
-   s"""
+  val errorResponse: (String, String) => String = (code, source) => s"""
       |{
       | "code": "$code",
       | "message":"message",
@@ -191,10 +202,18 @@ class ResultsControllerSpec extends SpecBase {
       setUpStubs(OK, response)
 
       override val userAnswers: UserAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = memberDetails).success.value
-        .set(page = MembersDobPage, value = membersDob).success.value
-        .set(page = MembersNinoPage, value = membersNino).success.value
-        .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
+        .set(page = WhatIsTheMembersNamePage, value = memberDetails)
+        .success
+        .value
+        .set(page = MembersDobPage, value = membersDob)
+        .success
+        .value
+        .set(page = MembersNinoPage, value = membersNino)
+        .success
+        .value
+        .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef)
+        .success
+        .value
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
@@ -207,11 +226,21 @@ class ResultsControllerSpec extends SpecBase {
 
     "must redirect to CYA page if CYA answers exist, but is flagged as false" in new Test {
       override val userAnswers: UserAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = memberDetails).success.value
-        .set(page = MembersDobPage, value = membersDob).success.value
-        .set(page = MembersNinoPage, value = membersNino).success.value
-        .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef).success.value
-        .set(page = CheckYourAnswersPage, CheckMembersDetails(false)).success.value
+        .set(page = WhatIsTheMembersNamePage, value = memberDetails)
+        .success
+        .value
+        .set(page = MembersDobPage, value = membersDob)
+        .success
+        .value
+        .set(page = MembersNinoPage, value = membersNino)
+        .success
+        .value
+        .set(page = MembersPsaCheckRefPage, value = membersPsaCheckRef)
+        .success
+        .value
+        .set(page = CheckYourAnswersPage, CheckMembersDetails(false))
+        .success
+        .value
 
       setUpStubs(OK, response)
 
@@ -233,10 +262,9 @@ class ResultsControllerSpec extends SpecBase {
         checkLockoutResult = checkLockoutResult,
         identifierAction = fakePspIdentifierAction
       ).overrides(
-          inject.bind(classOf[FailedAttemptService]).toInstance(mockService),
-          inject.bind(classOf[AuditService]).to(mockAuditService)
-        )
-        .build()
+        inject.bind(classOf[FailedAttemptService]).toInstance(mockService),
+        inject.bind(classOf[AuditService]).to(mockAuditService)
+      ).build()
 
       mockHandleFailedAttempt(Redirect(routes.NoResultsController.onPageLoad()))
 
@@ -251,14 +279,14 @@ class ResultsControllerSpec extends SpecBase {
       }
     }
 
-
     "must throw an exception when InternalError response received for source MatchPerson" in new Test {
       setUpStubs(FORBIDDEN, errorResponse("FORBIDDEN", "MatchPerson"))
       override lazy val application: Application = applicationBuilder(userAnswers = userAnswers)
         .overrides(
           inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
           inject.bind(classOf[AuditService]).to(mockAuditService)
-        ).build()
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
@@ -276,7 +304,8 @@ class ResultsControllerSpec extends SpecBase {
         .overrides(
           inject.bind(classOf[IdGenerator]).to(mockIdGenerator),
           inject.bind(classOf[AuditService]).to(mockAuditService)
-        ).build()
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)
@@ -334,8 +363,8 @@ class ResultsControllerSpec extends SpecBase {
     }
 
     "must redirect to start page for a GET if user already finished the journey" in new Test {
-      override lazy val application: Application = applicationBuilder(userAnswers.set(page = ResultsPage,
-        value = MembersResult(true)).success.value).build()
+      override lazy val application: Application =
+        applicationBuilder(userAnswers.set(page = ResultsPage, value = MembersResult(true)).success.value).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.ResultsController.onPageLoad().url)

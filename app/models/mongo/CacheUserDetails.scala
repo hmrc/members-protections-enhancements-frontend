@@ -22,18 +22,15 @@ import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
 
-case class CacheUserDetails(psrUserType: UserType,
-                            psrUserId: Option[String],
-                            createdAt: Option[Instant])
+case class CacheUserDetails(psrUserType: UserType, psrUserId: Option[String], createdAt: Option[Instant])
 
 object CacheUserDetails {
-  def apply(userDetails: UserDetails,
-            withPsrUserId: Boolean,
-            createdAt: Option[Instant] = None): CacheUserDetails = CacheUserDetails(
-    psrUserType = userDetails.psrUserType,
-    psrUserId = if (withPsrUserId) Some(userDetails.psrUserId) else None,
-    createdAt = createdAt
-  )
+  def apply(userDetails: UserDetails, withPsrUserId: Boolean, createdAt: Option[Instant] = None): CacheUserDetails =
+    CacheUserDetails(
+      psrUserType = userDetails.psrUserType,
+      psrUserId = if (withPsrUserId) Some(userDetails.psrUserId) else None,
+      createdAt = createdAt
+    )
 
   implicit lazy val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
   lazy val mongoFormat: Format[CacheUserDetails] = Json.format[CacheUserDetails]

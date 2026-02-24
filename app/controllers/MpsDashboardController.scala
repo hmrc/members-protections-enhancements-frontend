@@ -24,14 +24,15 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.Future
 
-class MpsDashboardController @Inject()(identify: IdentifierAction,
-                                       checkLockout: CheckLockoutAction,
-                                       getData: DataRetrievalAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       val appConfig: FrontendAppConfig)
-  extends FrontendBaseController {
+class MpsDashboardController @Inject() (
+  identify: IdentifierAction,
+  checkLockout: CheckLockoutAction,
+  getData: DataRetrievalAction,
+  val controllerComponents: MessagesControllerComponents,
+  val appConfig: FrontendAppConfig
+) extends FrontendBaseController {
 
-  def redirectToMps(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async{ _ =>
+  def redirectToMps(): Action[AnyContent] = identify.andThen(checkLockout).andThen(getData).async { _ =>
     Future.successful(Redirect(appConfig.mpsDashboardUrl))
   }
 }

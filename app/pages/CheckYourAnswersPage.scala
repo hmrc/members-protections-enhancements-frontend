@@ -21,6 +21,6 @@ import play.api.libs.json.JsPath
 
 case object CheckYourAnswersPage extends QuestionPage[CheckMembersDetails] {
 
-  override def path: JsPath                    = JsPath \ toString
-  override def toString: String                = "isChecked"
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "isChecked"
 }

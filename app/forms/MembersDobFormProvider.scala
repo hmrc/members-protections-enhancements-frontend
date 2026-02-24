@@ -24,7 +24,7 @@ import providers.DateTimeProvider
 
 import java.time.LocalDate
 
-class MembersDobFormProvider @Inject()(dateTimeProvider: DateTimeProvider) extends Mappings {
+class MembersDobFormProvider @Inject() (dateTimeProvider: DateTimeProvider) extends Mappings {
 
   def apply(): Form[MembersDob] = Form[MembersDob](
     "dateOfBirth" -> localDate(
@@ -49,4 +49,3 @@ class MembersDobFormProvider @Inject()(dateTimeProvider: DateTimeProvider) exten
 object MembersDobFormProvider {
   val minDate: LocalDate = LocalDate.of(1900, 1, 1)
 }
-

@@ -24,6 +24,9 @@ trait Logging {
   def logInfo(context: String, message: String): Unit =
     logger.info(s"$context $message")
 
+  def logWarn(context: String, message: String): Unit =
+    logger.warn(s"$context $message")
+
   def logError(context: String, message: String): Unit =
     logger.error(s"$context $message")
 }

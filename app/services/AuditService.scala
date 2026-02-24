@@ -30,9 +30,11 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuditService @Inject()(auditConnector: AuditConnector, appConfig: Configuration) extends Logging {
+class AuditService @Inject() (auditConnector: AuditConnector, appConfig: Configuration) extends Logging {
 
-  def auditEvent[T](event: AuditEvent[T])(implicit hc: HeaderCarrier, ec: ExecutionContext, writer: Writes[T]): Future[AuditResult] = {
+  def auditEvent[T](
+    event: AuditEvent[T]
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext, writer: Writes[T]): Future[AuditResult] = {
 
     val eventTags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags() ++
       Map("transactionName" -> event.transactionName, "path" -> event.path)
@@ -43,9 +45,11 @@ class AuditService @Inject()(auditConnector: AuditConnector, appConfig: Configur
       detail = Json.toJson(event.detail),
       tags = eventTags
     )
-    logInfo("[AuditService][auditEvent]",
+    logInfo(
+      "[AuditService][auditEvent]",
       s"Audit event :- extendedDataEvent.tags :: ${extendedDataEvent.tags} --  auditSource:: ${extendedDataEvent.auditSource}" +
-        s" --- detail :: ${extendedDataEvent.detail}")
+        s" --- detail :: ${extendedDataEvent.detail}"
+    )
     auditConnector.sendExtendedEvent(extendedDataEvent)
   }
 

@@ -24,17 +24,16 @@ import repositories.SessionRepository
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataRetrievalActionImpl @Inject()(
-                                         val sessionRepository: SessionRepository
-                                       )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
+class DataRetrievalActionImpl @Inject() (
+  val sessionRepository: SessionRepository
+)(implicit val executionContext: ExecutionContext)
+    extends DataRetrievalAction {
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] = {
-
+  override protected def transform[A](request: IdentifierRequest[A]): Future[DataRequest[A]] =
     sessionRepository.get(request.userDetails.userId).map {
       case Some(value) => DataRequest(request, request.userDetails, value)
       case None => DataRequest(request, request.userDetails, UserAnswers(request.userDetails.userId))
     }
-  }
 }
 
 trait DataRetrievalAction extends ActionTransformer[IdentifierRequest, DataRequest]

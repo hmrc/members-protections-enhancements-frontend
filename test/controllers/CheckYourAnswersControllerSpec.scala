@@ -31,13 +31,21 @@ import views.html.CheckYourAnswersView
 
 import java.time.LocalDate
 
-class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
+class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
 
   val userAnswers: UserAnswers = emptyUserAnswers
-    .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-    .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2000, 1, 1))).success.value
-    .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
-    .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
+    .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+    .success
+    .value
+    .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2000, 1, 1)))
+    .success
+    .value
+    .set(page = MembersNinoPage, value = MembersNino("AB123456A"))
+    .success
+    .value
+    .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A"))
+    .success
+    .value
 
   "Check Your Answers Controller" - {
 
@@ -62,7 +70,10 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
         val backLinkRoute = routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list, "Pearl Harvey", Some(backLinkRoute))(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list, "Pearl Harvey", Some(backLinkRoute))(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -83,9 +94,15 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
     "must redirect to MembersPsaCheckRef page for a GET when psaCheckRef form is not filled" in {
 
       val userAnswers: UserAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2000, 1, 1))).success.value
-        .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
+        .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2000, 1, 1)))
+        .success
+        .value
+        .set(page = MembersNinoPage, value = MembersNino("AB123456A"))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
@@ -102,7 +119,8 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency  {
     "must redirect to start page for a GET if user journey is already successful" in {
 
       val application = applicationBuilder(userAnswers =
-        userAnswers.set(page = ResultsPage, value = MembersResult(true)).success.value).build()
+        userAnswers.set(page = ResultsPage, value = MembersResult(true)).success.value
+      ).build()
 
       running(application) {
         val request = FakeRequest(GET, routes.CheckYourAnswersController.onPageLoad().url)

@@ -41,7 +41,7 @@ class RecordTypeMappedSpec extends SpecBase {
       "INDIVIDUAL PROTECTION 2014 LTA" -> IndividualProtection2014,
       "INDIVIDUAL PROTECTION 2016 LTA" -> IndividualProtection2016,
       "ENHANCED PROTECTION LTA" -> EnhancedProtection,
-      "PRIMARY PROTECTION LTA" -> PrimaryProtection,
+      "PRIMARY PROTECTION LTA" -> PrimaryProtection
     )
 
     for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, toTypeJsString, expectedModel)
@@ -51,10 +51,10 @@ class RecordTypeMappedSpec extends SpecBase {
     val result: JsResult[RecordTypeMapped] = toTypeJsString("PENSION CREDIT RIGHTS P18 LTA").validate[RecordTypeMapped]
     result mustBe a[JsError]
     val errorResult = result.asInstanceOf[JsError]
-    errorResult.errors must have length 1
+    (errorResult.errors must have).length(1)
     val (path, msgs) = errorResult.errors.head
     path.toString() mustBe "/type"
-    msgs must have length 1
+    (msgs must have).length(1)
     msgs.head.message mustBe "error.expected.RecordType"
 
   }

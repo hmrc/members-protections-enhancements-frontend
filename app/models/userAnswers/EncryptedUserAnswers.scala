@@ -26,9 +26,7 @@ import utils.encryption.CypherSyntax.*
 
 import java.time.Instant
 
-final case class EncryptedUserAnswers(id: String,
-                                      encryptedValue: EncryptedValue,
-                                      lastUpdated: Instant = Instant.now) {
+final case class EncryptedUserAnswers(id: String, encryptedValue: EncryptedValue, lastUpdated: Instant = Instant.now) {
   def decrypt(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): UserAnswers = UserAnswers(
     id = id,
     data = encryptedValue.decrypted[JsObject],
@@ -39,18 +37,19 @@ final case class EncryptedUserAnswers(id: String,
 object EncryptedUserAnswers {
   implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
 
-  val reads: Reads[EncryptedUserAnswers] = (
-    (__ \ "_id").read[String] and
-      (__ \ "data").read[EncryptedValue] and
-      (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
-    ) (EncryptedUserAnswers.apply _)
+  val reads: Reads[EncryptedUserAnswers] =
+    (__ \ "_id")
+      .read[String]
+      .and((__ \ "data").read[EncryptedValue])
+      .and((__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat))(EncryptedUserAnswers.apply _)
 
   val writes: OWrites[EncryptedUserAnswers] =
-    (
-      (__ \ "_id").write[String] and
-        (__ \ "data").write[EncryptedValue] and
-        (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
-      ) (ua => (ua.id, ua.encryptedValue, ua.lastUpdated))
+    (__ \ "_id")
+      .write[String]
+      .and((__ \ "data").write[EncryptedValue])
+      .and((__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat))(ua =>
+        (ua.id, ua.encryptedValue, ua.lastUpdated)
+      )
 
   implicit val format: OFormat[EncryptedUserAnswers] = OFormat(reads, writes)
 }

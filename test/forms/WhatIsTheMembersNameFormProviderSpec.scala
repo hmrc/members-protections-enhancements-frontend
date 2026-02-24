@@ -65,10 +65,12 @@ class WhatIsTheMembersNameFormProviderSpec extends StringFieldBehaviours {
     )
 
     "strip whitespace from the user's submission" in {
-      val result: Form[MemberDetails] = form.bind(Map(
-        "firstName" -> "     First       Name   ",
-        "lastName" -> "Last Name"
-      ))
+      val result: Form[MemberDetails] = form.bind(
+        Map(
+          "firstName" -> "     First       Name   ",
+          "lastName" -> "Last Name"
+        )
+      )
 
       result.value mustBe Some(MemberDetails("First Name", "Last Name"))
     }
@@ -111,20 +113,24 @@ class WhatIsTheMembersNameFormProviderSpec extends StringFieldBehaviours {
     )
 
     "return an error for a last name which is shorter then 2 characters" in {
-      val result: Form[MemberDetails] = form.bind(Map(
-        "firstName" -> "Valid",
-        "lastName" -> "A"
-      ))
+      val result: Form[MemberDetails] = form.bind(
+        Map(
+          "firstName" -> "Valid",
+          "lastName" -> "A"
+        )
+      )
 
-      result.errors must have length 1
+      (result.errors must have).length(1)
       result.errors.map(_.message) must contain("membersName.error.tooShort.lastName")
     }
 
     "strip whitespace from the user's submission" in {
-      val result: Form[MemberDetails] = form.bind(Map(
-        "firstName" -> "First Name",
-        "lastName" -> "       Last       Name       "
-      ))
+      val result: Form[MemberDetails] = form.bind(
+        Map(
+          "firstName" -> "First Name",
+          "lastName" -> "       Last       Name       "
+        )
+      )
 
       result.value mustBe Some(MemberDetails("First Name", "Last Name"))
     }

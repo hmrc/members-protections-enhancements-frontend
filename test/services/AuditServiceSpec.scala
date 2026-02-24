@@ -34,11 +34,11 @@ class AuditServiceSpec extends SpecBase {
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   private trait Test {
-    private val mockedAppName: String              = "sample-application"
+    private val mockedAppName: String = "sample-application"
     val mockAuditConnector: AuditConnector = mock[AuditConnector]
     val auditType: String = "auditType"
     val transactionName = "transactionName"
-    private val mockConfig: Configuration          = mock[Configuration]
+    private val mockConfig: Configuration = mock[Configuration]
 
     when(mockConfig.get[String]("appName")).thenReturn(mockedAppName)
 
@@ -51,11 +51,13 @@ class AuditServiceSpec extends SpecBase {
 
         val expected: Future[AuditResult] = Future.successful(Success)
 
-        when(mockAuditConnector
-          .sendExtendedEvent(any[ExtendedDataEvent]())(any(), any()))
+        when(
+          mockAuditConnector
+            .sendExtendedEvent(any[ExtendedDataEvent]())(any(), any())
+        )
           .thenReturn(expected)
 
-        val event: AuditEvent[String] = AuditEvent(auditType, transactionName = transactionName,"/foo", "{}")
+        val event: AuditEvent[String] = AuditEvent(auditType, transactionName = transactionName, "/foo", "{}")
         target.auditEvent(event) mustBe expected
       }
     }

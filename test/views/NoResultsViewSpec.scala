@@ -34,29 +34,31 @@ class NoResultsViewSpec extends SpecBase {
   "view" - {
     "display correctly" - {
       "with correct top level header and title" in new Setup {
-        view.html must include (messages(app)("noResults.title"))
+        view.html must include(messages(app)("noResults.title"))
         view.getElementsByTag("h1").text() mustBe messages(app)("noResults.heading")
       }
       "with correct breadcrumbs" in new Setup {
-        view.getElementsByClass("govuk-breadcrumbs__link").first().text() mustBe messages(app)("results.breadcrumbs.mps")
+        view.getElementsByClass("govuk-breadcrumbs__link").first().text() mustBe messages(app)(
+          "results.breadcrumbs.mps"
+        )
         view.getElementsByClass("govuk-breadcrumbs__link").last().text() mustBe messages(app)("results.breadcrumbs.mpe")
       }
       "with expected user details section" in new Setup {
-        view.html must include (messages(app)("results.memberDetails.heading"))
-        view.html must include (messages(app)("membersName.name"))
-        view.html must include (messages(app)("membersDob.dob"))
-        view.html must include (messages(app)("membersNino.nino"))
-        view.html must include (messages(app)("membersPsaCheckRef.pensionSchemeAdminCheckRef"))
+        view.html must include(messages(app)("results.memberDetails.heading"))
+        view.html must include(messages(app)("membersName.name"))
+        view.html must include(messages(app)("membersDob.dob"))
+        view.html must include(messages(app)("membersNino.nino"))
+        view.html must include(messages(app)("membersPsaCheckRef.pensionSchemeAdminCheckRef"))
       }
 
       "with expected footer content" in new Setup {
-        view.html must include (messages(app)("results.checkedOn"))
-        view.html must include (messages(app)("site.print"))
-        view.html must include (messages(app)("noResults.lh"))
-        view.html must include (messages(app)("noResults.li.1"))
-        view.html must include (messages(app)("noResults.li.2"))
-        view.html must include (messages(app)("noResults.checkInformation"))
-        view.html must include (messages(app)("noResults.tryAgain"))
+        view.html must include(messages(app)("results.checkedOn"))
+        view.html must include(messages(app)("site.print"))
+        view.html must include(messages(app)("noResults.lh"))
+        view.html must include(messages(app)("noResults.li.1"))
+        view.html must include(messages(app)("noResults.li.2"))
+        view.html must include(messages(app)("noResults.checkInformation"))
+        view.html must include(messages(app)("noResults.tryAgain"))
       }
     }
   }
@@ -76,13 +78,16 @@ class NoResultsViewSpec extends SpecBase {
     val localDateTime: String = "02 April 2025 at 15:12"
 
     val view: Document = Jsoup.parse(
-      app.injector.instanceOf[NoResultsView].apply(
-        memberDetails = memberDetails,
-        membersDob = membersDob,
-        membersNino = membersNino,
-        membersPsaCheckRef = membersPsaCheckRef,
-        formattedTimestamp = localDateTime
-      ).body
+      app.injector
+        .instanceOf[NoResultsView]
+        .apply(
+          memberDetails = memberDetails,
+          membersDob = membersDob,
+          membersNino = membersNino,
+          membersPsaCheckRef = membersPsaCheckRef,
+          formattedTimestamp = localDateTime
+        )
+        .body
     )
   }
 

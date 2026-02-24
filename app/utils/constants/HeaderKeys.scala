@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package models.allowlist
+package utils.constants
 
-import play.api.libs.json.{Json, OFormat}
-
-final case class CheckRequest(value: String)
-
-object CheckRequest {
-
-  implicit lazy val format: OFormat[CheckRequest] = Json.format
+object HeaderKeys {
+  
+  val CORRELATION_ID = "correlationId"
 }

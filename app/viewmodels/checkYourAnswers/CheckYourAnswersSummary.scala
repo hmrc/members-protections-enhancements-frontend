@@ -24,89 +24,94 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{ActionItem, Actio
 
 object CheckYourAnswersSummary {
 
-  def membersFirstNameRow(memberDetails: MemberDetails)(implicit messages: Messages): SummaryListRow = {
+  def membersFirstNameRow(memberDetails: MemberDetails)(implicit messages: Messages): SummaryListRow =
     SummaryListRow(
       key = Key(content = Text(messages("membersName.firstName"))),
       value = Value(content = Text(memberDetails.firstName)),
-      actions = Some(Actions(
-        items = Seq(
-          ActionItem(
-            href = routes.WhatIsTheMembersNameController.onPageLoad(CheckMode).url + "#firstName",
-            content = Text(messages("site.change")),
-            visuallyHiddenText = Some("first name"),
-            attributes = Map("id" -> "change-first-name")
-          ),
+      actions = Some(
+        Actions(
+          items = Seq(
+            ActionItem(
+              href = routes.WhatIsTheMembersNameController.onPageLoad(CheckMode).url + "#firstName",
+              content = Text(messages("site.change")),
+              visuallyHiddenText = Some("first name"),
+              attributes = Map("id" -> "change-first-name")
+            )
+          )
         )
-      ))
+      )
     )
-  }
 
-  def membersLastNameRow(memberDetails: MemberDetails)(implicit messages: Messages): SummaryListRow = {
+  def membersLastNameRow(memberDetails: MemberDetails)(implicit messages: Messages): SummaryListRow =
     SummaryListRow(
       key = Key(content = Text(messages("membersName.lastName"))),
       value = Value(content = Text(memberDetails.lastName)),
-      actions = Some(Actions(
-        items = Seq(
-          ActionItem(
-            href = routes.WhatIsTheMembersNameController.onPageLoad(CheckMode).url + "#lastName",
-            content = Text(messages("site.change")),
-            visuallyHiddenText = Some("last name"),
-            attributes = Map("id" -> "change-last-name")
+      actions = Some(
+        Actions(
+          items = Seq(
+            ActionItem(
+              href = routes.WhatIsTheMembersNameController.onPageLoad(CheckMode).url + "#lastName",
+              content = Text(messages("site.change")),
+              visuallyHiddenText = Some("last name"),
+              attributes = Map("id" -> "change-last-name")
+            )
           )
         )
-      ))
+      )
     )
-  }
 
-  def membersDobRow(membersDob: MembersDob)(implicit messages: Messages): SummaryListRow = {
+  def membersDobRow(membersDob: MembersDob)(implicit messages: Messages): SummaryListRow =
     SummaryListRow(
       key = Key(content = Text(messages("membersDob.dob"))),
       value = Value(content = Text(membersDob.dob)),
-      actions = Some(Actions(
-        items = Seq(
-          ActionItem(
-            href = routes.MembersDobController.onPageLoad(CheckMode).url + "#dateOfBirth",
-            content = Text(messages("site.change")),
-            visuallyHiddenText = Some("date of birth"),
-            attributes = Map("id" -> "change-dob")
+      actions = Some(
+        Actions(
+          items = Seq(
+            ActionItem(
+              href = routes.MembersDobController.onPageLoad(CheckMode).url + "#dateOfBirth",
+              content = Text(messages("site.change")),
+              visuallyHiddenText = Some("date of birth"),
+              attributes = Map("id" -> "change-dob")
+            )
           )
         )
-      ))
+      )
     )
-  }
 
-  def membersNinoRow(membersNino: MembersNino)(implicit messages: Messages): SummaryListRow = {
+  def membersNinoRow(membersNino: MembersNino)(implicit messages: Messages): SummaryListRow =
     SummaryListRow(
       key = Key(content = Text(messages("membersNino.nino"))),
       value = Value(content = Text(membersNino.nino)),
-      actions = Some(Actions(
-        items = Seq(
-          ActionItem(
-            href = routes.MembersNinoController.onPageLoad(CheckMode).url + "#nino",
-            content = Text(messages("site.change")),
-            visuallyHiddenText = Some("National Insurance number"),
-            attributes = Map("id" -> "change-nino")
+      actions = Some(
+        Actions(
+          items = Seq(
+            ActionItem(
+              href = routes.MembersNinoController.onPageLoad(CheckMode).url + "#nino",
+              content = Text(messages("site.change")),
+              visuallyHiddenText = Some("National Insurance number"),
+              attributes = Map("id" -> "change-nino")
+            )
           )
         )
-      ))
+      )
     )
-  }
 
-  def membersPsaCheckRefRow(membersPsaCheckRef: MembersPsaCheckRef)(implicit messages: Messages): SummaryListRow = {
+  def membersPsaCheckRefRow(membersPsaCheckRef: MembersPsaCheckRef)(implicit messages: Messages): SummaryListRow =
     SummaryListRow(
       key = Key(content = Text(messages("membersPsaCheckRef.pensionSchemeAdminCheckRef"))),
       value = Value(content = Text(membersPsaCheckRef.psaCheckRef)),
-      actions = Some(Actions(
-        items = Seq(
-          ActionItem(
-            href = routes.MembersPsaCheckRefController.onPageLoad(CheckMode).url + "#psaCheckRef",
-            content = Text(messages("site.change")),
-            visuallyHiddenText = Some("pension scheme administrator check reference"),
-            attributes = Map("id" -> "change-pensionSchemeAdminCheckRef")
+      actions = Some(
+        Actions(
+          items = Seq(
+            ActionItem(
+              href = routes.MembersPsaCheckRefController.onPageLoad(CheckMode).url + "#psaCheckRef",
+              content = Text(messages("site.change")),
+              visuallyHiddenText = Some("pension scheme administrator check reference"),
+              attributes = Map("id" -> "change-pensionSchemeAdminCheckRef")
+            )
           )
         )
-      ))
+      )
     )
-  }
 
 }

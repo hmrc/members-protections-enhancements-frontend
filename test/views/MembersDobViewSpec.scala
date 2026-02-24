@@ -41,7 +41,6 @@ class MembersDobViewSpec extends SpecBase {
     }
   }
 
-
   trait Setup {
     val app: Application = applicationBuilder(emptyUserAnswers).build()
     implicit val msg: Messages = messages(app)
@@ -53,7 +52,6 @@ class MembersDobViewSpec extends SpecBase {
     val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[MembersDobView].apply(form, viewModel, "Pearl Harvey").body
-      )
+      Jsoup.parse(app.injector.instanceOf[MembersDobView].apply(form, viewModel, "Pearl Harvey").body)
   }
 }

@@ -53,7 +53,9 @@ class WhatYouWillNeedViewSpec extends SpecBase {
       view.text.contains(messages(app)("whatYouWillNeed.nino"))
       view.text.contains(messages(app)("whatYouWillNeed.pension-scheme-admin-check-ref.li"))
 
-      view.getElementsByTag("h2").first().text() mustBe messages(app)("whatYouWillNeed.pension_scheme_admin_check_ref.h2")
+      view.getElementsByTag("h2").first().text() mustBe messages(app)(
+        "whatYouWillNeed.pension_scheme_admin_check_ref.h2"
+      )
       view.text.contains(messages(app)("whatYouWillNeed.guidance.p1"))
       view.text.contains(messages(app)("whatYouWillNeed.guidance.p2"))
       view.text.contains(messages(app)("whatYouWillNeed.guidance.li.1"))
@@ -64,7 +66,6 @@ class WhatYouWillNeedViewSpec extends SpecBase {
         "https://www.gov.uk/guidance/pension-schemes-protect-your-lifetime-allowance"
     }
   }
-
 
   trait Setup {
 

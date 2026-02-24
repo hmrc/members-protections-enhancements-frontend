@@ -23,15 +23,16 @@ import repositories.SessionRepository
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class KeepAliveController @Inject()(val controllerComponents: MessagesControllerComponents,
-                                    identify: IdentifierAction,
-                                    checkLockout: CheckLockoutAction,
-                                    getData: DataRetrievalAction,
-                                    sessionRepository: SessionRepository)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class KeepAliveController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  identify: IdentifierAction,
+  checkLockout: CheckLockoutAction,
+  getData: DataRetrievalAction,
+  sessionRepository: SessionRepository
+)(implicit ec: ExecutionContext)
+    extends MpeBaseController(identify, checkLockout, getData) {
 
   def keepAlive(): Action[AnyContent] = handle { implicit request =>
-
     sessionRepository.keepAlive(request.userAnswers.id).map(_ => Ok)
   }
 }

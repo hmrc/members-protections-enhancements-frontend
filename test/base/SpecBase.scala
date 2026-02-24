@@ -24,7 +24,12 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.actions.*
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
-import models.response.RecordTypeMapped.{FixedProtection2016, IndividualProtection2014, InternationalEnhancementTransfer, PrimaryProtection}
+import models.response.RecordTypeMapped.{
+  FixedProtection2016,
+  IndividualProtection2014,
+  InternationalEnhancementTransfer,
+  PrimaryProtection
+}
 import models.response.{ProtectionRecord, ProtectionRecordDetails}
 import models.userAnswers.UserAnswers
 import org.mockito.ArgumentMatchers.any
@@ -42,7 +47,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.*
 import play.api.mvc.{BodyParsers, Call, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{AUTHORIZATION, running}
+import play.api.test.Helpers.{running, AUTHORIZATION, CONTENT_TYPE}
 import providers.DateTimeProvider
 import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import viewmodels.formPage.FormPageViewModel
@@ -54,7 +59,7 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 trait SpecBase
-  extends AnyFreeSpec
+    extends AnyFreeSpec
     with Matchers
     with TryValues
     with OptionValues
@@ -97,10 +102,12 @@ trait SpecBase
 
   when(mockDateTimeProvider.now(any())).thenReturn(mockZonedDateTime)
 
-  protected def applicationBuilder(userAnswers: UserAnswers,
-                                   identifierAction: IdentifierAction = fakePsaIdentifierAction,
-                                   checkLockoutResult: Option[Result] = None,
-                                   servicesConfig: Map[String, Any] = servicesConfig): GuiceApplicationBuilder =
+  protected def applicationBuilder(
+    userAnswers: UserAnswers,
+    identifierAction: IdentifierAction = fakePsaIdentifierAction,
+    checkLockoutResult: Option[Result] = None,
+    servicesConfig: Map[String, Any] = servicesConfig
+  ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(servicesConfig)
       .overrides(
@@ -121,10 +128,10 @@ trait SpecBase
     FormPageViewModel(onSubmit = onSubmit, backLinkUrl = Some(backLinkUrl))
 
   val servicesConfig: Map[String, Any] = Map(
-    "microservice.services.mpe-backend.host"           -> wireMockHost,
-    "microservice.services.mpe-backend.port"           -> wireMockPort,
-    "microservice.services.bas-gateway-frontend.host"  -> wireMockHost,
-    "microservice.services.bas-gateway-frontend.port"  -> wireMockPort
+    "microservice.services.mpe-backend.host" -> wireMockHost,
+    "microservice.services.mpe-backend.port" -> wireMockPort,
+    "microservice.services.bas-gateway-frontend.host" -> wireMockHost,
+    "microservice.services.bas-gateway-frontend.port" -> wireMockPort
   )
 
   given queryParamsToJava: Conversion[Map[String, String], java.util.Map[String, StringValuePattern]] = _.map {
@@ -132,32 +139,10 @@ trait SpecBase
       k -> equalTo(v)
   }.asJava
 
-  def stubGet(url: String, response: ResponseDefinitionBuilder): StubMapping =
-    wireMockServer.stubFor(
-      get(urlEqualTo(url))
-        .willReturn(response)
-    )
-
-  def stubGet(url: String, queryParams: Map[String, String], response: ResponseDefinitionBuilder): StubMapping =
-    wireMockServer.stubFor(
-      get(urlPathTemplate(url))
-        .withQueryParams(queryParams)
-        .willReturn(response)
-    )
-
   def stubPost(url: String, requestBody: String, response: ResponseDefinitionBuilder): StubMapping =
     wireMockServer.stubFor(
       post(urlEqualTo(url))
         .withHeader("Content-Type", equalTo("application/json"))
-        .withRequestBody(equalTo(requestBody))
-        .willReturn(response)
-    )
-
-  def stubPostWithAuth(url: String, requestBody: String, response: ResponseDefinitionBuilder): StubMapping =
-    wireMockServer.stubFor(
-      post(urlEqualTo(url))
-        .withHeader("Content-Type", equalTo("application/json"))
-        .withHeader(AUTHORIZATION, equalTo("token"))
         .withRequestBody(equalTo(requestBody))
         .willReturn(response)
     )
@@ -169,9 +154,11 @@ trait SpecBase
       result.get mustBe expectedModel
     }
 
-  def enumRoundTest[ModelType: Reads](stringValue: String,
-                                      jsonFormatter: String => JsValue,
-                                      expectedModel: ModelType): Unit =
+  def enumRoundTest[ModelType: Reads](
+    stringValue: String,
+    jsonFormatter: String => JsValue,
+    expectedModel: ModelType
+  ): Unit =
     s"when provided with valid string '$stringValue' should read and map to the correct model" in {
       val result: JsResult[ModelType] = jsonFormatter(stringValue).validate[ModelType]
       result mustBe a[JsSuccess[_]]

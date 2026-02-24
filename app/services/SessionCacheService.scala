@@ -25,13 +25,11 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SessionCacheServiceImpl @Inject()(sessionRepository: SessionRepository) extends SessionCacheService {
-  override def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
+class SessionCacheServiceImpl @Inject() (sessionRepository: SessionRepository) extends SessionCacheService {
+  override def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     sessionRepository.set(userAnswers)
-  }
-  override def clear(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+  override def clear(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
     sessionRepository.clear(userAnswers.id)
-  }
 }
 
 @ImplementedBy(classOf[SessionCacheServiceImpl])

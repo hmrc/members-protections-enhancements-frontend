@@ -32,7 +32,5 @@ object CurrencyFormats {
       .replace("GBP", "£")
       .replace(".00", "")
 
-  def formatOptInt(valueOpt: Option[Int]): Option[String] = valueOpt.map(intVal =>
-    format(Integer.valueOf(intVal))
-  )
+  def formatOptInt(valueOpt: Option[Int]): Option[String] = valueOpt.map(intVal => format(Integer.valueOf(intVal)))
 }

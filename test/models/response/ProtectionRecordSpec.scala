@@ -96,10 +96,10 @@ class ProtectionRecordSpec extends SpecBase {
       val result = testJson.validate[ProtectionRecord]
       result mustBe a[JsError]
       val errorResult = result.asInstanceOf[JsError]
-      errorResult.errors must have length 1
+      (errorResult.errors must have).length(1)
       val (path, msgs) = errorResult.errors.head
       path.toString() mustBe "/pensionCreditLegislation"
-      msgs must have length 1
+      (msgs must have).length(1)
       msgs.head.message mustBe "error.path.missing"
 
     }

@@ -21,6 +21,6 @@ import play.api.libs.json.JsPath
 
 case object ResultsPage extends QuestionPage[MembersResult] {
 
-  override def path: JsPath                    = JsPath \ toString
-  override def toString: String                = "isSuccessful"
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "isSuccessful"
 }

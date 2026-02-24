@@ -29,20 +29,18 @@ trait AesGcmAdCrypto {
 }
 
 @Singleton
-class AesGcmAdCryptoImpl @Inject()(appConfig: FrontendAppConfig,
-                                   aesGcmAdCryptoFactory: AesGcmAdCryptoFactory) extends  AesGcmAdCrypto {
+class AesGcmAdCryptoImpl @Inject() (appConfig: FrontendAppConfig, aesGcmAdCryptoFactory: AesGcmAdCryptoFactory)
+    extends AesGcmAdCrypto {
   private lazy val aesGcmAdCrypto = aesGcmAdCryptoFactory.instance()
 
-  def encrypt(valueToEncrypt: String)
-             (implicit associatedText: String): EncryptedValue =
+  def encrypt(valueToEncrypt: String)(implicit associatedText: String): EncryptedValue =
     if (appConfig.useEncryption) {
       aesGcmAdCrypto.encrypt(valueToEncrypt, associatedText)
     } else {
       EncryptedValue(valueToEncrypt, s"$valueToEncrypt-Nonce")
     }
 
-  def decrypt(encryptedValue: EncryptedValue)
-             (implicit associatedText: String): String =
+  def decrypt(encryptedValue: EncryptedValue)(implicit associatedText: String): String =
     if (appConfig.useEncryption) {
       aesGcmAdCrypto.decrypt(encryptedValue, associatedText)
     } else {

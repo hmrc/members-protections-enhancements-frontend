@@ -39,7 +39,7 @@ class LockedOutControllerSpec extends SpecBase {
     val mockService: FailedAttemptService = mock[FailedAttemptService]
 
     val application: Application = applicationBuilder(
-      userAnswers = emptyUserAnswers,
+      userAnswers = emptyUserAnswers
     )
       .overrides(
         bind[FailedAttemptService].toInstance(mockService)
@@ -61,8 +61,8 @@ class LockedOutControllerSpec extends SpecBase {
           ArgumentMatchers.any[IdentifierRequest[AnyContent] => Future[Result]]()
         )
       ).thenReturn(
-        stubMessagesControllerComponents().messagesActionBuilder.async(
-          _ => Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+        stubMessagesControllerComponents().messagesActionBuilder.async(_ =>
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
         )
       )
 
@@ -103,7 +103,7 @@ class LockedOutControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to start page when user is not locked out" in new Test{
+    "must redirect to start page when user is not locked out" in new Test {
       when(
         mockService.getLockoutExpiry()(ArgumentMatchers.any())
       ).thenReturn(

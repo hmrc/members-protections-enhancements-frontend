@@ -27,9 +27,7 @@ import utils.encryption.CypherSyntax.*
 import java.time.Instant
 import scala.util.{Failure, Success, Try}
 
-final case class UserAnswers(id: String,
-                             data: JsObject = Json.obj(),
-                             lastUpdated: Instant = Instant.now) {
+final case class UserAnswers(id: String, data: JsObject = Json.obj(), lastUpdated: Instant = Instant.now) {
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
     Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
 
@@ -39,23 +37,27 @@ final case class UserAnswers(id: String,
         case JsSuccess(jsValue, _) => Success(userAnswers.copy(data = jsValue))
         case JsError(errors) => Failure(JsResultException(errors))
       }
-    
+
     page match {
       case _: CheckYourAnswersPage.type => updateData()
-      case _ => get(CheckYourAnswersPage).fold(
-        updateData()
-      )(cyaAnswers => if(cyaAnswers.isChecked) {
-        set(CheckYourAnswersPage, CheckMembersDetails(isChecked = false)).flatMap(updateData)
-      } else {
-        updateData()
-      })
+      case _ =>
+        get(CheckYourAnswersPage).fold(
+          updateData()
+        )(cyaAnswers =>
+          if (cyaAnswers.isChecked) {
+            set(CheckYourAnswersPage, CheckMembersDetails(isChecked = false)).flatMap(updateData)
+          } else {
+            updateData()
+          }
+        )
     }
   }
 
-  def encrypt(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedUserAnswers = EncryptedUserAnswers(
-    id = id,
-    encryptedValue = data.encrypted,
-    lastUpdated = lastUpdated
-  )
+  def encrypt(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedUserAnswers =
+    EncryptedUserAnswers(
+      id = id,
+      encryptedValue = data.encrypted,
+      lastUpdated = lastUpdated
+    )
 
 }

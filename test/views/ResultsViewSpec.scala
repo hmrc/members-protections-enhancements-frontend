@@ -37,19 +37,21 @@ class ResultsViewSpec extends SpecBase {
   "view" - {
     "display correctly" - {
       "with correct top level header and title" in new Setup {
-        view.html must include (messages(app)("results.title"))
+        view.html must include(messages(app)("results.title"))
         view.getElementsByTag("h1").text() mustBe messages(app)("results.heading")
       }
       "with correct breadcrumbs" in new Setup {
-        view.getElementsByClass("govuk-breadcrumbs__link").first().text() mustBe messages(app)("results.breadcrumbs.mps")
+        view.getElementsByClass("govuk-breadcrumbs__link").first().text() mustBe messages(app)(
+          "results.breadcrumbs.mps"
+        )
         view.getElementsByClass("govuk-breadcrumbs__link").last().text() mustBe messages(app)("results.breadcrumbs.mpe")
       }
       "with expected user details section" in new Setup {
-        view.html must include (messages(app)("results.memberDetails.heading"))
-        view.html must include (messages(app)("membersName.name"))
-        view.html must include (messages(app)("membersDob.dob"))
-        view.html must include (messages(app)("membersNino.nino"))
-        view.html must include (messages(app)("membersPsaCheckRef.pensionSchemeAdminCheckRef"))
+        view.html must include(messages(app)("results.memberDetails.heading"))
+        view.html must include(messages(app)("membersName.name"))
+        view.html must include(messages(app)("membersDob.dob"))
+        view.html must include(messages(app)("membersNino.nino"))
+        view.html must include(messages(app)("membersPsaCheckRef.pensionSchemeAdminCheckRef"))
       }
 
       "with expected protection details" - {
@@ -58,9 +60,12 @@ class ResultsViewSpec extends SpecBase {
 
           s"for summary list item: $typeString" in new Setup {
             val summaryListContent: Document = Jsoup.parse(
-              app.injector.instanceOf[GovukSummaryList].apply(
-                ResultsViewUtils.protectionRecordToSummaryList(protection)
-              ).body
+              app.injector
+                .instanceOf[GovukSummaryList]
+                .apply(
+                  ResultsViewUtils.protectionRecordToSummaryList(protection)
+                )
+                .body
             )
 
             view.getElementById(typeString).html() mustBe
@@ -72,11 +77,11 @@ class ResultsViewSpec extends SpecBase {
       }
 
       "with expected footer content" in new Setup {
-        view.html must include (messages(app)("results.checkedOn"))
-        view.html must include (messages(app)("site.print"))
-        view.html must include (messages(app)("results.relatedContent"))
-        view.html must include (messages(app)("results.mpsDashboard"))
-        view.html must include (messages(app)("results.checkAnotherMpe"))
+        view.html must include(messages(app)("results.checkedOn"))
+        view.html must include(messages(app)("site.print"))
+        view.html must include(messages(app)("results.relatedContent"))
+        view.html must include(messages(app)("results.mpsDashboard"))
+        view.html must include(messages(app)("results.checkAnotherMpe"))
       }
     }
   }
@@ -96,15 +101,18 @@ class ResultsViewSpec extends SpecBase {
     val localDateTime: String = "02 April 2025 at 15:12"
 
     val view: Document = Jsoup.parse(
-      app.injector.instanceOf[ResultsView].apply(
-        memberDetails = memberDetails,
-        membersDob = membersDob,
-        membersNino = membersNino,
-        membersPsaCheckRef = membersPsaCheckRef,
-        backLinkUrl = Some(backLinkUrl),
-        formattedTimestamp = localDateTime,
-        protectionRecordDetails = dummyProtectionRecords
-      ).body
+      app.injector
+        .instanceOf[ResultsView]
+        .apply(
+          memberDetails = memberDetails,
+          membersDob = membersDob,
+          membersNino = membersNino,
+          membersPsaCheckRef = membersPsaCheckRef,
+          backLinkUrl = Some(backLinkUrl),
+          formattedTimestamp = localDateTime,
+          protectionRecordDetails = dummyProtectionRecords
+        )
+        .body
     )
   }
 

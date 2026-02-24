@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package models.requests
+package utils.constants
 
-import models.userAnswers.UserAnswers
-import play.api.mvc.{Request, WrappedRequest}
-
-case class DataRequest[A](
-  request: Request[A],
-  userDetails: UserDetails,
-  userAnswers: UserAnswers,
-  correlationId: Option[String] = None
-) extends WrappedRequest[A](request)
+object ErrorCodes {
+  
+  val INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
+  val NOT_FOUND = "NOT_FOUND"
+  val NO_MATCH = "NO_MATCH"
+  val EMPTY_DATA = "EMPTY_DATA"
+}

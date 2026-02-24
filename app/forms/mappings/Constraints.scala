@@ -23,12 +23,11 @@ import java.time.LocalDate
 trait Constraints {
 
   protected def firstError[A](constraints: Constraint[A]*): Constraint[A] =
-    Constraint {
-      input =>
-        constraints
-          .map(_.apply(input))
-          .find(_ != Valid)
-          .getOrElse(Valid)
+    Constraint { input =>
+      constraints
+        .map(_.apply(input))
+        .find(_ != Valid)
+        .getOrElse(Valid)
     }
 
   protected def regexp(regex: String, errorKey: String): Constraint[String] =
@@ -59,7 +58,7 @@ trait Constraints {
     Constraint {
       case date if date.isAfter(maximum) =>
         Invalid(errorKey, args: _*)
-      case _                             =>
+      case _ =>
         Valid
     }
 
@@ -67,7 +66,7 @@ trait Constraints {
     Constraint {
       case date if date.isBefore(minimum) =>
         Invalid(errorKey, args: _*)
-      case _                              =>
+      case _ =>
         Valid
     }
 

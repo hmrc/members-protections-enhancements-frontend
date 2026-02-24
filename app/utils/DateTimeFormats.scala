@@ -31,18 +31,15 @@ object DateTimeFormats {
   val shortMonthFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
   val longMonthFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("LLLL")
 
-
   private val localisedDateFormatters = Map(
     "en" -> dateFormatter,
     "cy" -> dateFormatter.withLocale(new Locale("cy"))
   )
 
-  def dateTimeFormat()(implicit lang: Lang): DateTimeFormatter = {
+  def dateTimeFormat()(implicit lang: Lang): DateTimeFormatter =
     localisedDateFormatters.getOrElse(lang.code, dateFormatter)
-  }
 
-  def getCurrentDateTimestamp(time: ZonedDateTime,
-                              formatter: DateTimeFormatter = dateTimeFormatter): String =
+  def getCurrentDateTimestamp(time: ZonedDateTime, formatter: DateTimeFormatter = dateTimeFormatter): String =
     formatter
       .withLocale(Locale.UK)
       .format(time)

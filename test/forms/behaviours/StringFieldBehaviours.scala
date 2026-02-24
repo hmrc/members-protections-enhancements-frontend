@@ -20,44 +20,27 @@ import play.api.data.Form
 
 trait StringFieldBehaviours extends FieldBehaviours {
 
-    def fieldWithMaxLength(form: Form[_],
-                           fieldName: String,
-                           maxLength: Int,
-                           lengthError: String): Unit = {
+  def fieldWithMaxLength(form: Form[_], fieldName: String, maxLength: Int, lengthError: String): Unit =
+    s"not bind strings longer than $maxLength characters" in {
 
-      s"not bind strings longer than $maxLength characters" in {
-
-        forAll(stringsLongerThan(maxLength) -> "longString") {
-          (string: String) =>
-            val result = form.bind(Map(fieldName -> string)).apply(fieldName)
-            result.errors.map(_.message) must contain(lengthError)
-        }
+      forAll(stringsLongerThan(maxLength) -> "longString") { (string: String) =>
+        val result = form.bind(Map(fieldName -> string)).apply(fieldName)
+        result.errors.map(_.message) must contain(lengthError)
       }
     }
 
-    def fieldWithMinLength(form: Form[_],
-                           fieldName: String,
-                           maxLength: Int,
-                           lengthError: String): Unit = {
+  def fieldWithMinLength(form: Form[_], fieldName: String, maxLength: Int, lengthError: String): Unit =
+    s"not bind strings longer than $maxLength characters" in {
 
-      s"not bind strings longer than $maxLength characters" in {
-
-        forAll(stringsLongerThan(maxLength) -> "longString") {
-          (string: String) =>
-            val result = form.bind(Map(fieldName -> string)).apply(fieldName)
-            result.errors.map(_.message) must contain(lengthError)
-        }
+      forAll(stringsLongerThan(maxLength) -> "longString") { (string: String) =>
+        val result = form.bind(Map(fieldName -> string)).apply(fieldName)
+        result.errors.map(_.message) must contain(lengthError)
       }
     }
 
-    def fieldWithRegex(form: Form[_],
-                       fieldName: String,
-                       invalidString: String,
-                       error: String): Unit = {
-
-      "not bind strings invalidated by regex" in {
-        val result = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
-        result.errors.map(_.message) must contain(error)
-      }
+  def fieldWithRegex(form: Form[_], fieldName: String, invalidString: String, error: String): Unit =
+    "not bind strings invalidated by regex" in {
+      val result = form.bind(Map(fieldName -> invalidString)).apply(fieldName)
+      result.errors.map(_.message) must contain(error)
     }
 }

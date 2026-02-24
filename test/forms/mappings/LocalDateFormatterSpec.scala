@@ -24,15 +24,15 @@ import java.time.LocalDate
 
 class LocalDateFormatterSpec extends SpecBase {
 
-  val dayInvalidKey      = "dayInvalidKey"
-  val monthInvalidKey      = "monthInvalidKey"
-  val yearInvalidKey      = "yearInvalidKey"
-  val monthTextInvalidKey      = "monthTextInvalidKey"
-  val oneRequiredKey     = "oneRequiredKey"
-  val twoRequiredKey     = "twoRequiredKey"
-  val allRequiredKey     = "allRequiredKey"
-  val realDateKey        = "realDateKey"
-  val formatter          = new LocalDateFormatter(
+  val dayInvalidKey = "dayInvalidKey"
+  val monthInvalidKey = "monthInvalidKey"
+  val yearInvalidKey = "yearInvalidKey"
+  val monthTextInvalidKey = "monthTextInvalidKey"
+  val oneRequiredKey = "oneRequiredKey"
+  val twoRequiredKey = "twoRequiredKey"
+  val allRequiredKey = "allRequiredKey"
+  val realDateKey = "realDateKey"
+  val formatter = new LocalDateFormatter(
     dayInvalidKey,
     monthInvalidKey,
     yearInvalidKey,
@@ -94,9 +94,11 @@ class LocalDateFormatterSpec extends SpecBase {
 
       "all three fields are invalid" in {
         formatter.validateDayMonthYear("date", Some("&%£"), Some("~@;"), Some("-_-")) shouldBe
-          Seq(FormError("date.day", dayInvalidKey, Seq("day", "month", "year")),
+          Seq(
+            FormError("date.day", dayInvalidKey, Seq("day", "month", "year")),
             FormError("date.month", monthInvalidKey, Seq("day", "month", "year")),
-            FormError("date.year", yearInvalidKey, Seq("day", "month", "year")))
+            FormError("date.year", yearInvalidKey, Seq("day", "month", "year"))
+          )
       }
 
       "the day is empty" in {
@@ -167,22 +169,34 @@ class LocalDateFormatterSpec extends SpecBase {
 
     "return the form errors when binding was unsuccessful" in {
       formatter.bind("date", Map("date.day" -> "fff", "date.month" -> "79", "date.year" -> "3.142")) shouldBe
-        Left(Seq(FormError("date.day", dayInvalidKey, Seq("day", "month", "year")),
-          FormError("date.month", monthInvalidKey, Seq("day", "month", "year")),
-          FormError("date.year", yearInvalidKey, Seq("day", "month", "year"))))
+        Left(
+          Seq(
+            FormError("date.day", dayInvalidKey, Seq("day", "month", "year")),
+            FormError("date.month", monthInvalidKey, Seq("day", "month", "year")),
+            FormError("date.year", yearInvalidKey, Seq("day", "month", "year"))
+          )
+        )
     }
 
     "return the form errors with monthTextInvalidKey when month text input binding was unsuccessful" in {
       formatter.bind("date", Map("date.day" -> "fff", "date.month" -> "jjj", "date.year" -> "3.142")) shouldBe
-        Left(Seq(FormError("date.day", dayInvalidKey, Seq("day", "month", "year")),
-          FormError("date.month", monthTextInvalidKey, Seq("day", "month", "year")),
-          FormError("date.year", yearInvalidKey, Seq("day", "month", "year"))))
+        Left(
+          Seq(
+            FormError("date.day", dayInvalidKey, Seq("day", "month", "year")),
+            FormError("date.month", monthTextInvalidKey, Seq("day", "month", "year")),
+            FormError("date.year", yearInvalidKey, Seq("day", "month", "year"))
+          )
+        )
     }
 
     "return the only date and year form errors when month text input binding was successful" in {
       formatter.bind("date", Map("date.day" -> "fff", "date.month" -> "jan", "date.year" -> "3.142")) shouldBe
-        Left(Seq(FormError("date.day", dayInvalidKey, Seq("day","year")),
-          FormError("date.year", yearInvalidKey, Seq("day", "year"))))
+        Left(
+          Seq(
+            FormError("date.day", dayInvalidKey, Seq("day", "year")),
+            FormError("date.year", yearInvalidKey, Seq("day", "year"))
+          )
+        )
     }
   }
 
@@ -190,9 +204,9 @@ class LocalDateFormatterSpec extends SpecBase {
 
     "return form data from a LocalDate" in {
       formatter.unbind("date", LocalDate.parse("2000-11-11")) shouldBe Map(
-        "date.day"   -> "11",
+        "date.day" -> "11",
         "date.month" -> "11",
-        "date.year"  -> "2000"
+        "date.year" -> "2000"
       )
     }
   }

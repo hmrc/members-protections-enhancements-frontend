@@ -30,17 +30,23 @@ trait Cypher[A] {
     override def encrypt(value: B)(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedValue =
       self.encrypt(enc(value))
 
-    override def decrypt(encryptedValue: EncryptedValue)(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): B =
+    override def decrypt(
+      encryptedValue: EncryptedValue
+    )(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): B =
       dec(self.decrypt(encryptedValue))
   }
 }
 
 object Cypher {
   implicit val stringCypher: Cypher[String] = new Cypher[String] {
-    override def encrypt(value: String)(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedValue =
+    override def encrypt(
+      value: String
+    )(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedValue =
       aesGcmAdCrypto.encrypt(value)
 
-    override def decrypt(encryptedValue: EncryptedValue)(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): String =
+    override def decrypt(
+      encryptedValue: EncryptedValue
+    )(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): String =
       aesGcmAdCrypto.decrypt(encryptedValue)
   }
 
@@ -49,10 +55,12 @@ object Cypher {
 
 object CypherSyntax {
   implicit class EncryptableOps[A](value: A)(implicit cypher: Cypher[A]) {
-    def encrypted(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedValue = cypher.encrypt(value)
+    def encrypted(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedValue =
+      cypher.encrypt(value)
   }
 
   implicit class DecryptableOps(encryptedValue: EncryptedValue) {
-    def decrypted[A](implicit cypher: Cypher[A], aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): A = cypher.decrypt(encryptedValue)
+    def decrypted[A](implicit cypher: Cypher[A], aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): A =
+      cypher.decrypt(encryptedValue)
   }
 }

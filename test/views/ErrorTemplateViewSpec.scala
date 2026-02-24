@@ -37,7 +37,6 @@ class ErrorTemplateViewSpec extends SpecBase {
     }
   }
 
-
   trait Setup {
 
     val app: Application = applicationBuilder(emptyUserAnswers).build()
@@ -45,7 +44,12 @@ class ErrorTemplateViewSpec extends SpecBase {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/some/resource/path")
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[ErrorTemplate].apply("journeyRecovery.continue.title", "journeyRecovery.continue.heading").body)
+      Jsoup.parse(
+        app.injector
+          .instanceOf[ErrorTemplate]
+          .apply("journeyRecovery.continue.title", "journeyRecovery.continue.heading")
+          .body
+      )
   }
 
 }

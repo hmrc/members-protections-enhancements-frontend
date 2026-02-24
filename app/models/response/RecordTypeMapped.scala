@@ -27,7 +27,7 @@ case class EnhancementTypeMapped(messagesKey: String) extends RecordTypeMapped(m
 
 object RecordTypeMapped {
   object FixedProtection extends ProtectionTypeMapped("FP")
-  object FixedProtection2014  extends ProtectionTypeMapped("FP.2014")
+  object FixedProtection2014 extends ProtectionTypeMapped("FP.2014")
   object FixedProtection2016 extends ProtectionTypeMapped("FP.2016")
   object IndividualProtection2014 extends ProtectionTypeMapped("IP.2014")
   object IndividualProtection2016 extends ProtectionTypeMapped("IP.2016")

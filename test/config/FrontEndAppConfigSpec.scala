@@ -35,7 +35,9 @@ class FrontEndAppConfigSpec extends SpecBase {
     }
 
     "have checkAndRetrieveUrl and convert to string" in {
-      appConfig.checkAndRetrieveUrl must be("http://localhost:30030/members-protections-and-enhancements/check-and-retrieve")
+      appConfig.checkAndRetrieveUrl must be(
+        "http://localhost:30030/members-protections-and-enhancements/check-and-retrieve"
+      )
     }
   }
 }

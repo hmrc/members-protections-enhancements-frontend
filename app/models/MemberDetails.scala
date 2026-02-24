@@ -19,14 +19,15 @@ package models
 import play.api.libs.json.{Json, OFormat}
 
 case class MemberDetails(
-                          firstName: String,
-                          lastName: String
-                        ) {
+  firstName: String,
+  lastName: String
+) {
   val fullName: String = s"$firstName $lastName"
 }
 
 object MemberDetails {
   implicit val format: OFormat[MemberDetails] = Json.format[MemberDetails]
 
-  def unapply(memberDetails: MemberDetails): Some[(String, String)] = Some(memberDetails.firstName, memberDetails.lastName)
+  def unapply(memberDetails: MemberDetails): Some[(String, String)] =
+    Some(memberDetails.firstName, memberDetails.lastName)
 }

@@ -19,34 +19,37 @@ package models.audit
 import models.requests.{PensionSchemeMemberRequest, UserDetails}
 import play.api.libs.json.{Json, OWrites}
 
-case class AuditDetail(journey: String,
-                       firstName: String,
-                       lastName: String,
-                       dateOfBirth: String,
-                       nino: String,
-                       pensionSchemeMemberCheckReference: String,
-                       searchAPIMatchResult: Option[String],
-                       retrieveAPIFailureReason: Option[String],
-                       searchAPIFailureReason: Option[String],
-                       numberOfProtectionsAndEnhancementsTotal: Option[Int],
-                       numberOfProtectionsAndEnhancementsActive: Option[Int],
-                       numberOfProtectionsAndEnhancementsDormant: Option[Int],
-                       numberOfProtectionsAndEnhancementsWithdrawn: Option[Int],
-                       roleLoggedInAs: String,
-                       affinityGroup: String,
-                       requesterIdentifier: String,
-                       correlationId: String)
+case class AuditDetail(
+  journey: String,
+  firstName: String,
+  lastName: String,
+  dateOfBirth: String,
+  nino: String,
+  pensionSchemeMemberCheckReference: String,
+  searchAPIMatchResult: Option[String],
+  retrieveAPIFailureReason: Option[String],
+  searchAPIFailureReason: Option[String],
+  numberOfProtectionsAndEnhancementsTotal: Option[Int],
+  numberOfProtectionsAndEnhancementsActive: Option[Int],
+  numberOfProtectionsAndEnhancementsDormant: Option[Int],
+  numberOfProtectionsAndEnhancementsWithdrawn: Option[Int],
+  roleLoggedInAs: String,
+  affinityGroup: String,
+  requesterIdentifier: String,
+  correlationId: String
+)
 
 object AuditDetail {
   implicit val writes: OWrites[AuditDetail] = Json.writes[AuditDetail]
 
-  def apply(journey: String,
-            request: PensionSchemeMemberRequest,
-            searchAPIMatchResult: Option[String] = None,
-            retrieveAPIFailureReason: Option[String] = None,
-            searchAPIFailureReason: Option[String] = None,
-            userDetails: UserDetails)
-           (implicit correlationId: String): AuditDetail =
+  def apply(
+    journey: String,
+    request: PensionSchemeMemberRequest,
+    searchAPIMatchResult: Option[String] = None,
+    retrieveAPIFailureReason: Option[String] = None,
+    searchAPIFailureReason: Option[String] = None,
+    userDetails: UserDetails
+  )(implicit correlationId: String): AuditDetail =
     AuditDetail(
       journey = journey,
       firstName = request.firstName,

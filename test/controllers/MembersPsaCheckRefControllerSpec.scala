@@ -37,13 +37,18 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
   private val formProvider = new MembersPsaCheckRefFormProvider()
   private val form: Form[MembersPsaCheckRef] = formProvider()
 
-
   "Members Psa Check Reference Controller" - {
     "must return OK and the correct view for a GET" in {
       val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
-        .set(MembersNinoPage, MembersNino("AA123456C")).success.value
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1)))
+        .success
+        .value
+        .set(MembersNinoPage, MembersNino("AA123456C"))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
@@ -61,13 +66,13 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
     }
 
     "must save the form data and redirect on valid submission" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
-          .withFormUrlEncodedBody(
-            "psaCheckRef" -> "PSA12345678A")
+          .withFormUrlEncodedBody("psaCheckRef" -> "PSA12345678A")
 
         val result = route(application, request).value
 
@@ -79,10 +84,18 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
 
     "must return OK and pre-fill the form when data is already present" in {
       val userAnswers = emptyUserAnswers
-        .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey")).success.value
-        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
-        .set(MembersNinoPage, MembersNino("AA123456C")).success.value
-        .set(MembersPsaCheckRefPage, MembersPsaCheckRef("PSA12345678A")).success.value
+        .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1)))
+        .success
+        .value
+        .set(MembersNinoPage, MembersNino("AA123456C"))
+        .success
+        .value
+        .set(MembersPsaCheckRefPage, MembersPsaCheckRef("PSA12345678A"))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers).build()
 
@@ -95,15 +108,22 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
         val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(
-          MembersPsaCheckRef("PSA12345678A")), viewModel, "Pearl Harvey")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          form.fill(MembersPsaCheckRef("PSA12345678A")),
+          viewModel,
+          "Pearl Harvey"
+        )(request, messages(application)).toString
       }
     }
 
     "must redirect to MembersNino page when user haven't submitted NINO details" in {
       val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1)))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers).build()
 
@@ -120,7 +140,9 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
 
     "must redirect to MembersDob page when user haven't submitted DOB details" in {
       val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers).build()
 
@@ -136,13 +158,13 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
     }
 
     "must save the form data and redirect on valid submission when PsaCheckRef is added with spaces" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
-          .withFormUrlEncodedBody(
-            "psaCheckRef" -> "PS A1 234 567 8 A")
+          .withFormUrlEncodedBody("psaCheckRef" -> "PS A1 234 567 8 A")
 
         val result = route(application, request).value
 
@@ -153,13 +175,13 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
-          .withFormUrlEncodedBody(
-            "psaCheckRef" -> "")
+          .withFormUrlEncodedBody("psaCheckRef" -> "")
 
         val result = route(application, request).value
 
@@ -168,7 +190,10 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
         val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(
+          request,
+          messages(application)
+        ).toString
 
       }
     }
@@ -176,8 +201,12 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
     "must redirect to start page for a GET if user journey is already successful" in {
 
       val userAnswers = emptyUserAnswers
-        .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey")).success.value
-        .set(page = ResultsPage, value = MembersResult(true)).success.value
+        .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
+        .set(page = ResultsPage, value = MembersResult(true))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers).build()
 

@@ -18,7 +18,7 @@ package utils
 
 import base.SpecBase
 
-class DateFieldFormatsSpec extends SpecBase{
+class DateFieldFormatsSpec extends SpecBase {
   "numericRegexp" - {
     "should match any string containing only digits and periods" in {
       DateFieldFormats.numericRegexp.r.matches("1.123.234.234.23") mustBe true

@@ -27,15 +27,15 @@ trait Mappings extends Formatters with Constraints {
     of(stringFormatter(errorKey, args))
 
   protected def localDate(
-                           dayInvalidKey: String,
-                           monthInvalidKey: String,
-                           yearInvalidKey: String,
-                           monthTextInvalidKey: String,
-                           allRequiredKey: String,
-                           twoRequiredKey: String,
-                           oneRequiredKey: String,
-                           realDateKey: String
-                         ): FieldMapping[LocalDate] = of(
+    dayInvalidKey: String,
+    monthInvalidKey: String,
+    yearInvalidKey: String,
+    monthTextInvalidKey: String,
+    allRequiredKey: String,
+    twoRequiredKey: String,
+    oneRequiredKey: String,
+    realDateKey: String
+  ): FieldMapping[LocalDate] = of(
     new LocalDateFormatter(
       dayInvalidKey,
       monthInvalidKey,

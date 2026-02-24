@@ -14,14 +14,26 @@
  * limitations under the License.
  */
 
-package models.requests
+package utils.constants
 
-import models.userAnswers.UserAnswers
-import play.api.mvc.{Request, WrappedRequest}
+object AuditTypes {
+  val COMPLETE_MEMBER_SEARCH = "CompleteMemberSearch"
+}
 
-case class DataRequest[A](
-  request: Request[A],
-  userDetails: UserDetails,
-  userAnswers: UserAnswers,
-  correlationId: Option[String] = None
-) extends WrappedRequest[A](request)
+object AuditTransactionTypes {
+  val MEMBER_SEARCH_RESULTS = "member-search-results"
+}
+
+object AuditJourneyTypes {
+  val DEFAULT_JOURNEY = "journey"
+  val SEARCH_API_ERROR = "searchAPIError"
+  val RETRIEVE_API_ERROR = "retrieveAPIError"
+  val NO_MEMBER_MATCHED = "noMemberMatched"
+  val MEMBER_MATCHED_NO_DATA = "memberMatchedNoData"
+  val RESULTS_DISPLAYED = "resultsDisplayed"
+}
+
+object AuditResultTypes {
+  val MATCH = "MATCH"
+  val NO_MATCH = "NO MATCH"
+}

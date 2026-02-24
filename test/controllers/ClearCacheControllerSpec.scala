@@ -30,10 +30,18 @@ import java.time.LocalDate
 class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
 
   val userAnswers: UserAnswers = emptyUserAnswers
-    .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-    .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2000, 1, 1))).success.value
-    .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
-    .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
+    .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+    .success
+    .value
+    .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2000, 1, 1)))
+    .success
+    .value
+    .set(page = MembersNinoPage, value = MembersNino("AB123456A"))
+    .success
+    .value
+    .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A"))
+    .success
+    .value
 
   "onPageLoad" - {
     "when the user clicked service name on banner" in {
@@ -53,7 +61,7 @@ class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
 
   "must return OK and the default error view for a GET" in {
 
-    val application = applicationBuilder(userAnswers = emptyUserAnswers ).build()
+    val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
 
     running(application) {
       val request = FakeRequest(GET, routes.ClearCacheController.defaultError().url)
@@ -63,8 +71,10 @@ class ClearCacheControllerSpec extends SpecBase with MockitoSugar {
       val view = application.injector.instanceOf[ErrorTemplate]
 
       status(result) mustEqual OK
-      contentAsString(result) mustEqual view("",
-        messages(application).messages("journeyRecovery.startAgain.heading"))(request, messages(application)).toString
+      contentAsString(result) mustEqual view("", messages(application).messages("journeyRecovery.startAgain.heading"))(
+        request,
+        messages(application)
+      ).toString
     }
   }
 }

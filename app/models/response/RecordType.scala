@@ -16,7 +16,10 @@
 
 package models.response
 
-import models.response.PensionCreditLegislation.{`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`, `SECTION 220 FINANCE ACT 2004`}
+import models.response.PensionCreditLegislation.{
+  `PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`,
+  `SECTION 220 FINANCE ACT 2004`
+}
 import models.response.RecordTypeMapped.*
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json.*
@@ -29,27 +32,15 @@ sealed trait Protection extends RecordType
 sealed trait Enhancement extends RecordType
 
 object RecordType {
-  /**
-   * Types of Protections & Enhancements
-   *
-   * "INDIVIDUAL PROTECTION 2014"
-   * "INDIVIDUAL PROTECTION 2014 LTA"
-   * "INDIVIDUAL PROTECTION 2016"
-   * "INDIVIDUAL PROTECTION 2016 LTA"
-   * "PRIMARY PROTECTION"
-   * "PRIMARY PROTECTION LTA"
-   * "ENHANCED PROTECTION"
-   * "ENHANCED PROTECTION LTA"
-   * "FIXED PROTECTION"
-   * "FIXED PROTECTION LTA"
-   * "FIXED PROTECTION 2014"
-   * "FIXED PROTECTION 2014 LTA"
-   * "FIXED PROTECTION 2016"
-   * "FIXED PROTECTION 2016 LTA"
-   * "PENSION CREDIT RIGHTS"
-   * "INTERNATIONAL ENHANCEMENT (S221)"
-   * "INTERNATIONAL ENHANCEMENT (S224)"
-   */
+
+  /** Types of Protections & Enhancements
+    *
+    * "INDIVIDUAL PROTECTION 2014" "INDIVIDUAL PROTECTION 2014 LTA" "INDIVIDUAL PROTECTION 2016" "INDIVIDUAL PROTECTION
+    * 2016 LTA" "PRIMARY PROTECTION" "PRIMARY PROTECTION LTA" "ENHANCED PROTECTION" "ENHANCED PROTECTION LTA" "FIXED
+    * PROTECTION" "FIXED PROTECTION LTA" "FIXED PROTECTION 2014" "FIXED PROTECTION 2014 LTA" "FIXED PROTECTION 2016"
+    * "FIXED PROTECTION 2016 LTA" "PENSION CREDIT RIGHTS" "INTERNATIONAL ENHANCEMENT (S221)" "INTERNATIONAL ENHANCEMENT
+    * (S224)"
+    */
   case object `FIXED PROTECTION` extends Protection {
     override val mapping: RecordTypeMapped = FixedProtection
   }
@@ -113,7 +104,7 @@ object RecordType {
       case _ => JsError("error.recordType.invalid")
     }
 
-    val enumReadsEnhancement: Reads[Enhancement] = Reads[Enhancement]{
+    val enumReadsEnhancement: Reads[Enhancement] = Reads[Enhancement] {
       case JsString("INTERNATIONAL ENHANCEMENT S221") => JsSuccess(`INTERNATIONAL ENHANCEMENT S221`)
       case JsString("INTERNATIONAL ENHANCEMENT S224") => JsSuccess(`INTERNATIONAL ENHANCEMENT S224`)
       case _ => JsError("error.recordType.invalid")
@@ -122,34 +113,34 @@ object RecordType {
     val typeReads: Reads[JsString] = (JsPath \ "type").read[JsString]
     val fallbackErrorReads: Reads[RecordType] = Reads.failed("error.expected.RecordType")
 
-    val protectionRecordReads: Reads[RecordType] = (json: JsValue) => {
+    val protectionRecordReads: Reads[RecordType] = (json: JsValue) =>
       json
         .validate[Protection](enumReadsProtection)
         .orElse(
-          json.validate[JsString]
+          json
+            .validate[JsString]
             .map(jsString => JsString(jsString.value.replace(" LTA", "").replaceAll("\\((.*?)\\)", "$1")))
             .flatMap(_.validate[Protection](enumReadsProtection))
         )
-    }
 
-    val enhancementRecordReads: Reads[RecordType] = (json: JsValue) => {
+    val enhancementRecordReads: Reads[RecordType] = (json: JsValue) =>
       json
         .validate[Enhancement](enumReadsEnhancement)
         .orElse(
-          json.validate[JsString]
+          json
+            .validate[JsString]
             .map(jsString => JsString(jsString.value.replaceAll("\\((.*?)\\)", "$1")))
             .flatMap(_.validate[Enhancement](enumReadsEnhancement))
         )
-    }
 
-    val pcrReads: Reads[RecordType] = (
-      typeReads and
-        (JsPath \ "pensionCreditLegislation").read[PensionCreditLegislation]
-      )((_, legislation) => `PENSION CREDIT RIGHTS`(legislation))
+    val pcrReads: Reads[RecordType] =
+      typeReads.and((JsPath \ "pensionCreditLegislation").read[PensionCreditLegislation])((_, legislation) =>
+        `PENSION CREDIT RIGHTS`(legislation)
+      )
 
     val combinedReads: Reads[RecordType] = typeReads.flatMap {
       case JsString(`pensionCreditRightsString`) => pcrReads
-      case _ => typeReads.andThen(enhancementRecordReads orElse protectionRecordReads orElse fallbackErrorReads)
+      case _ => typeReads.andThen(enhancementRecordReads.orElse(protectionRecordReads).orElse(fallbackErrorReads))
     }
 
     json.validate[RecordType](combinedReads)

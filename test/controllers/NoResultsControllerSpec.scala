@@ -36,10 +36,18 @@ class NoResultsControllerSpec extends SpecBase {
   trait Test {
     implicit val hc: HeaderCarrier = HeaderCarrier()
     val userAnswers: UserAnswers = emptyUserAnswers
-      .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-      .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2022, 1, 1))).success.value
-      .set(page = MembersNinoPage, value = MembersNino("AB123456A")).success.value
-      .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A")).success.value
+      .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+      .success
+      .value
+      .set(page = MembersDobPage, value = MembersDob(LocalDate.of(2022, 1, 1)))
+      .success
+      .value
+      .set(page = MembersNinoPage, value = MembersNino("AB123456A"))
+      .success
+      .value
+      .set(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A"))
+      .success
+      .value
 
     val memberDetails: MemberDetails = MemberDetails("Pearl", "Harvey")
     val membersDob: MembersDob = MembersDob(LocalDate.of(2022, 1, 1))
@@ -81,7 +89,7 @@ class NoResultsControllerSpec extends SpecBase {
           membersDob,
           membersNino,
           membersPsaCheckRef,
-          localDateTime,
+          localDateTime
         )(request, messages(application)).toString
       }
     }
@@ -112,10 +120,13 @@ class NoResultsControllerSpec extends SpecBase {
 
     "must redirect to CYA page if answers have not been checked" in new Test {
       val application: Application = applicationBuilder(
-        userAnswers.set(
-          page = CheckYourAnswersPage,
-          value = CheckMembersDetails(false)
-        ).success.value
+        userAnswers
+          .set(
+            page = CheckYourAnswersPage,
+            value = CheckMembersDetails(false)
+          )
+          .success
+          .value
       ).build()
 
       running(application) {
@@ -127,13 +138,15 @@ class NoResultsControllerSpec extends SpecBase {
       }
     }
 
-
     "must redirect to start page for a GET if user journey is already successful" in new Test {
       val application: Application = applicationBuilder(
-        userAnswers.set(
-          page = ResultsPage,
-          value = MembersResult(true)
-        ).success.value
+        userAnswers
+          .set(
+            page = ResultsPage,
+            value = MembersResult(true)
+          )
+          .success
+          .value
       ).build()
 
       running(application) {
