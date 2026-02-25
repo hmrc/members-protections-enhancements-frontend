@@ -17,7 +17,7 @@
 package utils.constants
 
 object ErrorCodes {
-  
+
   val INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
   val NOT_FOUND = "NOT_FOUND"
   val NO_MATCH = "NO_MATCH"

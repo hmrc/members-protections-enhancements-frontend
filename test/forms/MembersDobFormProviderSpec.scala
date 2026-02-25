@@ -178,7 +178,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
       }
 
       "supplied data represents a future date" in {
-        val futureDate: LocalDate = mockCurrentDate.plusDays(1)
+        val futureDate: LocalDate = mockCurrentDate.plusDays(10)
         val (day, month, year) = (futureDate.getDayOfMonth, futureDate.getMonthValue, futureDate.getYear)
 
         val data = Map(
@@ -192,7 +192,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
       }
 
       "supplied data represents a less than min date" in {
-        val futureDate: LocalDate = LocalDate.of(1900, 1, 1).minusDays(1)
+        val futureDate: LocalDate = LocalDate.of(1900, 1, 1).minusDays(10)
         val (day, month, year) = (futureDate.getDayOfMonth, futureDate.getMonthValue, futureDate.getYear)
 
         val data = Map(

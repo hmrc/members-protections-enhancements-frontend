@@ -24,20 +24,12 @@ import java.util.Locale
 
 object DateTimeFormats {
 
-  private val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  private[utils] val dateFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
   private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' h:mma")
   val apiDateTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   val shortMonthFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("MMM")
   val longMonthFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("LLLL")
-
-  private val localisedDateFormatters = Map(
-    "en" -> dateFormatter,
-    "cy" -> dateFormatter.withLocale(new Locale("cy"))
-  )
-
-  def dateTimeFormat()(implicit lang: Lang): DateTimeFormatter =
-    localisedDateFormatters.getOrElse(lang.code, dateFormatter)
 
   def getCurrentDateTimestamp(time: ZonedDateTime, formatter: DateTimeFormatter = dateTimeFormatter): String =
     formatter

@@ -60,7 +60,7 @@ private[mappings] class LocalDateFormatter(
   ): Seq[FormError] = {
 
     def validateDay: Boolean = Try(day.get.toInt).toOption.exists(value => 1 to 31 contains value)
-    def validateMonth: Boolean = getMonth(month.get).exists(value => 1 to 12 contains value)
+    def validateMonth: Boolean = Try(getMonth(month)).toOption.exists(value => 1 to 12 contains value)
     def validateYear: Boolean =
       Try(year.get.toInt).toOption.exists(value => 1900 to LocalDate.now().getYear contains value)
 
@@ -136,7 +136,7 @@ private[mappings] class LocalDateFormatter(
     val errors = validateDayMonthYear(key, dayValue, monthValue, yearValue, hasMonthError)
 
     errors match {
-      case Nil => toDate(key, dayValue.get.toInt, getMonth(monthValue.get).get, yearValue.get.toInt)
+      case Nil => toDate(key, dayValue.getOrElse("0").toInt, getMonth(monthValue), yearValue.getOrElse("0").toInt)
       case _ => Left(errors)
     }
   }
@@ -150,12 +150,12 @@ private[mappings] class LocalDateFormatter(
       s"$key.year" -> value.getYear.toString
     )
 
-  private lazy val getMonth: String => Option[Int] = month =>
-    if (month.matches(numericRegexp)) {
-      month.toIntOption
-    } else {
-      checkWithPattern(month, shortMonthFormat).orElse(checkWithPattern(month, longMonthFormat))
-    }
+  private lazy val getMonth: Option[String] => Int = {
+    case month @ Some(monthStr) if monthStr.matches(numericRegexp) => monthStr.toInt
+    case month @ Some(monthStr) =>
+      checkWithPattern(monthStr, shortMonthFormat).orElse(checkWithPattern(monthStr, longMonthFormat)).getOrElse(0)
+    case _ => 0
+  }
 
   private def checkWithPattern(month: String, pattern: DateTimeFormatter): Option[Int] =
     nonFatalCatch.opt(

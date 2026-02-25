@@ -17,6 +17,6 @@
 package utils.constants
 
 object HeaderKeys {
-  
+
   val CORRELATION_ID = "correlationId"
 }
