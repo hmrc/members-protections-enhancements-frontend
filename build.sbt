@@ -35,7 +35,7 @@ lazy val microservice = (project in file("."))
   .settings(
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     scalafmtOnCompile := true,
-    PlayKeys.playDefaultPort := 30030,
+    PlayKeys.playDefaultPort := 30029,
     ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*components.*;" +
       ".*Routes.*;.*viewmodels.govuk.*;",
     ScoverageKeys.coverageMinimumStmtTotal := 90,
