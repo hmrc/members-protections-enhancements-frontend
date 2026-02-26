@@ -19,7 +19,7 @@ package utils
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.i18n.Lang
-import utils.DateTimeFormats.{dateTimeFormat, getCurrentDateTimestamp, longMonthFormat, shortMonthFormat}
+import utils.DateTimeFormats.{dateFormatter, getCurrentDateTimestamp, longMonthFormat, shortMonthFormat}
 
 import java.time.Month.*
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
@@ -30,20 +30,13 @@ import scala.util.control.Exception.nonFatalCatch
 class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
 
   ".dateTimeFormat" - {
+    val formatter = dateFormatter
     "must format dates in English" in {
-      val formatter = dateTimeFormat()(Lang("en"))
       val result = LocalDate.of(2023, 1, 1).format(formatter)
       result mustEqual "1 January 2023"
     }
 
-    "must format dates in Welsh" in {
-      val formatter = dateTimeFormat()(Lang("cy"))
-      val result = LocalDate.of(2023, 1, 1).format(formatter)
-      result mustEqual "1 Ionawr 2023"
-    }
-
     "must default to English format" in {
-      val formatter = dateTimeFormat()(Lang("de"))
       val result = LocalDate.of(2023, 1, 1).format(formatter)
       result mustEqual "1 January 2023"
     }
@@ -60,9 +53,11 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
 
   def testForMonthString(monthStr: String, monthInt: Int, parser: DateTimeFormatter): Unit =
     s"should convert the string: $monthStr to the int: $monthInt" in {
-      nonFatalCatch.opt(parser.parse(monthStr)).map(
-        _.get(ChronoField.MONTH_OF_YEAR)
-      ) mustBe Some(monthInt)
+      nonFatalCatch
+        .opt(parser.parse(monthStr))
+        .map(
+          _.get(ChronoField.MONTH_OF_YEAR)
+        ) mustBe Some(monthInt)
     }
 
   ".shortMonthFormat" - {
@@ -77,7 +72,7 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
       "Jun" -> JUNE.getValue,
       "Jul" -> JULY.getValue,
       "Aug" -> AUGUST.getValue,
-      sept  -> SEPTEMBER.getValue,
+      sept -> SEPTEMBER.getValue,
       "Oct" -> OCTOBER.getValue,
       "Nov" -> NOVEMBER.getValue,
       "Dec" -> DECEMBER.getValue
@@ -92,18 +87,18 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
 
   ".longMonthFormat" - {
     val validValues: Seq[(String, Int)] = Seq(
-      "January"   -> JANUARY.getValue,
-      "February"  -> FEBRUARY.getValue,
-      "March"     -> MARCH.getValue,
-      "April"     -> APRIL.getValue,
-      "May"       -> MAY.getValue,
-      "June"      -> JUNE.getValue,
-      "July"      -> JULY.getValue,
-      "August"    -> AUGUST.getValue,
+      "January" -> JANUARY.getValue,
+      "February" -> FEBRUARY.getValue,
+      "March" -> MARCH.getValue,
+      "April" -> APRIL.getValue,
+      "May" -> MAY.getValue,
+      "June" -> JUNE.getValue,
+      "July" -> JULY.getValue,
+      "August" -> AUGUST.getValue,
       "September" -> SEPTEMBER.getValue,
-      "October"   -> OCTOBER.getValue,
-      "November"  -> NOVEMBER.getValue,
-      "December"  -> DECEMBER.getValue
+      "October" -> OCTOBER.getValue,
+      "November" -> NOVEMBER.getValue,
+      "December" -> DECEMBER.getValue
     )
 
     validValues.foreach(scenario => testForMonthString(scenario._1, scenario._2, longMonthFormat))

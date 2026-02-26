@@ -26,7 +26,7 @@ import java.time.Instant
 class EncryptedUserAnswersSpec extends SpecBase with MockAesGcmAdCrypto {
 
   "decrypt" - {
-    "should decrypt user answers as per the decryption implementation" in{
+    "should decrypt user answers as per the decryption implementation" in {
       val model: EncryptedUserAnswers = EncryptedUserAnswers(
         id = "id",
         encryptedValue = EncryptedValue("encryptedString", "nonce"),
@@ -75,11 +75,13 @@ class EncryptedUserAnswersSpec extends SpecBase with MockAesGcmAdCrypto {
 
   "writes" - {
     "should write correctly to JSON" in {
-      val result: JsValue = Json.toJson(EncryptedUserAnswers(
-        id = "anId",
-        encryptedValue = EncryptedValue("encryptedValue", "nonce"),
-        lastUpdated = Instant.ofEpochMilli(epochMilli)
-      ))
+      val result: JsValue = Json.toJson(
+        EncryptedUserAnswers(
+          id = "anId",
+          encryptedValue = EncryptedValue("encryptedValue", "nonce"),
+          lastUpdated = Instant.ofEpochMilli(epochMilli)
+        )
+      )
 
       result mustBe json
     }

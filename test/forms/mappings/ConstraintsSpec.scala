@@ -107,13 +107,13 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
   "maxDate" - {
 
     "must return Valid for a date before or equal to the maximum" in {
-       val result = maxDate(LocalDate.now() ,"error.future")(LocalDate.of(2025, 1, 2))
-       result mustEqual Valid
+      val result = maxDate(LocalDate.now(), "error.future")(LocalDate.of(2025, 1, 2))
+      result mustEqual Valid
     }
 
     "must return Invalid for a date after the maximum" in {
 
-      val result = maxDate(LocalDate.of(2025, 1, 2) ,"error.future")(LocalDate.of(2025, 1, 2).plusDays(1))
+      val result = maxDate(LocalDate.of(2025, 1, 2), "error.future")(LocalDate.of(2025, 1, 2).plusDays(1))
       result mustEqual Invalid("error.future")
     }
   }
@@ -122,7 +122,7 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
 
     "must return Valid for a date after or equal to the minimum" in {
 
-      val result = minDate(LocalDate.of(2025, 1, 2) ,"error.past")(LocalDate.of(2025, 1, 2))
+      val result = minDate(LocalDate.of(2025, 1, 2), "error.past")(LocalDate.of(2025, 1, 2))
       result mustEqual Valid
     }
 

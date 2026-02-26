@@ -24,13 +24,14 @@ import views.html.WhatYouWillNeedView
 
 import scala.concurrent.Future
 
-class WhatYouWillNeedController @Inject()(override val messagesApi: MessagesApi,
-                                          identify: IdentifierAction,
-                                          checkLockout: CheckLockoutAction,
-                                          getData: DataRetrievalAction,
-                                          val controllerComponents: MessagesControllerComponents,
-                                          view: WhatYouWillNeedView)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class WhatYouWillNeedController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  checkLockout: CheckLockoutAction,
+  getData: DataRetrievalAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: WhatYouWillNeedView
+) extends MpeBaseController(identify, checkLockout, getData) {
 
   def start(): Action[AnyContent] = Action.async { _ =>
     Future.successful(

@@ -39,7 +39,8 @@ class MembersDobControllerSpec extends SpecBase {
   "Member Dob Controller" - {
     "must return OK and the correct view for a GET" in {
 
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
       running(application) {
@@ -57,8 +58,12 @@ class MembersDobControllerSpec extends SpecBase {
 
     "must return OK and pre-fill the form when data is already present" in {
       val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        .set(MembersDobPage, MembersDob(LocalDate.of(2014, 3, 10))).success.value
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2014, 3, 10)))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers).build()
 
@@ -70,7 +75,8 @@ class MembersDobControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[MembersDobView]
         val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
         val expectedForm: Form[MembersDob] = form.fill(MembersDob(LocalDate.of(2014, 3, 10)))
-        val expectedViewString: String = view(expectedForm, viewModel, "Pearl Harvey")(request, messages(application)).toString
+        val expectedViewString: String =
+          view(expectedForm, viewModel, "Pearl Harvey")(request, messages(application)).toString
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual expectedViewString
@@ -78,15 +84,13 @@ class MembersDobControllerSpec extends SpecBase {
     }
 
     "must save the form data and redirect on valid submission" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
-          .withFormUrlEncodedBody(
-            "dateOfBirth.day" -> "10",
-            "dateOfBirth.month" -> "10",
-            "dateOfBirth.year" -> "2024")
+          .withFormUrlEncodedBody("dateOfBirth.day" -> "10", "dateOfBirth.month" -> "10", "dateOfBirth.year" -> "2024")
 
         val result = route(application, request).value
 
@@ -97,7 +101,8 @@ class MembersDobControllerSpec extends SpecBase {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
@@ -118,7 +123,10 @@ class MembersDobControllerSpec extends SpecBase {
           .copy(errors = Seq(FormError("dateOfBirth", "membersDob.error.missing.all")))
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(
+          request,
+          messages(application)
+        ).toString
 
       }
     }
@@ -141,8 +149,13 @@ class MembersDobControllerSpec extends SpecBase {
 
       val application = applicationBuilder(userAnswers =
         emptyUserAnswers
-          .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-          .set(page = ResultsPage, value = MembersResult(true)).success.value).build()
+          .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+          .success
+          .value
+          .set(page = ResultsPage, value = MembersResult(true))
+          .success
+          .value
+      ).build()
 
       running(application) {
         val request = FakeRequest(GET, onPageLoad)

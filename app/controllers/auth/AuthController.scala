@@ -26,46 +26,43 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
+class AuthController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  config: FrontendAppConfig,
+  sessionRepository: SessionRepository,
+  identify: IdentifierAction
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
-class AuthController @Inject()(val controllerComponents: MessagesControllerComponents,
-                               config: FrontendAppConfig,
-                               sessionRepository: SessionRepository,
-                               identify: IdentifierAction)
-                              (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
-
-  def signOut(): Action[AnyContent] = identify.async {
-    implicit request =>
-      sessionRepository
-        .clear(request.userDetails.userId)
-        .map {
-          _ =>
-            Redirect(config.exitSurveyUrl).withNewSession
-        }
+  def signOut(): Action[AnyContent] = identify.async { implicit request =>
+    sessionRepository
+      .clear(request.userDetails.userId)
+      .map { _ =>
+        Redirect(config.exitSurveyUrl).withNewSession
+      }
   }
 
-  def signOutNoSurvey(): Action[AnyContent] = identify.async {
-    implicit request =>
-      sessionRepository
-        .clear(request.userDetails.userId)
-        .map {
-          _ =>
-            Redirect(config.signOutUrl, Map("continue" -> Seq(routes.SignedOutController.onPageLoad().url)))
-        }
+  def signOutNoSurvey(): Action[AnyContent] = identify.async { implicit request =>
+    sessionRepository
+      .clear(request.userDetails.userId)
+      .map { _ =>
+        Redirect(config.signOutUrl, Map("continue" -> Seq(routes.SignedOutController.onPageLoad().url)))
+      }
   }
 
-  def sessionTimeout(): Action[AnyContent] = identify.async {
-    implicit request =>
-      sessionRepository
-        .clear(request.userDetails.userId)
-        .map { _ =>
-          Redirect(
-            url = config.signOutUrl,
-            queryStringParams = Map(
-              "continue" -> Seq(config.host + routes.SessionTimeoutController.onPageLoad().url),
-              "origin" -> Seq(config.appName)
-            )
-          ).withNewSession
-        }
+  def sessionTimeout(): Action[AnyContent] = identify.async { implicit request =>
+    sessionRepository
+      .clear(request.userDetails.userId)
+      .map { _ =>
+        Redirect(
+          url = config.signOutUrl,
+          queryStringParams = Map(
+            "continue" -> Seq(config.host + routes.SessionTimeoutController.onPageLoad().url),
+            "origin" -> Seq(config.appName)
+          )
+        ).withNewSession
+      }
   }
 
   def privateBetaSignOut: Action[AnyContent] = Action {

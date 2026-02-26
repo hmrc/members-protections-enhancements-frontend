@@ -20,14 +20,12 @@ import java.time.Instant
 import scala.math.Integral.Implicits.infixIntegralOps
 
 case class LockoutExpiry(minutes: Int, seconds: Int) {
-  val isExpired: Boolean = if(minutes <= 0 && seconds <= 0) true else false
-  val roundedUpMins: Int = if(seconds > 0) minutes + 1 else minutes
+  val isExpired: Boolean = if (minutes <= 0 && seconds <= 0) true else false
+  val roundedUpMins: Int = if (seconds > 0) minutes + 1 else minutes
 }
 
 object LockoutExpiry {
-  def apply(lockoutCreated: Instant,
-            lockoutExpiry: Long,
-            currentTime: Instant): LockoutExpiry = {
+  def apply(lockoutCreated: Instant, lockoutExpiry: Long, currentTime: Instant): LockoutExpiry = {
     val expiryTime = lockoutCreated.plusSeconds(lockoutExpiry)
     val secondsLeft = expiryTime.getEpochSecond - currentTime.getEpochSecond
     val (mins: Long, secs: Long) = secondsLeft /% 60

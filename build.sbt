@@ -31,7 +31,10 @@ lazy val microservice = (project in file("."))
       "models.Mode",
       "controllers.routes._",
       "viewmodels.govuk.All._"
-    ),
+    ))
+  .settings(
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    scalafmtOnCompile := true,
     PlayKeys.playDefaultPort := 30029,
     ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*components.*;" +
       ".*Routes.*;.*viewmodels.govuk.*;",
@@ -43,7 +46,6 @@ lazy val microservice = (project in file("."))
       "-Wconf:src=routes/.*:s",
       "-Wconf:msg=unused import&src=html/.*:s"
     ),
-    libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
     pipelineStages := Seq(digest),
     Assets / pipelineStages := Seq(concat)
@@ -59,4 +61,4 @@ lazy val it =
     .enablePlugins(PlayScala)
     .dependsOn(microservice % "test->test")
 
-addCommandAlias("testc", "; clean ; coverage ; test ; it/test ; coverageReport ;")
+addCommandAlias("runTestsWithCoverage", "; clean ; coverage ; test ; it/test ; coverageReport ;")

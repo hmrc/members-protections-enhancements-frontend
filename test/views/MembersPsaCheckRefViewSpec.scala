@@ -35,7 +35,9 @@ class MembersPsaCheckRefViewSpec extends SpecBase {
   "view" - {
     "display correct guidance and text" in new Setup {
 
-      view.getElementsByTag("h1").text() mustBe messages(app)("What is Pearl Harvey's pension scheme administrator check reference?")
+      view.getElementsByTag("h1").text() mustBe messages(app)(
+        "What is Pearl Harvey's pension scheme administrator check reference?"
+      )
 
       view.html.contains(messages(app)("membersPsaCheckRef.title"))
       view.html.contains(messages(app)("membersPsaCheckRef.hint"))
@@ -55,7 +57,6 @@ class MembersPsaCheckRefViewSpec extends SpecBase {
     val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[MembersPsaCheckRefView].apply(form, viewModel, "Pearl Harvey").body
-      )
+      Jsoup.parse(app.injector.instanceOf[MembersPsaCheckRefView].apply(form, viewModel, "Pearl Harvey").body)
   }
 }

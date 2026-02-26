@@ -26,31 +26,31 @@ import views.html.ErrorTemplate
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class ClearCacheController @Inject()(override val messagesApi: MessagesApi,
-                                     val controllerComponents: MessagesControllerComponents,
-                                     identify: IdentifierAction,
-                                     checkLockout: CheckLockoutAction,
-                                     getData: DataRetrievalAction,
-                                     sessionCacheService: SessionCacheService,
-                                     view: ErrorTemplate)(implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport {
+class ClearCacheController @Inject() (
+  override val messagesApi: MessagesApi,
+  val controllerComponents: MessagesControllerComponents,
+  identify: IdentifierAction,
+  checkLockout: CheckLockoutAction,
+  getData: DataRetrievalAction,
+  sessionCacheService: SessionCacheService,
+  view: ErrorTemplate
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async { implicit request =>
-
+  def onPageLoad(): Action[AnyContent] = identify.andThen(checkLockout).andThen(getData).async { implicit request =>
     sessionCacheService
       .clear(request.userAnswers)
-      .map {
-        _ =>
-          Redirect(routes.WhatYouWillNeedController.onPageLoad().url)
+      .map { _ =>
+        Redirect(routes.WhatYouWillNeedController.onPageLoad().url)
       }
   }
 
-  def defaultError(): Action[AnyContent] = (identify andThen checkLockout andThen getData).async { implicit request =>
+  def defaultError(): Action[AnyContent] = identify.andThen(checkLockout).andThen(getData).async { implicit request =>
     sessionCacheService
       .clear(request.userAnswers)
-      .map {
-        _ =>
-          Ok(view(heading = request.messages(messagesApi).messages("journeyRecovery.startAgain.heading")))
+      .map { _ =>
+        Ok(view(heading = request.messages(messagesApi).messages("journeyRecovery.startAgain.heading")))
       }
   }
 }

@@ -22,5 +22,5 @@ import java.time.{ZoneId, ZonedDateTime}
 
 @Singleton
 class DateTimeProvider {
-  def now(zoneId: ZoneId = ZoneId.of("Europe/London")): ZonedDateTime =  ZonedDateTime.now(zoneId)
+  def now(zoneId: ZoneId = ZoneId.of("Europe/London")): ZonedDateTime = ZonedDateTime.now(zoneId)
 }

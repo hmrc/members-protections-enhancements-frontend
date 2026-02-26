@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-package models.requests
+package utils.constants
 
-import models.userAnswers.UserAnswers
-import play.api.mvc.{Request, WrappedRequest}
+object HeaderKeys {
 
-case class DataRequest[A](
-  request: Request[A],
-  userDetails: UserDetails,
-  userAnswers: UserAnswers,
-  correlationId: Option[String] = None
-) extends WrappedRequest[A](request)
+  val CORRELATION_ID = "correlationId"
+}

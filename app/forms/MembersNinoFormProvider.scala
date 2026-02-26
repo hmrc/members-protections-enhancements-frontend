@@ -26,7 +26,8 @@ class MembersNinoFormProvider @Inject() extends Mappings {
 
   private val validCharsRegex = "^[a-zA-Z\\d]+$"
 
-  private val identifierRegex: String = """^((([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT]" +
+  private val identifierRegex: String =
+    """^((([ACEHJLMOPRSWXY][A-CEGHJ-NPR-TW-Z]|B[A-CEHJ-NPR-TW-Z]|G[ACEGHJ-NPR-TW-Z]|[KT]" +
     "[A-CEGHJ-MPR-TW-Z]|N[A-CEGHJL-NPR-SW-Z]|Z[A-CEGHJ-NPR-TW-Y])[0-9]{6})[A-D]?|([0-9]{2}[A-Z]{1}[0-9]{5}))$"""
 
   private val nino = "nino"

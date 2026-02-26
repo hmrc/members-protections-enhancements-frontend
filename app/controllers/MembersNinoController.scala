@@ -30,47 +30,41 @@ import views.html.MembersNinoView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class MembersNinoController @Inject()(override val messagesApi: MessagesApi,
-                                      identify: IdentifierAction,
-                                      checkLockout: CheckLockoutAction,
-                                      getData: DataRetrievalAction,
-                                      navigator: Navigator,
-                                      service: SessionCacheService,
-                                      formProvider: MembersNinoFormProvider,
-                                      implicit val controllerComponents: MessagesControllerComponents,
-                                      view: MembersNinoView)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class MembersNinoController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  checkLockout: CheckLockoutAction,
+  getData: DataRetrievalAction,
+  navigator: Navigator,
+  service: SessionCacheService,
+  formProvider: MembersNinoFormProvider,
+  implicit val controllerComponents: MessagesControllerComponents,
+  view: MembersNinoView
+)(implicit ec: ExecutionContext)
+    extends MpeBaseController(identify, checkLockout, getData) {
 
   private val form: Form[MembersNino] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDob {
-    implicit request =>
-
-      memberDetails => _ =>
-        request.userAnswers.get(MembersNinoPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
-          case Some(value) => Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), memberDetails.fullName)))
-        }
+  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDob { implicit request => memberDetails => _ =>
+    request.userAnswers.get(MembersNinoPage) match {
+      case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
+      case Some(value) =>
+        Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), memberDetails.fullName)))
+    }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails {
-    implicit request =>
-      memberDetails =>
-        form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => {
-              Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
-            },
-            answer => {
-              for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
-                _ <- service.save(updatedAnswers)
-              } yield {
-                Redirect(navigator.nextPage(MembersNinoPage, mode, updatedAnswers))
-              }
-            }
-          )
+  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request => memberDetails =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersNinoPage), memberDetails.fullName))),
+        answer =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
+            _ <- service.save(updatedAnswers)
+          } yield Redirect(navigator.nextPage(MembersNinoPage, mode, updatedAnswers))
+      )
   }
 
 }

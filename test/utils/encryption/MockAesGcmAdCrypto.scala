@@ -34,14 +34,12 @@ trait MockAesGcmAdCrypto {
   }
 
   implicit val mockAesGcmAdCrypto: AesGcmAdCrypto = new AesGcmAdCrypto {
-    override def encrypt(valueToEncrypt: String)
-                        (implicit associatedText: String): EncryptedValue = EncryptedValue(
+    override def encrypt(valueToEncrypt: String)(implicit associatedText: String): EncryptedValue = EncryptedValue(
       value = encryptedValue,
       nonce = nonce
     )
 
-    override def decrypt(encryptedValue: EncryptedValue)
-                        (implicit associatedText: String): String =
+    override def decrypt(encryptedValue: EncryptedValue)(implicit associatedText: String): String =
       """
         |{
         | "foo": "bar"

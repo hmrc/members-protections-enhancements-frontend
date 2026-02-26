@@ -39,15 +39,15 @@ private[mappings] class LocalDateFormatter(
 ) extends Formatter[LocalDate]
     with Formatters {
 
-  private val dayText   = "day"
+  private val dayText = "day"
   private val monthText = "month"
-  private val yearText  = "year"
+  private val yearText = "year"
 
   private[mappings] def toDate(key: String, day: Int, month: Int, year: Int): Either[Seq[FormError], LocalDate] =
     Try(LocalDate.of(year, month, day)) match {
       case Success(date) =>
         Right(date)
-      case Failure(_)    =>
+      case Failure(_) =>
         Left(Seq(FormError(key, realDateKey)))
     }
 
@@ -59,30 +59,31 @@ private[mappings] class LocalDateFormatter(
     hasMonthError: Boolean = false
   ): Seq[FormError] = {
 
-    def validateDay: Boolean   = Try(day.get.toInt).toOption.exists(value => 1 to 31 contains value)
-    def validateMonth: Boolean = getMonth(month.get).exists(value => 1 to 12 contains value)
-    def validateYear: Boolean  = Try(year.get.toInt).toOption.exists(value => 1900 to LocalDate.now().getYear contains value)
+    def validateDay: Boolean = Try(day.get.toInt).toOption.exists(value => 1 to 31 contains value)
+    def validateMonth: Boolean = Try(getMonth(month)).toOption.exists(value => 1 to 12 contains value)
+    def validateYear: Boolean =
+      Try(year.get.toInt).toOption.exists(value => 1900 to LocalDate.now().getYear contains value)
 
-    val monthKey = if(hasMonthError) monthTextInvalidKey else monthInvalidKey
+    val monthKey = if (hasMonthError) monthTextInvalidKey else monthInvalidKey
 
     (day, month, year) match {
       case (Some(_), Some(_), Some(_)) =>
         (validateDay, validateMonth, validateYear) match {
-          case (true, true, true)    => Nil
-          case (false, true, true)   => Seq(FormError(s"$key.day", dayInvalidKey, Seq(dayText)))
-          case (true, false, true)  => Seq(FormError(s"$key.month", monthKey, Seq(monthText)))
-          case (true, true, false)   => Seq(FormError(s"$key.year", yearInvalidKey, Seq(yearText)))
-          case (true, false, false)  =>
+          case (true, true, true) => Nil
+          case (false, true, true) => Seq(FormError(s"$key.day", dayInvalidKey, Seq(dayText)))
+          case (true, false, true) => Seq(FormError(s"$key.month", monthKey, Seq(monthText)))
+          case (true, true, false) => Seq(FormError(s"$key.year", yearInvalidKey, Seq(yearText)))
+          case (true, false, false) =>
             Seq(
               FormError(s"$key.month", monthKey, Seq(monthText, yearText)),
               FormError(s"$key.year", yearInvalidKey, Seq(monthText, yearText))
             )
-          case (false, true, false)  =>
+          case (false, true, false) =>
             Seq(
               FormError(s"$key.day", dayInvalidKey, Seq(dayText, yearText)),
               FormError(s"$key.year", yearInvalidKey, Seq(dayText, yearText))
             )
-          case (false, false, true)  =>
+          case (false, false, true) =>
             Seq(
               FormError(s"$key.day", dayInvalidKey, Seq(dayText, monthText)),
               FormError(s"$key.month", monthKey, Seq(dayText, monthText))
@@ -94,50 +95,49 @@ private[mappings] class LocalDateFormatter(
               FormError(s"$key.year", yearInvalidKey, Seq(dayText, monthText, yearText))
             )
         }
-      case (None, Some(_), Some(_))    => Seq(FormError(s"$key.day", oneRequiredKey, Seq(dayText)))
-      case (Some(_), None, Some(_))    => Seq(FormError(s"$key.month", oneRequiredKey, Seq(monthText)))
-      case (Some(_), Some(_), None)    => Seq(FormError(s"$key.year", oneRequiredKey, Seq(yearText)))
-      case (Some(_), None, None)       =>
+      case (None, Some(_), Some(_)) => Seq(FormError(s"$key.day", oneRequiredKey, Seq(dayText)))
+      case (Some(_), None, Some(_)) => Seq(FormError(s"$key.month", oneRequiredKey, Seq(monthText)))
+      case (Some(_), Some(_), None) => Seq(FormError(s"$key.year", oneRequiredKey, Seq(yearText)))
+      case (Some(_), None, None) =>
         Seq(
           FormError(s"$key.month", twoRequiredKey, Seq(monthText, yearText)),
           FormError(s"$key.year", twoRequiredKey, Seq(monthText, yearText))
         )
-      case (None, Some(_), None)       =>
+      case (None, Some(_), None) =>
         Seq(
           FormError(s"$key.day", twoRequiredKey, Seq(dayText, yearText)),
           FormError(s"$key.year", twoRequiredKey, Seq(dayText, yearText))
         )
-      case (None, None, Some(_))       =>
+      case (None, None, Some(_)) =>
         Seq(
           FormError(s"$key.day", twoRequiredKey, Seq(dayText, monthText)),
           FormError(s"$key.month", twoRequiredKey, Seq(dayText, monthText))
         )
-      case _                           => Seq(FormError(key, allRequiredKey))
+      case _ => Seq(FormError(key, allRequiredKey))
     }
   }
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
-    val dayKey: String   = s"$key.day"
+    val dayKey: String = s"$key.day"
     val monthKey: String = s"$key.month"
-    val yearKey: String  = s"$key.year"
+    val yearKey: String = s"$key.year"
 
-    val dayValue: Option[String]   = data.get(dayKey).map(textWhitespaceRemove).filter(_.nonEmpty)
+    val dayValue: Option[String] = data.get(dayKey).map(textWhitespaceRemove).filter(_.nonEmpty)
     val monthValue: Option[String] = data.get(monthKey).map(textWhitespaceRemove).filter(_.nonEmpty)
-    val yearValue: Option[String]  = data.get(yearKey).map(textWhitespaceRemove).filter(_.nonEmpty)
+    val yearValue: Option[String] = data.get(yearKey).map(textWhitespaceRemove).filter(_.nonEmpty)
 
-    lazy val hasMonthError :Boolean = monthValue match {
+    lazy val hasMonthError: Boolean = monthValue match {
       case None => false
       case Some(value) if value.matches(numericRegexp) => false
-      case Some(value) => (checkWithPattern(value, shortMonthFormat) orElse checkWithPattern(value, longMonthFormat)).isEmpty
+      case Some(value) =>
+        checkWithPattern(value, shortMonthFormat).orElse(checkWithPattern(value, longMonthFormat)).isEmpty
     }
 
     val errors = validateDayMonthYear(key, dayValue, monthValue, yearValue, hasMonthError)
 
     errors match {
-      case Nil => toDate(key, dayValue.get.toInt,
-        getMonth(monthValue.get).get,
-          yearValue.get.toInt)
-      case _   => Left(errors)
+      case Nil => toDate(key, dayValue.getOrElse("0").toInt, getMonth(monthValue), yearValue.getOrElse("0").toInt)
+      case _ => Left(errors)
     }
   }
 
@@ -145,15 +145,16 @@ private[mappings] class LocalDateFormatter(
 
   override def unbind(key: String, value: LocalDate): Map[String, String] =
     Map(
-      s"$key.day"   -> value.getDayOfMonth.toString,
+      s"$key.day" -> value.getDayOfMonth.toString,
       s"$key.month" -> value.getMonthValue.toString,
-      s"$key.year"  -> value.getYear.toString
+      s"$key.year" -> value.getYear.toString
     )
 
-  private lazy val getMonth: String => Option[Int] = month => if(month.matches(numericRegexp)){
-    month.toIntOption
-  } else {
-    checkWithPattern(month, shortMonthFormat) orElse checkWithPattern(month, longMonthFormat)
+  private lazy val getMonth: Option[String] => Int = {
+    case month @ Some(monthStr) if monthStr.matches(numericRegexp) => monthStr.toInt
+    case month @ Some(monthStr) =>
+      checkWithPattern(monthStr, shortMonthFormat).orElse(checkWithPattern(monthStr, longMonthFormat)).getOrElse(0)
+    case _ => 0
   }
 
   private def checkWithPattern(month: String, pattern: DateTimeFormatter): Option[Int] =

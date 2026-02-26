@@ -32,11 +32,13 @@ import scala.concurrent.{ExecutionContext, Future}
 trait CheckLockoutAction extends ActionFilter[IdentifierRequest]
 
 @Singleton
-class CheckLockoutActionImpl @Inject()(val config: FrontendAppConfig,
-                                       failedAttemptService: FailedAttemptService,
-                                       sessionRepository: SessionRepository)
-                                      (implicit override val executionContext: ExecutionContext)
-  extends CheckLockoutAction with Logging {
+class CheckLockoutActionImpl @Inject() (
+  val config: FrontendAppConfig,
+  failedAttemptService: FailedAttemptService,
+  sessionRepository: SessionRepository
+)(implicit override val executionContext: ExecutionContext)
+    extends CheckLockoutAction
+    with Logging {
 
   val classLoggingContext: String = "CheckLockoutAction"
 

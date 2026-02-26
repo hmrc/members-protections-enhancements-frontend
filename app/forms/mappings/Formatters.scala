@@ -20,17 +20,16 @@ import play.api.data.FormError
 import play.api.data.format.Formatter
 
 trait Formatters {
-  private[mappings] def stringFormatter(errorKey: String,
-                                        args: Seq[String] = Seq.empty): Formatter[String] = new Formatter[String] {
-    override def bind(key: String, data: Map[String, String]): ValidationResult[String] =
-      data.get(key) match {
-        case None => Left(Seq(FormError(key, errorKey, args)))
-        case Some(s) if s.trim.isEmpty => Left(Seq(FormError(key, errorKey, args)))
-        case Some(s) => Right(s)
-      }
+  private[mappings] def stringFormatter(errorKey: String, args: Seq[String] = Seq.empty): Formatter[String] =
+    new Formatter[String] {
+      override def bind(key: String, data: Map[String, String]): ValidationResult[String] =
+        data.get(key) match {
+          case None => Left(Seq(FormError(key, errorKey, args)))
+          case Some(s) if s.trim.isEmpty => Left(Seq(FormError(key, errorKey, args)))
+          case Some(s) => Right(s)
+        }
 
-    override def unbind(key: String, value: String): Map[String, String] =
-      Map(key -> value)
-  }
+      override def unbind(key: String, value: String): Map[String, String] =
+        Map(key -> value)
+    }
 }
-

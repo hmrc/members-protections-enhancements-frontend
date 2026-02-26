@@ -26,17 +26,19 @@ import utils.encryption.MockAesGcmAdCrypto
 import java.time.Instant
 import scala.util.{Failure, Success, Try}
 
-class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto{
+class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto {
 
   "encrypt" - {
     "should encrypt user answers as per the encryption implementation" in {
       val model = UserAnswers(
         id = "id",
-        data = Json.parse(
-          """{
+        data = Json
+          .parse(
+            """{
             | "foo": "bar"
             |}""".stripMargin
-        ).as[JsObject],
+          )
+          .as[JsObject],
         lastUpdated = Instant.MIN
       )
 
@@ -94,7 +96,7 @@ class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto{
           result mustBe a[Failure[_]]
         }
       }
-      
+
       "if CYA answers already exist" - {
         val cyaModel: UserAnswers = model.copy(data = Json.obj("isChecked" -> Json.obj("isChecked" -> true)))
 

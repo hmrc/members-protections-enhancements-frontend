@@ -30,7 +30,7 @@ object UserType {
   case object Psa extends UserType {
     override val value: String = PSA
   }
-  
+
   case object Psp extends UserType {
     override val value: String = PSP
   }

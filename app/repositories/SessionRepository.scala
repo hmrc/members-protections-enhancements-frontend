@@ -31,21 +31,22 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SessionRepository @Inject()(mongoComponent: MongoComponent,
-                                  appConfig: FrontendAppConfig,
-                                  clock: Clock)
-                                 (implicit ec: ExecutionContext, aesGcmAdCrypto: AesGcmAdCrypto)
-  extends PlayMongoRepository[EncryptedUserAnswers](
-    collectionName = "user-answers",
-    mongoComponent = mongoComponent,
-    domainFormat = EncryptedUserAnswers.format,
-    indexes = Seq(IndexModel(
-      keys = Indexes.ascending("lastUpdated"),
-      indexOptions = IndexOptions()
-        .name("lastUpdatedIdx")
-        .expireAfter(appConfig.sessionDataTtl, TimeUnit.SECONDS)
-    ))
-  ) {
+class SessionRepository @Inject() (mongoComponent: MongoComponent, appConfig: FrontendAppConfig, clock: Clock)(implicit
+  ec: ExecutionContext,
+  aesGcmAdCrypto: AesGcmAdCrypto
+) extends PlayMongoRepository[EncryptedUserAnswers](
+      collectionName = "user-answers",
+      mongoComponent = mongoComponent,
+      domainFormat = EncryptedUserAnswers.format,
+      indexes = Seq(
+        IndexModel(
+          keys = Indexes.ascending("lastUpdated"),
+          indexOptions = IndexOptions()
+            .name("lastUpdatedIdx")
+            .expireAfter(appConfig.sessionDataTtl, TimeUnit.SECONDS)
+        )
+      )
+    ) {
 
   private def byId(id: String): Bson = Filters.equal("_id", id)
 
@@ -53,7 +54,7 @@ class SessionRepository @Inject()(mongoComponent: MongoComponent,
     collection
       .updateOne(
         filter = byId(id),
-        update = Updates.set("lastUpdated", Instant.now(clock)),
+        update = Updates.set("lastUpdated", Instant.now(clock))
       )
       .toFuture()
       .map(_ => true)
@@ -62,12 +63,11 @@ class SessionRepository @Inject()(mongoComponent: MongoComponent,
   def get(id: String): Future[Option[UserAnswers]] = Mdc.preservingMdc {
     implicit val associatedText: String = id
 
-    keepAlive(id).flatMap {
-      _ =>
-        collection
-          .find[EncryptedUserAnswers](byId(id))
-          .headOption()
-          .map(_.map(_.decrypt))
+    keepAlive(id).flatMap { _ =>
+      collection
+        .find[EncryptedUserAnswers](byId(id))
+        .headOption()
+        .map(_.map(_.decrypt))
     }
   }
 
@@ -77,9 +77,9 @@ class SessionRepository @Inject()(mongoComponent: MongoComponent,
 
     collection
       .replaceOne(
-        filter      = byId(updatedAnswers.id),
+        filter = byId(updatedAnswers.id),
         replacement = updatedAnswers.encrypt,
-        options     = ReplaceOptions().upsert(true)
+        options = ReplaceOptions().upsert(true)
       )
       .toFuture()
       .map(_ => ())

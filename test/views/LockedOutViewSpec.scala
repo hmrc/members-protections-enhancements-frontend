@@ -44,7 +44,6 @@ class LockedOutViewSpec extends SpecBase {
     }
   }
 
-
   trait Setup {
     val app: Application = applicationBuilder(emptyUserAnswers).build()
     implicit val msg: Messages = messages(app)

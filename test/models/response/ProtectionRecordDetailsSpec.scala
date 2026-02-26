@@ -22,29 +22,33 @@ import models.response.RecordTypeMapped.FixedProtection2016
 import play.api.libs.json.*
 
 class ProtectionRecordDetailsSpec extends SpecBase {
-  val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
-    ProtectionRecord(
-      protectionReference = Some("some-id"),
-      `type` = FixedProtection2016,
-      status = Active,
-      protectedAmount = Some(1),
-      lumpSumAmount = Some(1),
-      lumpSumPercentage = Some(1),
-      enhancementFactor = Some(0.5)
+  val testModel: ProtectionRecordDetails = ProtectionRecordDetails(
+    Seq(
+      ProtectionRecord(
+        protectionReference = Some("some-id"),
+        `type` = FixedProtection2016,
+        status = Active,
+        protectedAmount = Some(1),
+        lumpSumAmount = Some(1),
+        lumpSumPercentage = Some(1),
+        enhancementFactor = Some(0.5)
+      )
     )
-  ))
+  )
 
-  val nonActive: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
-    ProtectionRecord(
-      protectionReference = Some("some-id"),
-      `type` = FixedProtection2016,
-      status = Dormant,
-      protectedAmount = Some(1),
-      lumpSumAmount = Some(1),
-      lumpSumPercentage = Some(1),
-      enhancementFactor = Some(0.5)
+  val nonActive: ProtectionRecordDetails = ProtectionRecordDetails(
+    Seq(
+      ProtectionRecord(
+        protectionReference = Some("some-id"),
+        `type` = FixedProtection2016,
+        status = Dormant,
+        protectedAmount = Some(1),
+        lumpSumAmount = Some(1),
+        lumpSumPercentage = Some(1),
+        enhancementFactor = Some(0.5)
+      )
     )
-  ))
+  )
 
   val testJson: JsValue = Json.parse(
     """
@@ -63,7 +67,6 @@ class ProtectionRecordDetailsSpec extends SpecBase {
       |}
     """.stripMargin
   )
-
 
   "reads" -> {
     "return a JsError when reading from invalid JSON" in {

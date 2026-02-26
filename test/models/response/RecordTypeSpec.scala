@@ -17,7 +17,10 @@
 package models.response
 
 import base.SpecBase
-import models.response.PensionCreditLegislation.{`PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`, `SECTION 220 FINANCE ACT 2004`}
+import models.response.PensionCreditLegislation.{
+  `PARAGRAPH 18 SCHEDULE 36 FINANCE ACT 2004`,
+  `SECTION 220 FINANCE ACT 2004`
+}
 import models.response.RecordType.*
 import play.api.libs.json.*
 
@@ -26,23 +29,23 @@ class RecordTypeSpec extends SpecBase {
 
   "round test" -> {
     val values: Seq[(String, RecordType)] = Seq(
-       "FIXED PROTECTION" -> `FIXED PROTECTION`,
-       "FIXED PROTECTION 2014" -> `FIXED PROTECTION 2014`,
-       "FIXED PROTECTION 2016" -> `FIXED PROTECTION 2016`,
-       "INDIVIDUAL PROTECTION 2014" -> `INDIVIDUAL PROTECTION 2014`,
-       "INDIVIDUAL PROTECTION 2016" -> `INDIVIDUAL PROTECTION 2016`,
-       "ENHANCED PROTECTION" -> `ENHANCED PROTECTION`,
-       "PRIMARY PROTECTION" -> `PRIMARY PROTECTION`,
-       "INTERNATIONAL ENHANCEMENT S221" -> `INTERNATIONAL ENHANCEMENT S221`,
-       "INTERNATIONAL ENHANCEMENT S224" -> `INTERNATIONAL ENHANCEMENT S224`,
+      "FIXED PROTECTION" -> `FIXED PROTECTION`,
+      "FIXED PROTECTION 2014" -> `FIXED PROTECTION 2014`,
+      "FIXED PROTECTION 2016" -> `FIXED PROTECTION 2016`,
+      "INDIVIDUAL PROTECTION 2014" -> `INDIVIDUAL PROTECTION 2014`,
+      "INDIVIDUAL PROTECTION 2016" -> `INDIVIDUAL PROTECTION 2016`,
+      "ENHANCED PROTECTION" -> `ENHANCED PROTECTION`,
+      "PRIMARY PROTECTION" -> `PRIMARY PROTECTION`,
+      "INTERNATIONAL ENHANCEMENT S221" -> `INTERNATIONAL ENHANCEMENT S221`,
+      "INTERNATIONAL ENHANCEMENT S224" -> `INTERNATIONAL ENHANCEMENT S224`,
       // Also check that LTA protections are correctly read and mapped
-       "FIXED PROTECTION LTA" -> `FIXED PROTECTION`,
-       "FIXED PROTECTION 2014 LTA" -> `FIXED PROTECTION 2014`,
-       "FIXED PROTECTION 2016 LTA" -> `FIXED PROTECTION 2016`,
-       "INDIVIDUAL PROTECTION 2014 LTA" -> `INDIVIDUAL PROTECTION 2014`,
-       "INDIVIDUAL PROTECTION 2016 LTA" -> `INDIVIDUAL PROTECTION 2016`,
-       "ENHANCED PROTECTION LTA" -> `ENHANCED PROTECTION`,
-       "PRIMARY PROTECTION LTA" -> `PRIMARY PROTECTION`
+      "FIXED PROTECTION LTA" -> `FIXED PROTECTION`,
+      "FIXED PROTECTION 2014 LTA" -> `FIXED PROTECTION 2014`,
+      "FIXED PROTECTION 2016 LTA" -> `FIXED PROTECTION 2016`,
+      "INDIVIDUAL PROTECTION 2014 LTA" -> `INDIVIDUAL PROTECTION 2014`,
+      "INDIVIDUAL PROTECTION 2016 LTA" -> `INDIVIDUAL PROTECTION 2016`,
+      "ENHANCED PROTECTION LTA" -> `ENHANCED PROTECTION`,
+      "PRIMARY PROTECTION LTA" -> `PRIMARY PROTECTION`
     )
 
     for ((stringValue, expectedModel) <- values) enumRoundTest(stringValue, toTypeJsString, expectedModel)
@@ -53,10 +56,10 @@ class RecordTypeSpec extends SpecBase {
       val result: JsResult[RecordType] = toTypeJsString("INTERNATIONAL ENHANCEMENT S221 LTA").validate[RecordType]
       result mustBe a[JsError]
       val errorResult = result.asInstanceOf[JsError]
-      errorResult.errors must have length 1
+      (errorResult.errors must have).length(1)
       val (path, msgs) = errorResult.errors.head
       path.toString() mustBe "/type"
-      msgs must have length 1
+      (msgs must have).length(1)
       msgs.head.message mustBe "error.expected.RecordType"
     }
 
@@ -90,9 +93,9 @@ class RecordTypeSpec extends SpecBase {
       val result = json.validate[RecordType]
       result mustBe a[JsError]
       val errorResult = result.asInstanceOf[JsError]
-      errorResult.errors must have length 1
+      (errorResult.errors must have).length(1)
       val (_, msg) = errorResult.errors.head
-      msg must have length 1
+      (msg must have).length(1)
       msg.head.message mustBe "error.expected.RecordType"
 
     }
@@ -141,9 +144,9 @@ class RecordTypeSpec extends SpecBase {
         val result = json.validate[RecordType]
         result mustBe a[JsError]
         val errorResult = result.asInstanceOf[JsError]
-        errorResult.errors must have length 1
+        (errorResult.errors must have).length(1)
         val (_, msg) = errorResult.errors.head
-        msg must have length 1
+        (msg must have).length(1)
         msg.head.message mustBe "error.expected.RecordType"
       }
 
@@ -159,7 +162,7 @@ class RecordTypeSpec extends SpecBase {
         val result = json.validate[RecordType]
         result mustBe a[JsError]
         val errorResult = result.asInstanceOf[JsError]
-        errorResult.errors must have length 1
+        (errorResult.errors must have).length(1)
         val (jsPath, validationErrors) = errorResult.errors.head
         jsPath.toString() mustBe "/pensionCreditLegislation"
         validationErrors.head.messages mustBe List("error.path.missing")
@@ -178,7 +181,7 @@ class RecordTypeSpec extends SpecBase {
         val result = json.validate[RecordType]
         result mustBe a[JsError]
         val errorResult = result.asInstanceOf[JsError]
-        errorResult.errors must have length 1
+        (errorResult.errors must have).length(1)
         val (jsPath, validationErrors) = errorResult.errors.head
         jsPath.toString() mustBe "/pensionCreditLegislation"
         validationErrors.head.messages mustBe List("error.expected.PensionCreditLegislation")

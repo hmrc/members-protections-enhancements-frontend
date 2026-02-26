@@ -30,13 +30,16 @@ import views.html.LockedOutView
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class LockedOutController @Inject()(val controllerComponents: MessagesControllerComponents,
-                                    identify: IdentifierAction,
-                                    failedAttemptService: FailedAttemptService,
-                                    frontendAppConfig: FrontendAppConfig,
-                                    dateTimeProvider: DateTimeProvider,
-                                    view: LockedOutView)(implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport {
+class LockedOutController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  identify: IdentifierAction,
+  failedAttemptService: FailedAttemptService,
+  frontendAppConfig: FrontendAppConfig,
+  dateTimeProvider: DateTimeProvider,
+  view: LockedOutView
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
     implicit val userDetails: UserDetails = request.userDetails

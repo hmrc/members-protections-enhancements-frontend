@@ -31,17 +31,20 @@ import scala.concurrent.{ExecutionContext, Future}
 trait FailedAttemptService {
   def checkForLockout()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Boolean]
 
-  def handleFailedAttempt(lockoutResult: Result)(noLockoutResult: Result)
-                         (implicit userDetails: UserDetails, ec: ExecutionContext): Future[Result]
+  def handleFailedAttempt(lockoutResult: Result)(
+    noLockoutResult: Result
+  )(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Result]
 
   def getLockoutExpiry()(implicit userDetails: UserDetails): Future[Option[Instant]]
 }
 
 @Singleton
-class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedAttemptLockoutRepository,
-                                         failedAttemptCountRepository: FailedAttemptCountRepository,
-                                         frontendAppConfig: FrontendAppConfig)
-  extends FailedAttemptService with Logging {
+class FailedAttemptServiceImpl @Inject() (
+  failedAttemptLockoutRepository: FailedAttemptLockoutRepository,
+  failedAttemptCountRepository: FailedAttemptCountRepository,
+  frontendAppConfig: FrontendAppConfig
+) extends FailedAttemptService
+    with Logging {
 
   private val classLoggingContext: String = "FailedAttemptService"
 
@@ -95,9 +98,9 @@ class FailedAttemptServiceImpl @Inject()(failedAttemptLockoutRepository: FailedA
     )
   }
 
-  def handleFailedAttempt(lockoutResult: Result)
-                         (noLockoutResult: Result)
-                         (implicit userDetails: UserDetails, ec: ExecutionContext): Future[Result] = {
+  def handleFailedAttempt(
+    lockoutResult: Result
+  )(noLockoutResult: Result)(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Result] = {
     val methodLoggingContext: String = "createLockout"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
 

@@ -43,7 +43,7 @@ class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
               regexp(nameRegex, "membersName.error.invalid.firstName"),
               maxLength(nameMaxLength, "membersName.error.tooLong.firstName")
             )
-        ),
+          ),
         lastName -> text("membersName.error.required.lastName")
           .transform(stripWhitespace, identity[String])
           .verifying(
@@ -52,7 +52,7 @@ class WhatIsTheMembersNameFormProvider @Inject() extends Mappings {
               minLength(lastNameMinLength, "membersName.error.tooShort.lastName"),
               maxLength(nameMaxLength, "membersName.error.tooLong.lastName")
             )
-        ),
+          )
       )(MemberDetails.apply)(MemberDetails.unapply)
     )
 

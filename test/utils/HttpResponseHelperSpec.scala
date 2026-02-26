@@ -54,17 +54,19 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
 
   "handleResponse" should "return a valid response" in {
 
-    val testModel: ProtectionRecordDetails = ProtectionRecordDetails(Seq(
-      ProtectionRecord(
-        protectionReference = Some("some-id"),
-        `type` = FixedProtection2016,
-        status = Active,
-        protectedAmount = Some(1),
-        lumpSumAmount = Some(1),
-        lumpSumPercentage = Some(1),
-        enhancementFactor = Some(0.5)
+    val testModel: ProtectionRecordDetails = ProtectionRecordDetails(
+      Seq(
+        ProtectionRecord(
+          protectionReference = Some("some-id"),
+          `type` = FixedProtection2016,
+          status = Active,
+          protectedAmount = Some(1),
+          lumpSumAmount = Some(1),
+          lumpSumPercentage = Some(1),
+          enhancementFactor = Some(0.5)
+        )
       )
-    ))
+    )
 
     val res: String =
       """
@@ -114,13 +116,10 @@ class HttpResponseHelperSpec extends AnyFlatSpec with Matchers with ScalaCheckDr
 
 object HttpResponseHelperSpec {
 
-  def failure(): HttpResponse => MpeError = res => {
-    new HttpResponseHelper {}.handleResponse[MpeError](res.json)
-  }
+  def failure(): HttpResponse => MpeError = res => new HttpResponseHelper {}.handleResponse[MpeError](res.json)
 
-  def success(): HttpResponse => ProtectionRecordDetails = res => {
+  def success(): HttpResponse => ProtectionRecordDetails = res =>
     new HttpResponseHelper {}.handleResponse[ProtectionRecordDetails](res.json)
-  }
 
   def responseFor(status: Int, response: String): HttpResponse = HttpResponse(status, response)
 

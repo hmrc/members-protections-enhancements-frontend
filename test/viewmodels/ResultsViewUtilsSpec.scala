@@ -24,7 +24,11 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Value
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.*
-import viewmodels.ResultsViewUtils.{optValueToSummaryListRow, protectionRecordDetailsToSummaryLists, protectionRecordToSummaryList}
+import viewmodels.ResultsViewUtils.{
+  optValueToSummaryListRow,
+  protectionRecordDetailsToSummaryLists,
+  protectionRecordToSummaryList
+}
 
 class ResultsViewUtilsSpec extends SpecBase {
 
@@ -40,25 +44,31 @@ class ResultsViewUtilsSpec extends SpecBase {
       rows = Seq(
         SummaryListRow(
           Key(HtmlContent("Status")),
-          Value(HtmlContent(
-            s"""
+          Value(
+            HtmlContent(
+              s"""
                |<strong class="govuk-tag govuk-tag--green">
                |Active
                |</strong>
                |- the $recordType is valid and can be used
                |""".stripMargin
-          ))
+            )
+          )
         ),
         SummaryListRow(Key(HtmlContent("Protection reference number")), Value(HtmlContent("IP141234567890A"))),
         SummaryListRow(Key(HtmlContent("Protected amount")), Value(HtmlContent("£1,440,321")))
       ),
-      card = Some(Card(
-        title = Some(CardTitle(
-          content = HtmlContent(recordName),
-          headingLevel = Some(2)
-        )),
-        attributes = Map("id" -> recordId)
-      ))
+      card = Some(
+        Card(
+          title = Some(
+            CardTitle(
+              content = HtmlContent(recordName),
+              headingLevel = Some(2)
+            )
+          ),
+          attributes = Map("id" -> recordId)
+        )
+      )
     )
   }
 
@@ -70,10 +80,12 @@ class ResultsViewUtilsSpec extends SpecBase {
 
     "should return the expected summary list row when val exists" in new Test {
       val result: Seq[SummaryListRow] = optValueToSummaryListRow(Some("exists"), "results.lumpSumKey")
-      result mustBe Seq(SummaryListRow(
-        key = Key(HtmlContent("Lump sum")),
-        Value(HtmlContent("exists"))
-      ))
+      result mustBe Seq(
+        SummaryListRow(
+          key = Key(HtmlContent("Lump sum")),
+          Value(HtmlContent("exists"))
+        )
+      )
     }
   }
 

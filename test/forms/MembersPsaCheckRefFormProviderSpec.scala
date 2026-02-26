@@ -27,7 +27,9 @@ class MembersPsaCheckRefFormProviderSpec extends FieldBehaviours {
   val form: Form[MembersPsaCheckRef] = formProvider()
 
   ".psaCheckRef" must {
-    behave.like(mandatoryField(form, "psaCheckRef", FormError("psaCheckRef", List("membersPsaCheckRef.error.required"))))
+    behave.like(
+      mandatoryField(form, "psaCheckRef", FormError("psaCheckRef", List("membersPsaCheckRef.error.required")))
+    )
 
     behave.like(
       invalidAlphaField(
@@ -59,7 +61,7 @@ class MembersPsaCheckRefFormProviderSpec extends FieldBehaviours {
         Map("psaCheckRef" -> "!@£$%")
       )
 
-      result.errors must have length 1
+      (result.errors must have).length(1)
       result.errors.head.key mustBe "psaCheckRef"
       result.errors.head.message mustBe "membersPsaCheckRef.error.invalidCharacters"
     }

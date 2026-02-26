@@ -30,26 +30,28 @@ import viewmodels.formPage.FormPageViewModel
 import javax.inject.Inject
 import scala.concurrent.Future
 
-abstract class MpeBaseController @Inject()(identify: IdentifierAction,
-                                           checkLockout: CheckLockoutAction,
-                                           getData: DataRetrievalAction) extends FrontendBaseController with I18nSupport with Logging {
+abstract class MpeBaseController @Inject() (
+  identify: IdentifierAction,
+  checkLockout: CheckLockoutAction,
+  getData: DataRetrievalAction
+) extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
   def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
-    (identify andThen checkLockout andThen getData).async { implicit request =>
+    identify.andThen(checkLockout).andThen(getData).async { implicit request =>
       isResultsSuccessful(block(_))
     }
 
-  private def withDetail[D: Reads](questionPage: QuestionPage[D],
-                                   failureRedirect: Call,
-                                   block: D => Future[Result])
-                                  (implicit request: DataRequest[_]) = {
+  private def withDetail[D: Reads](questionPage: QuestionPage[D], failureRedirect: Call, block: D => Future[Result])(
+    implicit request: DataRequest[_]
+  ) =
     request.userAnswers.get[D](questionPage) match {
       case None =>
         Future.successful(Redirect(failureRedirect))
       case Some(value) =>
         block(value)
     }
-  }
 
   def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
     handle { implicit request =>
@@ -63,8 +65,8 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
   private type WithDetailsAndDob = MemberDetails => MembersDob => Future[Result]
 
   def handleWithMemberDob(block: DataRequest[AnyContent] => WithDetailsAndDob): Action[AnyContent] =
-    handleWithMemberDetails { implicit request =>
-      details => withDetail(
+    handleWithMemberDetails { implicit request => details =>
+      withDetail(
         questionPage = MembersDobPage,
         failureRedirect = routes.MembersDobController.onPageLoad(NormalMode),
         block = block(request)(details)
@@ -74,8 +76,8 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
   private type WithDetailsDobAndNino = MemberDetails => MembersDob => MembersNino => Future[Result]
 
   def handleWithMemberNino(block: DataRequest[AnyContent] => WithDetailsDobAndNino): Action[AnyContent] =
-    handleWithMemberDob { implicit request =>
-      details => dob => withDetail(
+    handleWithMemberDob { implicit request => details => dob =>
+      withDetail(
         questionPage = MembersNinoPage,
         failureRedirect = routes.MembersNinoController.onPageLoad(NormalMode),
         block = block(request)(details)(dob)
@@ -83,42 +85,45 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
     }
 
   private type WithAllDetails = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]
-  
+
   def handleWithAllDetails(block: DataRequest[AnyContent] => WithAllDetails): Action[AnyContent] =
-    handleWithMemberNino { implicit request =>
-      details => dob => nino => withDetail(
+    handleWithMemberNino { implicit request => details => dob => nino =>
+      withDetail(
         questionPage = MembersPsaCheckRefPage,
         failureRedirect = routes.MembersPsaCheckRefController.onPageLoad(NormalMode),
         block = block(request)(details)(dob)(nino)
       )
     }
-    
-  private type WithCheckedAnswers = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => CheckMembersDetails => Future[Result]
+
+  private type WithCheckedAnswers =
+    MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => CheckMembersDetails => Future[Result]
 
   def handleWithCheckedAnswers(block: DataRequest[AnyContent] => WithCheckedAnswers): Action[AnyContent] =
-    handleWithAllDetails { implicit request =>
-      details => dob => nino => psacr => {
+    handleWithAllDetails { implicit request => details => dob => nino => psacr =>
+      {
         def redirectCall: Call = routes.CheckYourAnswersController.onPageLoad()
-        
+
         withDetail(
           questionPage = CheckYourAnswersPage,
           failureRedirect = redirectCall,
-          block = (cya: CheckMembersDetails) => if(cya.isChecked) {
-            block(request)(details)(dob)(nino)(psacr)(cya)
-          } else {
-            Future.successful(Redirect(redirectCall))
-          }
+          block = (cya: CheckMembersDetails) =>
+            if (cya.isChecked) {
+              block(request)(details)(dob)(nino)(psacr)(cya)
+            } else {
+              Future.successful(Redirect(redirectCall))
+            }
         )
       }
     }
 
-  private def isResultsSuccessful(block: DataRequest[AnyContent] => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] = {
+  private def isResultsSuccessful(
+    block: DataRequest[AnyContent] => Future[Result]
+  )(implicit request: DataRequest[AnyContent]): Future[Result] =
     request.userAnswers.get(ResultsPage) match {
       case Some(_) =>
         Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
       case None => block(request)
     }
-  }
 
   protected def viewModel(mode: Mode, page: Page): FormPageViewModel =
     FormPageViewModel(
@@ -141,14 +146,18 @@ abstract class MpeBaseController @Inject()(identify: IdentifierAction,
     case _ => routes.WhatYouWillNeedController.onPageLoad().url
   }
 
-  def retrieveMembersRequest(memberDetails: MemberDetails,
-                             membersDob:MembersDob,
-                             membersNino:MembersNino,
-                             membersPsaCheckRef: MembersPsaCheckRef): PensionSchemeMemberRequest =
-      PensionSchemeMemberRequest(memberDetails.firstName,
-        memberDetails.lastName,
-        membersDob.strDateOfBirth,
-        membersNino.nino.filterNot(_.isWhitespace),
-        membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace))
+  def retrieveMembersRequest(
+    memberDetails: MemberDetails,
+    membersDob: MembersDob,
+    membersNino: MembersNino,
+    membersPsaCheckRef: MembersPsaCheckRef
+  ): PensionSchemeMemberRequest =
+    PensionSchemeMemberRequest(
+      memberDetails.firstName,
+      memberDetails.lastName,
+      membersDob.strDateOfBirth,
+      membersNino.nino.filterNot(_.isWhitespace),
+      membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)
+    )
 
 }

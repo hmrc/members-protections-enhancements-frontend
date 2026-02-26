@@ -30,43 +30,42 @@ import views.html.WhatIsTheMembersNameView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class WhatIsTheMembersNameController @Inject()(override val messagesApi: MessagesApi,
-                                               identify: IdentifierAction,
-                                               checkLockout: CheckLockoutAction,
-                                               getData: DataRetrievalAction,
-                                               navigator: Navigator,
-                                               service: SessionCacheService,
-                                               val controllerComponents: MessagesControllerComponents,
-                                               formProvider: WhatIsTheMembersNameFormProvider,
-                                               view: WhatIsTheMembersNameView)(implicit ec: ExecutionContext)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class WhatIsTheMembersNameController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  checkLockout: CheckLockoutAction,
+  getData: DataRetrievalAction,
+  navigator: Navigator,
+  service: SessionCacheService,
+  val controllerComponents: MessagesControllerComponents,
+  formProvider: WhatIsTheMembersNameFormProvider,
+  view: WhatIsTheMembersNameView
+)(implicit ec: ExecutionContext)
+    extends MpeBaseController(identify, checkLockout, getData) {
 
   private val form: Form[MemberDetails] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handle {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
 
-      val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
-      Future.successful(Ok(view(namesForm, viewModel(mode, WhatIsTheMembersNamePage))))
+    val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
+      case None => form
+      case Some(value) => form.fill(value)
+    }
+    Future.successful(Ok(view(namesForm, viewModel(mode, WhatIsTheMembersNamePage))))
   }
 
-
-  def onSubmit(mode: Mode): Action[AnyContent] = handle {
-    implicit request =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, WhatIsTheMembersNamePage)))
-            ),
-          answer =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))
-              _ <- service.save(updatedAnswers)
-            } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers)))
+  def onSubmit(mode: Mode): Action[AnyContent] = handle { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          Future.successful(BadRequest(view(formWithErrors, viewModel(mode, WhatIsTheMembersNamePage)))),
+        answer =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))
+            _ <- service.save(updatedAnswers)
+          } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers))
+      )
   }
 
 }

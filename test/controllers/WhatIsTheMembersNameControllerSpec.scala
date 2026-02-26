@@ -85,7 +85,8 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
     }
 
     "must return OK and pre-fill the form when data is already present" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
       running(application) {
@@ -97,7 +98,10 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
         val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(MemberDetails("Pearl", "Harvey")), viewModel)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(MemberDetails("Pearl", "Harvey")), viewModel)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -106,9 +110,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
-          .withFormUrlEncodedBody(
-            "firstName" -> "John",
-            "lastName" -> "Doe")
+          .withFormUrlEncodedBody("firstName" -> "John", "lastName" -> "Doe")
 
         val result = route(application, request).value
 
@@ -123,9 +125,7 @@ class WhatIsTheMembersNameControllerSpec extends SpecBase {
 
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
-          .withFormUrlEncodedBody(
-            "firstName" -> "",
-            "lastName" -> "Doe")
+          .withFormUrlEncodedBody("firstName" -> "", "lastName" -> "Doe")
 
         val result = route(application, request).value
 

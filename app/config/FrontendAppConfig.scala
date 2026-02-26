@@ -25,27 +25,27 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   private def loadConfig(key: String): String = configuration.get[String](key)
   private val servicesConfig = ServicesConfig(configuration)
-  
-  //Application config
-  val host: String    = loadConfig("host")
+
+  // Application config
+  val host: String = loadConfig("host")
   val appName: String = loadConfig("appName")
 
-  //Timeout config
-  val timeout: Int   = configuration.get[Int]("timeout-dialog.timeout")
+  // Timeout config
+  val timeout: Int = configuration.get[Int]("timeout-dialog.timeout")
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
-  //Lockout config
+  // Lockout config
   val lockoutThreshold: Int = configuration.get[Int]("lockout.threshold")
 
-  //MongoDB config
+  // MongoDB config
   val sessionDataTtl: Long = configuration.get[Int]("mongodb.sessionDataTtl")
   val failedAttemptTtl: Long = configuration.get[Int]("mongodb.failedAttemptTtl")
   val lockoutTtl: Long = configuration.get[Int]("mongodb.lockoutTtl")
   val useEncryption: Boolean = configuration.get[Boolean]("mongodb.encryption.enabled")
   val encryptionKey: String = configuration.get[String]("mongodb.encryption.key")
 
-  //URLs
-  val loginUrl: String         = loadConfig("urls.login")
+  // URLs
+  val loginUrl: String = loadConfig("urls.login")
   val loginContinueUrl: String = loadConfig("urls.loginContinue")
 
   private val basGatewayFrontendBaseUrl: String = servicesConfig.baseUrl("bas-gateway-frontend")
@@ -53,7 +53,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   // Feedback config
   val exitSurveyUrl: String = loadConfig("urls.signOutWithFeedback")
-
 
   private val backendUrl: String = servicesConfig.baseUrl("mpe-backend")
   val checkAndRetrieveUrl = s"$backendUrl/${loadConfig("urls.checkAndRetrieve")}"
@@ -63,14 +62,15 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   val checkLtaGuidanceUrl: String = loadConfig("urls.guidance.checkLta")
 
-  //Feature switches
+  // Feature switches
   val betaBannerEnabled: Boolean = configuration.get[Boolean]("feature-switch.betaBannerEnabled")
 
   // User allow list
   val userAllowListServiceUrl: String = servicesConfig.baseUrl("user-allow-list")
   val internalAuthToken: String = configuration.get[String]("internal-auth.token")
 
-  //Beta feedback config
-  val contactFrontendUrl: String = s"${loadConfig("urls.betaFeedbackUrl")}/?service=members-protections-and-enhancements"
+  // Beta feedback config
+  val contactFrontendUrl: String =
+    s"${loadConfig("urls.betaFeedbackUrl")}/?service=members-protections-and-enhancements"
 
 }

@@ -55,8 +55,7 @@ class WhatIsTheMembersNameViewSpec extends SpecBase {
     private val backLinkUrl = routes.WhatYouWillNeedController.onPageLoad().url
     val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[WhatIsTheMembersNameView].apply(form, viewModel).body
-      )
+      Jsoup.parse(app.injector.instanceOf[WhatIsTheMembersNameView].apply(form, viewModel).body)
   }
 
 }

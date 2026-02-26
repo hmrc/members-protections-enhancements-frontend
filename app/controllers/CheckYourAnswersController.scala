@@ -29,28 +29,36 @@ import views.html.CheckYourAnswersView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi,
-                                           identify: IdentifierAction,
-                                           checkLockout: CheckLockoutAction,
-                                           getData: DataRetrievalAction,
-                                           service: SessionCacheService,
-                                           implicit val controllerComponents: MessagesControllerComponents,
-                                           implicit val ec: ExecutionContext,
-                                           view: CheckYourAnswersView)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class CheckYourAnswersController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  checkLockout: CheckLockoutAction,
+  getData: DataRetrievalAction,
+  service: SessionCacheService,
+  implicit val controllerComponents: MessagesControllerComponents,
+  implicit val ec: ExecutionContext,
+  view: CheckYourAnswersView
+) extends MpeBaseController(identify, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = handleWithAllDetails {
-    implicit request =>
-      memberDetails => membersDob => membersNino => membersPsaCheckRef =>
-      Future.successful(Ok(
-          view(rows(memberDetails, membersDob, membersNino, membersPsaCheckRef), memberDetails.fullName,
-            Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url))))
+    implicit request => memberDetails => membersDob => membersNino => membersPsaCheckRef =>
+      Future.successful(
+        Ok(
+          view(
+            rows(memberDetails, membersDob, membersNino, membersPsaCheckRef),
+            memberDetails.fullName,
+            Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url)
+          )
+        )
+      )
   }
 
-  private def rows(memberDetails: MemberDetails,
-                   membersDob: MembersDob,
-                   membersNino: MembersNino,
-                   membersPsaCheckRef: MembersPsaCheckRef)(implicit messages: Messages): Seq[SummaryListRow] = {
+  private def rows(
+    memberDetails: MemberDetails,
+    membersDob: MembersDob,
+    membersNino: MembersNino,
+    membersPsaCheckRef: MembersPsaCheckRef
+  )(implicit messages: Messages): Seq[SummaryListRow] =
     List(
       membersFirstNameRow(memberDetails),
       membersLastNameRow(memberDetails),
@@ -58,14 +66,13 @@ class CheckYourAnswersController @Inject()(override val messagesApi: MessagesApi
       membersNinoRow(membersNino),
       membersPsaCheckRefRow(membersPsaCheckRef)
     )
-  }
 
   def onSubmit: Action[AnyContent] = handle { implicit request =>
     for {
-      updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourAnswersPage, CheckMembersDetails(isChecked = true)))
+      updatedAnswers <- Future.fromTry(
+        request.userAnswers.set(CheckYourAnswersPage, CheckMembersDetails(isChecked = true))
+      )
       _ <- service.save(updatedAnswers)
-    } yield {
-      Redirect(submitUrl(NormalMode, CheckYourAnswersPage))
-    }
+    } yield Redirect(submitUrl(NormalMode, CheckYourAnswersPage))
   }
 }

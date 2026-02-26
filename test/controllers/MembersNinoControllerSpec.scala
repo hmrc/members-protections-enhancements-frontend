@@ -41,8 +41,12 @@ class MembersNinoControllerSpec extends SpecBase {
     "must return OK and the correct view for a GET" in {
 
       val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1)))
+        .success
+        .value
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
       running(application) {
@@ -59,7 +63,8 @@ class MembersNinoControllerSpec extends SpecBase {
     }
 
     "must save the form data and redirect on valid submission" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
@@ -78,9 +83,15 @@ class MembersNinoControllerSpec extends SpecBase {
 
     "must return OK and pre-fill the form when data is already present" in {
       val userAnswers = emptyUserAnswers
-        .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey")).success.value
-        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1))).success.value
-        .set(MembersNinoPage, MembersNino("AA123456C")).success.value
+        .set(WhatIsTheMembersNamePage, MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
+        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1)))
+        .success
+        .value
+        .set(MembersNinoPage, MembersNino("AA123456C"))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers).build()
 
@@ -93,13 +104,16 @@ class MembersNinoControllerSpec extends SpecBase {
         val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(
-          MembersNino("AA123456C")), viewModel, "Pearl Harvey")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(MembersNino("AA123456C")), viewModel, "Pearl Harvey")(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
     "must redirect to MembersDob page when user haven't submitted DOB details" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
@@ -114,13 +128,13 @@ class MembersNinoControllerSpec extends SpecBase {
     }
 
     "must save the form data and redirect on valid submission when Nino is added with spaces" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
-          .withFormUrlEncodedBody(
-            "nino" -> "AA 12 34 56 C")
+          .withFormUrlEncodedBody("nino" -> "AA 12 34 56 C")
 
         val result = route(application, request).value
 
@@ -133,8 +147,12 @@ class MembersNinoControllerSpec extends SpecBase {
     "must redirect to start page for a GET if user journey is already successful" in {
 
       val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
-        .set(page = ResultsPage, value = MembersResult(true)).success.value
+        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+        .success
+        .value
+        .set(page = ResultsPage, value = MembersResult(true))
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers).build()
 
@@ -149,13 +167,13 @@ class MembersNinoControllerSpec extends SpecBase {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-      val userAnswers = emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
+      val userAnswers =
+        emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers).build()
 
       running(application) {
         val request = FakeRequest(POST, onSubmit.url)
-          .withFormUrlEncodedBody(
-            "nino" -> "")
+          .withFormUrlEncodedBody("nino" -> "")
 
         val result = route(application, request).value
 
@@ -164,7 +182,10 @@ class MembersNinoControllerSpec extends SpecBase {
         val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(request, messages(application)).toString
+        contentAsString(result) mustEqual view(formWithErrors, viewModel, "Pearl Harvey")(
+          request,
+          messages(application)
+        ).toString
 
       }
     }

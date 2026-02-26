@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package models.allowlist
+package utils.constants
 
-import play.api.libs.json.{Json, OFormat}
+object ErrorCodes {
 
-final case class CheckRequest(value: String)
-
-object CheckRequest {
-
-  implicit lazy val format: OFormat[CheckRequest] = Json.format
+  val INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR"
+  val NOT_FOUND = "NOT_FOUND"
+  val NO_MATCH = "NO_MATCH"
+  val EMPTY_DATA = "EMPTY_DATA"
 }

@@ -23,7 +23,9 @@ case class MembersNino(nino: String)
 object MembersNino {
   implicit val format: OFormat[MembersNino] = Json.format[MembersNino]
 
-  def apply(nino: String): MembersNino = new MembersNino(nino.toUpperCase.filterNot(_.isWhitespace).replaceAll("..(?!$)", "$0 "))
+  def apply(nino: String): MembersNino = new MembersNino(
+    nino.toUpperCase.filterNot(_.isWhitespace).replaceAll("..(?!$)", "$0 ")
+  )
 
   def unapply(membersNino: MembersNino): Option[String] = Some(membersNino.nino)
 }

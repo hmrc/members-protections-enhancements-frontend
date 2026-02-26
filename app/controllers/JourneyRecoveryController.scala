@@ -27,25 +27,27 @@ import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
 
 import javax.inject.Inject
 
-class JourneyRecoveryController @Inject()(val controllerComponents: MessagesControllerComponents,
-                                          identify: IdentifierAction,
-                                          getData: DataRetrievalAction,
-                                          continueView: JourneyRecoveryContinueView,
-                                          startAgainView: JourneyRecoveryStartAgainView)
-  extends FrontendBaseController with I18nSupport with Logging {
+class JourneyRecoveryController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  continueView: JourneyRecoveryContinueView,
+  startAgainView: JourneyRecoveryStartAgainView
+) extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
-  def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = (identify andThen getData) {
+  def onPageLoad(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = identify.andThen(getData) {
     implicit request =>
 
-      val safeUrl: Option[String] = continueUrl.flatMap {
-        unsafeUrl =>
-          unsafeUrl.getEither(OnlyRelative) match {
-            case Right(safeUrl) =>
-              Some(safeUrl.url)
-            case Left(message) =>
-              logger.info(message)
-              None
-          }
+      val safeUrl: Option[String] = continueUrl.flatMap { unsafeUrl =>
+        unsafeUrl.getEither(OnlyRelative) match {
+          case Right(safeUrl) =>
+            Some(safeUrl.url)
+          case Left(message) =>
+            logger.info(message)
+            None
+        }
       }
 
       safeUrl

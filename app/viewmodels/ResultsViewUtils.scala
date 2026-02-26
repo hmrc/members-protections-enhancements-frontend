@@ -24,30 +24,36 @@ import utils.CurrencyFormats
 
 object ResultsViewUtils {
 
-  protected[viewmodels] def optValueToSummaryListRow(valueOpt: Option[String], keyString: String)
-                                                    (implicit messages: Messages): Seq[SummaryListRow] =
+  protected[viewmodels] def optValueToSummaryListRow(valueOpt: Option[String], keyString: String)(implicit
+    messages: Messages
+  ): Seq[SummaryListRow] =
     valueOpt.fold(Seq.empty[SummaryListRow])(value =>
-      Seq(SummaryListRow(
-        key = Key(HtmlContent(messages(keyString))),
-        value = Value(HtmlContent(value))
-      ))
+      Seq(
+        SummaryListRow(
+          key = Key(HtmlContent(messages(keyString))),
+          value = Value(HtmlContent(value))
+        )
+      )
     )
 
-  def protectionRecordToSummaryList(protectionRecord: ProtectionRecord)
-                                   (implicit messages: Messages): SummaryList = {
+  def protectionRecordToSummaryList(protectionRecord: ProtectionRecord)(implicit messages: Messages): SummaryList = {
     import protectionRecord.*
 
-    val summaryListRows: Seq[SummaryListRow] = Seq(SummaryListRow(
-      key = Key(HtmlContent(messages("results.statusKey"))),
-      value = Value(HtmlContent(
-        s"""
+    val summaryListRows: Seq[SummaryListRow] = Seq(
+      SummaryListRow(
+        key = Key(HtmlContent(messages("results.statusKey"))),
+        value = Value(
+          HtmlContent(
+            s"""
            |<strong class="govuk-tag govuk-tag--${status.colourString}">
            |${messages(status.toNameMessagesString)}
            |</strong>
            |${messages(status.toDescriptionMessagesString(`type`))}
            |""".stripMargin
-      ))
-    )) ++
+          )
+        )
+      )
+    ) ++
       optValueToSummaryListRow(protectionReference, "results.protectionRefNumKey") ++
       optValueToSummaryListRow(CurrencyFormats.formatOptInt(protectedAmount), "results.protectedAmtKey") ++
       optValueToSummaryListRow(CurrencyFormats.formatOptInt(lumpSumAmount), "results.lumpSumKey") ++
@@ -56,18 +62,22 @@ object ResultsViewUtils {
 
     SummaryList(
       rows = summaryListRows,
-      card = Some(Card(
-        title = Some(CardTitle(
-          content = HtmlContent(messages(`type`.toMessagesString)),
-          headingLevel = Some(2)
-        )),
-        attributes = Map("id" -> `type`.getClass.getSimpleName.dropRight(1))
-      ))
+      card = Some(
+        Card(
+          title = Some(
+            CardTitle(
+              content = HtmlContent(messages(`type`.toMessagesString)),
+              headingLevel = Some(2)
+            )
+          ),
+          attributes = Map("id" -> `type`.getClass.getSimpleName.dropRight(1))
+        )
+      )
     )
   }
 
-  def protectionRecordDetailsToSummaryLists(protectionRecordDetails: ProtectionRecordDetails)
-                                           (implicit messages: Messages): Seq[SummaryList] = {
+  def protectionRecordDetailsToSummaryLists(protectionRecordDetails: ProtectionRecordDetails)(implicit
+    messages: Messages
+  ): Seq[SummaryList] =
     protectionRecordDetails.ordered.map(protectionRecordToSummaryList)
-  }
 }

@@ -19,26 +19,28 @@ package models.response
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.{JsPath, Reads}
 
-case class ProtectionRecord(protectionReference: Option[String],
-                            `type`: RecordTypeMapped,
-                            status: RecordStatusMapped,
-                            protectedAmount: Option[Int],
-                            lumpSumAmount: Option[Int],
-                            lumpSumPercentage: Option[Int],
-                            enhancementFactor: Option[Double]) {
+case class ProtectionRecord(
+  protectionReference: Option[String],
+  `type`: RecordTypeMapped,
+  status: RecordStatusMapped,
+  protectedAmount: Option[Int],
+  lumpSumAmount: Option[Int],
+  lumpSumPercentage: Option[Int],
+  enhancementFactor: Option[Double]
+) {
 
   lazy val lumpSumPercentHtmlStringOpt: Option[String] = lumpSumPercentage.map(_.toString + "%")
   lazy val enhancementFactorHtmlStringOpt: Option[String] = enhancementFactor.map(_.toString)
 }
 
 object ProtectionRecord {
-  implicit val reads: Reads[ProtectionRecord] = (
-    (JsPath \ "protectionReference").readNullable[String] and
-      JsPath.read[RecordTypeMapped] and
-      (JsPath \ "status").read[RecordStatusMapped] and
-      (JsPath \ "protectedAmount").readNullable[Int] and
-      (JsPath \ "lumpSumAmount").readNullable[Int] and
-      (JsPath \ "lumpSumPercentage").readNullable[Int] and
-      (JsPath \ "enhancementFactor").readNullable[Double]
-    )(ProtectionRecord.apply _)
+  implicit val reads: Reads[ProtectionRecord] =
+    (JsPath \ "protectionReference")
+      .readNullable[String]
+      .and(JsPath.read[RecordTypeMapped])
+      .and((JsPath \ "status").read[RecordStatusMapped])
+      .and((JsPath \ "protectedAmount").readNullable[Int])
+      .and((JsPath \ "lumpSumAmount").readNullable[Int])
+      .and((JsPath \ "lumpSumPercentage").readNullable[Int])
+      .and((JsPath \ "enhancementFactor").readNullable[Double])(ProtectionRecord.apply _)
 }

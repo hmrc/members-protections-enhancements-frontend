@@ -35,22 +35,23 @@ import java.time.temporal.ChronoUnit
 import java.time.{Clock, Instant, ZoneId}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SessionRepositorySpec extends AnyFreeSpec
-  with Matchers
-  with PlayMongoRepositorySupport[EncryptedUserAnswers]
-  with BeforeAndAfterEach
-  with ScalaFutures
-  with MockitoSugar
-  with OptionValues
-  with MockAesGcmAdCrypto {
+class SessionRepositorySpec
+    extends AnyFreeSpec
+    with Matchers
+    with PlayMongoRepositorySupport[EncryptedUserAnswers]
+    with BeforeAndAfterEach
+    with ScalaFutures
+    with MockitoSugar
+    with OptionValues
+    with MockAesGcmAdCrypto {
 
   private val instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
 
   private val mockAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.sessionDataTtl) thenReturn 1L
+  when(mockAppConfig.sessionDataTtl).thenReturn(1L)
 
-  protected override val repository: SessionRepository = new SessionRepository(
+  override protected val repository: SessionRepository = new SessionRepository(
     mongoComponent = mongoComponent,
     appConfig = mockAppConfig,
     clock = stubClock
@@ -82,7 +83,7 @@ class SessionRepositorySpec extends AnyFreeSpec
         insert(userAnswers.encrypt).futureValue
 
         val result = repository.get(userAnswers.id).futureValue
-        val expectedResult = userAnswers copy (lastUpdated = instant)
+        val expectedResult = userAnswers.copy(lastUpdated = instant)
 
         result.value mustEqual expectedResult
       }

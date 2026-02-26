@@ -23,9 +23,11 @@ import views.html.PrivateBetaUnauthorisedView
 
 import javax.inject.Inject
 
-class PrivateBetaUnauthorisedController @Inject()(val controllerComponents: MessagesControllerComponents,
-                                                  view: PrivateBetaUnauthorisedView)
-  extends FrontendBaseController with I18nSupport {
+class PrivateBetaUnauthorisedController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  view: PrivateBetaUnauthorisedView
+) extends FrontendBaseController
+    with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = Action { implicit request =>
     Ok(view())

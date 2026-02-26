@@ -21,9 +21,9 @@ import play.api.mvc.Call
 import viewmodels.DisplayMessage.Message
 
 case class FormPageViewModel(
-                              mode: Mode = NormalMode,
-                              buttonText: Message = Message("site.continue"),
-                              onSubmit: Call,
-                              backLinkUrl: Option[String] = None,
-                              showBackLink: Boolean = true
-                            )
+  mode: Mode = NormalMode,
+  buttonText: Message = Message("site.continue"),
+  onSubmit: Call,
+  backLinkUrl: Option[String] = None,
+  showBackLink: Boolean = true
+)

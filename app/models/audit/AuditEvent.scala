@@ -17,8 +17,8 @@
 package models.audit
 
 case class AuditEvent[T](
-    auditType: String,
-    transactionName: String,
-    path: String,
-    detail: T
+  auditType: String,
+  transactionName: String,
+  path: String,
+  detail: T
 )

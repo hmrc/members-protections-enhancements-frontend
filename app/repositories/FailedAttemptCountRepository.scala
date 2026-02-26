@@ -40,29 +40,32 @@ trait FailedAttemptCountRepository {
 }
 
 @Singleton
-class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
-                                                 frontendAppConfig: FrontendAppConfig,
-                                                 timestampSupport: TimestampSupport)
-                                                (implicit ec: ExecutionContext)
-  extends PlayMongoRepository[CacheUserDetails](
-    collectionName = "failed-attempt-count",
-    mongoComponent = mongoComponent,
-    domainFormat = CacheUserDetails.mongoFormat,
-    indexes = Seq(
-      IndexModel(
-        Indexes.ascending("createdAt"),
-        IndexOptions()
-          .name("createdAtIndex")
-          .expireAfter(frontendAppConfig.failedAttemptTtl, TimeUnit.SECONDS)
+class FailedAttemptCountRepositoryImpl @Inject() (
+  mongoComponent: MongoComponent,
+  frontendAppConfig: FrontendAppConfig,
+  timestampSupport: TimestampSupport
+)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[CacheUserDetails](
+      collectionName = "failed-attempt-count",
+      mongoComponent = mongoComponent,
+      domainFormat = CacheUserDetails.mongoFormat,
+      indexes = Seq(
+        IndexModel(
+          Indexes.ascending("createdAt"),
+          IndexOptions()
+            .name("createdAtIndex")
+            .expireAfter(frontendAppConfig.failedAttemptTtl, TimeUnit.SECONDS)
+        ),
+        IndexModel(
+          Indexes.ascending("psrUserId"),
+          IndexOptions()
+            .name("psrUserIdIndex")
+        )
       ),
-      IndexModel(
-        Indexes.ascending("psrUserId"),
-        IndexOptions()
-          .name("psrUserIdIndex")
-      )
-    ),
-    replaceIndexes = true
-  ) with FailedAttemptCountRepository with Logging {
+      replaceIndexes = true
+    )
+    with FailedAttemptCountRepository
+    with Logging {
 
   val classLoggingContext: String = "FailedAttemptCountRepository"
 
@@ -88,12 +91,12 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
           logger.warn(s"$fullLoggingContext - Failed attempt was not added successfully to cache")
           throw new CacheException("Failed to add user failed attempt to cache")
       }
-      .recover {
-        case ex: MongoException =>
-          logger.warn(s"$fullLoggingContext - " +
+      .recover { case ex: MongoException =>
+        logger.warn(
+          s"$fullLoggingContext - " +
             s"MongoDB returned an error while attempting to cache failed attempt with error message: ${ex.getMessage}"
-          )
-          throw ex
+        )
+        throw ex
       }
   }
 
@@ -108,16 +111,16 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
         filter = Filters.equal(fieldName = "psrUserId", value = userDetails.psrUserId)
       )
       .toFuture()
-      .map(res => {
+      .map { res =>
         logger.info(s"Successfully retrieved failed attempt count of: $res")
         res
-      })
-      .recover {
-        case ex: MongoException =>
-          logger.warn(s"$fullLoggingContext - " +
+      }
+      .recover { case ex: MongoException =>
+        logger.warn(
+          s"$fullLoggingContext - " +
             s"MongoDB returned an error during failed attempt count with error message: ${ex.getMessage}"
-          )
-          throw ex
+        )
+        throw ex
       }
   }
 
@@ -141,13 +144,12 @@ class FailedAttemptCountRepositoryImpl @Inject()(mongoComponent: MongoComponent,
             error = CacheException("Failed to add remove failed attempts from cache")
           )
       }
-      .recover {
-        case ex: MongoException =>
-          logger.error(
-            message = s"$fullLoggingContext - MongoDB returned an error during failed attempt deletion with error message: ${ex.getMessage}",
-            error = ex
-          )
+      .recover { case ex: MongoException =>
+        logger.error(
+          message =
+            s"$fullLoggingContext - MongoDB returned an error during failed attempt deletion with error message: ${ex.getMessage}",
+          error = ex
+        )
       }
   }
 }
-

@@ -42,7 +42,6 @@ class MembersNinoViewSpec extends SpecBase {
     }
   }
 
-
   trait Setup {
 
     val app: Application = applicationBuilder(emptyUserAnswers).build()
@@ -56,8 +55,7 @@ class MembersNinoViewSpec extends SpecBase {
     val viewModel: FormPageViewModel = getFormPageViewModel(onSubmit, backLinkUrl)
 
     val view: Document =
-      Jsoup.parse(app.injector.instanceOf[MembersNinoView].apply(form, viewModel, "Pearl Harvey").body
-      )
+      Jsoup.parse(app.injector.instanceOf[MembersNinoView].apply(form, viewModel, "Pearl Harvey").body)
   }
 
 }

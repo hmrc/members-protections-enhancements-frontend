@@ -18,15 +18,12 @@ package controllers.actions
 
 import base.SpecBase
 import config.{Constants, FrontendAppConfig}
-import connectors.UserAllowListConnector
 import controllers.routes
 import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
 import models.requests.UserDetails
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Results.Ok
 import play.api.mvc.{Action, AnyContent, BodyParsers, Result}
@@ -42,7 +39,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParsersFactory {
 
   private val mockAuthConnector: AuthConnector = mock[AuthConnector]
-  private val mockUserAllowListConnector: UserAllowListConnector = mock[UserAllowListConnector]
   private val bodyParsers: BodyParsers.Default = mock[BodyParsers.Default]
 
   def authAction(appConfig: FrontendAppConfig) =
@@ -55,10 +51,24 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
   class Handler(appConfig: FrontendAppConfig) {
     def run: Action[AnyContent] = authAction(appConfig) {
       case AdministratorRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
-        Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "psaId" -> psrUserId, "affinityGroup" -> affinityGroup))
+        Ok(
+          Json.obj(
+            "psrUserType" -> psrUserType,
+            "userId" -> userId,
+            "psaId" -> psrUserId,
+            "affinityGroup" -> affinityGroup
+          )
+        )
 
       case PractitionerRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
-        Ok(Json.obj("psrUserType" -> psrUserType, "userId" -> userId, "pspId" -> psrUserId, "affinityGroup" -> affinityGroup))
+        Ok(
+          Json.obj(
+            "psrUserType" -> psrUserType,
+            "userId" -> userId,
+            "pspId" -> psrUserId,
+            "affinityGroup" -> affinityGroup
+          )
+        )
     }
   }
 
@@ -66,10 +76,12 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
   def handler(implicit app: Application): Handler = new Handler(appConfig)
 
-  def authResult(affinityGroup: Option[AffinityGroup],
-                 internalId: Option[String],
-                 enrolments: Enrolment*): Option[String] ~ Option[AffinityGroup] ~ Enrolments =
-    internalId and affinityGroup and Enrolments(enrolments.toSet)
+  def authResult(
+    affinityGroup: Option[AffinityGroup],
+    internalId: Option[String],
+    enrolments: Enrolment*
+  ): Option[String] ~ Option[AffinityGroup] ~ Enrolments =
+    internalId.and(affinityGroup).and(Enrolments(enrolments.toSet))
 
   val psaEnrolment: Enrolment =
     Enrolment(Constants.psaEnrolmentKey, Seq(EnrolmentIdentifier(Constants.psaIdKey, "A2100001")), "Activated")
@@ -96,13 +108,14 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         redirectLocation(result) mustBe Some(expectedUrl)
       }
 
-      "Redirect user to unauthorised page when authorise fails to match predicate" in runningApplication { implicit app =>
-        setAuthValue(Future.failed(new AuthorisationException("Authorise predicate fails") {}))
+      "Redirect user to unauthorised page when authorise fails to match predicate" in runningApplication {
+        implicit app =>
+          setAuthValue(Future.failed(new AuthorisationException("Authorise predicate fails") {}))
 
-        val result = handler.run(FakeRequest())
-        val expectedUrl = routes.UnauthorisedController.onPageLoad().url
+          val result = handler.run(FakeRequest())
+          val expectedUrl = routes.UnauthorisedController.onPageLoad().url
 
-        redirectLocation(result) mustBe Some(expectedUrl)
+          redirectLocation(result) mustBe Some(expectedUrl)
       }
 
       "Redirect to Unauthorised page when user does not have an Internal Id" in runningApplication { implicit app =>
@@ -156,35 +169,12 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
         (contentAsJson(result) \ "pspId").asOpt[String] mustBe Some("21000002")
         (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
       }
-
-      "user is valid and exists in user allow list" in {
-
-        val servicesConfig: Map[String, Any] = Map(
-          "feature-switch.privateBetaEnabled"  -> true
-        )
-        val application: Application = new GuiceApplicationBuilder()
-          .configure(servicesConfig)
-          .overrides(
-            bind[IdentifierAction].toInstance(fakePsaIdentifierAction),
-            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(emptyUserAnswers))
-          ).build()
-
-        running(application) {
-          setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
-          when(mockUserAllowListConnector.check(any(), any())(any())).thenReturn(Future.successful(true))
-          val result = handler(application).run(FakeRequest().withSession(SessionKeys.sessionId -> "foo"))
-
-          status(result) mustBe OK
-          (contentAsJson(result) \ "psaId").asOpt[String] mustBe Some("A2100001")
-          (contentAsJson(result) \ "userId").asOpt[String] mustBe Some("internalId")
-        }
-      }
     }
 
     "handle exceptions during block invocation" in runningApplication { implicit app =>
       setAuthValue(authResult(Some(AffinityGroup.Individual), Some("internalId"), psaEnrolment))
 
-      case class ExceptionHandler(appConfig: FrontendAppConfig) extends Handler(appConfig){
+      case class ExceptionHandler(appConfig: FrontendAppConfig) extends Handler(appConfig) {
         override def run: Action[AnyContent] = authAction(appConfig) { _ =>
           throw new RuntimeException("An exception")
         }
@@ -227,4 +217,3 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
   }
 
 }
-

@@ -36,18 +36,21 @@ import scala.concurrent.{ExecutionContext, Future}
 trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent]
 
 @Singleton
-class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthConnector,
-                                              config: FrontendAppConfig,
-                                              playBodyParsers: BodyParsers.Default)
-                                             (implicit override val executionContext: ExecutionContext)
-  extends IdentifierAction with AuthorisedFunctions with Logging {
+class AuthenticatedIdentifierAction @Inject() (
+  override val authConnector: AuthConnector,
+  config: FrontendAppConfig,
+  playBodyParsers: BodyParsers.Default
+)(implicit override val executionContext: ExecutionContext)
+    extends IdentifierAction
+    with AuthorisedFunctions
+    with Logging {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
     val logContext: String = "[AuthenticatedIdentifierAction][invokeBlock] - "
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised(Enrolment(Constants.psaEnrolmentKey).or(Enrolment(Constants.pspEnrolmentKey)))
-      .retrieve(internalId and affinityGroup and authorisedEnrolments) {
+      .retrieve(internalId.and(affinityGroup).and(authorisedEnrolments)) {
 
         case Some(internalId) ~ Some(affGroup) ~ IsPSA(psaId) if hasValidSession(hc) =>
           block(AdministratorRequest(affGroup, internalId, psaId.value, UserType.Psa, request))
@@ -56,22 +59,28 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
         case Some(_) ~ Some(_) ~ _ if !hasValidSession(hc) =>
           Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
         case _ =>
-          throw InternalError("Unknown error occurred in the auth process")
-      } recoverWith {
-      case _: NoActiveSession =>
-        Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
-      case _: InsufficientEnrolments =>
-        Future.successful(Redirect(config.mpsRegistrationUrl))
-      case err: AuthorisationException =>
-        logger.error(logContext + s"An authorisation error occurred with message", err)
-        Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
-    }
+          logError(
+            logContext,
+            s"Authorisation completed successfully, but unable to retrieve user details or type from authorisation response"
+          )
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+      }
+      .recoverWith {
+        case _: NoActiveSession =>
+          Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
+        case _: InsufficientEnrolments =>
+          Future.successful(Redirect(config.mpsRegistrationUrl))
+        case err: AuthorisationException =>
+          logError(logContext, s"An authorisation error occurred with message: ${err.getMessage}")
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+      }
   }
 
-  private val hasValidSession: HeaderCarrier => Boolean = hc => hc.sessionId match {
-    case Some(_) => true
-    case None => false
-  }
+  private val hasValidSession: HeaderCarrier => Boolean = hc =>
+    hc.sessionId match {
+      case Some(_) => true
+      case None => false
+    }
 
   override def parser: BodyParser[AnyContent] = playBodyParsers
 

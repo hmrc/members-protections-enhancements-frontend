@@ -22,28 +22,29 @@ import play.api.libs.json.{JsValue, Json}
 class AuditDetailSpec extends SpecBase {
   "writes" - {
     "should return the expected JSON" in {
-      val result: JsValue = Json.toJson(AuditDetail(
-        journey = "journey",
-        firstName = "firstName",
-        lastName = "lastName",
-        dateOfBirth = "dateOfBirth",
-        nino = "nino",
-        pensionSchemeMemberCheckReference = "pensionSchemeMemberCheckReference",
-        searchAPIMatchResult = Some("searchAPIMatchResult"),
-        retrieveAPIFailureReason = Some("retrieveAPIFailureReason"),
-        searchAPIFailureReason = Some("searchAPIFailureReason"),
-        numberOfProtectionsAndEnhancementsTotal = Some(1),
-        numberOfProtectionsAndEnhancementsActive = Some(2),
-        numberOfProtectionsAndEnhancementsDormant = Some(3),
-        numberOfProtectionsAndEnhancementsWithdrawn = Some(4),
-        roleLoggedInAs = "roleLoggedInAs",
-        affinityGroup = "affinityGroup",
-        requesterIdentifier = "requesterIdentifier",
-        correlationId = "correlationId"
-      ))
+      val result: JsValue = Json.toJson(
+        AuditDetail(
+          journey = "journey",
+          firstName = "firstName",
+          lastName = "lastName",
+          dateOfBirth = "dateOfBirth",
+          nino = "nino",
+          pensionSchemeMemberCheckReference = "pensionSchemeMemberCheckReference",
+          searchAPIMatchResult = Some("searchAPIMatchResult"),
+          retrieveAPIFailureReason = Some("retrieveAPIFailureReason"),
+          searchAPIFailureReason = Some("searchAPIFailureReason"),
+          numberOfProtectionsAndEnhancementsTotal = Some(1),
+          numberOfProtectionsAndEnhancementsActive = Some(2),
+          numberOfProtectionsAndEnhancementsDormant = Some(3),
+          numberOfProtectionsAndEnhancementsWithdrawn = Some(4),
+          roleLoggedInAs = "roleLoggedInAs",
+          affinityGroup = "affinityGroup",
+          requesterIdentifier = "requesterIdentifier",
+          correlationId = "correlationId"
+        )
+      )
 
-      result mustBe Json.parse(
-        """
+      result mustBe Json.parse("""
           |{
           | "journey": "journey",
           | "firstName": "firstName",

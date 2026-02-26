@@ -26,24 +26,28 @@ import views.html.NoResultsView
 import javax.inject.Inject
 import scala.concurrent.Future
 
-class NoResultsController @Inject()(override val messagesApi: MessagesApi,
-                                    identify: IdentifierAction,
-                                    checkLockout: CheckLockoutAction,
-                                    getData: DataRetrievalAction,
-                                    val controllerComponents: MessagesControllerComponents,
-                                    view: NoResultsView,
-                                    dateTimeProvider: DateTimeProvider)
-  extends MpeBaseController(identify, checkLockout, getData) {
+class NoResultsController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  checkLockout: CheckLockoutAction,
+  getData: DataRetrievalAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: NoResultsView,
+  dateTimeProvider: DateTimeProvider
+) extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handleWithCheckedAnswers { implicit request =>
-    memberDetails => membersDob => membersNino => membersPsaCheckRef => _ =>
-      Future.successful(Ok(
-        view(
-          memberDetails = memberDetails,
-          membersDob = membersDob,
-          membersNino = membersNino,
-          membersPsaCheckRef = membersPsaCheckRef,
-          formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now())
-        )))
+  def onPageLoad(): Action[AnyContent] = handleWithCheckedAnswers {
+    implicit request => memberDetails => membersDob => membersNino => membersPsaCheckRef => _ =>
+      Future.successful(
+        Ok(
+          view(
+            memberDetails = memberDetails,
+            membersDob = membersDob,
+            membersNino = membersNino,
+            membersPsaCheckRef = membersPsaCheckRef,
+            formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now())
+          )
+        )
+      )
   }
 }

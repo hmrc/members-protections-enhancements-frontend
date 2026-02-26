@@ -29,14 +29,13 @@ class PrivateBetaUnauthorisedViewSpec extends SpecBase {
 
   "view" - {
     "display correct error information" in new Setup {
-      
+
       view.getElementsByTag("h1").text() mustBe messages(app)("privateBeta.unauthorised.heading")
       view.getElementsByClass("govuk-body").text().contains(messages(app)("unauthorised.guidance.preform"))
       view.getElementsByClass("govuk-body").text().contains(messages(app)("unauthorised.guidance.formLink"))
       view.getElementsByClass("govuk-body").text().contains(messages(app)("unauthorised.guidance.postform"))
     }
   }
-
 
   trait Setup {
 
