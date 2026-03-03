@@ -18,7 +18,6 @@ package utils
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.i18n.Lang
 import utils.DateTimeFormats.{dateFormatter, getCurrentDateTimestamp, longMonthFormat, shortMonthFormat}
 
 import java.time.Month.*

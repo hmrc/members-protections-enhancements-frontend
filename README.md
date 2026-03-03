@@ -38,6 +38,3 @@ Enrolment PSP: `HMRC-PODSPP-ORG` `PspId` `21000005` (local and Staging environme
 | Performance tests | https://github.com/hmrc/mpe-performance-tests  |
 | Prototype         | https://github.com/hmrc/lpe-prototype          |
 
-## Confluence Page
-
-https://confluence.tools.tax.service.gov.uk/display/LTPE/05.02.05.01+-+Frontend
