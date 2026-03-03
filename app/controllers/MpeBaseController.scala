@@ -38,7 +38,7 @@ abstract class MpeBaseController @Inject() (
     with I18nSupport
     with Logging {
 
-  def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
+  protected def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
     identify.andThen(checkLockout).andThen(getData).async { implicit request =>
       isResultsSuccessful(block(_))
     }
@@ -53,7 +53,9 @@ abstract class MpeBaseController @Inject() (
         block(value)
     }
 
-  def handleWithMemberDetails(block: DataRequest[AnyContent] => MemberDetails => Future[Result]): Action[AnyContent] =
+  protected def handleWithMemberDetails(
+    block: DataRequest[AnyContent] => MemberDetails => Future[Result]
+  ): Action[AnyContent] =
     handle { implicit request =>
       withDetail(
         questionPage = WhatIsTheMembersNamePage,
@@ -64,7 +66,7 @@ abstract class MpeBaseController @Inject() (
 
   private type WithDetailsAndDob = MemberDetails => MembersDob => Future[Result]
 
-  def handleWithMemberDob(block: DataRequest[AnyContent] => WithDetailsAndDob): Action[AnyContent] =
+  protected def handleWithMemberDob(block: DataRequest[AnyContent] => WithDetailsAndDob): Action[AnyContent] =
     handleWithMemberDetails { implicit request => details =>
       withDetail(
         questionPage = MembersDobPage,
@@ -75,7 +77,7 @@ abstract class MpeBaseController @Inject() (
 
   private type WithDetailsDobAndNino = MemberDetails => MembersDob => MembersNino => Future[Result]
 
-  def handleWithMemberNino(block: DataRequest[AnyContent] => WithDetailsDobAndNino): Action[AnyContent] =
+  protected def handleWithMemberNino(block: DataRequest[AnyContent] => WithDetailsDobAndNino): Action[AnyContent] =
     handleWithMemberDob { implicit request => details => dob =>
       withDetail(
         questionPage = MembersNinoPage,
@@ -86,7 +88,7 @@ abstract class MpeBaseController @Inject() (
 
   private type WithAllDetails = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]
 
-  def handleWithAllDetails(block: DataRequest[AnyContent] => WithAllDetails): Action[AnyContent] =
+  protected def handleWithAllDetails(block: DataRequest[AnyContent] => WithAllDetails): Action[AnyContent] =
     handleWithMemberNino { implicit request => details => dob => nino =>
       withDetail(
         questionPage = MembersPsaCheckRefPage,
@@ -98,7 +100,7 @@ abstract class MpeBaseController @Inject() (
   private type WithCheckedAnswers =
     MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => CheckMembersDetails => Future[Result]
 
-  def handleWithCheckedAnswers(block: DataRequest[AnyContent] => WithCheckedAnswers): Action[AnyContent] =
+  protected def handleWithCheckedAnswers(block: DataRequest[AnyContent] => WithCheckedAnswers): Action[AnyContent] =
     handleWithAllDetails { implicit request => details => dob => nino => psacr =>
       {
         def redirectCall: Call = routes.CheckYourAnswersController.onPageLoad()
@@ -146,7 +148,7 @@ abstract class MpeBaseController @Inject() (
     case _ => routes.WhatYouWillNeedController.onPageLoad().url
   }
 
-  def retrieveMembersRequest(
+  protected def createMembersRequest(
     memberDetails: MemberDetails,
     membersDob: MembersDob,
     membersNino: MembersNino,

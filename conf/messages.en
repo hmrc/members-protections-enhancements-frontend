@@ -49,16 +49,6 @@ signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
 signedOut.guidance = We did not save your answers.
 
-unauthorised.title = You can''t access this service with this account
-unauthorised.heading = You can''t access this service with this account
-unauthorised.guidance.preform = If you think you need access to this service, you can
-unauthorised.guidance.formLink = request it through the feedback form
-unauthorised.guidance.postform = . We will respond to you within 5 working days.
-
-# Private beta
-privateBeta.unauthorised.title = You do not have access to this service
-privateBeta.unauthorised.heading = You do not have access to this service
-
 lockedOut.title = You''ve been locked out
 lockedOut.heading = You''ve been locked out
 lockedOut.p1 = You''ve carried out this check too many times.

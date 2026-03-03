@@ -77,7 +77,7 @@ class ResultsController @Inject() (
         val fullLoggingContext: String = s"[$classLoggingContext][onPageLoad]"
         logInfo(fullLoggingContext, s"with correlationId: $correlationId")
 
-        val pensionSchemeMemberRequest: PensionSchemeMemberRequest = retrieveMembersRequest(
+        val pensionSchemeMemberRequest: PensionSchemeMemberRequest = createMembersRequest(
           memberDetails = memberDetails,
           membersDob = membersDob,
           membersNino = membersNino,

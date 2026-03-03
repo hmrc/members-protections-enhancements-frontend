@@ -47,7 +47,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.*
 import play.api.mvc.{BodyParsers, Call, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{running, AUTHORIZATION, CONTENT_TYPE}
+import play.api.test.Helpers.running
 import providers.DateTimeProvider
 import uk.gov.hmrc.http.test.{HttpClientV2Support, WireMockSupport}
 import viewmodels.formPage.FormPageViewModel
