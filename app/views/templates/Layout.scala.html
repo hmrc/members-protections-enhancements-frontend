@@ -27,7 +27,6 @@
     appConfig: FrontendAppConfig,
     hmrcTimeoutDialog: HmrcTimeoutDialog,
     hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-    standardBetaBanner: StandardBetaBanner,
     hmrcStandardPage: HmrcStandardPage,
 )
 
@@ -102,7 +101,7 @@
     ),
     banners = Banners(
         displayHmrcBanner = showHmrcBanner,
-        phaseBanner = if (appConfig.betaBannerEnabled) Some(standardBetaBanner(url = appConfig.contactFrontendUrl)) else None
+        phaseBanner = None
     ),
     backLink = if (showBackLink && backLinkUrl != None) Some(BackLink.withDefaultText(backLinkUrl.get)) else None
 ))(content)
