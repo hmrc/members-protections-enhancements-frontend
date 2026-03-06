@@ -62,15 +62,4 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   val checkLtaGuidanceUrl: String = loadConfig("urls.guidance.checkLta")
 
-  // Feature switches
-  val betaBannerEnabled: Boolean = configuration.get[Boolean]("feature-switch.betaBannerEnabled")
-
-  // User allow list
-  val userAllowListServiceUrl: String = servicesConfig.baseUrl("user-allow-list")
-  val internalAuthToken: String = configuration.get[String]("internal-auth.token")
-
-  // Beta feedback config
-  val contactFrontendUrl: String =
-    s"${loadConfig("urls.betaFeedbackUrl")}/?service=members-protections-and-enhancements"
-
 }
