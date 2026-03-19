@@ -19,6 +19,7 @@ package controllers
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
 import models.requests.{DataRequest, PensionSchemeMemberRequest}
+import navigation.Navigator
 import pages.*
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Reads
@@ -38,6 +39,12 @@ abstract class MpeBaseController @Inject() (
     with I18nSupport
     with Logging {
 
+  protected def withName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
+    request.userAnswers
+      .get(WhatIsTheMembersNamePage)
+      .map(_.fullName)
+      .fold(Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode))))(block)
+
   protected def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
     identify.andThen(checkLockout).andThen(getData).async { implicit request =>
       isResultsSuccessful(block(_))
@@ -53,7 +60,7 @@ abstract class MpeBaseController @Inject() (
         block(value)
     }
 
-  protected def handleWithMemberDetails(
+  private def handleWithMemberDetails(
     block: DataRequest[AnyContent] => MemberDetails => Future[Result]
   ): Action[AnyContent] =
     handle { implicit request =>
@@ -66,7 +73,7 @@ abstract class MpeBaseController @Inject() (
 
   private type WithDetailsAndDob = MemberDetails => MembersDob => Future[Result]
 
-  protected def handleWithMemberDob(block: DataRequest[AnyContent] => WithDetailsAndDob): Action[AnyContent] =
+  private def handleWithMemberDob(block: DataRequest[AnyContent] => WithDetailsAndDob): Action[AnyContent] =
     handleWithMemberDetails { implicit request => details =>
       withDetail(
         questionPage = MembersDobPage,
@@ -85,6 +92,27 @@ abstract class MpeBaseController @Inject() (
         block = block(request)(details)(dob)
       )
     }
+
+//  protected def handleWithMemberNino(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
+//    handle { implicit request =>
+//      withDetail(
+//        questionPage = MembersNinoPage,
+//        failureRedirect = routes.MembersNinoController.onPageLoad(NormalMode),
+//        block = _ => block(request)
+//      )
+//    }
+
+  // IN PROGRESS
+//  protected def handleWithPageCheck[D: Reads](
+//    questionPage: QuestionPage[D]
+//  )(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
+//    handle { implicit request =>
+//      withDetail(
+//        questionPage = questionPage,
+//        failureRedirect = navigator.prevPage(questionPage).normalModeCall,
+//        block = _ => block(request)
+//      )
+//    }
 
   private type WithAllDetails = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]
 

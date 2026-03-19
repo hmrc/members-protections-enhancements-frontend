@@ -45,4 +45,13 @@ class Navigator @Inject() {
     case CheckMode =>
       checkRouteMap(page)(userAnswers)
   }
+
+//  def prevPage[A](page: QuestionPage[A], userAnswers: UserAnswers): Page = page match {
+//    case WhatIsTheMembersNamePage => WhatYouWillNeedPage
+//    case MembersDobPage => WhatIsTheMembersNamePage
+//    case MembersNinoPage => MembersDobPage
+//    case MembersPsaCheckRefPage => MembersNinoPage
+//    case ResultsPage => MembersPsaCheckRefPage
+//    case _ => WhatIsTheMembersNamePage
+//  }
 }

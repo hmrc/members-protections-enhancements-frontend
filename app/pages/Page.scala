@@ -16,9 +16,13 @@
 
 package pages
 
+import play.api.mvc.Call
+
 import scala.language.implicitConversions
 
-trait Page
+trait Page {
+  protected val normalModeCall: Call = Call("GET", "/")
+}
 
 object Page {
 

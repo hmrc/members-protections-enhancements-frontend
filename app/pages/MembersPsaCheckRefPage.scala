@@ -16,8 +16,10 @@
 
 package pages
 
-import models.MembersPsaCheckRef
+import controllers.routes
+import models.{MembersPsaCheckRef, NormalMode}
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object MembersPsaCheckRefPage extends QuestionPage[MembersPsaCheckRef] {
 
@@ -25,4 +27,5 @@ case object MembersPsaCheckRefPage extends QuestionPage[MembersPsaCheckRef] {
 
   override def toString: String = "membersPsaCheckRef"
 
+  override protected val normalModeCall: Call = routes.MembersPsaCheckRefController.onPageLoad(NormalMode)
 }

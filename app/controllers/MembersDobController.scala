@@ -45,33 +45,39 @@ class MembersDobController @Inject() (
 
   private val form: Form[MembersDob] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request => memberDetails =>
-    request.userAnswers.get(MembersDobPage) match {
-      case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), memberDetails.fullName)))
-      case Some(value) =>
-        Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), memberDetails.fullName)))
+  def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
+    withName { name =>
+      request.userAnswers.get(MembersDobPage) match {
+        case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), name)))
+        case Some(value) =>
+          Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), name)))
+      }
     }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request => memberDetails =>
+  def onSubmit(mode: Mode): Action[AnyContent] = handle { implicit request =>
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(
-            BadRequest(
-              view(
-                form = formWithErrors,
-                viewModel = viewModel(mode, MembersDobPage),
-                name = memberDetails.fullName
+          withName { name =>
+            Future.successful(
+              BadRequest(
+                view(
+                  form = formWithErrors,
+                  viewModel = viewModel(mode, MembersDobPage),
+                  name = name
+                )
               )
             )
-          ),
+          },
         answer =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
             _ <- service.save(updatedAnswers)
           } yield Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
       )
+
   }
+
 }
