@@ -21,7 +21,7 @@ import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierA
 import forms.MembersNinoFormProvider
 import models.{MembersNino, Mode}
 import navigation.Navigation
-import pages.MembersNinoPage
+import pages.{MembersNinoPage, Page, QuestionPage}
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -45,11 +45,13 @@ class MembersNinoController @Inject() (
   private val form: Form[MembersNino] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
-    withName { name =>
-      request.userAnswers.get(MembersNinoPage) match {
-        case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), name)))
-        case Some(value) =>
-          Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), name)))
+    withPageCheck(MembersNinoPage, mode, request.userAnswers) {
+      withName { name =>
+        request.userAnswers.get(MembersNinoPage) match {
+          case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), name)))
+          case Some(value) =>
+            Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), name)))
+        }
       }
     }
   }

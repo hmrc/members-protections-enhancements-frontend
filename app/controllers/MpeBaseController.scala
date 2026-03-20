@@ -19,6 +19,8 @@ package controllers
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
 import models.requests.{DataRequest, PensionSchemeMemberRequest}
+import models.userAnswers.UserAnswers
+import navigation.Navigation
 import pages.*
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Reads
@@ -83,7 +85,7 @@ abstract class MpeBaseController @Inject() (
 
   private type WithDetailsDobAndNino = MemberDetails => MembersDob => MembersNino => Future[Result]
 
-  protected def handleWithMemberNino(block: DataRequest[AnyContent] => WithDetailsDobAndNino): Action[AnyContent] =
+  private def handleWithMemberNino(block: DataRequest[AnyContent] => WithDetailsDobAndNino): Action[AnyContent] =
     handleWithMemberDob { implicit request => details => dob =>
       withDetail(
         questionPage = MembersNinoPage,
@@ -92,32 +94,17 @@ abstract class MpeBaseController @Inject() (
       )
     }
 
-//  protected def handleWithMemberNino(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
-//    handle { implicit request =>
-//      withDetail(
-//        questionPage = MembersNinoPage,
-//        failureRedirect = routes.MembersNinoController.onPageLoad(NormalMode),
-//        block = _ => block(request)
-//      )
-//    }
-
-  // IN PROGRESS
-//  protected def handleWithPageCheck[D: Reads](
-//    questionPage: QuestionPage[D],
-//    mode: Mode,
-//    userAnswers: UserAnswers
-//  )(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
-//    handle { implicit request =>
-//      val prevPage: Page = Navigation.prevPage(questionPage, userAnswers, mode)
-//      withDetail(
-//        questionPage = prevPage,
-//        failureRedirect = prevPage.route(mode),
-//        block = _ => block(request)
-//      )
-//    }
+  protected def withPageCheck(page: Page, mode: Mode, userAnswers: UserAnswers)(
+    block: DataRequest[AnyContent] => Future[Result]
+  )(implicit request: DataRequest[AnyContent]): Future[Result] =
+    Navigation.prevValueCheck(page, mode, userAnswers) match {
+      case Some(call) => Future.successful(Redirect(call))
+      case _ => block(request)
+    }
 
   private type WithAllDetails = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]
 
+  // CYA page only
   protected def handleWithAllDetails(block: DataRequest[AnyContent] => WithAllDetails): Action[AnyContent] =
     handleWithMemberNino { implicit request => details => dob => nino =>
       withDetail(
@@ -130,6 +117,7 @@ abstract class MpeBaseController @Inject() (
   private type WithCheckedAnswers =
     MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => CheckMembersDetails => Future[Result]
 
+  // Noresults and result pages only
   protected def handleWithCheckedAnswers(block: DataRequest[AnyContent] => WithCheckedAnswers): Action[AnyContent] =
     handleWithAllDetails { implicit request => details => dob => nino => psacr =>
       {

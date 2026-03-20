@@ -44,29 +44,19 @@ class MembersPsaCheckRefController @Inject() (
 
   private val form: Form[MembersPsaCheckRef] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberNino {
-    implicit request => membersDetails => _ => _ =>
-      request.userAnswers.get(MembersPsaCheckRefPage) match {
-        case None => Future.successful(Ok(view(form, viewModel(mode, MembersPsaCheckRefPage), membersDetails.fullName)))
-        case Some(value) =>
-          Future.successful(
-            Ok(view(form.fill(value), viewModel(mode, MembersPsaCheckRefPage), membersDetails.fullName))
-          )
+  def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
+    withPageCheck(MembersPsaCheckRefPage, mode, request.userAnswers) {
+      withName { name =>
+        request.userAnswers.get(MembersPsaCheckRefPage) match {
+          case None => Future.successful(Ok(view(form, viewModel(mode, MembersPsaCheckRefPage), name)))
+          case Some(value) =>
+            Future.successful(
+              Ok(view(form.fill(value), viewModel(mode, MembersPsaCheckRefPage), name))
+            )
+        }
       }
+    }
   }
-
-//
-//  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithPageCheck[MembersPsaCheckRef] { implicit request =>
-//    withName { name =>
-//      request.userAnswers.get(MembersPsaCheckRefPage) match {
-//        case None => Future.successful(Ok(view(form, viewModel(mode, MembersPsaCheckRefPage), name)))
-//        case Some(value) =>
-//          Future.successful(
-//            Ok(view(form.fill(value), viewModel(mode, MembersPsaCheckRefPage), name))
-//          )
-//      }
-//    }
-//  }
 
   def onSubmit(mode: Mode): Action[AnyContent] = handle { implicit request =>
     withName { name =>

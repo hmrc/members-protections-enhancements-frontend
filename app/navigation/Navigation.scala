@@ -19,17 +19,10 @@ package navigation
 import models.userAnswers.UserAnswers
 import models.{Mode, NormalMode}
 import pages.*
+import play.api.libs.json.Format
+import play.api.mvc.Call
 
 object Navigation {
-
-//  private val questionPages: Map[QuestionPage[_], QuestionPage[_]] = Map(
-//    WhatIsTheMembersNamePage -> MembersDobPage,
-//    MembersDobPage -> MembersNinoPage,
-//    MembersNinoPage -> MembersPsaCheckRefPage,
-//    MembersPsaCheckRefPage -> CheckYourAnswersPage,
-//    ResultsPage -> CheckYourAnswersPage
-//  )
-
   private val pages: Map[Page, Page] =
     Map(
       WhatIsTheMembersNamePage -> MembersDobPage,
@@ -46,16 +39,18 @@ object Navigation {
         pages.getOrElse(page, WhatYouWillNeedPage)
       case _ => CheckYourAnswersPage
     }
-//  def nextPage[A](page: QuestionPage[A], userAnswers: UserAnswers, mode: Mode): Page =
-//    mode match {
-//      case NormalMode =>
-//        questionPages.getOrElse(page, WhatYouWillNeedPage)
-//      case _ => CheckYourAnswersPage
-//    }
 
-  def prevPage(page: Page, userAnswers: UserAnswers, mode: Mode): Page =
-    mode match {
-      case NormalMode => pages.find(_._2 == page).map(_._1).getOrElse(WhatIsTheMembersNamePage)
-      case _ => CheckYourAnswersPage
+  def prevValueCheck(page: Page, mode: Mode, userAnswers: UserAnswers): Option[Call] = {
+    def check[A](page: QuestionPage[A])(implicit format: Format[A]): Option[Call] = userAnswers.get(page) match {
+      case Some(_) => None
+      case _ => Some(page.route(mode))
     }
+
+    page match {
+      case MembersDobPage => check(WhatIsTheMembersNamePage)
+      case MembersNinoPage => check(MembersDobPage)
+      case MembersPsaCheckRefPage => check(MembersNinoPage)
+      case _ => None
+    }
+  }
 }
