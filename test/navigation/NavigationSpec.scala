@@ -65,7 +65,7 @@ class NavigationSpec extends AnyWordSpec with Matchers {
         Navigation.firstPreviousPageWithNoData(page, NormalMode, userAnswersWithValues) mustBe None
       }
 
-      // Test that nav goes back to first page (in order) which doesn't have any value entered.
+      // Test that nav goes back to the first page (in order) which doesn't have any value entered
       val priorDataEntryPages = allDataEntryPages.takeWhile(_ != page)
       priorDataEntryPages.foreach { pageToRemove =>
         s"return ${pageToRemove.toString} route for ${page.toString} when there is no previous data present in user answers for ${pageToRemove.toString}" in {

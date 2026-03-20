@@ -31,11 +31,6 @@ final case class UserAnswers(id: String, data: JsObject = Json.obj(), lastUpdate
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
     Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
 
-//  def isValue[A](page: Gettable[A]): Boolean = {
-//    data.
-//    val t = (page.path)
-//  }
-
   def set[A](page: Settable[A], value: A)(implicit writes: Writes[A]): Try[UserAnswers] = {
     def updateData(userAnswers: UserAnswers = this): Try[UserAnswers] =
       userAnswers.data.setObject(page.path, Json.toJson(value)) match {

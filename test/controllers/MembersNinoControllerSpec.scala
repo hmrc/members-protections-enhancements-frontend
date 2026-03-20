@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import forms.MembersNinoFormProvider
 import models.*
-import pages.{MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage, ResultsPage, WhatIsTheMembersNamePage}
+import pages.*
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -42,9 +42,8 @@ class MembersNinoControllerSpec extends SpecBase {
       val userAnswers = emptyUserAnswers
         .setOrException(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
         .setOrException(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1)))
-        //  .setOrException(page = MembersNinoPage, value = MembersNino("AB123456A"))
         .setOrException(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A"))
-//WhatIsTheMembersNamePage, MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage
+        
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
       running(application) {
