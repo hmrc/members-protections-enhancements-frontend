@@ -76,7 +76,7 @@ class MembersDobController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(Navigation.nextPage(MembersDobPage, updatedAnswers, mode).route(mode))
+          } yield Redirect(Navigation.nextPage(MembersDobPage, mode, updatedAnswers).route(mode))
       )
 
   }

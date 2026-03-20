@@ -71,7 +71,7 @@ class MembersPsaCheckRefController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersPsaCheckRefPage, answer))
               _ <- service.save(updatedAnswers)
-            } yield Redirect(Navigation.nextPage(MembersPsaCheckRefPage, updatedAnswers, mode).route(mode))
+            } yield Redirect(Navigation.nextPage(MembersPsaCheckRefPage, mode, updatedAnswers).route(mode))
         )
     }
   }

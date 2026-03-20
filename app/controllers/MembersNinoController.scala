@@ -21,7 +21,7 @@ import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierA
 import forms.MembersNinoFormProvider
 import models.{MembersNino, Mode}
 import navigation.Navigation
-import pages.{MembersNinoPage, Page, QuestionPage}
+import pages.MembersNinoPage
 import play.api.data.Form
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -68,7 +68,7 @@ class MembersNinoController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(Navigation.nextPage(MembersNinoPage, updatedAnswers, mode).route(mode))
+          } yield Redirect(Navigation.nextPage(MembersNinoPage, mode, updatedAnswers).route(mode))
       )
 
   }

@@ -63,7 +63,7 @@ class WhatIsTheMembersNameController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(Navigation.nextPage(WhatIsTheMembersNamePage, updatedAnswers, mode).route(mode))
+          } yield Redirect(Navigation.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers).route(mode))
       )
   }
 

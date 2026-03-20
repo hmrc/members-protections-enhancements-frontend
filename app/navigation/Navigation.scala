@@ -33,7 +33,7 @@ object Navigation {
       WhatYouWillNeedPage -> WhatIsTheMembersNamePage
     )
 
-  def nextPage(page: Page, userAnswers: UserAnswers, mode: Mode): Page =
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Page =
     mode match {
       case NormalMode => pages.getOrElse(page, WhatYouWillNeedPage)
       case _ => CheckYourAnswersPage

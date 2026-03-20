@@ -43,7 +43,7 @@ class NavigationSpec extends AnyWordSpec with Matchers {
       WhatYouWillNeedPage -> WhatIsTheMembersNamePage
     ).foreach { case (fromPage, toPage) =>
       s"return correct next page for ${fromPage.toString}" in {
-        Navigation.nextPage(fromPage, emptyUserAnswers, NormalMode) mustBe toPage
+        Navigation.nextPage(fromPage, NormalMode, emptyUserAnswers) mustBe toPage
       }
     }
   }
