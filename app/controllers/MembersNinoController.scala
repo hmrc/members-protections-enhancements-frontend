@@ -45,7 +45,7 @@ class MembersNinoController @Inject() (
   private val form: Form[MembersNino] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
-    withPageCheck(MembersNinoPage, mode, request.userAnswers) {
+    withPreviousPageCheck(MembersNinoPage, mode, request.userAnswers) {
       withName { name =>
         request.userAnswers.get(MembersNinoPage) match {
           case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), name)))

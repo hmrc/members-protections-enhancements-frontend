@@ -94,10 +94,10 @@ abstract class MpeBaseController @Inject() (
       )
     }
 
-  protected def withPageCheck(page: Page, mode: Mode, userAnswers: UserAnswers)(
+  protected def withPreviousPageCheck(page: Page, mode: Mode, userAnswers: UserAnswers)(
     block: DataRequest[AnyContent] => Future[Result]
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
-    Navigation.prevValueCheck(page, mode, userAnswers) match {
+    Navigation.previousPageIfNoDataEntered(page, mode, userAnswers) match {
       case Some(call) => Future.successful(Redirect(call))
       case _ => block(request)
     }

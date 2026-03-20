@@ -45,7 +45,7 @@ class MembersDobController @Inject() (
   private val form: Form[MembersDob] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
-    withPageCheck(MembersDobPage, mode, request.userAnswers) {
+    withPreviousPageCheck(MembersDobPage, mode, request.userAnswers) {
       withName { name =>
         request.userAnswers.get(MembersDobPage) match {
           case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), name)))

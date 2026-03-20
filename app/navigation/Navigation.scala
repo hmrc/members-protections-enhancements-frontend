@@ -35,12 +35,11 @@ object Navigation {
 
   def nextPage(page: Page, userAnswers: UserAnswers, mode: Mode): Page =
     mode match {
-      case NormalMode =>
-        pages.getOrElse(page, WhatYouWillNeedPage)
+      case NormalMode => pages.getOrElse(page, WhatYouWillNeedPage)
       case _ => CheckYourAnswersPage
     }
 
-  def prevValueCheck(page: Page, mode: Mode, userAnswers: UserAnswers): Option[Call] = {
+  def previousPageIfNoDataEntered(page: Page, mode: Mode, userAnswers: UserAnswers): Option[Call] = {
     def check[A](page: QuestionPage[A])(implicit format: Format[A]): Option[Call] = userAnswers.get(page) match {
       case Some(_) => None
       case _ => Some(page.route(mode))

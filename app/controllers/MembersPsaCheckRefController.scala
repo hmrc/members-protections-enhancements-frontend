@@ -45,7 +45,7 @@ class MembersPsaCheckRefController @Inject() (
   private val form: Form[MembersPsaCheckRef] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
-    withPageCheck(MembersPsaCheckRefPage, mode, request.userAnswers) {
+    withPreviousPageCheck(MembersPsaCheckRefPage, mode, request.userAnswers) {
       withName { name =>
         request.userAnswers.get(MembersPsaCheckRefPage) match {
           case None => Future.successful(Ok(view(form, viewModel(mode, MembersPsaCheckRefPage), name)))
