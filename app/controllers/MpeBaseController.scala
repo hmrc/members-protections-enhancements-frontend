@@ -19,8 +19,6 @@ package controllers
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
 import models.requests.{DataRequest, PensionSchemeMemberRequest}
-import models.userAnswers.UserAnswers
-import navigation.{Navigation, Navigator}
 import pages.*
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Reads

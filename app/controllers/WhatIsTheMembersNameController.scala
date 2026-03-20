@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.WhatIsTheMembersNameFormProvider
 import models.{MemberDetails, Mode}
-import navigation.Navigator
+import navigation.Navigation
 import pages.*
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -35,7 +35,6 @@ class WhatIsTheMembersNameController @Inject() (
   identify: IdentifierAction,
   checkLockout: CheckLockoutAction,
   getData: DataRetrievalAction,
-  navigator: Navigator,
   service: SessionCacheService,
   val controllerComponents: MessagesControllerComponents,
   formProvider: WhatIsTheMembersNameFormProvider,
@@ -64,7 +63,7 @@ class WhatIsTheMembersNameController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers))
+          } yield Redirect(Navigation.nextPage(WhatIsTheMembersNamePage, updatedAnswers, mode).route(mode))
       )
   }
 

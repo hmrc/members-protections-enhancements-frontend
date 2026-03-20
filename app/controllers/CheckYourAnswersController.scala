@@ -26,7 +26,6 @@ import services.SessionCacheService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.checkYourAnswers.CheckYourAnswersSummary.*
 import views.html.CheckYourAnswersView
-import navigation.Navigator
 
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersNinoFormProvider
 import models.{MembersNino, Mode}
-import navigation.Navigator
+import navigation.Navigation
 import pages.MembersNinoPage
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -35,7 +35,6 @@ class MembersNinoController @Inject() (
   identify: IdentifierAction,
   checkLockout: CheckLockoutAction,
   getData: DataRetrievalAction,
-  navigator: Navigator,
   service: SessionCacheService,
   formProvider: MembersNinoFormProvider,
   implicit val controllerComponents: MessagesControllerComponents,
@@ -67,7 +66,7 @@ class MembersNinoController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(navigator.nextPage(MembersNinoPage, mode, updatedAnswers))
+          } yield Redirect(Navigation.nextPage(MembersNinoPage, updatedAnswers, mode).route(mode))
       )
 
   }

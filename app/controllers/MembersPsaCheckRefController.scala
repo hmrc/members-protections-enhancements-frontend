@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersPsaCheckRefFormProvider
 import models.{MembersPsaCheckRef, Mode}
-import navigation.Navigator
+import navigation.Navigation
 import pages.MembersPsaCheckRefPage
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -35,7 +35,6 @@ class MembersPsaCheckRefController @Inject() (
   identify: IdentifierAction,
   checkLockout: CheckLockoutAction,
   getData: DataRetrievalAction,
-  navigator: Navigator,
   service: SessionCacheService,
   formProvider: MembersPsaCheckRefFormProvider,
   implicit val controllerComponents: MessagesControllerComponents,
@@ -82,7 +81,7 @@ class MembersPsaCheckRefController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersPsaCheckRefPage, answer))
               _ <- service.save(updatedAnswers)
-            } yield Redirect(navigator.nextPage(MembersPsaCheckRefPage, mode, updatedAnswers))
+            } yield Redirect(Navigation.nextPage(MembersPsaCheckRefPage, updatedAnswers, mode).route(mode))
         )
     }
   }

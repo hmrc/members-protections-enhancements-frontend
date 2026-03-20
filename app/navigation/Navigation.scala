@@ -21,19 +21,37 @@ import models.{Mode, NormalMode}
 import pages.*
 
 object Navigation {
-  private val pages: Map[Page, Page] = Map(
-    WhatIsTheMembersNamePage -> MembersDobPage,
-    MembersDobPage -> MembersNinoPage,
-    MembersNinoPage -> MembersPsaCheckRefPage,
-    MembersPsaCheckRefPage -> CheckYourAnswersPage,
-    ResultsPage -> CheckYourAnswersPage,
-    WhatYouWillNeedPage -> WhatIsTheMembersNamePage
-  )
 
-  def nextPage(page: Page, userAnswers: UserAnswers, mode: Mode): Page = mode match {
-    case NormalMode => pages.getOrElse(page, WhatYouWillNeedPage)
-    case _ => CheckYourAnswersPage
-  }
+//  private val questionPages: Map[QuestionPage[_], QuestionPage[_]] = Map(
+//    WhatIsTheMembersNamePage -> MembersDobPage,
+//    MembersDobPage -> MembersNinoPage,
+//    MembersNinoPage -> MembersPsaCheckRefPage,
+//    MembersPsaCheckRefPage -> CheckYourAnswersPage,
+//    ResultsPage -> CheckYourAnswersPage
+//  )
+
+  private val pages: Map[Page, Page] =
+    Map(
+      WhatIsTheMembersNamePage -> MembersDobPage,
+      MembersDobPage -> MembersNinoPage,
+      MembersNinoPage -> MembersPsaCheckRefPage,
+      MembersPsaCheckRefPage -> CheckYourAnswersPage,
+      ResultsPage -> CheckYourAnswersPage,
+      WhatYouWillNeedPage -> WhatIsTheMembersNamePage
+    )
+
+  def nextPage(page: Page, userAnswers: UserAnswers, mode: Mode): Page =
+    mode match {
+      case NormalMode =>
+        pages.getOrElse(page, WhatYouWillNeedPage)
+      case _ => CheckYourAnswersPage
+    }
+//  def nextPage[A](page: QuestionPage[A], userAnswers: UserAnswers, mode: Mode): Page =
+//    mode match {
+//      case NormalMode =>
+//        questionPages.getOrElse(page, WhatYouWillNeedPage)
+//      case _ => CheckYourAnswersPage
+//    }
 
   def prevPage(page: Page, userAnswers: UserAnswers, mode: Mode): Page =
     mode match {

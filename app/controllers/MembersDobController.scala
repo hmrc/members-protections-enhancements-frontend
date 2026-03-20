@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersDobFormProvider
 import models.{MembersDob, Mode}
-import navigation.Navigator
+import navigation.Navigation
 import pages.MembersDobPage
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -35,7 +35,6 @@ class MembersDobController @Inject() (
   identify: IdentifierAction,
   checkLockout: CheckLockoutAction,
   getData: DataRetrievalAction,
-  navigator: Navigator,
   service: SessionCacheService,
   formProvider: MembersDobFormProvider,
   implicit val controllerComponents: MessagesControllerComponents,
@@ -75,7 +74,7 @@ class MembersDobController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(navigator.nextPage(MembersDobPage, mode, updatedAnswers))
+          } yield Redirect(Navigation.nextPage(MembersDobPage, updatedAnswers, mode).route(mode))
       )
 
   }
