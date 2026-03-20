@@ -105,6 +105,7 @@ abstract class MpeBaseController @Inject() (
   private type WithAllDetails = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]
 
   // CYA page only
+  // All this is doing is checking that all values are present
   protected def handleWithAllDetails(block: DataRequest[AnyContent] => WithAllDetails): Action[AnyContent] =
     handleWithMemberNino { implicit request => details => dob => nino =>
       withDetail(
