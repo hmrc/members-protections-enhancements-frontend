@@ -23,7 +23,7 @@ import play.api.libs.json.Format
 import play.api.mvc.Call
 
 object Navigation {
-  private val pages: Map[Page, Page] =
+  private val pageNavigationNormalMode: Map[Page, Page] =
     Map(
       WhatIsTheMembersNamePage -> MembersDobPage,
       MembersDobPage -> MembersNinoPage,
@@ -35,7 +35,7 @@ object Navigation {
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Page =
     mode match {
-      case NormalMode => pages.getOrElse(page, WhatYouWillNeedPage)
+      case NormalMode => pageNavigationNormalMode.getOrElse(page, WhatYouWillNeedPage)
       case _ => CheckYourAnswersPage
     }
 
