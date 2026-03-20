@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
-import pages.CheckYourAnswersPage
+import pages.*
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
@@ -40,17 +40,28 @@ class CheckYourAnswersController @Inject() (
   view: CheckYourAnswersView
 ) extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handleWithAllDetails {
-    implicit request => memberDetails => membersDob => membersNino => membersPsaCheckRef =>
-      Future.successful(
-        Ok(
-          view(
-            rows(memberDetails, membersDob, membersNino, membersPsaCheckRef),
-            memberDetails.fullName,
-            Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url)
+  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+    withPreviousPageCheck(CheckYourAnswersPage, NormalMode, request.userAnswers) { _ =>
+      (
+        request.userAnswers.get(WhatIsTheMembersNamePage),
+        request.userAnswers.get(MembersDobPage),
+        request.userAnswers.get(MembersNinoPage),
+        request.userAnswers.get(MembersPsaCheckRefPage)
+      ) match {
+        case (Some(memberDetails), Some(membersDob), Some(membersNino), Some(membersPsaCheckRef)) =>
+          Future.successful(
+            Ok(
+              view(
+                rows(memberDetails, membersDob, membersNino, membersPsaCheckRef),
+                memberDetails.fullName,
+                Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url)
+              )
+            )
           )
-        )
-      )
+        case _ => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      }
+
+    }
   }
 
   private def rows(

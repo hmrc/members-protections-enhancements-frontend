@@ -48,18 +48,36 @@ class NavigationSpec extends AnyWordSpec with Matchers {
     }
   }
 
-  "previousPageIfNoDataEntered" must {
-    Seq(
-      MembersDobPage -> Some(WhatIsTheMembersNamePage.route),
-      MembersNinoPage -> Some(MembersDobPage.route),
-      MembersPsaCheckRefPage -> Some(MembersNinoPage.route)
-    ).foreach { case (page, toRoute) =>
-      s"return previous route for ${page.toString} when there is no previous data present in user answers" in {
-        Navigation.previousPageIfNoDataEntered(page, NormalMode, emptyUserAnswers) mustBe toRoute.map(_(NormalMode))
+  val allDataEntryPages: Seq[QuestionPage[?]] = Seq(
+    MembersDobPage,
+    MembersNinoPage,
+    MembersPsaCheckRefPage
+  )
+  "firstPageWithNoData" must {
+    allDataEntryPages.foreach { page =>
+      s"return first route for ${page.toString} when there is no previous data present in user answers" in {
+        Navigation.firstPreviousPageWithNoData(page, NormalMode, emptyUserAnswers) mustBe Some(
+          WhatIsTheMembersNamePage
+            .route(NormalMode)
+        )
       }
-      s"return None for ${page.toString} when there is previous data present in user answers" in {
-        Navigation.previousPageIfNoDataEntered(page, NormalMode, userAnswersWithValues) mustBe None
+      s"return None for ${page.toString} when there is full previous data present in user answers" in {
+        Navigation.firstPreviousPageWithNoData(page, NormalMode, userAnswersWithValues) mustBe None
       }
+
+      // Test that nav goes back to first page (in order) which doesn't have any value entered.
+      val priorDataEntryPages = allDataEntryPages.takeWhile(_ != page)
+      priorDataEntryPages.foreach { pageToRemove =>
+        s"return ${pageToRemove.toString} route for ${page.toString} when there is no previous data present in user answers for ${pageToRemove.toString}" in {
+          val userAnswers = userAnswersWithValues.removeWithPath(pageToRemove.path)
+          Navigation.firstPreviousPageWithNoData(page, NormalMode, userAnswers) mustBe Some(
+            pageToRemove.route(NormalMode)
+          )
+        }
+      }
+
+      // TODO: Add test that doesn't return page that comes AFTER page passed into firstPreviousPageWithNoData
     }
+
   }
 }

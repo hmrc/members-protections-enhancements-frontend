@@ -19,9 +19,8 @@ package navigation
 import models.userAnswers.UserAnswers
 import models.{Mode, NormalMode}
 import pages.*
-import play.api.libs.json.Format
+import play.api.libs.json.JsValue
 import play.api.mvc.Call
-
 object Navigation {
   private val pageNavigationNormalMode: Map[Page, Page] =
     Map(
@@ -39,17 +38,13 @@ object Navigation {
       case _ => CheckYourAnswersPage
     }
 
-  def previousPageIfNoDataEntered(page: Page, mode: Mode, userAnswers: UserAnswers): Option[Call] = {
-    def check[A](page: QuestionPage[A])(implicit format: Format[A]): Option[Call] = userAnswers.get(page) match {
-      case Some(_) => None
-      case _ => Some(page.route(mode))
-    }
-
-    page match {
-      case MembersDobPage => check(WhatIsTheMembersNamePage)
-      case MembersNinoPage => check(MembersDobPage)
-      case MembersPsaCheckRefPage => check(MembersNinoPage)
-      case _ => None
-    }
+  def firstPreviousPageWithNoData(page: Page, mode: Mode, userAnswers: UserAnswers): Option[Call] = {
+    val firstEmptyPage: Option[QuestionPage[?]] =
+      Seq(WhatIsTheMembersNamePage, MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage)
+        .takeWhile(_ != page)
+        .find(
+          _.path.readNullable[JsValue].reads(userAnswers.data).asOpt.flatten.isEmpty
+        )
+    firstEmptyPage.map(_.route(mode))
   }
 }

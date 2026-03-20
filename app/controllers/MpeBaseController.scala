@@ -51,89 +51,36 @@ abstract class MpeBaseController @Inject() (
       isResultsSuccessful(block(_))
     }
 
-  private def withDetail[D: Reads](questionPage: QuestionPage[D], failureRedirect: Call, block: D => Future[Result])(
-    implicit request: DataRequest[_]
-  ) =
-    request.userAnswers.get[D](questionPage) match {
-      case None =>
-        Future.successful(Redirect(failureRedirect))
-      case Some(value) =>
-        block(value)
-    }
-
-  private def handleWithMemberDetails(
-    block: DataRequest[AnyContent] => MemberDetails => Future[Result]
-  ): Action[AnyContent] =
-    handle { implicit request =>
-      withDetail(
-        questionPage = WhatIsTheMembersNamePage,
-        failureRedirect = routes.WhatIsTheMembersNameController.onPageLoad(NormalMode),
-        block = block(request)
-      )
-    }
-
-  private type WithDetailsAndDob = MemberDetails => MembersDob => Future[Result]
-
-  private def handleWithMemberDob(block: DataRequest[AnyContent] => WithDetailsAndDob): Action[AnyContent] =
-    handleWithMemberDetails { implicit request => details =>
-      withDetail(
-        questionPage = MembersDobPage,
-        failureRedirect = routes.MembersDobController.onPageLoad(NormalMode),
-        block = block(request)(details)
-      )
-    }
-
-  private type WithDetailsDobAndNino = MemberDetails => MembersDob => MembersNino => Future[Result]
-
-  private def handleWithMemberNino(block: DataRequest[AnyContent] => WithDetailsDobAndNino): Action[AnyContent] =
-    handleWithMemberDob { implicit request => details => dob =>
-      withDetail(
-        questionPage = MembersNinoPage,
-        failureRedirect = routes.MembersNinoController.onPageLoad(NormalMode),
-        block = block(request)(details)(dob)
-      )
-    }
-
   protected def withPreviousPageCheck(page: Page, mode: Mode, userAnswers: UserAnswers)(
     block: DataRequest[AnyContent] => Future[Result]
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
-    Navigation.previousPageIfNoDataEntered(page, mode, userAnswers) match {
+    Navigation.firstPreviousPageWithNoData(page, mode, userAnswers) match {
       case Some(call) => Future.successful(Redirect(call))
       case _ => block(request)
-    }
-
-  private type WithAllDetails = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]
-
-  // CYA page only
-  // All this is doing is checking that all values are present
-  protected def handleWithAllDetails(block: DataRequest[AnyContent] => WithAllDetails): Action[AnyContent] =
-    handleWithMemberNino { implicit request => details => dob => nino =>
-      withDetail(
-        questionPage = MembersPsaCheckRefPage,
-        failureRedirect = routes.MembersPsaCheckRefController.onPageLoad(NormalMode),
-        block = block(request)(details)(dob)(nino)
-      )
     }
 
   private type WithCheckedAnswers =
     MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => CheckMembersDetails => Future[Result]
 
-  // Noresults and result pages only
+  // TODO: The 2 controllers where this is used - find another way, to avoid the x => y => z etc syntax
   protected def handleWithCheckedAnswers(block: DataRequest[AnyContent] => WithCheckedAnswers): Action[AnyContent] =
-    handleWithAllDetails { implicit request => details => dob => nino => psacr =>
-      {
-        def redirectCall: Call = routes.CheckYourAnswersController.onPageLoad()
-
-        withDetail(
-          questionPage = CheckYourAnswersPage,
-          failureRedirect = redirectCall,
-          block = (cya: CheckMembersDetails) =>
-            if (cya.isChecked) {
-              block(request)(details)(dob)(nino)(psacr)(cya)
-            } else {
-              Future.successful(Redirect(redirectCall))
-            }
-        )
+    handle { implicit request =>
+      (
+        request.userAnswers.get(WhatIsTheMembersNamePage),
+        request.userAnswers.get(MembersDobPage),
+        request.userAnswers.get(MembersNinoPage),
+        request.userAnswers.get(MembersPsaCheckRefPage),
+        request.userAnswers.get(CheckYourAnswersPage)
+      ) match {
+        case (Some(details), Some(dob), Some(nino), Some(psacr), None) =>
+          Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
+        case (Some(details), Some(dob), Some(nino), Some(psacr), Some(cya)) =>
+          if (cya.isChecked) {
+            block(request)(details)(dob)(nino)(psacr)(cya)
+          } else {
+            Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
+          }
+        case _ => Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
       }
     }
 
