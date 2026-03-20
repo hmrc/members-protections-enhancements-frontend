@@ -19,7 +19,8 @@ package controllers
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
 import models.requests.{DataRequest, PensionSchemeMemberRequest}
-import navigation.Navigator
+import models.userAnswers.UserAnswers
+import navigation.{Navigation, Navigator}
 import pages.*
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Reads
@@ -104,12 +105,15 @@ abstract class MpeBaseController @Inject() (
 
   // IN PROGRESS
 //  protected def handleWithPageCheck[D: Reads](
-//    questionPage: QuestionPage[D]
+//    questionPage: QuestionPage[D],
+//    mode: Mode,
+//    userAnswers: UserAnswers
 //  )(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
 //    handle { implicit request =>
+//      val prevPage: Page = Navigation.prevPage(questionPage, userAnswers, mode)
 //      withDetail(
-//        questionPage = questionPage,
-//        failureRedirect = navigator.prevPage(questionPage).normalModeCall,
+//        questionPage = prevPage,
+//        failureRedirect = prevPage.route(mode),
 //        block = _ => block(request)
 //      )
 //    }

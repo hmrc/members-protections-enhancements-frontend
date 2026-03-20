@@ -16,15 +16,15 @@
 
 package pages
 
+import models.Mode
 import play.api.mvc.Call
 
 import scala.language.implicitConversions
 
 trait Page {
-  protected val normalModeCall: Call = Call("GET", "/")
+  val route: Mode => Call
 }
 
 object Page {
-
   implicit def toString(page: Page): String = page.toString
 }

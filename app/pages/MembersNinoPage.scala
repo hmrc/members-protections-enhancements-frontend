@@ -16,11 +16,13 @@
 
 package pages
 
-import models.MembersNino
+import controllers.routes
+import models.{MembersNino, Mode, NormalMode}
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object MembersNinoPage extends QuestionPage[MembersNino] {
-
+  override val route: Mode => Call = mode => routes.MembersNinoController.onPageLoad(mode)
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "membersNino"

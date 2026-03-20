@@ -19,6 +19,7 @@ package navigation
 import controllers.routes
 import models.*
 import models.userAnswers.UserAnswers
+import navigation.Navigation
 import pages.*
 import play.api.mvc.Call
 
@@ -26,32 +27,17 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class Navigator @Inject() {
-
-  private val normalRoutes: Page => UserAnswers => Call = {
-    case WhatYouWillNeedPage => _ => routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)
-    case WhatIsTheMembersNamePage => _ => routes.MembersDobController.onPageLoad(NormalMode)
-    case MembersDobPage => _ => routes.MembersNinoController.onPageLoad(NormalMode)
-    case MembersNinoPage => _ => routes.MembersPsaCheckRefController.onPageLoad(NormalMode)
-    case MembersPsaCheckRefPage => _ => routes.CheckYourAnswersController.onPageLoad()
-    case ResultsPage => _ => routes.CheckYourAnswersController.onPageLoad()
-    case _ => _ => routes.WhatYouWillNeedController.onPageLoad()
-  }
-
   private val checkRouteMap: Page => UserAnswers => Call = _ => _ => routes.CheckYourAnswersController.onPageLoad()
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
-    case NormalMode =>
-      normalRoutes(page)(userAnswers)
-    case CheckMode =>
-      checkRouteMap(page)(userAnswers)
-  }
-
-//  def prevPage[A](page: QuestionPage[A], userAnswers: UserAnswers): Page = page match {
-//    case WhatIsTheMembersNamePage => WhatYouWillNeedPage
-//    case MembersDobPage => WhatIsTheMembersNamePage
-//    case MembersNinoPage => MembersDobPage
-//    case MembersPsaCheckRefPage => MembersNinoPage
-//    case ResultsPage => MembersPsaCheckRefPage
-//    case _ => WhatIsTheMembersNamePage
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
+    Navigation.nextPage(page, userAnswers, mode).route(mode)
+  def prevPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
+    Navigation.prevPage(page, userAnswers, mode).route(mode)
+//  mode match {
+//    case NormalMode =>
+//      normalRoutes(page)(userAnswers)
+//    case CheckMode =>
+//      checkRouteMap(page)(userAnswers)
 //  }
+
 }
