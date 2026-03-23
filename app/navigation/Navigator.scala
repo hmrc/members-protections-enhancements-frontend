@@ -61,10 +61,11 @@ object Navigator {
       case _ => routes.ResultsController.onPageLoad()
     }
 
-  def backLinkUrl(mode: Mode, page: Page): String = page match {
-    case MembersDobPage => routes.WhatIsTheMembersNameController.onPageLoad(mode).url
-    case MembersNinoPage => routes.MembersDobController.onPageLoad(mode).url
-    case MembersPsaCheckRefPage => routes.MembersNinoController.onPageLoad(mode).url
-    case _ => routes.WhatYouWillNeedController.onPageLoad().url
-  }
+  def backLinkUrl(mode: Mode, page: Page): String =
+    pageNavigationNormalMode
+      .find((_, pageTo) => page == pageTo)
+      .map(_._1)
+      .getOrElse(WhatYouWillNeedPage)
+      .route(mode)
+      .url
 }
