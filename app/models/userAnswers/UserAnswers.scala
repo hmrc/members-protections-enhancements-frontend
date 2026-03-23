@@ -17,7 +17,7 @@
 package models.userAnswers
 
 import models.CheckMembersDetails
-import pages.{CheckYourAnswersPage, QuestionPage}
+import pages.CheckYourAnswersPage
 import play.api.libs.json.*
 import queries.{Gettable, Settable}
 import utils.encryption.AesGcmAdCrypto
@@ -52,9 +52,6 @@ final case class UserAnswers(id: String, data: JsObject = Json.obj(), lastUpdate
         )
     }
   }
-
-  def getOrException[A](page: QuestionPage[A])(implicit rds: Reads[A]): A =
-    get(page).getOrElse(throw new RuntimeException("Expected a value but none found for " + page))
 
   def setOrException[A](page: Settable[A], value: A)(implicit writes: Writes[A]): UserAnswers =
     set(page, value) match {

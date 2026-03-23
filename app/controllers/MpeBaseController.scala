@@ -59,24 +59,15 @@ abstract class MpeBaseController @Inject() (
       .map(_.fullName)
       .fold(Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode))))(block)
 
-  protected def withPreviousPageCheck(page: Page, mode: Mode)(
-    block: => Future[Result]
-  )(implicit request: DataRequest[AnyContent]): Future[Result] =
-    Navigator.firstPreviousPageWithNoData(page, mode, request.userAnswers) match {
-      case Some(call) => Future.successful(Redirect(call))
-      case _ => block
-    }
-
   protected def withPreviousPageCheckAndName(page: Page, mode: Mode)(
     block: String => Future[Result]
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
     Navigator.firstPreviousPageWithNoData(page, mode, request.userAnswers) match {
       case Some(call) => Future.successful(Redirect(call))
-      case _ =>
-        block(request.userAnswers.getOrException(WhatIsTheMembersNamePage).fullName)
+      case _ => withName(block)
     }
 
-  protected def withCheckedAnswers(request: DataRequest[AnyContent])(
+  protected def withAllAnswers(request: DataRequest[AnyContent])(
     block: (
       MemberDetails,
       MembersDob,
@@ -88,18 +79,26 @@ abstract class MpeBaseController @Inject() (
       request.userAnswers.get(WhatIsTheMembersNamePage),
       request.userAnswers.get(MembersDobPage),
       request.userAnswers.get(MembersNinoPage),
-      request.userAnswers.get(MembersPsaCheckRefPage),
-      request.userAnswers.get(CheckYourAnswersPage)
+      request.userAnswers.get(MembersPsaCheckRefPage)
     ) match {
-      case (Some(details), Some(dob), Some(nino), Some(psacr), None) =>
-        Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
-      case (Some(details), Some(dob), Some(nino), Some(psacr), Some(cya)) =>
-        if (cya.isChecked) {
-          block(details, dob, nino, psacr)
-        } else {
-          Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
-        }
+      case (Some(details), Some(dob), Some(nino), Some(psacr)) =>
+        block(details, dob, nino, psacr)
       case _ => Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
+    }
+
+  protected def withCheckedAnswers(request: DataRequest[AnyContent])(
+    block: (
+      MemberDetails,
+      MembersDob,
+      MembersNino,
+      MembersPsaCheckRef
+    ) => Future[Result]
+  ): Future[Result] =
+    withAllAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef) =>
+      request.userAnswers.get(CheckYourAnswersPage) match {
+        case Some(cya) if cya.isChecked => block(memberDetails, membersDob, membersNino, membersPsaCheckRef)
+        case _ => Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
+      }
     }
 
   protected def viewModel(page: Page, mode: Mode, userAnswers: UserAnswers): FormPageViewModel =

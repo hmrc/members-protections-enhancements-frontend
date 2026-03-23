@@ -42,26 +42,18 @@ class CheckYourAnswersController @Inject() (
 ) extends MpeBaseController(identify, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = authRetrieval { implicit request =>
-    withPreviousPageCheck(CheckYourAnswersPage, NormalMode) {
-      (
-        request.userAnswers.get(WhatIsTheMembersNamePage),
-        request.userAnswers.get(MembersDobPage),
-        request.userAnswers.get(MembersNinoPage),
-        request.userAnswers.get(MembersPsaCheckRefPage)
-      ) match {
-        case (Some(memberDetails), Some(membersDob), Some(membersNino), Some(membersPsaCheckRef)) =>
-          Future.successful(
-            Ok(
-              view(
-                rows(memberDetails, membersDob, membersNino, membersPsaCheckRef),
-                memberDetails.fullName,
-                Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url)
-              )
+    withPreviousPageCheckAndName(CheckYourAnswersPage, NormalMode) { name =>
+      withAllAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef) =>
+        Future.successful(
+          Ok(
+            view(
+              rows(memberDetails, membersDob, membersNino, membersPsaCheckRef),
+              name,
+              Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url)
             )
           )
-        case _ => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+        )
       }
-
     }
   }
 
