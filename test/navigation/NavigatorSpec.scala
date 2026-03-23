@@ -34,7 +34,7 @@ class NavigatorSpec extends AnyWordSpec with Matchers {
     .setOrException(page = MembersNinoPage, value = MembersNino("AB123456A"))
     .setOrException(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A"))
 
-  "nextPage" must {
+  "nextPage in NormalMode" must {
     Seq(
       WhatIsTheMembersNamePage -> MembersDobPage,
       MembersDobPage -> MembersNinoPage,
@@ -45,6 +45,20 @@ class NavigatorSpec extends AnyWordSpec with Matchers {
     ).foreach { case (fromPage, toPage) =>
       s"return correct next page for ${fromPage.toString}" in {
         Navigator.nextPage(fromPage, NormalMode, emptyUserAnswers) mustBe toPage
+      }
+    }
+  }
+  "nextPage in CheckMode" must {
+    Seq(
+      WhatIsTheMembersNamePage,
+      MembersDobPage,
+      MembersNinoPage,
+      MembersPsaCheckRefPage,
+      ResultsPage,
+      WhatYouWillNeedPage
+    ).foreach { fromPage =>
+      s"return correct next page for ${fromPage.toString}" in {
+        Navigator.nextPage(fromPage, CheckMode, emptyUserAnswers) mustBe CheckYourAnswersPage
       }
     }
   }
