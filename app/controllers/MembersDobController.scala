@@ -59,10 +59,10 @@ class MembersDobController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          withName { name =>
+          withName(name =>
             Future
               .successful(BadRequest(view(formWithErrors, viewModel(MembersDobPage, mode, request.userAnswers), name)))
-          },
+          ),
         answer =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))

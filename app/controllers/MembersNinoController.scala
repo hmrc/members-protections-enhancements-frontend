@@ -59,10 +59,10 @@ class MembersNinoController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          withName { name =>
+          withName(name =>
             Future
               .successful(BadRequest(view(formWithErrors, viewModel(MembersNinoPage, mode, request.userAnswers), name)))
-          },
+          ),
         answer =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))

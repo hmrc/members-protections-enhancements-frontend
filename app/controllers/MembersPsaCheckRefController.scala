@@ -62,11 +62,11 @@ class MembersPsaCheckRefController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          withName { name =>
+          withName(name =>
             Future.successful(
               BadRequest(view(formWithErrors, viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name))
             )
-          },
+          ),
         answer =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersPsaCheckRefPage, answer))
