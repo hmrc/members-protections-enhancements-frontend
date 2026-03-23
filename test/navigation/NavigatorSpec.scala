@@ -76,11 +76,7 @@ class NavigatorSpec extends AnyWordSpec with Matchers {
           )
         }
       }
-
-      // TODO: Add test that doesn't return page that comes AFTER page passed into firstPreviousPageWithNoData
-
     }
-
   }
 
   "submitUrl in NormalMode" must {
