@@ -62,15 +62,7 @@ class MembersDobController @Inject() (
       .fold(
         formWithErrors =>
           withName { name =>
-            Future.successful(
-              BadRequest(
-                view(
-                  form = formWithErrors,
-                  viewModel = viewModel(mode, MembersDobPage),
-                  name = name
-                )
-              )
-            )
+            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersDobPage), name)))
           },
         answer =>
           for {

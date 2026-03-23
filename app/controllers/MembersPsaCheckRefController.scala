@@ -59,20 +59,19 @@ class MembersPsaCheckRefController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
-    withName { name =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors =>
-            Future.successful(
-              BadRequest(view(formWithErrors, viewModel(mode, MembersPsaCheckRefPage), name))
-            ),
-          answer =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersPsaCheckRefPage, answer))
-              _ <- service.save(updatedAnswers)
-            } yield Redirect(Navigator.nextPage(MembersPsaCheckRefPage, mode, updatedAnswers).route(mode))
-        )
-    }
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          withName { name =>
+            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersPsaCheckRefPage), name)))
+          },
+        answer =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersPsaCheckRefPage, answer))
+            _ <- service.save(updatedAnswers)
+          } yield Redirect(Navigator.nextPage(MembersPsaCheckRefPage, mode, updatedAnswers).route(mode))
+      )
+
   }
 }
