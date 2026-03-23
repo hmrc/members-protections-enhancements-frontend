@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
 case object MembersPsaCheckRefPage extends QuestionPage[MembersPsaCheckRef] {
-  override val route: Mode => Call = mode => routes.MembersPsaCheckRefController.onPageLoad(mode)
+  override def route(mode: Mode): Call = routes.MembersPsaCheckRefController.onPageLoad(mode)
   override def path: JsPath = JsPath \ toString
   override def toString: String = "membersPsaCheckRef"
 }

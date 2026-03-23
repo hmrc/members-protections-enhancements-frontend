@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
 case object MembersNinoPage extends QuestionPage[MembersNino] {
-  override val route: Mode => Call = mode => routes.MembersNinoController.onPageLoad(mode)
+  override def route(mode: Mode): Call = routes.MembersNinoController.onPageLoad(mode)
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "membersNino"

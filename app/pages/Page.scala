@@ -22,7 +22,7 @@ import play.api.mvc.Call
 import scala.language.implicitConversions
 
 trait Page {
-  val route: Mode => Call
+  def route(mode: Mode): Call
 }
 
 object Page {

@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
 case object CheckYourAnswersPage extends QuestionPage[CheckMembersDetails] {
-  override val route: Mode => Call = _ => routes.CheckYourAnswersController.onPageLoad()
+  override def route(mode: Mode): Call = routes.CheckYourAnswersController.onPageLoad()
   override def path: JsPath = JsPath \ toString
   override def toString: String = "isChecked"
 }

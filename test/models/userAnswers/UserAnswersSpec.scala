@@ -55,7 +55,7 @@ class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto {
 
   class DummyPage extends QuestionPage[String] {
     override def path: JsPath = JsPath \ "field"
-    override val route: Mode => Call = _ => Call("GET", "/")
+    override def route(mode: Mode): Call = Call("GET", "/")
   }
 
   val dummyPage: DummyPage = new DummyPage
@@ -91,7 +91,7 @@ class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto {
           class BadPage extends QuestionPage[String] {
             override def path: JsPath = JsPath
 
-            override val route: Mode => Call = _ => Call("GET", "/")
+            override def route(mode: Mode): Call = Call("GET", "/")
           }
 
           val badPage: BadPage = new BadPage
@@ -126,7 +126,7 @@ class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto {
 
         "should return a failure when setting fails" in {
           class BadPage extends QuestionPage[String] {
-            override val route: Mode => Call = _ => Call("GET", "/")
+            override def route(mode: Mode): Call = Call("GET", "/")
             override def path: JsPath = JsPath
           }
 

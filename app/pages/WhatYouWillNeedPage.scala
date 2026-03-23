@@ -21,5 +21,5 @@ import models.Mode
 import play.api.mvc.Call
 
 case object WhatYouWillNeedPage extends Page {
-  override val route: Mode => Call = _ => routes.WhatYouWillNeedController.onPageLoad()
+  override def route(mode: Mode): Call = routes.WhatYouWillNeedController.onPageLoad()
 }

@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
 case object ResultsPage extends QuestionPage[MembersResult] {
-  override val route: Mode => Call = _ => routes.ResultsController.onPageLoad()
+  override def route(mode: Mode): Call = routes.ResultsController.onPageLoad()
   override def path: JsPath = JsPath \ toString
   override def toString: String = "isSuccessful"
 }
