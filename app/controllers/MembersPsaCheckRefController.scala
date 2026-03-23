@@ -48,10 +48,11 @@ class MembersPsaCheckRefController @Inject() (
     withPreviousPageCheck(MembersPsaCheckRefPage, mode, request.userAnswers) {
       withName { name =>
         request.userAnswers.get(MembersPsaCheckRefPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(mode, MembersPsaCheckRefPage), name)))
+          case None =>
+            Future.successful(Ok(view(form, viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name)))
           case Some(value) =>
             Future.successful(
-              Ok(view(form.fill(value), viewModel(mode, MembersPsaCheckRefPage), name))
+              Ok(view(form.fill(value), viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name))
             )
         }
       }
@@ -64,7 +65,9 @@ class MembersPsaCheckRefController @Inject() (
       .fold(
         formWithErrors =>
           withName { name =>
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersPsaCheckRefPage), name)))
+            Future.successful(
+              BadRequest(view(formWithErrors, viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name))
+            )
           },
         answer =>
           for {

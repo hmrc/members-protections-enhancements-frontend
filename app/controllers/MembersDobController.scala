@@ -48,9 +48,9 @@ class MembersDobController @Inject() (
     withPreviousPageCheck(MembersDobPage, mode, request.userAnswers) {
       withName { name =>
         request.userAnswers.get(MembersDobPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(mode, MembersDobPage), name)))
+          case None => Future.successful(Ok(view(form, viewModel(MembersDobPage, mode, request.userAnswers), name)))
           case Some(value) =>
-            Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersDobPage), name)))
+            Future.successful(Ok(view(form.fill(value), viewModel(MembersDobPage, mode, request.userAnswers), name)))
         }
       }
     }
@@ -62,7 +62,8 @@ class MembersDobController @Inject() (
       .fold(
         formWithErrors =>
           withName { name =>
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersDobPage), name)))
+            Future
+              .successful(BadRequest(view(formWithErrors, viewModel(MembersDobPage, mode, request.userAnswers), name)))
           },
         answer =>
           for {

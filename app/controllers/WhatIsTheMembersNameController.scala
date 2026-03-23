@@ -50,7 +50,7 @@ class WhatIsTheMembersNameController @Inject() (
       case None => form
       case Some(value) => form.fill(value)
     }
-    Future.successful(Ok(view(namesForm, viewModel(mode, WhatIsTheMembersNamePage))))
+    Future.successful(Ok(view(namesForm, viewModel(WhatIsTheMembersNamePage, mode, request.userAnswers))))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
@@ -58,7 +58,9 @@ class WhatIsTheMembersNameController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, viewModel(mode, WhatIsTheMembersNamePage)))),
+          Future.successful(
+            BadRequest(view(formWithErrors, viewModel(WhatIsTheMembersNamePage, mode, request.userAnswers)))
+          ),
         answer =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))

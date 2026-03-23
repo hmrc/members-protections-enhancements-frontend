@@ -85,6 +85,6 @@ class CheckYourAnswersController @Inject() (
         request.userAnswers.set(CheckYourAnswersPage, CheckMembersDetails(isChecked = true))
       )
       _ <- service.save(updatedAnswers)
-    } yield Redirect(Navigator.submitUrl(NormalMode, CheckYourAnswersPage))
+    } yield Redirect(Navigator.submitUrl(CheckYourAnswersPage, NormalMode, updatedAnswers))
   }
 }

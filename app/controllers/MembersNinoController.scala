@@ -48,9 +48,9 @@ class MembersNinoController @Inject() (
     withPreviousPageCheck(MembersNinoPage, mode, request.userAnswers) {
       withName { name =>
         request.userAnswers.get(MembersNinoPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), name)))
+          case None => Future.successful(Ok(view(form, viewModel(MembersNinoPage, mode, request.userAnswers), name)))
           case Some(value) =>
-            Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), name)))
+            Future.successful(Ok(view(form.fill(value), viewModel(MembersNinoPage, mode, request.userAnswers), name)))
         }
       }
     }
@@ -62,7 +62,8 @@ class MembersNinoController @Inject() (
       .fold(
         formWithErrors =>
           withName { name =>
-            Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersNinoPage), name)))
+            Future
+              .successful(BadRequest(view(formWithErrors, viewModel(MembersNinoPage, mode, request.userAnswers), name)))
           },
         answer =>
           for {

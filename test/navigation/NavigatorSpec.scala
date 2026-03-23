@@ -91,7 +91,7 @@ class NavigatorSpec extends AnyWordSpec with Matchers {
       MembersPsaCheckRefPage -> routes.MembersPsaCheckRefController.onSubmit(NormalMode)
     ).foreach { case (page, route) =>
       s"return correct route for $page" in {
-        Navigator.submitUrl(NormalMode, page) mustBe route
+        Navigator.submitUrl(page, NormalMode, emptyUserAnswers) mustBe route
       }
     }
   }
@@ -104,7 +104,7 @@ class NavigatorSpec extends AnyWordSpec with Matchers {
       MembersPsaCheckRefPage -> routes.MembersPsaCheckRefController.onSubmit(CheckMode)
     ).foreach { case (page, route) =>
       s"return correct route for $page" in {
-        Navigator.submitUrl(CheckMode, page) mustBe route
+        Navigator.submitUrl(page, CheckMode, emptyUserAnswers) mustBe route
       }
     }
   }

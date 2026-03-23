@@ -52,7 +52,7 @@ object Navigator {
     firstEmptyPage.map(_.route(mode))
   }
 
-  def submitUrl(mode: Mode, page: Page): Call =
+  def submitUrl(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
     page match {
       case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
       case MembersDobPage => routes.MembersDobController.onSubmit(mode)

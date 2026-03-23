@@ -94,9 +94,9 @@ abstract class MpeBaseController @Inject() (
       case _ => Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
     }
 
-  protected def viewModel(mode: Mode, page: Page): FormPageViewModel =
+  protected def viewModel(page: Page, mode: Mode, userAnswers: UserAnswers): FormPageViewModel =
     FormPageViewModel(
-      onSubmit = Navigator.submitUrl(mode, page),
+      onSubmit = Navigator.submitUrl(page, mode, userAnswers),
       backLinkUrl = Some(Navigator.backLinkUrl(mode, page))
     )
 }
