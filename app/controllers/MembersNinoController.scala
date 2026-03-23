@@ -45,13 +45,11 @@ class MembersNinoController @Inject() (
   private val form: Form[MembersNino] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
-    withPreviousPageCheck(MembersNinoPage, mode, request.userAnswers) {
-      withName { name =>
-        request.userAnswers.get(MembersNinoPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(MembersNinoPage, mode, request.userAnswers), name)))
-          case Some(value) =>
-            Future.successful(Ok(view(form.fill(value), viewModel(MembersNinoPage, mode, request.userAnswers), name)))
-        }
+    withPreviousPageCheckAndName(MembersNinoPage, mode) { name =>
+      request.userAnswers.get(MembersNinoPage) match {
+        case None => Future.successful(Ok(view(form, viewModel(MembersNinoPage, mode, request.userAnswers), name)))
+        case Some(value) =>
+          Future.successful(Ok(view(form.fill(value), viewModel(MembersNinoPage, mode, request.userAnswers), name)))
       }
     }
   }

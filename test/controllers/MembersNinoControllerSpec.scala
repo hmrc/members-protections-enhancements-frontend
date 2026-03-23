@@ -77,6 +77,17 @@ class MembersNinoControllerSpec extends SpecBase {
 
       }
     }
+    "must redirect on submission when no name has been entered and there are errors" in {
+      val application = applicationBuilder(emptyUserAnswers).build()
+      running(application) {
+        val request = FakeRequest(POST, onSubmit.url)
+          .withFormUrlEncodedBody("nino" -> "")
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
+      }
+    }
 
     "must return OK and pre-fill the form when data is already present" in {
       val userAnswers = emptyUserAnswers

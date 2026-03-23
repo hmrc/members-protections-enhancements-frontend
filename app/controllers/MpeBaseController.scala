@@ -59,12 +59,25 @@ abstract class MpeBaseController @Inject() (
       .map(_.fullName)
       .fold(Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode))))(block)
 
-  protected def withPreviousPageCheck(page: Page, mode: Mode, userAnswers: UserAnswers)(
-    block: DataRequest[AnyContent] => Future[Result]
+  protected def withPreviousPageCheck(page: Page, mode: Mode)(
+    block: => Future[Result]
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
-    Navigator.firstPreviousPageWithNoData(page, mode, userAnswers) match {
+    Navigator.firstPreviousPageWithNoData(page, mode, request.userAnswers) match {
       case Some(call) => Future.successful(Redirect(call))
-      case _ => block(request)
+      case _ => block
+    }
+
+  protected def withPreviousPageCheckAndName(page: Page, mode: Mode)(
+    block: String => Future[Result]
+  )(implicit request: DataRequest[AnyContent]): Future[Result] =
+    Navigator.firstPreviousPageWithNoData(page, mode, request.userAnswers) match {
+      case Some(call) => Future.successful(Redirect(call))
+      case _ =>
+        val name = request.userAnswers
+          .get(WhatIsTheMembersNamePage)
+          .getOrElse(throw new RuntimeException("Missing name"))
+          .fullName
+        block(name)
     }
 
   protected def withCheckedAnswers(request: DataRequest[AnyContent])(
@@ -72,8 +85,7 @@ abstract class MpeBaseController @Inject() (
       MemberDetails,
       MembersDob,
       MembersNino,
-      MembersPsaCheckRef,
-      CheckMembersDetails
+      MembersPsaCheckRef
     ) => Future[Result]
   ): Future[Result] =
     (
@@ -87,7 +99,7 @@ abstract class MpeBaseController @Inject() (
         Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
       case (Some(details), Some(dob), Some(nino), Some(psacr), Some(cya)) =>
         if (cya.isChecked) {
-          block(details, dob, nino, psacr, cya)
+          block(details, dob, nino, psacr)
         } else {
           Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
         }

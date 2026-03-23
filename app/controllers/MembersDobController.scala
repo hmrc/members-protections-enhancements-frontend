@@ -45,13 +45,11 @@ class MembersDobController @Inject() (
   private val form: Form[MembersDob] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
-    withPreviousPageCheck(MembersDobPage, mode, request.userAnswers) {
-      withName { name =>
-        request.userAnswers.get(MembersDobPage) match {
-          case None => Future.successful(Ok(view(form, viewModel(MembersDobPage, mode, request.userAnswers), name)))
-          case Some(value) =>
-            Future.successful(Ok(view(form.fill(value), viewModel(MembersDobPage, mode, request.userAnswers), name)))
-        }
+    withPreviousPageCheckAndName(MembersDobPage, mode) { name =>
+      request.userAnswers.get(MembersDobPage) match {
+        case None => Future.successful(Ok(view(form, viewModel(MembersDobPage, mode, request.userAnswers), name)))
+        case Some(value) =>
+          Future.successful(Ok(view(form.fill(value), viewModel(MembersDobPage, mode, request.userAnswers), name)))
       }
     }
   }

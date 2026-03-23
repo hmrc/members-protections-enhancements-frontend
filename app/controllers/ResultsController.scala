@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, MembersResult}
+import models.*
 import models.audit.{AuditDetail, AuditEvent}
 import models.errors.ErrorSource.MatchPerson
 import models.errors.{ErrorSource, MpeError}
@@ -62,7 +62,7 @@ class ResultsController @Inject() (
   val classLoggingContext: String = "ResultsController"
 
   def onPageLoad(): Action[AnyContent] = authRetrieval { request =>
-    withCheckedAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef, aa) =>
+    withCheckedAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef) =>
       implicit val req: DataRequest[AnyContent] = request
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
       implicit val correlationId: String = idGenerator.getCorrelationId

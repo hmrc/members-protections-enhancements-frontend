@@ -45,16 +45,14 @@ class MembersPsaCheckRefController @Inject() (
   private val form: Form[MembersPsaCheckRef] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
-    withPreviousPageCheck(MembersPsaCheckRefPage, mode, request.userAnswers) {
-      withName { name =>
-        request.userAnswers.get(MembersPsaCheckRefPage) match {
-          case None =>
-            Future.successful(Ok(view(form, viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name)))
-          case Some(value) =>
-            Future.successful(
-              Ok(view(form.fill(value), viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name))
-            )
-        }
+    withPreviousPageCheckAndName(MembersPsaCheckRefPage, mode) { name =>
+      request.userAnswers.get(MembersPsaCheckRefPage) match {
+        case None =>
+          Future.successful(Ok(view(form, viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name)))
+        case Some(value) =>
+          Future.successful(
+            Ok(view(form.fill(value), viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name))
+          )
       }
     }
   }

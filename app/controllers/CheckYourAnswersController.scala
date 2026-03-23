@@ -42,7 +42,7 @@ class CheckYourAnswersController @Inject() (
 ) extends MpeBaseController(identify, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = authRetrieval { implicit request =>
-    withPreviousPageCheck(CheckYourAnswersPage, NormalMode, request.userAnswers) { _ =>
+    withPreviousPageCheck(CheckYourAnswersPage, NormalMode) {
       (
         request.userAnswers.get(WhatIsTheMembersNamePage),
         request.userAnswers.get(MembersDobPage),

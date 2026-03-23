@@ -38,7 +38,7 @@ class NoResultsController @Inject() (
 ) extends MpeBaseController(identify, checkLockout, getData) {
 
   def onPageLoad(): Action[AnyContent] = authRetrieval { request =>
-    withCheckedAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef, _) =>
+    withCheckedAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef) =>
       implicit val req: DataRequest[AnyContent] = request
       Future.successful(
         Ok(
