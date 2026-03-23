@@ -33,6 +33,9 @@ object Navigator {
       WhatYouWillNeedPage -> WhatIsTheMembersNamePage
     )
 
+  private val pagesWithEnteredData: Seq[QuestionPage[?]] =
+    Seq(WhatIsTheMembersNamePage, MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage)
+
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Page =
     mode match {
       case NormalMode => pageNavigationNormalMode.getOrElse(page, WhatYouWillNeedPage)
@@ -41,7 +44,7 @@ object Navigator {
 
   def firstPreviousPageWithNoData(page: Page, mode: Mode, userAnswers: UserAnswers): Option[Call] = {
     val firstEmptyPage: Option[QuestionPage[?]] =
-      Seq(WhatIsTheMembersNamePage, MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage)
+      pagesWithEnteredData
         .takeWhile(_ != page)
         .find(
           _.path.readNullable[JsValue].reads(userAnswers.data).asOpt.flatten.isEmpty
@@ -49,13 +52,14 @@ object Navigator {
     firstEmptyPage.map(_.route(mode))
   }
 
-  def submitUrl(mode: Mode, page: Page): Call = page match {
-    case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
-    case MembersDobPage => routes.MembersDobController.onSubmit(mode)
-    case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
-    case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
-    case _ => routes.ResultsController.onPageLoad()
-  }
+  def submitUrl(mode: Mode, page: Page): Call =
+    page match {
+      case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
+      case MembersDobPage => routes.MembersDobController.onSubmit(mode)
+      case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
+      case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
+      case _ => routes.ResultsController.onPageLoad()
+    }
 
   def backLinkUrl(mode: Mode, page: Page): String = page match {
     case MembersDobPage => routes.WhatIsTheMembersNameController.onPageLoad(mode).url

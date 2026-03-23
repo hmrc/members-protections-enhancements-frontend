@@ -16,6 +16,7 @@
 
 package navigation
 
+import controllers.routes
 import models.*
 import models.userAnswers.UserAnswers
 import org.scalatest.matchers.must.Matchers
@@ -77,8 +78,57 @@ class NavigatorSpec extends AnyWordSpec with Matchers {
       }
 
       // TODO: Add test that doesn't return page that comes AFTER page passed into firstPreviousPageWithNoData
-      // TODO: Add tests for submitUrl and backLinkUrl
+
     }
 
+  }
+
+  "submitUrl in NormalMode" must {
+    Seq(
+      WhatIsTheMembersNamePage -> routes.WhatIsTheMembersNameController.onSubmit(NormalMode),
+      MembersDobPage -> routes.MembersDobController.onSubmit(NormalMode),
+      MembersNinoPage -> routes.MembersNinoController.onSubmit(NormalMode),
+      MembersPsaCheckRefPage -> routes.MembersPsaCheckRefController.onSubmit(NormalMode)
+    ).foreach { case (page, route) =>
+      s"return correct route for $page" in {
+        Navigator.submitUrl(NormalMode, page) mustBe route
+      }
+    }
+  }
+
+  "submitUrl in CheckMode" must {
+    Seq(
+      WhatIsTheMembersNamePage -> routes.WhatIsTheMembersNameController.onSubmit(CheckMode),
+      MembersDobPage -> routes.MembersDobController.onSubmit(CheckMode),
+      MembersNinoPage -> routes.MembersNinoController.onSubmit(CheckMode),
+      MembersPsaCheckRefPage -> routes.MembersPsaCheckRefController.onSubmit(CheckMode)
+    ).foreach { case (page, route) =>
+      s"return correct route for $page" in {
+        Navigator.submitUrl(CheckMode, page) mustBe route
+      }
+    }
+  }
+
+  "backLinkUrl in NormalMode" must {
+    Seq(
+      MembersDobPage -> routes.WhatIsTheMembersNameController.onSubmit(NormalMode),
+      MembersNinoPage -> routes.MembersDobController.onSubmit(NormalMode),
+      MembersPsaCheckRefPage -> routes.MembersNinoController.onSubmit(NormalMode)
+    ).foreach { case (page, route) =>
+      s"return correct route for $page" in {
+        Navigator.backLinkUrl(NormalMode, page) mustBe route.url
+      }
+    }
+  }
+  "backLinkUrl in CheckMode" must {
+    Seq(
+      MembersDobPage -> routes.WhatIsTheMembersNameController.onSubmit(CheckMode),
+      MembersNinoPage -> routes.MembersDobController.onSubmit(CheckMode),
+      MembersPsaCheckRefPage -> routes.MembersNinoController.onSubmit(CheckMode)
+    ).foreach { case (page, route) =>
+      s"return correct route for $page" in {
+        Navigator.backLinkUrl(CheckMode, page) mustBe route.url
+      }
+    }
   }
 }
