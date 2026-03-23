@@ -17,7 +17,7 @@
 package pages
 
 import controllers.routes
-import models.{MembersDob, Mode, NormalMode}
+import models.{MembersDob, Mode}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 

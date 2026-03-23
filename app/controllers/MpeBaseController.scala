@@ -73,11 +73,7 @@ abstract class MpeBaseController @Inject() (
     Navigator.firstPreviousPageWithNoData(page, mode, request.userAnswers) match {
       case Some(call) => Future.successful(Redirect(call))
       case _ =>
-        val name = request.userAnswers
-          .get(WhatIsTheMembersNamePage)
-          .getOrElse(throw new RuntimeException("Missing name"))
-          .fullName
-        block(name)
+        block(request.userAnswers.getOrException(WhatIsTheMembersNamePage).fullName)
     }
 
   protected def withCheckedAnswers(request: DataRequest[AnyContent])(

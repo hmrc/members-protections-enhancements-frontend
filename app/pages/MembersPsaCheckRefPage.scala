@@ -17,7 +17,7 @@
 package pages
 
 import controllers.routes
-import models.{MembersPsaCheckRef, Mode, NormalMode}
+import models.{MembersPsaCheckRef, Mode}
 import play.api.libs.json.JsPath
 import play.api.mvc.Call
 
