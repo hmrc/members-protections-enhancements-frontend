@@ -44,7 +44,7 @@ class MembersNinoController @Inject() (
 
   private val form: Form[MembersNino] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     withPreviousPageCheck(MembersNinoPage, mode, request.userAnswers) {
       withName { name =>
         request.userAnswers.get(MembersNinoPage) match {
@@ -56,7 +56,7 @@ class MembersNinoController @Inject() (
     }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     form
       .bindFromRequest()
       .fold(

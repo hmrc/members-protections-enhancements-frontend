@@ -32,20 +32,13 @@ import services.{AuditService, FailedAttemptService, MembersCheckAndRetrieveServ
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.constants.AuditJourneyTypes.{
-  DEFAULT_JOURNEY,
-  MEMBER_MATCHED_NO_DATA,
-  NO_MEMBER_MATCHED,
-  RESULTS_DISPLAYED,
-  RETRIEVE_API_ERROR,
-  SEARCH_API_ERROR
-}
-import utils.{DateTimeFormats, IdGenerator, Logging}
-import views.html.ResultsView
+import utils.constants.AuditJourneyTypes.*
 import utils.constants.AuditResultTypes.{MATCH, NO_MATCH as NO_MATCH_RESULT}
 import utils.constants.AuditTransactionTypes.MEMBER_SEARCH_RESULTS
 import utils.constants.AuditTypes.COMPLETE_MEMBER_SEARCH
 import utils.constants.ErrorCodes.{EMPTY_DATA, NOT_FOUND as NOT_FOUND_ERROR, NO_MATCH}
+import utils.{DateTimeFormats, IdGenerator, Logging}
+import views.html.ResultsView
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -68,58 +61,58 @@ class ResultsController @Inject() (
 
   val classLoggingContext: String = "ResultsController"
 
-  def onPageLoad(): Action[AnyContent] = handleWithCheckedAnswers {
-    implicit request => memberDetails => membersDob => membersNino => membersPsaCheckRef => _ =>
-      {
-        implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-        implicit val correlationId: String = idGenerator.getCorrelationId
+  def onPageLoad(): Action[AnyContent] = authRetrieval { request =>
+    withCheckedAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef, aa) =>
+      implicit val req: DataRequest[AnyContent] = request
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      implicit val correlationId: String = idGenerator.getCorrelationId
 
-        val fullLoggingContext: String = s"[$classLoggingContext][onPageLoad]"
-        logInfo(fullLoggingContext, s"with correlationId: $correlationId")
+      val fullLoggingContext: String = s"[$classLoggingContext][onPageLoad]"
+      logInfo(fullLoggingContext, s"with correlationId: $correlationId")
 
-        val pensionSchemeMemberRequest: PensionSchemeMemberRequest = createMembersRequest(
-          memberDetails = memberDetails,
-          membersDob = membersDob,
-          membersNino = membersNino,
-          membersPsaCheckRef = membersPsaCheckRef
-        )
-        val auditDetail: AuditDetail = generateAuditDetail(pensionSchemeMemberRequest, request.userDetails)
+      val pensionSchemeMemberRequest: PensionSchemeMemberRequest = createMembersRequest(
+        memberDetails = memberDetails,
+        membersDob = membersDob,
+        membersNino = membersNino,
+        membersPsaCheckRef = membersPsaCheckRef
+      )
+      val auditDetail: AuditDetail = generateAuditDetail(pensionSchemeMemberRequest, request.userDetails)
 
-        checkAndRetrieveService.checkAndRetrieve(pensionSchemeMemberRequest).flatMap {
-          case Right(value) =>
-            logInfo(
-              s"$fullLoggingContext",
-              s"Successfully retrieved results for supplied details redirecting to Results page"
+      checkAndRetrieveService.checkAndRetrieve(pensionSchemeMemberRequest).flatMap {
+        case Right(value) =>
+          logInfo(
+            s"$fullLoggingContext",
+            s"Successfully retrieved results for supplied details redirecting to Results page"
+          )
+          auditSubmission(
+            COMPLETE_MEMBER_SEARCH,
+            routes.ResultsController.onPageLoad().url,
+            details = auditDetail.copy(
+              journey = RESULTS_DISPLAYED,
+              searchAPIMatchResult = Some(MATCH),
+              numberOfProtectionsAndEnhancementsTotal = Some(value.protectionRecords.size),
+              numberOfProtectionsAndEnhancementsActive = Some(value.protectionRecords.count(_.status == Active)),
+              numberOfProtectionsAndEnhancementsDormant = Some(value.protectionRecords.count(_.status == Dormant)),
+              numberOfProtectionsAndEnhancementsWithdrawn = Some(value.protectionRecords.count(_.status == Withdrawn))
             )
-            auditSubmission(
-              COMPLETE_MEMBER_SEARCH,
-              routes.ResultsController.onPageLoad().url,
-              details = auditDetail.copy(
-                journey = RESULTS_DISPLAYED,
-                searchAPIMatchResult = Some(MATCH),
-                numberOfProtectionsAndEnhancementsTotal = Some(value.protectionRecords.size),
-                numberOfProtectionsAndEnhancementsActive = Some(value.protectionRecords.count(_.status == Active)),
-                numberOfProtectionsAndEnhancementsDormant = Some(value.protectionRecords.count(_.status == Dormant)),
-                numberOfProtectionsAndEnhancementsWithdrawn = Some(value.protectionRecords.count(_.status == Withdrawn))
-              )
+          )
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(ResultsPage, MembersResult(isSuccessful = true)))
+            _ <- service.save(updatedAnswers)
+          } yield Ok(
+            view(
+              memberDetails = memberDetails,
+              membersDob = membersDob,
+              membersNino = membersNino,
+              membersPsaCheckRef = membersPsaCheckRef,
+              backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
+              formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
+              protectionRecordDetails = value
             )
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(ResultsPage, MembersResult(isSuccessful = true)))
-              _ <- service.save(updatedAnswers)
-            } yield Ok(
-              view(
-                memberDetails = memberDetails,
-                membersDob = membersDob,
-                membersNino = membersNino,
-                membersPsaCheckRef = membersPsaCheckRef,
-                backLinkUrl = Some(routes.CheckYourAnswersController.onPageLoad().url),
-                formattedTimestamp = DateTimeFormats.getCurrentDateTimestamp(dateTimeProvider.now()),
-                protectionRecordDetails = value
-              )
-            )
-          case Left(error) => handleErrorResponse(error, auditDetail, fullLoggingContext)
-        }
+          )
+        case Left(error) => handleErrorResponse(error, auditDetail, fullLoggingContext)
       }
+    }
 
   }
 

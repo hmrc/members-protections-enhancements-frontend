@@ -43,7 +43,7 @@ class MembersNinoControllerSpec extends SpecBase {
         .setOrException(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
         .setOrException(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1)))
         .setOrException(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A"))
-        
+
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
       running(application) {

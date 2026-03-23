@@ -17,6 +17,7 @@
 package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
+import models.requests.DataRequest
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
@@ -36,8 +37,9 @@ class NoResultsController @Inject() (
   dateTimeProvider: DateTimeProvider
 ) extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handleWithCheckedAnswers {
-    implicit request => memberDetails => membersDob => membersNino => membersPsaCheckRef => _ =>
+  def onPageLoad(): Action[AnyContent] = authRetrieval { request =>
+    withCheckedAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef, _) =>
+      implicit val req: DataRequest[AnyContent] = request
       Future.successful(
         Ok(
           view(
@@ -49,5 +51,6 @@ class NoResultsController @Inject() (
           )
         )
       )
+    }
   }
 }

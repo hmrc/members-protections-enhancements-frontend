@@ -23,7 +23,6 @@ import models.userAnswers.UserAnswers
 import navigation.Navigation
 import pages.*
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Reads
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.Logging
@@ -40,16 +39,25 @@ abstract class MpeBaseController @Inject() (
     with I18nSupport
     with Logging {
 
+  protected def authRetrieval(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] = {
+    def isResultsSuccessful(
+      block: DataRequest[AnyContent] => Future[Result]
+    )(implicit request: DataRequest[AnyContent]): Future[Result] =
+      request.userAnswers.get(ResultsPage) match {
+        case Some(_) =>
+          Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
+        case None => block(request)
+      }
+    identify.andThen(checkLockout).andThen(getData).async { implicit request =>
+      isResultsSuccessful(block(_))
+    }
+  }
+
   protected def withName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
     request.userAnswers
       .get(WhatIsTheMembersNamePage)
       .map(_.fullName)
       .fold(Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode))))(block)
-
-  protected def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
-    identify.andThen(checkLockout).andThen(getData).async { implicit request =>
-      isResultsSuccessful(block(_))
-    }
 
   protected def withPreviousPageCheck(page: Page, mode: Mode, userAnswers: UserAnswers)(
     block: DataRequest[AnyContent] => Future[Result]
@@ -59,38 +67,31 @@ abstract class MpeBaseController @Inject() (
       case _ => block(request)
     }
 
-  private type WithCheckedAnswers =
-    MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => CheckMembersDetails => Future[Result]
-
-  // TODO: The 2 controllers where this is used - find another way, to avoid the x => y => z etc syntax
-  protected def handleWithCheckedAnswers(block: DataRequest[AnyContent] => WithCheckedAnswers): Action[AnyContent] =
-    handle { implicit request =>
-      (
-        request.userAnswers.get(WhatIsTheMembersNamePage),
-        request.userAnswers.get(MembersDobPage),
-        request.userAnswers.get(MembersNinoPage),
-        request.userAnswers.get(MembersPsaCheckRefPage),
-        request.userAnswers.get(CheckYourAnswersPage)
-      ) match {
-        case (Some(details), Some(dob), Some(nino), Some(psacr), None) =>
+  protected def withCheckedAnswers(request: DataRequest[AnyContent])(
+    block: (
+      MemberDetails,
+      MembersDob,
+      MembersNino,
+      MembersPsaCheckRef,
+      CheckMembersDetails
+    ) => Future[Result]
+  ): Future[Result] =
+    (
+      request.userAnswers.get(WhatIsTheMembersNamePage),
+      request.userAnswers.get(MembersDobPage),
+      request.userAnswers.get(MembersNinoPage),
+      request.userAnswers.get(MembersPsaCheckRefPage),
+      request.userAnswers.get(CheckYourAnswersPage)
+    ) match {
+      case (Some(details), Some(dob), Some(nino), Some(psacr), None) =>
+        Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
+      case (Some(details), Some(dob), Some(nino), Some(psacr), Some(cya)) =>
+        if (cya.isChecked) {
+          block(details, dob, nino, psacr, cya)
+        } else {
           Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
-        case (Some(details), Some(dob), Some(nino), Some(psacr), Some(cya)) =>
-          if (cya.isChecked) {
-            block(request)(details)(dob)(nino)(psacr)(cya)
-          } else {
-            Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
-          }
-        case _ => Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
-      }
-    }
-
-  private def isResultsSuccessful(
-    block: DataRequest[AnyContent] => Future[Result]
-  )(implicit request: DataRequest[AnyContent]): Future[Result] =
-    request.userAnswers.get(ResultsPage) match {
-      case Some(_) =>
-        Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
-      case None => block(request)
+        }
+      case _ => Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
     }
 
   protected def viewModel(mode: Mode, page: Page): FormPageViewModel =

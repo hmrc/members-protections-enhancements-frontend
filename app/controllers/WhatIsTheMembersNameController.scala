@@ -44,7 +44,7 @@ class WhatIsTheMembersNameController @Inject() (
 
   private val form: Form[MemberDetails] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
 
     val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
       case None => form
@@ -53,7 +53,7 @@ class WhatIsTheMembersNameController @Inject() (
     Future.successful(Ok(view(namesForm, viewModel(mode, WhatIsTheMembersNamePage))))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     form
       .bindFromRequest()
       .fold(

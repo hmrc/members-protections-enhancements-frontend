@@ -44,7 +44,7 @@ class MembersDobController @Inject() (
 
   private val form: Form[MembersDob] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     withPreviousPageCheck(MembersDobPage, mode, request.userAnswers) {
       withName { name =>
         request.userAnswers.get(MembersDobPage) match {
@@ -56,7 +56,7 @@ class MembersDobController @Inject() (
     }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     form
       .bindFromRequest()
       .fold(

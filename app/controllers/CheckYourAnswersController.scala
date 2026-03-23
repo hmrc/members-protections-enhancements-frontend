@@ -40,7 +40,7 @@ class CheckYourAnswersController @Inject() (
   view: CheckYourAnswersView
 ) extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(): Action[AnyContent] = authRetrieval { implicit request =>
     withPreviousPageCheck(CheckYourAnswersPage, NormalMode, request.userAnswers) { _ =>
       (
         request.userAnswers.get(WhatIsTheMembersNamePage),
@@ -78,7 +78,7 @@ class CheckYourAnswersController @Inject() (
       membersPsaCheckRefRow(membersPsaCheckRef)
     )
 
-  def onSubmit: Action[AnyContent] = handle { implicit request =>
+  def onSubmit: Action[AnyContent] = authRetrieval { implicit request =>
     for {
       updatedAnswers <- Future.fromTry(
         request.userAnswers.set(CheckYourAnswersPage, CheckMembersDetails(isChecked = true))

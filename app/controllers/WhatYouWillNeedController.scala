@@ -39,7 +39,7 @@ class WhatYouWillNeedController @Inject() (
     )
   }
 
-  def onPageLoad(): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(): Action[AnyContent] = authRetrieval { implicit request =>
     Future.successful(Ok(view(Some(routes.MpsDashboardController.redirectToMps().url))))
   }
 }

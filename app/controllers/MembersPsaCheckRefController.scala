@@ -44,7 +44,7 @@ class MembersPsaCheckRefController @Inject() (
 
   private val form: Form[MembersPsaCheckRef] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     withPreviousPageCheck(MembersPsaCheckRefPage, mode, request.userAnswers) {
       withName { name =>
         request.userAnswers.get(MembersPsaCheckRefPage) match {
@@ -58,7 +58,7 @@ class MembersPsaCheckRefController @Inject() (
     }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     withName { name =>
       form
         .bindFromRequest()
