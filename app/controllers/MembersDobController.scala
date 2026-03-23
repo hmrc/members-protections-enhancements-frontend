@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersDobFormProvider
 import models.{MembersDob, Mode}
-import navigation.Navigation
+import navigation.Navigator
 import pages.MembersDobPage
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -76,7 +76,7 @@ class MembersDobController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersDobPage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(Navigation.nextPage(MembersDobPage, mode, updatedAnswers).route(mode))
+          } yield Redirect(Navigator.nextPage(MembersDobPage, mode, updatedAnswers).route(mode))
       )
 
   }

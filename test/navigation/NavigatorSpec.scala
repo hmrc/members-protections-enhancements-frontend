@@ -24,7 +24,7 @@ import pages.*
 
 import java.time.LocalDate
 
-class NavigationSpec extends AnyWordSpec with Matchers {
+class NavigatorSpec extends AnyWordSpec with Matchers {
 
   private val emptyUserAnswers = UserAnswers("id")
   val userAnswersWithValues: UserAnswers = emptyUserAnswers
@@ -43,7 +43,7 @@ class NavigationSpec extends AnyWordSpec with Matchers {
       WhatYouWillNeedPage -> WhatIsTheMembersNamePage
     ).foreach { case (fromPage, toPage) =>
       s"return correct next page for ${fromPage.toString}" in {
-        Navigation.nextPage(fromPage, NormalMode, emptyUserAnswers) mustBe toPage
+        Navigator.nextPage(fromPage, NormalMode, emptyUserAnswers) mustBe toPage
       }
     }
   }
@@ -56,13 +56,13 @@ class NavigationSpec extends AnyWordSpec with Matchers {
   "firstPageWithNoData" must {
     allDataEntryPages.foreach { page =>
       s"return first route for ${page.toString} when there is no previous data present in user answers" in {
-        Navigation.firstPreviousPageWithNoData(page, NormalMode, emptyUserAnswers) mustBe Some(
+        Navigator.firstPreviousPageWithNoData(page, NormalMode, emptyUserAnswers) mustBe Some(
           WhatIsTheMembersNamePage
             .route(NormalMode)
         )
       }
       s"return None for ${page.toString} when there is full previous data present in user answers" in {
-        Navigation.firstPreviousPageWithNoData(page, NormalMode, userAnswersWithValues) mustBe None
+        Navigator.firstPreviousPageWithNoData(page, NormalMode, userAnswersWithValues) mustBe None
       }
 
       // Test that nav goes back to the first page (in order) which doesn't have any value entered
@@ -70,13 +70,14 @@ class NavigationSpec extends AnyWordSpec with Matchers {
       priorDataEntryPages.foreach { pageToRemove =>
         s"return ${pageToRemove.toString} route for ${page.toString} when there is no previous data present in user answers for ${pageToRemove.toString}" in {
           val userAnswers = userAnswersWithValues.removeWithPath(pageToRemove.path)
-          Navigation.firstPreviousPageWithNoData(page, NormalMode, userAnswers) mustBe Some(
+          Navigator.firstPreviousPageWithNoData(page, NormalMode, userAnswers) mustBe Some(
             pageToRemove.route(NormalMode)
           )
         }
       }
 
       // TODO: Add test that doesn't return page that comes AFTER page passed into firstPreviousPageWithNoData
+      // TODO: Add tests for submitUrl and backLinkUrl
     }
 
   }

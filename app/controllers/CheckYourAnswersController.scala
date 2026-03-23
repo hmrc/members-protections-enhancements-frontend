@@ -19,6 +19,7 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
+import navigation.Navigator
 import pages.*
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -84,6 +85,6 @@ class CheckYourAnswersController @Inject() (
         request.userAnswers.set(CheckYourAnswersPage, CheckMembersDetails(isChecked = true))
       )
       _ <- service.save(updatedAnswers)
-    } yield Redirect(submitUrl(NormalMode, CheckYourAnswersPage))
+    } yield Redirect(Navigator.submitUrl(NormalMode, CheckYourAnswersPage))
   }
 }

@@ -16,12 +16,13 @@
 
 package navigation
 
+import controllers.routes
 import models.userAnswers.UserAnswers
 import models.{Mode, NormalMode}
 import pages.*
 import play.api.libs.json.JsValue
 import play.api.mvc.Call
-object Navigation {
+object Navigator {
   private val pageNavigationNormalMode: Map[Page, Page] =
     Map(
       WhatIsTheMembersNamePage -> MembersDobPage,
@@ -46,5 +47,20 @@ object Navigation {
           _.path.readNullable[JsValue].reads(userAnswers.data).asOpt.flatten.isEmpty
         )
     firstEmptyPage.map(_.route(mode))
+  }
+
+  def submitUrl(mode: Mode, page: Page): Call = page match {
+    case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
+    case MembersDobPage => routes.MembersDobController.onSubmit(mode)
+    case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
+    case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
+    case _ => routes.ResultsController.onPageLoad()
+  }
+
+  def backLinkUrl(mode: Mode, page: Page): String = page match {
+    case MembersDobPage => routes.WhatIsTheMembersNameController.onPageLoad(mode).url
+    case MembersNinoPage => routes.MembersDobController.onPageLoad(mode).url
+    case MembersPsaCheckRefPage => routes.MembersNinoController.onPageLoad(mode).url
+    case _ => routes.WhatYouWillNeedController.onPageLoad().url
   }
 }

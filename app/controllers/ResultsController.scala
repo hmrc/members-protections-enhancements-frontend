@@ -18,7 +18,7 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
-import models.MembersResult
+import models.{MemberDetails, MembersDob, MembersNino, MembersPsaCheckRef, MembersResult}
 import models.audit.{AuditDetail, AuditEvent}
 import models.errors.ErrorSource.MatchPerson
 import models.errors.{ErrorSource, MpeError}
@@ -115,6 +115,20 @@ class ResultsController @Inject() (
     }
 
   }
+
+  private def createMembersRequest(
+    memberDetails: MemberDetails,
+    membersDob: MembersDob,
+    membersNino: MembersNino,
+    membersPsaCheckRef: MembersPsaCheckRef
+  ): PensionSchemeMemberRequest =
+    PensionSchemeMemberRequest(
+      memberDetails.firstName,
+      memberDetails.lastName,
+      membersDob.strDateOfBirth,
+      membersNino.nino.filterNot(_.isWhitespace),
+      membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)
+    )
 
   private def handleErrorResponse(error: MpeError, auditDetail: AuditDetail, loggingContext: String)(implicit
     request: DataRequest[AnyContent]

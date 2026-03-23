@@ -20,7 +20,7 @@ import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import forms.MembersNinoFormProvider
 import models.{MembersNino, Mode}
-import navigation.Navigation
+import navigation.Navigator
 import pages.MembersNinoPage
 import play.api.data.Form
 import play.api.i18n.MessagesApi
@@ -68,7 +68,7 @@ class MembersNinoController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(Navigation.nextPage(MembersNinoPage, mode, updatedAnswers).route(mode))
+          } yield Redirect(Navigator.nextPage(MembersNinoPage, mode, updatedAnswers).route(mode))
       )
 
   }

@@ -18,9 +18,9 @@ package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
-import models.requests.{DataRequest, PensionSchemeMemberRequest}
+import models.requests.DataRequest
 import models.userAnswers.UserAnswers
-import navigation.Navigation
+import navigation.Navigator
 import pages.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Call, Result}
@@ -62,7 +62,7 @@ abstract class MpeBaseController @Inject() (
   protected def withPreviousPageCheck(page: Page, mode: Mode, userAnswers: UserAnswers)(
     block: DataRequest[AnyContent] => Future[Result]
   )(implicit request: DataRequest[AnyContent]): Future[Result] =
-    Navigation.firstPreviousPageWithNoData(page, mode, userAnswers) match {
+    Navigator.firstPreviousPageWithNoData(page, mode, userAnswers) match {
       case Some(call) => Future.successful(Redirect(call))
       case _ => block(request)
     }
@@ -96,37 +96,7 @@ abstract class MpeBaseController @Inject() (
 
   protected def viewModel(mode: Mode, page: Page): FormPageViewModel =
     FormPageViewModel(
-      onSubmit = submitUrl(mode, page),
-      backLinkUrl = Some(backLinkUrl(mode, page))
+      onSubmit = Navigator.submitUrl(mode, page),
+      backLinkUrl = Some(Navigator.backLinkUrl(mode, page))
     )
-
-  protected def submitUrl(mode: Mode, page: Page): Call = page match {
-    case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
-    case MembersDobPage => routes.MembersDobController.onSubmit(mode)
-    case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
-    case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
-    case _ => routes.ResultsController.onPageLoad()
-  }
-
-  private def backLinkUrl(mode: Mode, page: Page): String = page match {
-    case MembersDobPage => routes.WhatIsTheMembersNameController.onPageLoad(mode).url
-    case MembersNinoPage => routes.MembersDobController.onPageLoad(mode).url
-    case MembersPsaCheckRefPage => routes.MembersNinoController.onPageLoad(mode).url
-    case _ => routes.WhatYouWillNeedController.onPageLoad().url
-  }
-
-  protected def createMembersRequest(
-    memberDetails: MemberDetails,
-    membersDob: MembersDob,
-    membersNino: MembersNino,
-    membersPsaCheckRef: MembersPsaCheckRef
-  ): PensionSchemeMemberRequest =
-    PensionSchemeMemberRequest(
-      memberDetails.firstName,
-      memberDetails.lastName,
-      membersDob.strDateOfBirth,
-      membersNino.nino.filterNot(_.isWhitespace),
-      membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)
-    )
-
 }
