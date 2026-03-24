@@ -17,9 +17,10 @@
 package models.userAnswers
 
 import base.SpecBase
-import models.CheckMembersDetails
+import models.{CheckMembersDetails, Mode}
 import pages.{CheckYourAnswersPage, QuestionPage}
 import play.api.libs.json.*
+import play.api.mvc.Call
 import uk.gov.hmrc.crypto.EncryptedValue
 import utils.encryption.MockAesGcmAdCrypto
 
@@ -54,6 +55,7 @@ class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto {
 
   class DummyPage extends QuestionPage[String] {
     override def path: JsPath = JsPath \ "field"
+    override def route(mode: Mode): Call = Call("GET", "/")
   }
 
   val dummyPage: DummyPage = new DummyPage
@@ -88,6 +90,8 @@ class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto {
         "should return a failure when setting fails" in {
           class BadPage extends QuestionPage[String] {
             override def path: JsPath = JsPath
+
+            override def route(mode: Mode): Call = Call("GET", "/")
           }
 
           val badPage: BadPage = new BadPage
@@ -122,6 +126,7 @@ class UserAnswersSpec extends SpecBase with MockAesGcmAdCrypto {
 
         "should return a failure when setting fails" in {
           class BadPage extends QuestionPage[String] {
+            override def route(mode: Mode): Call = Call("GET", "/")
             override def path: JsPath = JsPath
           }
 

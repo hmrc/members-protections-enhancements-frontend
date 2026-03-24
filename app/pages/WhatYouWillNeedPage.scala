@@ -16,4 +16,10 @@
 
 package pages
 
-case object WhatYouWillNeedPage extends Page
+import controllers.routes
+import models.Mode
+import play.api.mvc.Call
+
+case object WhatYouWillNeedPage extends Page {
+  override def route(mode: Mode): Call = routes.WhatYouWillNeedController.onPageLoad()
+}

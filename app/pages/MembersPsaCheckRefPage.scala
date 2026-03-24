@@ -16,13 +16,13 @@
 
 package pages
 
-import models.MembersPsaCheckRef
+import controllers.routes
+import models.{MembersPsaCheckRef, Mode}
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object MembersPsaCheckRefPage extends QuestionPage[MembersPsaCheckRef] {
-
+  override def route(mode: Mode): Call = routes.MembersPsaCheckRefController.onPageLoad(mode)
   override def path: JsPath = JsPath \ toString
-
   override def toString: String = "membersPsaCheckRef"
-
 }

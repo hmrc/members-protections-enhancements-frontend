@@ -16,11 +16,13 @@
 
 package pages
 
-import models.MembersDob
+import controllers.routes
+import models.{MembersDob, Mode}
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object MembersDobPage extends QuestionPage[MembersDob] {
-
+  override def route(mode: Mode): Call = routes.MembersDobController.onPageLoad(mode)
   override def path: JsPath = JsPath \ toString
   override def toString: String = "membersDob"
 }

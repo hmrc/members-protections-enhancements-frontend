@@ -38,7 +38,6 @@ class MembersDobControllerSpec extends SpecBase {
 
   "Member Dob Controller" - {
     "must return OK and the correct view for a GET" in {
-
       val userAnswers =
         emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value
       val application = applicationBuilder(userAnswers = userAnswers).build()

@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import forms.MembersNinoFormProvider
 import models.*
-import pages.{MembersDobPage, MembersNinoPage, ResultsPage, WhatIsTheMembersNamePage}
+import pages.*
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -39,14 +39,11 @@ class MembersNinoControllerSpec extends SpecBase {
 
   "Members Nino Controller" - {
     "must return OK and the correct view for a GET" in {
-
       val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
-        .success
-        .value
-        .set(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1)))
-        .success
-        .value
+        .setOrException(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
+        .setOrException(MembersDobPage, MembersDob(LocalDate.of(2010, 1, 1)))
+        .setOrException(page = MembersPsaCheckRefPage, value = MembersPsaCheckRef("PSA12345678A"))
+
       val application = applicationBuilder(userAnswers = userAnswers).build()
 
       running(application) {
@@ -78,6 +75,17 @@ class MembersNinoControllerSpec extends SpecBase {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url
 
+      }
+    }
+    "must redirect on submission when no name has been entered and there are errors" in {
+      val application = applicationBuilder(emptyUserAnswers).build()
+      running(application) {
+        val request = FakeRequest(POST, onSubmit.url)
+          .withFormUrlEncodedBody("nino" -> "")
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
       }
     }
 

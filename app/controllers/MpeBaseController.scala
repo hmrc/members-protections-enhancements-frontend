@@ -18,10 +18,11 @@ package controllers
 
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
-import models.requests.{DataRequest, PensionSchemeMemberRequest}
+import models.requests.DataRequest
+import models.userAnswers.UserAnswers
+import navigation.Navigator
 import pages.*
 import play.api.i18n.I18nSupport
-import play.api.libs.json.Reads
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import utils.Logging
@@ -38,128 +39,71 @@ abstract class MpeBaseController @Inject() (
     with I18nSupport
     with Logging {
 
-  protected def handle(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] =
+  protected def authRetrieval(block: DataRequest[AnyContent] => Future[Result]): Action[AnyContent] = {
+    def isResultsSuccessful(
+      block: DataRequest[AnyContent] => Future[Result]
+    )(implicit request: DataRequest[AnyContent]): Future[Result] =
+      request.userAnswers.get(ResultsPage) match {
+        case Some(_) =>
+          Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
+        case None => block(request)
+      }
     identify.andThen(checkLockout).andThen(getData).async { implicit request =>
       isResultsSuccessful(block(_))
     }
+  }
 
-  private def withDetail[D: Reads](questionPage: QuestionPage[D], failureRedirect: Call, block: D => Future[Result])(
-    implicit request: DataRequest[_]
-  ) =
-    request.userAnswers.get[D](questionPage) match {
-      case None =>
-        Future.successful(Redirect(failureRedirect))
-      case Some(value) =>
-        block(value)
+  protected def withName(block: String => Future[Result])(implicit request: DataRequest[AnyContent]): Future[Result] =
+    request.userAnswers
+      .get(WhatIsTheMembersNamePage)
+      .map(_.fullName)
+      .fold(Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode))))(block)
+
+  protected def withPreviousPageCheckAndName(page: Page, mode: Mode)(
+    block: String => Future[Result]
+  )(implicit request: DataRequest[AnyContent]): Future[Result] =
+    Navigator.firstPreviousPageWithNoData(page, mode, request.userAnswers) match {
+      case Some(call) => Future.successful(Redirect(call))
+      case _ => withName(block)
     }
 
-  protected def handleWithMemberDetails(
-    block: DataRequest[AnyContent] => MemberDetails => Future[Result]
-  ): Action[AnyContent] =
-    handle { implicit request =>
-      withDetail(
-        questionPage = WhatIsTheMembersNamePage,
-        failureRedirect = routes.WhatIsTheMembersNameController.onPageLoad(NormalMode),
-        block = block(request)
-      )
+  protected def withAllAnswers(request: DataRequest[AnyContent])(
+    block: (
+      MemberDetails,
+      MembersDob,
+      MembersNino,
+      MembersPsaCheckRef
+    ) => Future[Result]
+  ): Future[Result] =
+    (
+      request.userAnswers.get(WhatIsTheMembersNamePage),
+      request.userAnswers.get(MembersDobPage),
+      request.userAnswers.get(MembersNinoPage),
+      request.userAnswers.get(MembersPsaCheckRefPage)
+    ) match {
+      case (Some(details), Some(dob), Some(nino), Some(psacr)) =>
+        block(details, dob, nino, psacr)
+      case _ => Future.successful(Redirect(routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)))
     }
 
-  private type WithDetailsAndDob = MemberDetails => MembersDob => Future[Result]
-
-  protected def handleWithMemberDob(block: DataRequest[AnyContent] => WithDetailsAndDob): Action[AnyContent] =
-    handleWithMemberDetails { implicit request => details =>
-      withDetail(
-        questionPage = MembersDobPage,
-        failureRedirect = routes.MembersDobController.onPageLoad(NormalMode),
-        block = block(request)(details)
-      )
-    }
-
-  private type WithDetailsDobAndNino = MemberDetails => MembersDob => MembersNino => Future[Result]
-
-  protected def handleWithMemberNino(block: DataRequest[AnyContent] => WithDetailsDobAndNino): Action[AnyContent] =
-    handleWithMemberDob { implicit request => details => dob =>
-      withDetail(
-        questionPage = MembersNinoPage,
-        failureRedirect = routes.MembersNinoController.onPageLoad(NormalMode),
-        block = block(request)(details)(dob)
-      )
-    }
-
-  private type WithAllDetails = MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => Future[Result]
-
-  protected def handleWithAllDetails(block: DataRequest[AnyContent] => WithAllDetails): Action[AnyContent] =
-    handleWithMemberNino { implicit request => details => dob => nino =>
-      withDetail(
-        questionPage = MembersPsaCheckRefPage,
-        failureRedirect = routes.MembersPsaCheckRefController.onPageLoad(NormalMode),
-        block = block(request)(details)(dob)(nino)
-      )
-    }
-
-  private type WithCheckedAnswers =
-    MemberDetails => MembersDob => MembersNino => MembersPsaCheckRef => CheckMembersDetails => Future[Result]
-
-  protected def handleWithCheckedAnswers(block: DataRequest[AnyContent] => WithCheckedAnswers): Action[AnyContent] =
-    handleWithAllDetails { implicit request => details => dob => nino => psacr =>
-      {
-        def redirectCall: Call = routes.CheckYourAnswersController.onPageLoad()
-
-        withDetail(
-          questionPage = CheckYourAnswersPage,
-          failureRedirect = redirectCall,
-          block = (cya: CheckMembersDetails) =>
-            if (cya.isChecked) {
-              block(request)(details)(dob)(nino)(psacr)(cya)
-            } else {
-              Future.successful(Redirect(redirectCall))
-            }
-        )
+  protected def withCheckedAnswers(request: DataRequest[AnyContent])(
+    block: (
+      MemberDetails,
+      MembersDob,
+      MembersNino,
+      MembersPsaCheckRef
+    ) => Future[Result]
+  ): Future[Result] =
+    withAllAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef) =>
+      request.userAnswers.get(CheckYourAnswersPage) match {
+        case Some(cya) if cya.isChecked => block(memberDetails, membersDob, membersNino, membersPsaCheckRef)
+        case _ => Future.successful(Redirect(routes.CheckYourAnswersController.onPageLoad()))
       }
     }
 
-  private def isResultsSuccessful(
-    block: DataRequest[AnyContent] => Future[Result]
-  )(implicit request: DataRequest[AnyContent]): Future[Result] =
-    request.userAnswers.get(ResultsPage) match {
-      case Some(_) =>
-        Future.successful(Redirect(routes.ClearCacheController.onPageLoad()))
-      case None => block(request)
-    }
-
-  protected def viewModel(mode: Mode, page: Page): FormPageViewModel =
+  protected def viewModel(page: Page, mode: Mode, userAnswers: UserAnswers): FormPageViewModel =
     FormPageViewModel(
-      onSubmit = submitUrl(mode, page),
-      backLinkUrl = Some(backLinkUrl(mode, page))
+      onSubmit = Navigator.submitUrl(page, mode, userAnswers),
+      backLinkUrl = Some(Navigator.backLinkUrl(mode, page))
     )
-
-  protected def submitUrl(mode: Mode, page: Page): Call = page match {
-    case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
-    case MembersDobPage => routes.MembersDobController.onSubmit(mode)
-    case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
-    case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
-    case _ => routes.ResultsController.onPageLoad()
-  }
-
-  private def backLinkUrl(mode: Mode, page: Page): String = page match {
-    case MembersDobPage => routes.WhatIsTheMembersNameController.onPageLoad(mode).url
-    case MembersNinoPage => routes.MembersDobController.onPageLoad(mode).url
-    case MembersPsaCheckRefPage => routes.MembersNinoController.onPageLoad(mode).url
-    case _ => routes.WhatYouWillNeedController.onPageLoad().url
-  }
-
-  protected def createMembersRequest(
-    memberDetails: MemberDetails,
-    membersDob: MembersDob,
-    membersNino: MembersNino,
-    membersPsaCheckRef: MembersPsaCheckRef
-  ): PensionSchemeMemberRequest =
-    PensionSchemeMemberRequest(
-      memberDetails.firstName,
-      memberDetails.lastName,
-      membersDob.strDateOfBirth,
-      membersNino.nino.filterNot(_.isWhitespace),
-      membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)
-    )
-
 }

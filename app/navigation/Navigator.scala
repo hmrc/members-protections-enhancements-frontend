@@ -17,32 +17,55 @@
 package navigation
 
 import controllers.routes
-import models.*
 import models.userAnswers.UserAnswers
+import models.{Mode, NormalMode}
 import pages.*
+import play.api.libs.json.JsValue
 import play.api.mvc.Call
+object Navigator {
+  private val pageNavigationNormalMode: Map[Page, Page] =
+    Map(
+      WhatIsTheMembersNamePage -> MembersDobPage,
+      MembersDobPage -> MembersNinoPage,
+      MembersNinoPage -> MembersPsaCheckRefPage,
+      MembersPsaCheckRefPage -> CheckYourAnswersPage,
+      ResultsPage -> CheckYourAnswersPage,
+      WhatYouWillNeedPage -> WhatIsTheMembersNamePage
+    )
 
-import javax.inject.{Inject, Singleton}
+  private val pagesWithEnteredData: Seq[QuestionPage[?]] =
+    Seq(WhatIsTheMembersNamePage, MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage)
 
-@Singleton
-class Navigator @Inject() {
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Page =
+    mode match {
+      case NormalMode => pageNavigationNormalMode.getOrElse(page, WhatYouWillNeedPage)
+      case _ => CheckYourAnswersPage
+    }
 
-  private val normalRoutes: Page => UserAnswers => Call = {
-    case WhatYouWillNeedPage => _ => routes.WhatIsTheMembersNameController.onPageLoad(NormalMode)
-    case WhatIsTheMembersNamePage => _ => routes.MembersDobController.onPageLoad(NormalMode)
-    case MembersDobPage => _ => routes.MembersNinoController.onPageLoad(NormalMode)
-    case MembersNinoPage => _ => routes.MembersPsaCheckRefController.onPageLoad(NormalMode)
-    case MembersPsaCheckRefPage => _ => routes.CheckYourAnswersController.onPageLoad()
-    case ResultsPage => _ => routes.CheckYourAnswersController.onPageLoad()
-    case _ => _ => routes.WhatYouWillNeedController.onPageLoad()
+  def firstPreviousPageWithNoData(page: Page, mode: Mode, userAnswers: UserAnswers): Option[Call] = {
+    val firstEmptyPage: Option[QuestionPage[?]] =
+      pagesWithEnteredData
+        .takeWhile(_ != page)
+        .find(
+          _.path.readNullable[JsValue].reads(userAnswers.data).asOpt.flatten.isEmpty
+        )
+    firstEmptyPage.map(_.route(mode))
   }
 
-  private val checkRouteMap: Page => UserAnswers => Call = _ => _ => routes.CheckYourAnswersController.onPageLoad()
+  def submitUrl(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
+    page match {
+      case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
+      case MembersDobPage => routes.MembersDobController.onSubmit(mode)
+      case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
+      case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
+      case _ => routes.ResultsController.onPageLoad()
+    }
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
-    case NormalMode =>
-      normalRoutes(page)(userAnswers)
-    case CheckMode =>
-      checkRouteMap(page)(userAnswers)
-  }
+  def backLinkUrl(mode: Mode, page: Page): String =
+    pageNavigationNormalMode
+      .find((_, pageTo) => page == pageTo)
+      .map(_._1)
+      .getOrElse(WhatYouWillNeedPage)
+      .route(mode)
+      .url
 }

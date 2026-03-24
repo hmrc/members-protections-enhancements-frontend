@@ -16,11 +16,13 @@
 
 package pages
 
-import models.CheckMembersDetails
+import controllers.routes
+import models.{CheckMembersDetails, Mode}
 import play.api.libs.json.JsPath
+import play.api.mvc.Call
 
 case object CheckYourAnswersPage extends QuestionPage[CheckMembersDetails] {
-
+  override def route(mode: Mode): Call = routes.CheckYourAnswersController.onPageLoad()
   override def path: JsPath = JsPath \ toString
   override def toString: String = "isChecked"
 }

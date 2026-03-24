@@ -19,7 +19,8 @@ package controllers
 import com.google.inject.Inject
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
-import pages.CheckYourAnswersPage
+import navigation.Navigator
+import pages.*
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.SessionCacheService
@@ -40,17 +41,20 @@ class CheckYourAnswersController @Inject() (
   view: CheckYourAnswersView
 ) extends MpeBaseController(identify, checkLockout, getData) {
 
-  def onPageLoad(): Action[AnyContent] = handleWithAllDetails {
-    implicit request => memberDetails => membersDob => membersNino => membersPsaCheckRef =>
-      Future.successful(
-        Ok(
-          view(
-            rows(memberDetails, membersDob, membersNino, membersPsaCheckRef),
-            memberDetails.fullName,
-            Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url)
+  def onPageLoad(): Action[AnyContent] = authRetrieval { implicit request =>
+    withPreviousPageCheckAndName(CheckYourAnswersPage, NormalMode) { name =>
+      withAllAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef) =>
+        Future.successful(
+          Ok(
+            view(
+              rows(memberDetails, membersDob, membersNino, membersPsaCheckRef),
+              name,
+              Some(routes.MembersPsaCheckRefController.onPageLoad(NormalMode).url)
+            )
           )
         )
-      )
+      }
+    }
   }
 
   private def rows(
@@ -67,12 +71,12 @@ class CheckYourAnswersController @Inject() (
       membersPsaCheckRefRow(membersPsaCheckRef)
     )
 
-  def onSubmit: Action[AnyContent] = handle { implicit request =>
+  def onSubmit: Action[AnyContent] = authRetrieval { implicit request =>
     for {
       updatedAnswers <- Future.fromTry(
         request.userAnswers.set(CheckYourAnswersPage, CheckMembersDetails(isChecked = true))
       )
       _ <- service.save(updatedAnswers)
-    } yield Redirect(submitUrl(NormalMode, CheckYourAnswersPage))
+    } yield Redirect(Navigator.submitUrl(CheckYourAnswersPage, NormalMode, updatedAnswers))
   }
 }

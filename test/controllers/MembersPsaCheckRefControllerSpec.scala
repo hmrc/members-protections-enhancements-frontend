@@ -138,25 +138,6 @@ class MembersPsaCheckRefControllerSpec extends SpecBase {
       }
     }
 
-    "must redirect to MembersDob page when user haven't submitted DOB details" in {
-      val userAnswers = emptyUserAnswers
-        .set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey"))
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers).build()
-
-      running(application) {
-        val request = FakeRequest(GET, onPageLoad)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.MembersDobController.onPageLoad(NormalMode).url
-
-      }
-    }
-
     "must save the form data and redirect on valid submission when PsaCheckRef is added with spaces" in {
       val userAnswers =
         emptyUserAnswers.set(page = WhatIsTheMembersNamePage, value = MemberDetails("Pearl", "Harvey")).success.value

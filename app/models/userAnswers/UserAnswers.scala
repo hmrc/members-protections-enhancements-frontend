@@ -53,6 +53,20 @@ final case class UserAnswers(id: String, data: JsObject = Json.obj(), lastUpdate
     }
   }
 
+  def setOrException[A](page: Settable[A], value: A)(implicit writes: Writes[A]): UserAnswers =
+    set(page, value) match {
+      case Success(ua) => ua
+      case Failure(ex) => throw ex
+    }
+
+  def removeWithPath(path: JsPath): UserAnswers =
+    data.remove(path) match {
+      case JsSuccess(jsValue, _) =>
+        UserAnswers(this.id, jsValue.as[JsObject])
+      case JsError(_) =>
+        throw new RuntimeException("Unable to remove with path: " + path)
+    }
+
   def encrypt(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedUserAnswers =
     EncryptedUserAnswers(
       id = id,

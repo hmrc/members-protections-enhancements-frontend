@@ -32,7 +32,7 @@ class KeepAliveController @Inject() (
 )(implicit ec: ExecutionContext)
     extends MpeBaseController(identify, checkLockout, getData) {
 
-  def keepAlive(): Action[AnyContent] = handle { implicit request =>
+  def keepAlive(): Action[AnyContent] = authRetrieval { implicit request =>
     sessionRepository.keepAlive(request.userAnswers.id).map(_ => Ok)
   }
 }

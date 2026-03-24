@@ -35,7 +35,6 @@ class WhatIsTheMembersNameController @Inject() (
   identify: IdentifierAction,
   checkLockout: CheckLockoutAction,
   getData: DataRetrievalAction,
-  navigator: Navigator,
   service: SessionCacheService,
   val controllerComponents: MessagesControllerComponents,
   formProvider: WhatIsTheMembersNameFormProvider,
@@ -45,26 +44,28 @@ class WhatIsTheMembersNameController @Inject() (
 
   private val form: Form[MemberDetails] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
 
     val namesForm = request.userAnswers.get(WhatIsTheMembersNamePage) match {
       case None => form
       case Some(value) => form.fill(value)
     }
-    Future.successful(Ok(view(namesForm, viewModel(mode, WhatIsTheMembersNamePage))))
+    Future.successful(Ok(view(namesForm, viewModel(WhatIsTheMembersNamePage, mode, request.userAnswers))))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handle { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, viewModel(mode, WhatIsTheMembersNamePage)))),
+          Future.successful(
+            BadRequest(view(formWithErrors, viewModel(WhatIsTheMembersNamePage, mode, request.userAnswers)))
+          ),
         answer =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatIsTheMembersNamePage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers))
+          } yield Redirect(Navigator.nextPage(WhatIsTheMembersNamePage, mode, updatedAnswers).route(mode))
       )
   }
 

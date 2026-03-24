@@ -35,7 +35,6 @@ class MembersNinoController @Inject() (
   identify: IdentifierAction,
   checkLockout: CheckLockoutAction,
   getData: DataRetrievalAction,
-  navigator: Navigator,
   service: SessionCacheService,
   formProvider: MembersNinoFormProvider,
   implicit val controllerComponents: MessagesControllerComponents,
@@ -45,26 +44,32 @@ class MembersNinoController @Inject() (
 
   private val form: Form[MembersNino] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberDob { implicit request => memberDetails => _ =>
-    request.userAnswers.get(MembersNinoPage) match {
-      case None => Future.successful(Ok(view(form, viewModel(mode, MembersNinoPage), memberDetails.fullName)))
-      case Some(value) =>
-        Future.successful(Ok(view(form.fill(value), viewModel(mode, MembersNinoPage), memberDetails.fullName)))
+  def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
+    withPreviousPageCheckAndName(MembersNinoPage, mode) { name =>
+      request.userAnswers.get(MembersNinoPage) match {
+        case None => Future.successful(Ok(view(form, viewModel(MembersNinoPage, mode, request.userAnswers), name)))
+        case Some(value) =>
+          Future.successful(Ok(view(form.fill(value), viewModel(MembersNinoPage, mode, request.userAnswers), name)))
+      }
     }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request => memberDetails =>
+  def onSubmit(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, viewModel(mode, MembersNinoPage), memberDetails.fullName))),
+          withName(name =>
+            Future
+              .successful(BadRequest(view(formWithErrors, viewModel(MembersNinoPage, mode, request.userAnswers), name)))
+          ),
         answer =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(navigator.nextPage(MembersNinoPage, mode, updatedAnswers))
+          } yield Redirect(Navigator.nextPage(MembersNinoPage, mode, updatedAnswers).route(mode))
       )
+
   }
 
 }

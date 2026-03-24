@@ -35,7 +35,6 @@ class MembersPsaCheckRefController @Inject() (
   identify: IdentifierAction,
   checkLockout: CheckLockoutAction,
   getData: DataRetrievalAction,
-  navigator: Navigator,
   service: SessionCacheService,
   formProvider: MembersPsaCheckRefFormProvider,
   implicit val controllerComponents: MessagesControllerComponents,
@@ -45,30 +44,35 @@ class MembersPsaCheckRefController @Inject() (
 
   private val form: Form[MembersPsaCheckRef] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = handleWithMemberNino {
-    implicit request => membersDetails => _ => _ =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
+    withPreviousPageCheckAndName(MembersPsaCheckRefPage, mode) { name =>
       request.userAnswers.get(MembersPsaCheckRefPage) match {
-        case None => Future.successful(Ok(view(form, viewModel(mode, MembersPsaCheckRefPage), membersDetails.fullName)))
+        case None =>
+          Future.successful(Ok(view(form, viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name)))
         case Some(value) =>
           Future.successful(
-            Ok(view(form.fill(value), viewModel(mode, MembersPsaCheckRefPage), membersDetails.fullName))
+            Ok(view(form.fill(value), viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name))
           )
       }
+    }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = handleWithMemberDetails { implicit request => memberDetails =>
+  def onSubmit(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     form
       .bindFromRequest()
       .fold(
         formWithErrors =>
-          Future.successful(
-            BadRequest(view(formWithErrors, viewModel(mode, MembersPsaCheckRefPage), memberDetails.fullName))
+          withName(name =>
+            Future.successful(
+              BadRequest(view(formWithErrors, viewModel(MembersPsaCheckRefPage, mode, request.userAnswers), name))
+            )
           ),
         answer =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersPsaCheckRefPage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(navigator.nextPage(MembersPsaCheckRefPage, mode, updatedAnswers))
+          } yield Redirect(Navigator.nextPage(MembersPsaCheckRefPage, mode, updatedAnswers).route(mode))
       )
+
   }
 }
