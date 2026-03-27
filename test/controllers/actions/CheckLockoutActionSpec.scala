@@ -19,8 +19,7 @@ package controllers.actions
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.routes
-import models.requests.IdentifierRequest
-import models.requests.IdentifierRequest.AdministratorRequest
+import models.requests.{IdentifierRequest, UserDetails}
 import models.requests.UserType.Psa
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.{times, verify, when}
@@ -61,7 +60,7 @@ class CheckLockoutActionSpec extends SpecBase {
       )
 
       val result: Future[Result] = testAction.invokeBlock(
-        request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", Psa, FakeRequest()),
+        request = IdentifierRequest(UserDetails(Psa, "anotherId", "anId", AffinityGroup.Individual), FakeRequest()),
         block = (_: IdentifierRequest[AnyContentAsEmpty.type]) => unauthorisedResult
       )
 
@@ -79,7 +78,7 @@ class CheckLockoutActionSpec extends SpecBase {
       when(mockSessionRepo.clear(ArgumentMatchers.any())).thenReturn(Future.successful(true))
 
       val result: Future[Result] = testAction.invokeBlock(
-        request = AdministratorRequest(AffinityGroup.Individual, "anId", "anotherId", Psa, FakeRequest()),
+        request = IdentifierRequest(UserDetails(Psa, "anotherId", "anId", AffinityGroup.Individual), FakeRequest()),
         block = (_: IdentifierRequest[AnyContentAsEmpty.type]) => unauthorisedResult
       )
 

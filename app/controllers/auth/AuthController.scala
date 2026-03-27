@@ -65,7 +65,4 @@ class AuthController @Inject() (
       }
   }
 
-  def privateBetaSignOut: Action[AnyContent] = Action {
-    Redirect(config.exitSurveyUrl).withNewSession
-  }
 }

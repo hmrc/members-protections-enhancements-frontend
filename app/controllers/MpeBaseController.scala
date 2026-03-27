@@ -19,7 +19,6 @@ package controllers
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
 import models.requests.DataRequest
-import models.userAnswers.UserAnswers
 import navigation.Navigator
 import pages.*
 import play.api.i18n.I18nSupport
@@ -101,9 +100,8 @@ abstract class MpeBaseController @Inject() (
       }
     }
 
-  protected def viewModel(page: Page, mode: Mode, userAnswers: UserAnswers): FormPageViewModel =
+  protected def viewModel(page: Page, mode: Mode): FormPageViewModel =
     FormPageViewModel(
-      onSubmit = Navigator.submitUrl(page, mode, userAnswers),
-      backLinkUrl = Some(Navigator.backLinkUrl(mode, page))
+      backLinkUrl = Some(Navigator.backLinkPage(mode, page).route(mode).url)
     )
 }

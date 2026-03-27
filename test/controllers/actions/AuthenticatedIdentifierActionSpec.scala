@@ -19,8 +19,7 @@ package controllers.actions
 import base.SpecBase
 import config.{Constants, FrontendAppConfig}
 import controllers.routes
-import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
-import models.requests.UserDetails
+import models.requests.{IdentifierRequest, UserDetails, UserType}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import play.api.Application
@@ -50,20 +49,20 @@ class AuthenticatedIdentifierActionSpec extends SpecBase with StubPlayBodyParser
 
   class Handler(appConfig: FrontendAppConfig) {
     def run: Action[AnyContent] = authAction(appConfig) {
-      case AdministratorRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
+      case IdentifierRequest(UserDetails(UserType.Psa, psrUserId, userId, affinityGroup), _) =>
         Ok(
           Json.obj(
-            "psrUserType" -> psrUserType,
+            "psrUserType" -> "PSA",
             "userId" -> userId,
             "psaId" -> psrUserId,
             "affinityGroup" -> affinityGroup
           )
         )
 
-      case PractitionerRequest(UserDetails(psrUserType, psrUserId, userId, affinityGroup), _) =>
+      case IdentifierRequest(UserDetails(UserType.Psp, psrUserId, userId, affinityGroup), _) =>
         Ok(
           Json.obj(
-            "psrUserType" -> psrUserType,
+            "psrUserType" -> "PSP",
             "userId" -> userId,
             "pspId" -> psrUserId,
             "affinityGroup" -> affinityGroup

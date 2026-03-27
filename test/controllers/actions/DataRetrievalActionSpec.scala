@@ -17,9 +17,8 @@
 package controllers.actions
 
 import base.SpecBase
-import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.Psa
-import models.requests.{DataRequest, IdentifierRequest}
+import models.requests.{DataRequest, IdentifierRequest, UserDetails}
 import models.userAnswers.UserAnswers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.*
@@ -52,7 +51,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         val action = new Harness(sessionRepository)
 
         val result = action
-          .callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id", "A2100001", Psa, FakeRequest()))
+          .callTransform(IdentifierRequest(UserDetails(Psa, "A2100001", "id", AffinityGroup.Individual), FakeRequest()))
           .futureValue
 
         result.userAnswers.data mustBe JsObject.empty
@@ -69,7 +68,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         val action = new Harness(sessionRepository)
 
         val result = action
-          .callTransform(AdministratorRequest.apply(AffinityGroup.Individual, "id", "A2100001", Psa, FakeRequest()))
+          .callTransform(IdentifierRequest(UserDetails(Psa, "A2100001", "id", AffinityGroup.Individual), FakeRequest()))
           .futureValue
 
         result.userAnswers mustBe userAnswers

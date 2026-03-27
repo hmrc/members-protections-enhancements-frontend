@@ -16,8 +16,7 @@
 
 package controllers.actions
 
-import models.requests.IdentifierRequest
-import models.requests.IdentifierRequest.AdministratorRequest
+import models.requests.{IdentifierRequest, UserDetails}
 import models.requests.UserType.Psa
 import play.api.mvc.*
 import uk.gov.hmrc.auth.core.AffinityGroup
@@ -28,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class FakePsaIdentifierAction @Inject() (bodyParsers: BodyParsers.Default) extends IdentifierAction {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(AdministratorRequest(AffinityGroup.Individual, "id", "A2100001", Psa, request))
+    block(IdentifierRequest(UserDetails(Psa, "A2100001", "id", AffinityGroup.Individual), request))
 
   override def parser: BodyParser[AnyContent] = bodyParsers
 

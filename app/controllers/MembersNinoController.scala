@@ -47,9 +47,9 @@ class MembersNinoController @Inject() (
   def onPageLoad(mode: Mode): Action[AnyContent] = authRetrieval { implicit request =>
     withPreviousPageCheckAndName(MembersNinoPage, mode) { name =>
       request.userAnswers.get(MembersNinoPage) match {
-        case None => Future.successful(Ok(view(form, viewModel(MembersNinoPage, mode, request.userAnswers), name)))
+        case None => Future.successful(Ok(view(form, viewModel(MembersNinoPage, mode), name)))
         case Some(value) =>
-          Future.successful(Ok(view(form.fill(value), viewModel(MembersNinoPage, mode, request.userAnswers), name)))
+          Future.successful(Ok(view(form.fill(value), viewModel(MembersNinoPage, mode), name)))
       }
     }
   }
@@ -61,13 +61,13 @@ class MembersNinoController @Inject() (
         formWithErrors =>
           withName(name =>
             Future
-              .successful(BadRequest(view(formWithErrors, viewModel(MembersNinoPage, mode, request.userAnswers), name)))
+              .successful(BadRequest(view(formWithErrors, viewModel(MembersNinoPage, mode), name)))
           ),
         answer =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(MembersNinoPage, answer))
             _ <- service.save(updatedAnswers)
-          } yield Redirect(Navigator.nextPage(MembersNinoPage, mode, updatedAnswers).route(mode))
+          } yield Redirect(Navigator.nextPage(MembersNinoPage, mode).route(mode))
       )
 
   }
