@@ -16,7 +16,6 @@
 
 package navigation
 
-import controllers.routes
 import models.*
 import models.userAnswers.UserAnswers
 import org.scalatest.matchers.must.Matchers
@@ -44,7 +43,7 @@ class NavigatorSpec extends AnyWordSpec with Matchers {
       WhatYouWillNeedPage -> WhatIsTheMembersNamePage
     ).foreach { case (fromPage, toPage) =>
       s"return correct next page for ${fromPage.toString}" in {
-        Navigator.nextPage(fromPage, NormalMode, emptyUserAnswers) mustBe toPage
+        Navigator.nextPage(fromPage, NormalMode) mustBe toPage
       }
     }
   }
@@ -58,7 +57,7 @@ class NavigatorSpec extends AnyWordSpec with Matchers {
       WhatYouWillNeedPage
     ).foreach { fromPage =>
       s"return correct next page for ${fromPage.toString}" in {
-        Navigator.nextPage(fromPage, CheckMode, emptyUserAnswers) mustBe CheckYourAnswersPage
+        Navigator.nextPage(fromPage, CheckMode) mustBe CheckYourAnswersPage
       }
     }
   }
@@ -93,51 +92,25 @@ class NavigatorSpec extends AnyWordSpec with Matchers {
     }
   }
 
-  "submitUrl in NormalMode" must {
-    Seq(
-      WhatIsTheMembersNamePage -> routes.WhatIsTheMembersNameController.onSubmit(NormalMode),
-      MembersDobPage -> routes.MembersDobController.onSubmit(NormalMode),
-      MembersNinoPage -> routes.MembersNinoController.onSubmit(NormalMode),
-      MembersPsaCheckRefPage -> routes.MembersPsaCheckRefController.onSubmit(NormalMode)
-    ).foreach { case (page, route) =>
-      s"return correct route for $page" in {
-        Navigator.submitUrl(page, NormalMode, emptyUserAnswers) mustBe route
-      }
-    }
-  }
-
-  "submitUrl in CheckMode" must {
-    Seq(
-      WhatIsTheMembersNamePage -> routes.WhatIsTheMembersNameController.onSubmit(CheckMode),
-      MembersDobPage -> routes.MembersDobController.onSubmit(CheckMode),
-      MembersNinoPage -> routes.MembersNinoController.onSubmit(CheckMode),
-      MembersPsaCheckRefPage -> routes.MembersPsaCheckRefController.onSubmit(CheckMode)
-    ).foreach { case (page, route) =>
-      s"return correct route for $page" in {
-        Navigator.submitUrl(page, CheckMode, emptyUserAnswers) mustBe route
-      }
-    }
-  }
-
   "backLinkUrl in NormalMode" must {
     Seq(
-      MembersDobPage -> routes.WhatIsTheMembersNameController.onSubmit(NormalMode),
-      MembersNinoPage -> routes.MembersDobController.onSubmit(NormalMode),
-      MembersPsaCheckRefPage -> routes.MembersNinoController.onSubmit(NormalMode)
-    ).foreach { case (page, route) =>
+      MembersDobPage -> WhatIsTheMembersNamePage,
+      MembersNinoPage -> MembersDobPage,
+      MembersPsaCheckRefPage -> MembersNinoPage
+    ).foreach { case (page, previousPage) =>
       s"return correct route for $page" in {
-        Navigator.backLinkUrl(NormalMode, page) mustBe route.url
+        Navigator.backLinkPage(NormalMode, page) mustBe previousPage
       }
     }
   }
   "backLinkUrl in CheckMode" must {
     Seq(
-      MembersDobPage -> routes.WhatIsTheMembersNameController.onSubmit(CheckMode),
-      MembersNinoPage -> routes.MembersDobController.onSubmit(CheckMode),
-      MembersPsaCheckRefPage -> routes.MembersNinoController.onSubmit(CheckMode)
-    ).foreach { case (page, route) =>
+      MembersDobPage -> CheckYourAnswersPage,
+      MembersNinoPage -> CheckYourAnswersPage,
+      MembersPsaCheckRefPage -> CheckYourAnswersPage
+    ).foreach { case (page, previousPage) =>
       s"return correct route for $page" in {
-        Navigator.backLinkUrl(CheckMode, page) mustBe route.url
+        Navigator.backLinkPage(CheckMode, page) mustBe previousPage
       }
     }
   }

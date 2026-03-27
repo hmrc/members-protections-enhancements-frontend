@@ -16,7 +16,6 @@
 
 package navigation
 
-import controllers.routes
 import models.userAnswers.UserAnswers
 import models.{Mode, NormalMode}
 import pages.*
@@ -36,7 +35,7 @@ object Navigator {
   private val pagesWithEnteredData: Seq[QuestionPage[?]] =
     Seq(WhatIsTheMembersNamePage, MembersDobPage, MembersNinoPage, MembersPsaCheckRefPage)
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Page =
+  def nextPage(page: Page, mode: Mode): Page =
     mode match {
       case NormalMode => pageNavigationNormalMode.getOrElse(page, WhatYouWillNeedPage)
       case _ => CheckYourAnswersPage
@@ -52,20 +51,12 @@ object Navigator {
     firstEmptyPage.map(_.route(mode))
   }
 
-  def submitUrl(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
-    page match {
-      case WhatIsTheMembersNamePage => routes.WhatIsTheMembersNameController.onSubmit(mode)
-      case MembersDobPage => routes.MembersDobController.onSubmit(mode)
-      case MembersNinoPage => routes.MembersNinoController.onSubmit(mode)
-      case MembersPsaCheckRefPage => routes.MembersPsaCheckRefController.onSubmit(mode)
-      case _ => routes.ResultsController.onPageLoad()
-    }
-
-  def backLinkUrl(mode: Mode, page: Page): String =
-    pageNavigationNormalMode
-      .find((_, pageTo) => page == pageTo)
-      .map(_._1)
-      .getOrElse(WhatYouWillNeedPage)
-      .route(mode)
-      .url
+  def backLinkPage(mode: Mode, page: Page): Page =
+    mode match
+      case NormalMode =>
+        pageNavigationNormalMode
+          .find((_, pageTo) => page == pageTo)
+          .map(_._1)
+          .getOrElse(WhatYouWillNeedPage)
+      case _ => CheckYourAnswersPage
 }

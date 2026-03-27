@@ -64,7 +64,7 @@ class AuthController @Inject() (
         ).withNewSession
       }
   }
-
+//TODO: Do we need this without the beta banner?
   def privateBetaSignOut: Action[AnyContent] = Action {
     Redirect(config.exitSurveyUrl).withNewSession
   }

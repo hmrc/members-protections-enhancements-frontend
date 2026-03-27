@@ -19,7 +19,6 @@ package repositories
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.mongo.CacheUserDetails.mongoFormat
-import models.requests.IdentifierRequest.AdministratorRequest
 import models.requests.UserType.Psa
 import models.requests.{IdentifierRequest, UserDetails}
 import org.mockito.Mockito.when
@@ -73,13 +72,7 @@ class FailedAttemptLockoutRepositorySpec
 
   override val repository: PlayMongoRepository[CacheItem] = lockoutRepo.cacheRepo
 
-  implicit val request: IdentifierRequest[AnyContentAsEmpty.type] = AdministratorRequest(
-    affGroup = Individual,
-    userId = "userId",
-    psaId = "psaId",
-    psrUserType = Psa,
-    request = FakeRequest()
-  )
+  implicit val request: IdentifierRequest[AnyContentAsEmpty.type] = IdentifierRequest( UserDetails(Psa, "psaId", "userId", Individual), FakeRequest())
 
   val cacheUserDetails: CacheUserDetails = CacheUserDetails(
     psrUserType = Psa,

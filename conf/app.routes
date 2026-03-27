@@ -58,5 +58,4 @@ GET         /clear-cache                                                        
 
 # Other pages & actions
 GET         /problem-with-service                                               controllers.ClearCacheController.defaultError()
-GET         /there-is-a-problem                                                 controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 GET         /redirect-to-mps                                                    controllers.MpsDashboardController.redirectToMps()

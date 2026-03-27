@@ -17,32 +17,30 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
-import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class FrontendAppConfig @Inject() (configuration: Configuration) {
+class FrontendAppConfig @Inject() (servicesConfig: ServicesConfig) {
 
-  private def loadConfig(key: String): String = configuration.get[String](key)
-  private val servicesConfig = ServicesConfig(configuration)
+  private def loadConfig(key: String): String = servicesConfig.getString(key)
 
   // Application config
   val host: String = loadConfig("host")
   val appName: String = loadConfig("appName")
 
   // Timeout config
-  val timeout: Int = configuration.get[Int]("timeout-dialog.timeout")
-  val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
+  val timeout: Int = servicesConfig.getInt("timeout-dialog.timeout")
+  val countdown: Int = servicesConfig.getInt("timeout-dialog.countdown")
 
   // Lockout config
-  val lockoutThreshold: Int = configuration.get[Int]("lockout.threshold")
+  val lockoutThreshold: Int = servicesConfig.getInt("lockout.threshold")
 
   // MongoDB config
-  val sessionDataTtl: Long = configuration.get[Int]("mongodb.sessionDataTtl")
-  val failedAttemptTtl: Long = configuration.get[Int]("mongodb.failedAttemptTtl")
-  val lockoutTtl: Long = configuration.get[Int]("mongodb.lockoutTtl")
-  val useEncryption: Boolean = configuration.get[Boolean]("mongodb.encryption.enabled")
-  val encryptionKey: String = configuration.get[String]("mongodb.encryption.key")
+  val sessionDataTtl: Long = servicesConfig.getInt("mongodb.sessionDataTtl")
+  val failedAttemptTtl: Long = servicesConfig.getInt("mongodb.failedAttemptTtl")
+  val lockoutTtl: Long = servicesConfig.getInt("mongodb.lockoutTtl")
+  val useEncryption: Boolean = servicesConfig.getBoolean("mongodb.encryption.enabled")
+  val encryptionKey: String = loadConfig("mongodb.encryption.key")
 
   // URLs
   val loginUrl: String = loadConfig("urls.login")

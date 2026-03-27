@@ -19,8 +19,7 @@ package controllers.actions
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import config.{Constants, FrontendAppConfig}
 import controllers.routes
-import models.requests.IdentifierRequest.{AdministratorRequest, PractitionerRequest}
-import models.requests.{IdentifierRequest, UserType}
+import models.requests.{IdentifierRequest, UserDetails, UserType}
 import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
@@ -51,13 +50,12 @@ class AuthenticatedIdentifierAction @Inject() (
 
     authorised(Enrolment(Constants.psaEnrolmentKey).or(Enrolment(Constants.pspEnrolmentKey)))
       .retrieve(internalId.and(affinityGroup).and(authorisedEnrolments)) {
-
-        case Some(internalId) ~ Some(affGroup) ~ IsPSA(psaId) if hasValidSession(hc) =>
-          block(AdministratorRequest(affGroup, internalId, psaId.value, UserType.Psa, request))
-        case Some(internalId) ~ Some(affGroup) ~ IsPSP(pspId) if hasValidSession(hc) =>
-          block(PractitionerRequest(affGroup, internalId, pspId.value, UserType.Psp, request))
-        case Some(_) ~ Some(_) ~ _ if !hasValidSession(hc) =>
+        case Some(_) ~ Some(_) ~ _ if hc.sessionId.isEmpty =>
           Future.successful(Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl))))
+        case Some(internalId) ~ Some(affGroup) ~ IsPSA(psaId) =>
+          block(IdentifierRequest(UserDetails(UserType.Psa, psaId.value, internalId, affGroup), request))
+        case Some(internalId) ~ Some(affGroup) ~ IsPSP(pspId) =>
+          block(IdentifierRequest(UserDetails(UserType.Psp, pspId.value, internalId, affGroup), request))
         case _ =>
           logError(
             logContext,
@@ -75,12 +73,6 @@ class AuthenticatedIdentifierAction @Inject() (
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       }
   }
-
-  private val hasValidSession: HeaderCarrier => Boolean = hc =>
-    hc.sessionId match {
-      case Some(_) => true
-      case None => false
-    }
 
   override def parser: BodyParser[AnyContent] = playBodyParsers
 

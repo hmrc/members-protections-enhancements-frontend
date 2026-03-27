@@ -33,7 +33,7 @@
 
 @layout(pageTitle = title(form, messages("membersName.title")), backLinkUrl = viewModel.backLinkUrl) {
 
-    @formHelper(action = viewModel.onSubmit, Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.routes.WhatIsTheMembersNameController.onSubmit(viewModel.mode), Symbol("autoComplete") -> "off") {
 
         @if(form.hasErrors) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -60,7 +60,7 @@
          )
 
         @govukButton(
-            ButtonViewModel(viewModel.buttonText.toMessage)
+            ButtonViewModel(messages("site.continue"))
         )
     }
 }

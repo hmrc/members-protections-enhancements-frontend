@@ -16,7 +16,7 @@
 
 package connectors
 
-import com.google.inject.{ImplementedBy, Inject}
+import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.errors.MpeError
 import models.requests.PensionSchemeMemberRequest
@@ -33,37 +33,26 @@ import utils.{HttpResponseHelper, Logging}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 
-@ImplementedBy(classOf[MembersCheckAndRetrieveConnectorImpl])
-trait MembersCheckAndRetrieveConnector extends Logging {
-
-  def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext,
-    correlationId: String
-  ): Future[Either[MpeError, ProtectionRecordDetails]]
-}
-
-class MembersCheckAndRetrieveConnectorImpl @Inject() (httpClientV2: HttpClientV2, config: FrontendAppConfig)
-    extends MembersCheckAndRetrieveConnector
+class MembersCheckAndRetrieveConnector @Inject() (httpClientV2: HttpClientV2, config: FrontendAppConfig)
+    extends Logging
     with HttpResponseHelper {
 
   val classLoggingContext: String = "MembersCheckAndRetrieveConnector"
 
   private def retrieveCorrelationId(response: HttpResponse): Option[String] = response.header("correlationId")
 
-  override def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)(implicit
+  def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     correlationId: String
   ): Future[Either[MpeError, ProtectionRecordDetails]] = {
 
-    val checkAndRetrieveUrl = url"${config.checkAndRetrieveUrl}"
     val methodLoggingContext: String = "checkAndRetrieve"
     val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
     logInfo(fullLoggingContext, s"with correlationId: $correlationId")
 
     httpClientV2
-      .post(checkAndRetrieveUrl)
+      .post(url"${config.checkAndRetrieveUrl}")
       .withBody(Json.toJson(pensionSchemeMemberRequest))
       .setHeader((CORRELATION_ID, correlationId))
       .execute[HttpResponse]

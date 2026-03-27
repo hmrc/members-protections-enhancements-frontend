@@ -33,7 +33,7 @@
 
 @layout(pageTitle = title(form, s"${messages("membersDob.title", name)}"), backLinkUrl = viewModel.backLinkUrl) {
 
-    @formHelper(action = viewModel.onSubmit, Symbol("autoComplete") -> "on") {
+    @formHelper(action = controllers.routes.MembersDobController.onSubmit(viewModel.mode), Symbol("autoComplete") -> "on") {
 
 
     @if(form.hasErrors) {
@@ -49,7 +49,7 @@ legend = Some(Legend(content = HtmlContent(s"<h1 class='govuk-heading-l'>${messa
         ).withDayMonthYearFormField(form("dateOfBirth")))
 
         @govukButton(
-            ButtonViewModel(viewModel.buttonText.toMessage)
+            ButtonViewModel(messages("site.continue"))
         )
     }
 }

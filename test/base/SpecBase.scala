@@ -125,7 +125,7 @@ trait SpecBase
   def urlEncode(input: String): String = URLEncoder.encode(input, "utf-8")
 
   def getFormPageViewModel(onSubmit: Call, backLinkUrl: String): FormPageViewModel =
-    FormPageViewModel(onSubmit = onSubmit, backLinkUrl = Some(backLinkUrl))
+    FormPageViewModel(backLinkUrl = Some(backLinkUrl))
 
   val servicesConfig: Map[String, Any] = Map(
     "microservice.services.mpe-backend.host" -> wireMockHost,
