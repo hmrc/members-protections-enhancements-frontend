@@ -24,7 +24,7 @@ import pages.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.Logging
+import play.api.Logging
 import viewmodels.formPage.FormPageViewModel
 
 import javax.inject.Inject

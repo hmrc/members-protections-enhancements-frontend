@@ -113,5 +113,5 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
       }
     }
   }
-  
+
 }

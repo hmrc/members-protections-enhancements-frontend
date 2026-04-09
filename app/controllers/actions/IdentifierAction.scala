@@ -27,8 +27,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, authorisedEn
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import utils.Logging
-
+import play.api.Logging
 import scala.concurrent.{ExecutionContext, Future}
 
 @ImplementedBy(classOf[AuthenticatedIdentifierAction])
@@ -45,7 +44,6 @@ class AuthenticatedIdentifierAction @Inject() (
     with Logging {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-    val logContext: String = "[AuthenticatedIdentifierAction][invokeBlock] - "
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised(Enrolment(Constants.psaEnrolmentKey).or(Enrolment(Constants.pspEnrolmentKey)))
@@ -57,9 +55,8 @@ class AuthenticatedIdentifierAction @Inject() (
         case Some(internalId) ~ Some(affGroup) ~ IsPSP(pspId) =>
           block(IdentifierRequest(UserDetails(UserType.Psp, pspId.value, internalId, affGroup), request))
         case _ =>
-          logError(
-            logContext,
-            s"Authorisation completed successfully, but unable to retrieve user details or type from authorisation response"
+          logger.error(
+            s"[AuthenticatedIdentifierAction][invokeBlock] - Authorisation completed successfully, but unable to retrieve user details or type from authorisation response"
           )
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       }
@@ -69,7 +66,9 @@ class AuthenticatedIdentifierAction @Inject() (
         case _: InsufficientEnrolments =>
           Future.successful(Redirect(config.mpsRegistrationUrl))
         case err: AuthorisationException =>
-          logError(logContext, s"An authorisation error occurred with message: ${err.getMessage}")
+          logger.error(
+            s"[AuthenticatedIdentifierAction][invokeBlock] - An authorisation error occurred with message: ${err.getMessage}"
+          )
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       }
   }

@@ -24,13 +24,12 @@ import uk.gov.hmrc.play.audit.AuditExtensions
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import uk.gov.hmrc.play.bootstrap.config.AppName
-import utils.Logging
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuditService @Inject() (auditConnector: AuditConnector, appConfig: Configuration) extends Logging {
+class AuditService @Inject() (auditConnector: AuditConnector, appConfig: Configuration) {
 
   def auditEvent[T](
     event: AuditEvent[T]
@@ -45,11 +44,7 @@ class AuditService @Inject() (auditConnector: AuditConnector, appConfig: Configu
       detail = Json.toJson(event.detail),
       tags = eventTags
     )
-    logInfo(
-      "[AuditService][auditEvent]",
-      s"Audit event :- extendedDataEvent.tags :: ${extendedDataEvent.tags} --  auditSource:: ${extendedDataEvent.auditSource}" +
-        s" --- detail :: ${extendedDataEvent.detail}"
-    )
+
     auditConnector.sendExtendedEvent(extendedDataEvent)
   }
 
