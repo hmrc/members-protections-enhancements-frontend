@@ -37,7 +37,8 @@ import utils.constants.AuditResultTypes.{MATCH, NO_MATCH as NO_MATCH_RESULT}
 import utils.constants.AuditTransactionTypes.MEMBER_SEARCH_RESULTS
 import utils.constants.AuditTypes.COMPLETE_MEMBER_SEARCH
 import utils.constants.ErrorCodes.{EMPTY_DATA, NOT_FOUND as NOT_FOUND_ERROR, NO_MATCH}
-import utils.{DateTimeFormats, IdGenerator, Logging}
+import utils.{DateTimeFormats, IdGenerator}
+import play.api.Logging
 import views.html.ResultsView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -59,16 +60,11 @@ class ResultsController @Inject() (
     extends MpeBaseController(identify, checkLockout, getData)
     with Logging {
 
-  val classLoggingContext: String = "ResultsController"
-
   def onPageLoad(): Action[AnyContent] = authRetrieval { request =>
     withCheckedAnswers(request) { (memberDetails, membersDob, membersNino, membersPsaCheckRef) =>
       implicit val req: DataRequest[AnyContent] = request
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
       implicit val correlationId: String = idGenerator.getCorrelationId
-
-      val fullLoggingContext: String = s"[$classLoggingContext][onPageLoad]"
-      logInfo(fullLoggingContext, s"with correlationId: $correlationId")
 
       val pensionSchemeMemberRequest: PensionSchemeMemberRequest = createMembersRequest(
         memberDetails = memberDetails,
@@ -80,9 +76,8 @@ class ResultsController @Inject() (
 
       checkAndRetrieveService.checkAndRetrieve(pensionSchemeMemberRequest).flatMap {
         case Right(value) =>
-          logInfo(
-            s"$fullLoggingContext",
-            s"Successfully retrieved results for supplied details redirecting to Results page"
+          logger.info(
+            s"[ResultsController][onPageLoad] Successfully retrieved results for supplied details redirecting to Results page"
           )
           auditSubmission(
             COMPLETE_MEMBER_SEARCH,
@@ -110,7 +105,7 @@ class ResultsController @Inject() (
               protectionRecordDetails = value
             )
           )
-        case Left(error) => handleErrorResponse(error, auditDetail, fullLoggingContext)
+        case Left(error) => handleErrorResponse(error, auditDetail)
       }
     }
 
@@ -130,14 +125,12 @@ class ResultsController @Inject() (
       membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)
     )
 
-  private def handleErrorResponse(error: MpeError, auditDetail: AuditDetail, loggingContext: String)(implicit
+  private def handleErrorResponse(error: MpeError, auditDetail: AuditDetail)(implicit
     request: DataRequest[AnyContent]
-  ) = {
-    val fullLoggingContext: String = s"$loggingContext[handleErrorResponse]"
-
+  ) =
     error.code match {
       case NO_MATCH | EMPTY_DATA | NOT_FOUND_ERROR =>
-        logWarn(fullLoggingContext, s"No results found due to ${error.code}")
+        logger.warn(s"[ResultsController][onPageLoad] No results found due to ${error.code}")
 
         implicit val details: UserDetails = request.userDetails
         val (journey, searchAPIMatchResult): (String, String) = auditParams(error)
@@ -153,7 +146,7 @@ class ResultsController @Inject() (
           Redirect(routes.NoResultsController.onPageLoad())
         )
       case _ =>
-        logWarn(fullLoggingContext, s"Failure to get the results due to ${error.code}")
+        logger.warn(s"[ResultsController][onPageLoad] Failure to get the results due to ${error.code}")
 
         val auditJourneyString: String = if (error.source == MatchPerson) SEARCH_API_ERROR else RETRIEVE_API_ERROR
         auditSubmission(
@@ -167,7 +160,6 @@ class ResultsController @Inject() (
 
         Future.successful(Redirect(routes.ClearCacheController.defaultError()))
     }
-  }
 
   private def auditSubmission(auditType: String, path: String, details: AuditDetail)(implicit
     hc: HeaderCarrier,

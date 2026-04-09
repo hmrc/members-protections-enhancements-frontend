@@ -28,7 +28,8 @@ import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import utils.constants.HeaderKeys.CORRELATION_ID
-import utils.{HttpResponseHelper, Logging}
+import utils.HttpResponseHelper
+import play.api.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
@@ -37,20 +38,13 @@ class MembersCheckAndRetrieveConnector @Inject() (httpClientV2: HttpClientV2, co
     extends Logging
     with HttpResponseHelper {
 
-  val classLoggingContext: String = "MembersCheckAndRetrieveConnector"
-
   private def retrieveCorrelationId(response: HttpResponse): Option[String] = response.header("correlationId")
 
   def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
     correlationId: String
-  ): Future[Either[MpeError, ProtectionRecordDetails]] = {
-
-    val methodLoggingContext: String = "checkAndRetrieve"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
-    logInfo(fullLoggingContext, s"with correlationId: $correlationId")
-
+  ): Future[Either[MpeError, ProtectionRecordDetails]] =
     httpClientV2
       .post(url"${config.checkAndRetrieveUrl}")
       .withBody(Json.toJson(pensionSchemeMemberRequest))
@@ -59,16 +53,14 @@ class MembersCheckAndRetrieveConnector @Inject() (httpClientV2: HttpClientV2, co
       .map { response =>
         response.status match {
           case OK =>
-            logInfo(
-              fullLoggingContext,
-              s"Success response received" +
+            logger.info(
+              s"[checkAndRetrieve][checkAndRetrieve] Success response received" +
                 s" with status ${response.status}, and correlationId: ${retrieveCorrelationId(response)}"
             )
             Right(handleResponse[ProtectionRecordDetails](response.json))
           case _ =>
-            logError(
-              fullLoggingContext,
-              s"Error response received" +
+            logger.error(
+              s"[checkAndRetrieve][checkAndRetrieve] Error response received" +
                 s" with status: ${response.status}, and correlationId: ${retrieveCorrelationId(response)} " +
                 s" due to ${response.body}"
             )
@@ -78,5 +70,4 @@ class MembersCheckAndRetrieveConnector @Inject() (httpClientV2: HttpClientV2, co
       .andThen { case Failure(t: Throwable) =>
         logger.warn("Unable to retrieve the data", t)
       }
-  }
 }
