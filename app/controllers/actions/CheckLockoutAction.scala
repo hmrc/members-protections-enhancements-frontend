@@ -39,23 +39,14 @@ class CheckLockoutActionImpl @Inject() (
 )(implicit override val executionContext: ExecutionContext)
     extends CheckLockoutAction
     with Logging {
-
-  val classLoggingContext: String = "CheckLockoutAction"
-
-  override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] = {
-    val methodLoggingContext: String = "filter"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
-
-    logger.info(s"$fullLoggingContext - Checking to see to user has been locked out for failed attempts")
+  override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] =
     failedAttemptService.checkForLockout()(request.userDetails, executionContext).flatMap {
       case false =>
-        logger.info(s"$fullLoggingContext - User has not been locked out. Continuing with request")
         Future.successful(None)
       case true =>
-        logger.warn(s"$fullLoggingContext - User has been locked out. Redirecting to lockout page")
+        logger.warn("[CheckLockoutAction][filter] - User has been locked out. Redirecting to lockout page")
         sessionRepository
           .clear(request.userDetails.userId)
           .map(_ => Some(Redirect(routes.LockedOutController.onPageLoad())))
     }
-  }
 }

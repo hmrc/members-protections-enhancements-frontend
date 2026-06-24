@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,6 @@ class MembersCheckAndRetrieveConnector @Inject() (httpClientV2: HttpClientV2, co
     extends Logging
     with HttpResponseHelper {
 
-  private def retrieveCorrelationId(response: HttpResponse): Option[String] = response.header("correlationId")
-
   def checkAndRetrieve(pensionSchemeMemberRequest: PensionSchemeMemberRequest)(implicit
     hc: HeaderCarrier,
     ec: ExecutionContext,
@@ -53,15 +51,11 @@ class MembersCheckAndRetrieveConnector @Inject() (httpClientV2: HttpClientV2, co
       .map { response =>
         response.status match {
           case OK =>
-            logger.info(
-              s"[checkAndRetrieve][checkAndRetrieve] Success response received" +
-                s" with status ${response.status}, and correlationId: ${retrieveCorrelationId(response)}"
-            )
             Right(handleResponse[ProtectionRecordDetails](response.json))
           case _ =>
-            logger.error(
-              s"[checkAndRetrieve][checkAndRetrieve] Error response received" +
-                s" with status: ${response.status}, and correlationId: ${retrieveCorrelationId(response)} " +
+            logger.warn(
+              s"[checkAndRetrieve] Error response received" +
+                s" with status: ${response.status}, and correlationId: ${response.header("correlationId")} " +
                 s" due to ${response.body}"
             )
             Left(handleResponse[MpeError](response.json))

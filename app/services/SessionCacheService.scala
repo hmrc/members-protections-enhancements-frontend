@@ -16,7 +16,6 @@
 
 package services
 
-import com.google.inject.ImplementedBy
 import models.userAnswers.UserAnswers
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -25,15 +24,9 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SessionCacheServiceImpl @Inject() (sessionRepository: SessionRepository) extends SessionCacheService {
-  override def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+class SessionCacheService @Inject() (sessionRepository: SessionRepository) {
+  def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     sessionRepository.set(userAnswers)
-  override def clear(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
+  def clear(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
     sessionRepository.clear(userAnswers.id)
-}
-
-@ImplementedBy(classOf[SessionCacheServiceImpl])
-trait SessionCacheService {
-  def save(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit]
-  def clear(userAnswers: UserAnswers)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean]
 }
