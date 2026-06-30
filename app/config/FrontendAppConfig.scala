@@ -55,8 +55,8 @@ class FrontendAppConfig @Inject() (servicesConfig: ServicesConfig) {
   private val backendUrl: String = servicesConfig.baseUrl("mpe-backend")
   val checkAndRetrieveUrl = s"$backendUrl/${loadConfig("urls.checkAndRetrieve")}"
 
-  lazy val mpsDashboardUrl: String = loadConfig("urls.mpsDashboard")
-  lazy val mpsRegistrationUrl: String = loadConfig("urls.mpsRegistration")
+  val mpsDashboardUrl: String = loadConfig("urls.mpsDashboard")
+  val mpsRegistrationUrl: String = loadConfig("urls.mpsRegistration")
 
   val checkLtaGuidanceUrl: String = loadConfig("urls.guidance.checkLta")
 
