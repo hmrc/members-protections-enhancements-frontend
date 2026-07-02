@@ -53,7 +53,7 @@ class FailedAttemptCountRepositorySpec
   val timeSecs: Long = 1000000L
   when(mockTimestampSupport.timestamp()).thenReturn(Instant.ofEpochSecond(timeSecs))
 
-  override val repository: FailedAttemptCountRepositoryImpl = new FailedAttemptCountRepositoryImpl(
+  override val repository: FailedAttemptCountRepository = new FailedAttemptCountRepository(
     mongoComponent = mongoComponent,
     frontendAppConfig = mockAppConfig,
     timestampSupport = mockTimestampSupport

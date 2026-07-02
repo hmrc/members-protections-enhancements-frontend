@@ -17,25 +17,23 @@
 package controllers
 
 import com.google.inject.Inject
+import connectors.MembersCheckAndRetrieveConnector
 import controllers.actions.{CheckLockoutAction, DataRetrievalAction, IdentifierAction}
 import models.*
 import models.audit.{AuditDetail, AuditEvent}
 import models.errors.ErrorSource.MatchPerson
 import models.errors.{ErrorSource, MpeError}
-import models.requests.{DataRequest, PensionSchemeMemberRequest, UserDetails}
+import models.requests.{DataRequest, PensionSchemeMemberRequest}
 import models.response.RecordStatusMapped.{Active, Dormant, Withdrawn}
 import pages.ResultsPage
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import providers.DateTimeProvider
-import services.{AuditService, FailedAttemptService, MembersCheckAndRetrieveService, SessionCacheService}
+import services.{AuditService, FailedAttemptService, SessionCacheService}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import utils.constants.AuditJourneyTypes.*
 import utils.constants.AuditResultTypes.{MATCH, NO_MATCH as NO_MATCH_RESULT}
-import utils.constants.AuditTransactionTypes.MEMBER_SEARCH_RESULTS
-import utils.constants.AuditTypes.COMPLETE_MEMBER_SEARCH
 import utils.constants.ErrorCodes.{EMPTY_DATA, NOT_FOUND as NOT_FOUND_ERROR, NO_MATCH}
 import utils.{DateTimeFormats, IdGenerator}
 import play.api.Logging
@@ -51,7 +49,7 @@ class ResultsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: ResultsView,
   dateTimeProvider: DateTimeProvider,
-  checkAndRetrieveService: MembersCheckAndRetrieveService,
+  checkAndRetrieveConnector: MembersCheckAndRetrieveConnector,
   failedAttemptService: FailedAttemptService,
   service: SessionCacheService,
   auditService: AuditService,
@@ -66,29 +64,32 @@ class ResultsController @Inject() (
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
       implicit val correlationId: String = idGenerator.getCorrelationId
 
-      val pensionSchemeMemberRequest: PensionSchemeMemberRequest = createMembersRequest(
-        memberDetails = memberDetails,
-        membersDob = membersDob,
-        membersNino = membersNino,
-        membersPsaCheckRef = membersPsaCheckRef
+      val pensionSchemeMemberRequest: PensionSchemeMemberRequest = PensionSchemeMemberRequest(
+        memberDetails.firstName,
+        memberDetails.lastName,
+        membersDob.strDateOfBirth,
+        membersNino.nino.filterNot(_.isWhitespace),
+        membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)
       )
-      val auditDetail: AuditDetail = generateAuditDetail(pensionSchemeMemberRequest, request.userDetails)
+      val auditDetail: AuditDetail = AuditDetail(
+        journey = DEFAULT_JOURNEY,
+        request = pensionSchemeMemberRequest,
+        userDetails = request.userDetails
+      )
 
-      checkAndRetrieveService.checkAndRetrieve(pensionSchemeMemberRequest).flatMap {
+      checkAndRetrieveConnector.checkAndRetrieve(pensionSchemeMemberRequest).flatMap {
         case Right(value) =>
-          logger.info(
-            s"[ResultsController][onPageLoad] Successfully retrieved results for supplied details redirecting to Results page"
-          )
-          auditSubmission(
-            COMPLETE_MEMBER_SEARCH,
-            routes.ResultsController.onPageLoad().url,
-            details = auditDetail.copy(
-              journey = RESULTS_DISPLAYED,
-              searchAPIMatchResult = Some(MATCH),
-              numberOfProtectionsAndEnhancementsTotal = Some(value.protectionRecords.size),
-              numberOfProtectionsAndEnhancementsActive = Some(value.protectionRecords.count(_.status == Active)),
-              numberOfProtectionsAndEnhancementsDormant = Some(value.protectionRecords.count(_.status == Dormant)),
-              numberOfProtectionsAndEnhancementsWithdrawn = Some(value.protectionRecords.count(_.status == Withdrawn))
+          auditService.auditEvent(
+            AuditEvent(
+              routes.ResultsController.onPageLoad().url,
+              detail = auditDetail.copy(
+                journey = RESULTS_DISPLAYED,
+                searchAPIMatchResult = Some(MATCH),
+                numberOfProtectionsAndEnhancementsTotal = Some(value.protectionRecords.size),
+                numberOfProtectionsAndEnhancementsActive = Some(value.protectionRecords.count(_.status == Active)),
+                numberOfProtectionsAndEnhancementsDormant = Some(value.protectionRecords.count(_.status == Dormant)),
+                numberOfProtectionsAndEnhancementsWithdrawn = Some(value.protectionRecords.count(_.status == Withdrawn))
+              )
             )
           )
           for {
@@ -111,78 +112,38 @@ class ResultsController @Inject() (
 
   }
 
-  private def createMembersRequest(
-    memberDetails: MemberDetails,
-    membersDob: MembersDob,
-    membersNino: MembersNino,
-    membersPsaCheckRef: MembersPsaCheckRef
-  ): PensionSchemeMemberRequest =
-    PensionSchemeMemberRequest(
-      memberDetails.firstName,
-      memberDetails.lastName,
-      membersDob.strDateOfBirth,
-      membersNino.nino.filterNot(_.isWhitespace),
-      membersPsaCheckRef.psaCheckRef.filterNot(_.isWhitespace)
-    )
-
   private def handleErrorResponse(error: MpeError, auditDetail: AuditDetail)(implicit
     request: DataRequest[AnyContent]
   ) =
     error.code match {
       case NO_MATCH | EMPTY_DATA | NOT_FOUND_ERROR =>
-        logger.warn(s"[ResultsController][onPageLoad] No results found due to ${error.code}")
-
-        implicit val details: UserDetails = request.userDetails
         val (journey, searchAPIMatchResult): (String, String) = auditParams(error)
-        auditSubmission(
-          auditType = COMPLETE_MEMBER_SEARCH,
-          path = routes.NoResultsController.onPageLoad().url,
-          details = auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult))
+        auditService.auditEvent(
+          AuditEvent(
+            routes.NoResultsController.onPageLoad().url,
+            auditDetail.copy(journey = journey, searchAPIMatchResult = Some(searchAPIMatchResult))
+          )
         )
 
         failedAttemptService.handleFailedAttempt(
           Redirect(routes.LockedOutController.onPageLoad())
         )(
           Redirect(routes.NoResultsController.onPageLoad())
-        )
+        )(request.userDetails)
       case _ =>
-        logger.warn(s"[ResultsController][onPageLoad] Failure to get the results due to ${error.code}")
-
         val auditJourneyString: String = if (error.source == MatchPerson) SEARCH_API_ERROR else RETRIEVE_API_ERROR
-        auditSubmission(
-          auditType = COMPLETE_MEMBER_SEARCH,
-          path = routes.ClearCacheController.defaultError().url,
-          details = auditDetail.copy(
-            journey = auditJourneyString,
-            retrieveAPIFailureReason = Some(error.code)
+        auditService.auditEvent(
+          AuditEvent(
+            routes.ClearCacheController.defaultError().url,
+            auditDetail.copy(
+              journey = auditJourneyString,
+              retrieveAPIFailureReason = Some(error.code)
+            )
           )
         )
 
         Future.successful(Redirect(routes.ClearCacheController.defaultError()))
     }
-
-  private def auditSubmission(auditType: String, path: String, details: AuditDetail)(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[AuditResult] = {
-
-    val event: AuditEvent[AuditDetail] = AuditEvent(
-      auditType = auditType,
-      detail = details,
-      transactionName = MEMBER_SEARCH_RESULTS,
-      path = path
-    )
-    auditService.auditEvent(event)
-  }
-
-  private def generateAuditDetail(pensionSchemeMemberRequest: PensionSchemeMemberRequest, userDetails: UserDetails)(
-    implicit correlationId: String
-  ): AuditDetail =
-    AuditDetail(
-      journey = DEFAULT_JOURNEY,
-      request = pensionSchemeMemberRequest,
-      userDetails = userDetails
-    )
 
   private lazy val auditParams: MpeError => (String, String) = error =>
     error.code match {

@@ -16,7 +16,7 @@
 
 package repositories
 
-import com.google.inject.{ImplementedBy, Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import models.requests.UserDetails
@@ -30,17 +30,8 @@ import java.util.concurrent.TimeUnit
 import javax.cache.CacheException
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[FailedAttemptCountRepositoryImpl])
-trait FailedAttemptCountRepository {
-  def addFailedAttempt()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit]
-
-  def countFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Long]
-
-  def removeFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit]
-}
-
 @Singleton
-class FailedAttemptCountRepositoryImpl @Inject() (
+class FailedAttemptCountRepository @Inject() (
   mongoComponent: MongoComponent,
   frontendAppConfig: FrontendAppConfig,
   timestampSupport: TimestampSupport
@@ -64,17 +55,9 @@ class FailedAttemptCountRepositoryImpl @Inject() (
       ),
       replaceIndexes = true
     )
-    with FailedAttemptCountRepository
     with Logging {
 
-  val classLoggingContext: String = "FailedAttemptCountRepository"
-
-  def addFailedAttempt()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit] = {
-    val methodLoggingContext: String = "addFailedAttempt"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
-
-    logger.info(s"$fullLoggingContext - Received request to add failed attempt to cache for user")
-
+  def addFailedAttempt()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit] =
     collection
       .insertOne(
         document = CacheUserDetails(
@@ -86,50 +69,32 @@ class FailedAttemptCountRepositoryImpl @Inject() (
       .toFuture()
       .map {
         case res if res.wasAcknowledged() =>
-          logger.info(s"$fullLoggingContext - Successfully cached failed attempt")
+          logger.info("Successfully cached failed attempt")
         case _ =>
-          logger.warn(s"$fullLoggingContext - Failed attempt was not added successfully to cache")
+          logger.warn("Failed attempt was not added successfully to cache")
           throw new CacheException("Failed to add user failed attempt to cache")
       }
       .recover { case ex: MongoException =>
         logger.warn(
-          s"$fullLoggingContext - " +
-            s"MongoDB returned an error while attempting to cache failed attempt with error message: ${ex.getMessage}"
+          s"MongoDB returned an error while attempting to cache failed attempt with error message: ${ex.getMessage}"
         )
         throw ex
       }
-  }
 
-  def countFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Long] = {
-    val methodLoggingContext: String = "countFailedAttempts"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
-
-    logger.info(s"$fullLoggingContext - Received request to count failed attempts for user")
-
+  def countFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Long] =
     collection
       .countDocuments(
         filter = Filters.equal(fieldName = "psrUserId", value = userDetails.psrUserId)
       )
       .toFuture()
-      .map { res =>
-        logger.info(s"Successfully retrieved failed attempt count of: $res")
-        res
-      }
       .recover { case ex: MongoException =>
         logger.warn(
-          s"$fullLoggingContext - " +
-            s"MongoDB returned an error during failed attempt count with error message: ${ex.getMessage}"
+          s"MongoDB returned an error during failed attempt count with error message: ${ex.getMessage}"
         )
         throw ex
       }
-  }
 
-  def removeFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit] = {
-    val methodLoggingContext: String = "removeFailedAttempts"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
-
-    logger.info(s"$fullLoggingContext - Received request to remove failed attempts for user")
-
+  def removeFailedAttempts()(implicit userDetails: UserDetails, ec: ExecutionContext): Future[Unit] =
     collection
       .deleteMany(
         filter = Filters.equal(fieldName = "psrUserId", value = userDetails.psrUserId)
@@ -137,19 +102,17 @@ class FailedAttemptCountRepositoryImpl @Inject() (
       .toFuture()
       .map {
         case res if res.wasAcknowledged() =>
-          logger.info(s"$fullLoggingContext - Successfully removed failed attempts for user")
+          logger.info(s"Successfully removed failed attempts for user")
         case _ =>
           logger.error(
-            message = s"$fullLoggingContext - Failed attempts were not removed from cache",
+            message = s"Failed attempts were not removed from cache",
             error = CacheException("Failed to add remove failed attempts from cache")
           )
       }
       .recover { case ex: MongoException =>
         logger.error(
-          message =
-            s"$fullLoggingContext - MongoDB returned an error during failed attempt deletion with error message: ${ex.getMessage}",
+          message = s"MongoDB returned an error during failed attempt deletion with error message: ${ex.getMessage}",
           error = ex
         )
       }
-  }
 }

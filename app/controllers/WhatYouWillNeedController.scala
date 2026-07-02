@@ -33,12 +33,6 @@ class WhatYouWillNeedController @Inject() (
   view: WhatYouWillNeedView
 ) extends MpeBaseController(identify, checkLockout, getData) {
 
-  def start(): Action[AnyContent] = Action.async { _ =>
-    Future.successful(
-      Redirect(controllers.routes.WhatYouWillNeedController.onPageLoad())
-    )
-  }
-
   def onPageLoad(): Action[AnyContent] = authRetrieval { implicit request =>
     Future.successful(Ok(view(Some(routes.MpsDashboardController.redirectToMps().url))))
   }

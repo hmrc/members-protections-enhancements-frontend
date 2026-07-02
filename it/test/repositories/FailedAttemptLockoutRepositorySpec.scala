@@ -64,7 +64,7 @@ class FailedAttemptLockoutRepositorySpec
 
   implicit val userDetails: UserDetails  = UserDetails(Psa, "psaId", "anotherId", AffinityGroup.Individual)
 
-  val lockoutRepo: FailedAttemptLockoutRepositoryImpl = new FailedAttemptLockoutRepositoryImpl(
+  val lockoutRepo: FailedAttemptLockoutRepository = new FailedAttemptLockoutRepository(
     mongoComponent = mongoComponent,
     frontendAppConfig = mockAppConfig,
     timestampSupport = mockTimestampSupport

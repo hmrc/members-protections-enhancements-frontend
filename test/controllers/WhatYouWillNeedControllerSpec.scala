@@ -25,8 +25,6 @@ import views.html.WhatYouWillNeedView
 
 class WhatYouWillNeedControllerSpec extends SpecBase {
 
-  private lazy val backLinkUrl = routes.MpsDashboardController.redirectToMps().url
-
   "Check Members Protection Enhancements Controller" - {
     "must return OK and the correct view for a GET" in {
       val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
@@ -42,21 +40,7 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[WhatYouWillNeedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(Some(backLinkUrl)).toString
-      }
-    }
-
-    "must redirect to start page for a GET of / " in {
-      val application = applicationBuilder(userAnswers = emptyUserAnswers).build()
-
-      running(application) {
-        implicit val request: FakeRequest[AnyContentAsEmpty.type] =
-          FakeRequest(GET, routes.WhatYouWillNeedController.start().url)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result) mustBe Some(routes.WhatYouWillNeedController.onPageLoad().url)
+        contentAsString(result) mustEqual view(Some(routes.MpsDashboardController.redirectToMps().url)).toString
       }
     }
   }

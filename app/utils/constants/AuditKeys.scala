@@ -16,14 +16,6 @@
 
 package utils.constants
 
-object AuditTypes {
-  val COMPLETE_MEMBER_SEARCH = "CompleteMemberSearch"
-}
-
-object AuditTransactionTypes {
-  val MEMBER_SEARCH_RESULTS = "member-search-results"
-}
-
 object AuditJourneyTypes {
   val DEFAULT_JOURNEY = "journey"
   val SEARCH_API_ERROR = "searchAPIError"

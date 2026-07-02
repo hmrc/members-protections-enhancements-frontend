@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,11 @@ class AuditService @Inject() (auditConnector: AuditConnector, appConfig: Configu
   )(implicit hc: HeaderCarrier, ec: ExecutionContext, writer: Writes[T]): Future[AuditResult] = {
 
     val eventTags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags() ++
-      Map("transactionName" -> event.transactionName, "path" -> event.path)
+      Map("transactionName" -> "member-search-results", "path" -> event.path)
 
     val extendedDataEvent = ExtendedDataEvent(
       auditSource = AppName.fromConfiguration(appConfig),
-      auditType = event.auditType,
+      auditType = "CompleteMemberSearch",
       detail = Json.toJson(event.detail),
       tags = eventTags
     )

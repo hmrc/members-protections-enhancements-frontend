@@ -32,7 +32,7 @@ class SessionCacheServiceSpec extends SpecBase with ScalaCheckPropertyChecks {
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   val mockSessionRepository: SessionRepository = mock[SessionRepository]
-  val service = new SessionCacheServiceImpl(mockSessionRepository)
+  val service = new SessionCacheService(mockSessionRepository)
 
   override def beforeEach(): Unit = {
     super.beforeEach()

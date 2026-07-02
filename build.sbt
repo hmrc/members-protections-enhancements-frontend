@@ -1,6 +1,5 @@
 import play.sbt.routes.RoutesKeys
 import sbt.Def
-import scoverage.ScoverageKeys
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 lazy val appName: String = "members-protections-enhancements-frontend"
@@ -36,11 +35,6 @@ lazy val microservice = (project in file("."))
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     scalafmtOnCompile := true,
     PlayKeys.playDefaultPort := 30029,
-    ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*components.*;" +
-      ".*Routes.*;.*viewmodels.govuk.*;",
-    ScoverageKeys.coverageMinimumStmtTotal := 90,
-    ScoverageKeys.coverageFailOnMinimum := true,
-    ScoverageKeys.coverageHighlighting := true,
     scalacOptions ++= Seq(
       "-feature",
       "-Wconf:src=routes/.*:s",
@@ -50,6 +44,7 @@ lazy val microservice = (project in file("."))
     pipelineStages := Seq(digest),
     Assets / pipelineStages := Seq(concat)
   )
+  .settings(CodeCoverageSettings.settings *)
 
 lazy val testSettings: Seq[Def.Setting[?]] = Seq(
   fork := true,

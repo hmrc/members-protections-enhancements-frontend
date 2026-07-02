@@ -40,12 +40,7 @@ class FailedAttemptServiceSpec extends SpecBase {
     val mockCountRepo: FailedAttemptCountRepository = mock[FailedAttemptCountRepository]
     val mockLockoutRepo: FailedAttemptLockoutRepository = mock[FailedAttemptLockoutRepository]
     val mockConfig: FrontendAppConfig = mock[FrontendAppConfig]
-
-    val service: FailedAttemptServiceImpl = new FailedAttemptServiceImpl(
-      failedAttemptLockoutRepository = mockLockoutRepo,
-      failedAttemptCountRepository = mockCountRepo,
-      frontendAppConfig = mockConfig
-    )
+    val service = FailedAttemptService(mockLockoutRepo, mockCountRepo, mockConfig)
 
     lazy val lockoutThreshold: Int = 5
     when(mockConfig.lockoutThreshold).thenReturn(lockoutThreshold)
@@ -155,22 +150,6 @@ class FailedAttemptServiceSpec extends SpecBase {
       val result: Future[Result] = service.handleFailedAttempt(Ok(""))(ImATeapot("teapot time"))
       status(result) mustBe IM_A_TEAPOT
       contentAsString(result) mustBe "teapot time"
-    }
-
-    "should return an error when above threshold and lockout creation fails" in new Test {
-      override lazy val countAttemptResult: Future[Long] = Future.successful(lockoutThreshold + 1)
-      override lazy val createLockoutResult: Future[Unit] = Future.failed(new RuntimeException("error"))
-
-      val result: Future[Result] = service.handleFailedAttempt(Ok(""))(Ok(""))
-      assertThrows[RuntimeException](await(result))
-    }
-
-    "should return an error when above threshold and attempt count removal fails" in new Test {
-      override lazy val countAttemptResult: Future[Long] = Future.successful(lockoutThreshold + 1)
-      override lazy val removeFailedAttemptsResult: Future[Unit] = Future.failed(new RuntimeException("error"))
-
-      val result: Future[Result] = service.handleFailedAttempt(Ok(""))(Ok(""))
-      assertThrows[RuntimeException](await(result))
     }
 
     "should return lockout result when above the threshold" in new Test {

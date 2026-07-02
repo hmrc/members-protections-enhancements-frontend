@@ -16,7 +16,7 @@
 
 package repositories
 
-import com.google.inject.{ImplementedBy, Inject, Singleton}
+import com.google.inject.{Inject, Singleton}
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
 import org.mongodb.scala.{MongoException, MongoWriteException}
@@ -31,24 +31,14 @@ import javax.cache.CacheException
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ExecutionContext, Future}
 
-@ImplementedBy(classOf[FailedAttemptLockoutRepositoryImpl])
-trait FailedAttemptLockoutRepository {
-  def putCache(cacheId: String)(data: CacheUserDetails)(implicit ec: ExecutionContext): Future[Unit]
-  def getFromCache(cacheId: String): Future[Option[CacheUserDetails]]
-  def getLockoutExpiry(cacheId: String): Future[Option[Instant]]
-}
-
 @Singleton
-class FailedAttemptLockoutRepositoryImpl @Inject() (
+class FailedAttemptLockoutRepository @Inject() (
   mongoComponent: MongoComponent,
   frontendAppConfig: FrontendAppConfig,
   timestampSupport: TimestampSupport
 )(implicit ec: ExecutionContext)
     extends EntityCache[String, CacheUserDetails]
-    with FailedAttemptLockoutRepository
     with Logging {
-
-  val classLoggingContext: String = "FailedAttemptLockoutRepository"
 
   val format: Format[CacheUserDetails] = CacheUserDetails.mongoFormat
 
@@ -65,9 +55,6 @@ class FailedAttemptLockoutRepositoryImpl @Inject() (
     already exists as this would suggest that our lockout mechanism has been subverted in some way.
      */
     override def put[A: Writes](cacheId: String)(dataKey: DataKey[A], data: A): Future[CacheItem] = {
-      val methodLoggingContext: String = "put"
-      val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
-
       val id = CacheIdType.SimpleCacheId.run(cacheId)
       val timestamp = timestampSupport.timestamp()
 
@@ -78,48 +65,36 @@ class FailedAttemptLockoutRepositoryImpl @Inject() (
         modifiedAt = timestamp
       )
 
-      logger.info(s"$fullLoggingContext - Received request to create lockout for user")
-
       cacheRepo.collection
         .insertOne(cacheItem)
         .toFuture()
         .map {
           case res if res.wasAcknowledged() =>
-            logger.info(s"$fullLoggingContext - Successfully created lockout for user")
             cacheItem
           case _ =>
-            logger.warn(s"$fullLoggingContext - Lockout was not added successfully to cache")
+            logger.warn("Lockout was not added successfully to cache")
             throw new CacheException("Failed to add user lockout to cache")
         }
         .recover {
           case ex: MongoWriteException if ex.getMessage.contains("E11000 duplicate key error collection") =>
-            logger.warn(s"$fullLoggingContext - Lockout entry already exists for user")
+            logger.warn("Lockout entry already exists for user")
             throw ex
           case ex: MongoException =>
             logger.warn(
-              s"$fullLoggingContext - " +
-                s"MongoDB returned an error during lockout creation with error message: ${ex.getMessage}"
+              s"MongoDB returned an error during lockout creation with error message: ${ex.getMessage}"
             )
             throw ex
         }
     }
   }
 
-  override def getLockoutExpiry(cacheId: String): Future[Option[Instant]] = {
-    val methodLoggingContext: String = "getLockoutExpiry"
-    val fullLoggingContext: String = s"[$classLoggingContext][$methodLoggingContext]"
-
-    logger.info(s"$fullLoggingContext - Received request to retrieve lockout expiry for user")
-
+  def getLockoutExpiry(cacheId: String): Future[Option[Instant]] =
     cacheRepo
       .findById(cacheId)
       .map {
         case value @ Some(_) =>
-          logger.info(s"$fullLoggingContext - Lockout expiry successfully retrieved for the supplied details")
           value.map(_.createdAt)
         case None =>
-          logger.info(s"$fullLoggingContext - No lockout found for the supplied details")
           None
       }
-  }
 }
