@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package repositories
+package repository
 
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
@@ -28,6 +28,7 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
+import repositories.FailedAttemptCountRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.mongo.TimestampSupport
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
@@ -38,7 +39,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class FailedAttemptCountRepositorySpec
-  extends AnyFreeSpec
+    extends AnyFreeSpec
     with Matchers
     with ScalaFutures
     with IntegrationPatience
@@ -59,27 +60,24 @@ class FailedAttemptCountRepositorySpec
     timestampSupport = mockTimestampSupport
   )
 
-  implicit val userDetails: UserDetails  = UserDetails(Psa, "psaId", "anotherId", AffinityGroup.Individual)
+  implicit val userDetails: UserDetails = UserDetails(Psa, "psaId", "anotherId", AffinityGroup.Individual)
 
   "addFailedAttempt" - {
     "must successfully add a new failed attempt" in {
       val result: Future[Unit] = repository.addFailedAttempt()
-      await(result) mustBe()
+      await(result) mustBe ()
       val findResult: Seq[CacheUserDetails] = find(Filters.equal("psrUserId", "psaId")).futureValue
-      findResult must have length 1
+      (findResult must have).length(1)
       findResult.headOption.get mustBe CacheUserDetails(Psa, Some("psaId"), Some(Instant.ofEpochSecond(timeSecs)))
     }
   }
 
   "countFailedAttempts" - {
     "must count any matching entries that exist" in {
-      val result: Future[Long] = {
-        repository.addFailedAttempt().flatMap(_ =>
-          repository.addFailedAttempt().flatMap(_ =>
-            repository.countFailedAttempts()
-          )
-        )
-      }
+      val result: Future[Long] =
+        repository
+          .addFailedAttempt()
+          .flatMap(_ => repository.addFailedAttempt().flatMap(_ => repository.countFailedAttempts()))
 
       await(result) mustBe 2
     }
@@ -92,16 +90,14 @@ class FailedAttemptCountRepositorySpec
 
   "removeFailedAttempts" - {
     "must successfully remove any existing failed attempts" in {
-      val result: Future[Unit] = {
-        repository.addFailedAttempt().flatMap(_ =>
-          repository.addFailedAttempt().flatMap(_ =>
-            repository.removeFailedAttempts()
-          )
-        )
-      }
+      val result: Future[Unit] =
+        repository
+          .addFailedAttempt()
+          .flatMap(_ => repository.addFailedAttempt().flatMap(_ => repository.removeFailedAttempts()))
 
-      val findResult: Seq[CacheUserDetails] = await(result.map(_ => find(Filters.equal("psrUserId", "psaId")).futureValue))
-      findResult must have length 0
+      val findResult: Seq[CacheUserDetails] =
+        await(result.map(_ => find(Filters.equal("psrUserId", "psaId")).futureValue))
+      (findResult must have).length(0)
     }
   }
 }
