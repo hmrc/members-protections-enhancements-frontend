@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package repository
+package repositories
 
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
@@ -28,7 +28,6 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
-import repositories.FailedAttemptCountRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.mongo.TimestampSupport
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
@@ -74,12 +73,15 @@ class FailedAttemptCountRepositorySpec
 
   "countFailedAttempts" - {
     "must count any matching entries that exist" in {
-      val result: Future[Long] =
-        repository
-          .addFailedAttempt()
-          .flatMap(_ => repository.addFailedAttempt().flatMap(_ => repository.countFailedAttempts()))
-
-      await(result) mustBe 2
+      whenReady(
+        for {
+          _ <- repository.addFailedAttempt()
+          _ <- repository.addFailedAttempt()
+          result <- repository.countFailedAttempts()
+        } yield result
+      ) { result =>
+        result mustBe 2
+      }
     }
 
     "must return zero when no entries exist" in {

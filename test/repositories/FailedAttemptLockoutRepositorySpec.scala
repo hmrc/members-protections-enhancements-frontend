@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package repository
+package repositories
 
 import config.FrontendAppConfig
 import models.mongo.CacheUserDetails
@@ -33,7 +33,6 @@ import play.api.libs.json.Json
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
-import repositories.FailedAttemptLockoutRepository
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.mongo.TimestampSupport
@@ -95,7 +94,7 @@ class FailedAttemptLockoutRepositorySpec
 
     "must not create duplicate entries or upsert" in {
       def result: Future[Unit] = lockoutRepo.putCache("psaId")(cacheUserDetails)
-      await(result) mustBe ()
+      await(result)
 
       assertThrows[MongoWriteException](await(result))
     }

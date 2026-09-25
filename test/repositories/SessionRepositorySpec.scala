@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package repository
+package repositories
 
 import config.FrontendAppConfig
 import models.userAnswers.{EncryptedUserAnswers, UserAnswers}
@@ -27,7 +27,6 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
-import repositories.SessionRepository
 import uk.gov.hmrc.mongo.test.PlayMongoRepositorySupport
 import utils.encryption.MockAesGcmAdCrypto
 
