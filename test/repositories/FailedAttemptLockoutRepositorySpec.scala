@@ -46,7 +46,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class FailedAttemptLockoutRepositorySpec
-  extends AnyFreeSpec
+    extends AnyFreeSpec
     with Matchers
     with ScalaFutures
     with IntegrationPatience
@@ -62,7 +62,7 @@ class FailedAttemptLockoutRepositorySpec
   val instantTime: Instant = Instant.ofEpochSecond(timeSecs)
   when(mockTimestampSupport.timestamp()).thenReturn(instantTime)
 
-  implicit val userDetails: UserDetails  = UserDetails(Psa, "psaId", "anotherId", AffinityGroup.Individual)
+  implicit val userDetails: UserDetails = UserDetails(Psa, "psaId", "anotherId", AffinityGroup.Individual)
 
   val lockoutRepo: FailedAttemptLockoutRepository = new FailedAttemptLockoutRepository(
     mongoComponent = mongoComponent,
@@ -72,7 +72,8 @@ class FailedAttemptLockoutRepositorySpec
 
   override val repository: PlayMongoRepository[CacheItem] = lockoutRepo.cacheRepo
 
-  implicit val request: IdentifierRequest[AnyContentAsEmpty.type] = IdentifierRequest( UserDetails(Psa, "psaId", "userId", Individual), FakeRequest())
+  implicit val request: IdentifierRequest[AnyContentAsEmpty.type] =
+    IdentifierRequest(UserDetails(Psa, "psaId", "userId", Individual), FakeRequest())
 
   val cacheUserDetails: CacheUserDetails = CacheUserDetails(
     psrUserType = Psa,
@@ -93,7 +94,7 @@ class FailedAttemptLockoutRepositorySpec
 
     "must not create duplicate entries or upsert" in {
       def result: Future[Unit] = lockoutRepo.putCache("psaId")(cacheUserDetails)
-      await(result) mustBe()
+      await(result)
 
       assertThrows[MongoWriteException](await(result))
     }
@@ -102,18 +103,14 @@ class FailedAttemptLockoutRepositorySpec
   "getFromCache" - {
     "must successfully retrieve a matching lockout" in {
       val result: Future[Option[CacheUserDetails]] =
-        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ =>
-          lockoutRepo.getFromCache("psaId")
-        )
+        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ => lockoutRepo.getFromCache("psaId"))
 
       await(result) mustBe Some(cacheUserDetails)
     }
 
     "must return None when no entries match" in {
       val result: Future[Option[CacheUserDetails]] =
-        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ =>
-          lockoutRepo.getFromCache("notPsaId")
-        )
+        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ => lockoutRepo.getFromCache("notPsaId"))
 
       await(result) mustBe None
     }
@@ -122,18 +119,14 @@ class FailedAttemptLockoutRepositorySpec
   "getLockoutExpiry" - {
     "must successfully retrieve a lockout expiry when one exists" in {
       val result: Future[Option[Instant]] =
-        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ =>
-          lockoutRepo.getLockoutExpiry("psaId")
-        )
+        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ => lockoutRepo.getLockoutExpiry("psaId"))
 
       await(result) mustBe Some(instantTime)
     }
 
     "must return None when no entries match" in {
       val result: Future[Option[CacheUserDetails]] =
-        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ =>
-          lockoutRepo.getFromCache("notPsaId")
-        )
+        lockoutRepo.putCache("psaId")(cacheUserDetails).flatMap(_ => lockoutRepo.getFromCache("notPsaId"))
 
       await(result) mustBe None
     }

@@ -38,7 +38,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class FailedAttemptCountRepositorySpec
-  extends AnyFreeSpec
+    extends AnyFreeSpec
     with Matchers
     with ScalaFutures
     with IntegrationPatience
@@ -59,12 +59,12 @@ class FailedAttemptCountRepositorySpec
     timestampSupport = mockTimestampSupport
   )
 
-  implicit val userDetails: UserDetails  = UserDetails(Psa, "psaId", "anotherId", AffinityGroup.Individual)
+  implicit val userDetails: UserDetails = UserDetails(Psa, "psaId", "anotherId", AffinityGroup.Individual)
 
   "addFailedAttempt" - {
     "must successfully add a new failed attempt" in {
       val result: Future[Unit] = repository.addFailedAttempt()
-      await(result) mustBe()
+      await(result) mustBe ()
       val findResult: Seq[CacheUserDetails] = find(Filters.equal("psrUserId", "psaId")).futureValue
       findResult must have length 1
       findResult.headOption.get mustBe CacheUserDetails(Psa, Some("psaId"), Some(Instant.ofEpochSecond(timeSecs)))
@@ -73,15 +73,15 @@ class FailedAttemptCountRepositorySpec
 
   "countFailedAttempts" - {
     "must count any matching entries that exist" in {
-      val result: Future[Long] = {
-        repository.addFailedAttempt().flatMap(_ =>
-          repository.addFailedAttempt().flatMap(_ =>
-            repository.countFailedAttempts()
-          )
-        )
+      whenReady(
+        for {
+          _ <- repository.addFailedAttempt()
+          _ <- repository.addFailedAttempt()
+          result <- repository.countFailedAttempts()
+        } yield result
+      ) { result =>
+        result mustBe 2
       }
-
-      await(result) mustBe 2
     }
 
     "must return zero when no entries exist" in {
@@ -92,13 +92,10 @@ class FailedAttemptCountRepositorySpec
 
   "removeFailedAttempts" - {
     "must successfully remove any existing failed attempts" in {
-      val result: Future[Unit] = {
-        repository.addFailedAttempt().flatMap(_ =>
-          repository.addFailedAttempt().flatMap(_ =>
-            repository.removeFailedAttempts()
-          )
-        )
-      }
+      val result: Future[Unit] =
+        repository
+          .addFailedAttempt()
+          .flatMap(_ => repository.addFailedAttempt().flatMap(_ => repository.removeFailedAttempts()))
 
       val findResult: Seq[CacheUserDetails] = await(result.map(_ => find(Filters.equal("psrUserId", "psaId")).futureValue))
       findResult must have length 0
