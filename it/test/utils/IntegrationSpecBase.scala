@@ -101,7 +101,6 @@ trait IntegrationSpecBase
       "microservice.services.mpe-backend.port" -> server.port()
     )
     .overrides(
-     // inject.bind[IdentifierAction].toInstance(fakePsaIdentifierAction),
       inject.bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
     )
     .build()

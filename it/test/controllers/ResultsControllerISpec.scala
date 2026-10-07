@@ -18,11 +18,11 @@ package controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.*
+import models.*
 import play.api.http.Status.OK
 import play.api.test.Helpers
 import play.api.test.Helpers.*
 import utils.IntegrationSpecBase
-import models.*
 
 class ResultsControllerISpec extends IntegrationSpecBase {
 
@@ -59,7 +59,9 @@ class ResultsControllerISpec extends IntegrationSpecBase {
         ).get
 
         Helpers.status(response) mustBe SEE_OTHER
-        redirectLocation(response) mustBe Some(controllers.routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url)
+        redirectLocation(response) mustBe Some(
+          controllers.routes.WhatIsTheMembersNameController.onPageLoad(NormalMode).url
+        )
       }
     }
     "the user is not authorised" must {
