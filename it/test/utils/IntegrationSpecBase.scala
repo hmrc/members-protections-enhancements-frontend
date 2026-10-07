@@ -69,6 +69,12 @@ trait IntegrationSpecBase
      |    }
      |  ]
      |}""".stripMargin
+  protected val authResponseNotAuthorisedBody: String = """{
+     |  "internalId": "Int-06b0ff6b-e2ec-4bbb-866a-7ebbaa90e109",
+     |  "affinityGroup": "Organisation",
+     |  "authorisedEnrolments": [
+     |  ]
+     |}""".stripMargin
 
   protected val validMPEPOSTResponse: String =
     """
@@ -95,7 +101,7 @@ trait IntegrationSpecBase
       "microservice.services.mpe-backend.port" -> server.port()
     )
     .overrides(
-      inject.bind[IdentifierAction].toInstance(fakePsaIdentifierAction),
+     // inject.bind[IdentifierAction].toInstance(fakePsaIdentifierAction),
       inject.bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
     )
     .build()
