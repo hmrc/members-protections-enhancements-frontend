@@ -97,7 +97,8 @@ class FailedAttemptCountRepositorySpec
           .addFailedAttempt()
           .flatMap(_ => repository.addFailedAttempt().flatMap(_ => repository.removeFailedAttempts()))
 
-      val findResult: Seq[CacheUserDetails] = await(result.map(_ => find(Filters.equal("psrUserId", "psaId")).futureValue))
+      val findResult: Seq[CacheUserDetails] =
+        await(result.map(_ => find(Filters.equal("psrUserId", "psaId")).futureValue))
       findResult must have length 0
     }
   }
