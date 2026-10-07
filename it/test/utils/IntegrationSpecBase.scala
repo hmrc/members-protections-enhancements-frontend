@@ -29,7 +29,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AnyContentAsEmpty, BodyParsers}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import play.api.{Application, inject}
+import play.api.{inject, Application}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 
 import java.time.LocalDate
@@ -124,22 +124,12 @@ trait IntegrationSpecBase
                |  "dateOfBirth": "2022-01-01",
                |  "nino": "AB123456A",
                |  "psaCheckRef": "PSA12345678A"
-               |}""".stripMargin    
-
-  def buildPost(url: String): FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest(POST, url)
-      .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> SessionKeys.authToken)
-      .withHeaders("Csrf-Token" -> "nocheck")
+               |}""".stripMargin
 
   def buildGet(url: String): FakeRequest[AnyContentAsEmpty.type] =
     FakeRequest(GET, url)
       .withSession(SessionKeys.sessionId -> UUID.randomUUID().toString, SessionKeys.authToken -> SessionKeys.authToken)
       .withHeaders("Csrf-Token" -> "nocheck")
-
-  lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest("", "").withSession("sessionId" -> "sessionId")
-
-  lazy val dataFakeRequest: FakeRequest[AnyContentAsEmpty.type] = fakeRequest
 
   override def beforeAll(): Unit = {
     server.start()
