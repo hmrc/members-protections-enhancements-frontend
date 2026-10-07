@@ -84,7 +84,7 @@ class FailedAttemptLockoutRepositorySpec
   "putCache" - {
     "must successfully add a new lockout" in {
       val result: Future[Unit] = lockoutRepo.putCache("psaId")(cacheUserDetails)
-      await(result) mustBe()
+      await(result) mustBe ()
       val findResult: Seq[CacheItem] = find(Filters.equal("_id", "psaId")).futureValue
       findResult must have length 1
       findResult.headOption.get.data mustBe Json.obj(

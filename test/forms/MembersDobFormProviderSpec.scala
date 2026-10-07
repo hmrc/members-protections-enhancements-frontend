@@ -19,7 +19,8 @@ package forms
 import forms.behaviours.DateBehaviours
 import models.MembersDob
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{reset, when}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers.shouldEqual
 import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.data.Form
@@ -30,29 +31,33 @@ import providers.DateTimeProvider
 import java.time.temporal.ChronoField
 import java.time.{LocalDate, ZoneId, ZonedDateTime}
 
-class MembersDobFormProviderSpec extends DateBehaviours {
-  val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
+class MembersDobFormProviderSpec extends DateBehaviours with BeforeAndAfterEach {
+  private val mockDateTimeProvider: DateTimeProvider = mock[DateTimeProvider]
 
-  val mockYear: Int = 2025
-  val mockDateTimeVal: Int = 12
-  val mockCurrentDate: LocalDate = LocalDate.of(mockYear, mockDateTimeVal, mockDateTimeVal)
+  private val mockYear: Int = 2025
+  private val mockDateTimeVal: Int = 12
+  private val fakeCurrentDate: LocalDate = LocalDate.of(mockYear, mockDateTimeVal, mockDateTimeVal)
 
-  when(mockDateTimeProvider.now(any())).thenReturn(
-    ZonedDateTime.of(
-      mockCurrentDate.atStartOfDay(),
-      ZoneId.of("Europe/London")
-    )
-  )
+  private lazy val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
+  private lazy val form: Form[MembersDob] = formProvider()
 
-  private val formProvider = new MembersDobFormProvider(mockDateTimeProvider)
-  private val form: Form[MembersDob] = formProvider()
-
-  val messages: Messages = Helpers.stubMessagesApi().preferred(FakeRequest())
+  private val messages: Messages = Helpers.stubMessagesApi().preferred(FakeRequest())
 
   private val formField = "dateOfBirth"
 
   private val minDate = LocalDate.of(1900, 1, 1)
-  private val maxDate = LocalDate.now()
+  private val maxDate = fakeCurrentDate
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    reset(mockDateTimeProvider)
+    when(mockDateTimeProvider.now(any())).thenReturn(
+      ZonedDateTime.of(
+        fakeCurrentDate.atStartOfDay(),
+        ZoneId.of("Europe/London")
+      )
+    )
+  }
 
   ".dateOfBirth" must {
     "bind valid data with numeric month values" in {
@@ -178,7 +183,7 @@ class MembersDobFormProviderSpec extends DateBehaviours {
       }
 
       "supplied data represents a future date" in {
-        val futureDate: LocalDate = mockCurrentDate.plusDays(10)
+        val futureDate: LocalDate = fakeCurrentDate.plusDays(10)
         val (day, month, year) = (futureDate.getDayOfMonth, futureDate.getMonthValue, futureDate.getYear)
 
         val data = Map(
