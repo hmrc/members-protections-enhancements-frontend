@@ -66,7 +66,7 @@ class FailedAttemptCountRepositorySpec
       val result: Future[Unit] = repository.addFailedAttempt()
       await(result) mustBe ()
       val findResult: Seq[CacheUserDetails] = find(Filters.equal("psrUserId", "psaId")).futureValue
-      (findResult must have).length(1)
+      findResult must have length 1
       findResult.headOption.get mustBe CacheUserDetails(Psa, Some("psaId"), Some(Instant.ofEpochSecond(timeSecs)))
     }
   }
@@ -99,7 +99,7 @@ class FailedAttemptCountRepositorySpec
 
       val findResult: Seq[CacheUserDetails] =
         await(result.map(_ => find(Filters.equal("psrUserId", "psaId")).futureValue))
-      (findResult must have).length(0)
+      findResult must have length 0
     }
   }
 }
