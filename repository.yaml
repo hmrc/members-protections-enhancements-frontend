@@ -6,3 +6,4 @@ tags: []
 test-repositories:
   - mpe-ui-journey-tests
   - mpe-performance-tests
+serviceNowMapping: SNSVC0021039
