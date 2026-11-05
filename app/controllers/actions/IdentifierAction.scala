@@ -56,7 +56,7 @@ class AuthenticatedIdentifierAction @Inject() (
           block(IdentifierRequest(UserDetails(UserType.Psp, pspId.value, internalId, affGroup), request))
         case _ =>
           logger.error(
-            s"[AuthenticatedIdentifierAction] - Authorisation completed successfully, but unable to retrieve user details or type from authorisation response"
+            "Authorisation completed successfully, but unable to retrieve user details or type from authorisation response"
           )
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       }
@@ -67,7 +67,7 @@ class AuthenticatedIdentifierAction @Inject() (
           Future.successful(Redirect(config.mpsRegistrationUrl))
         case err: AuthorisationException =>
           logger.error(
-            s"[AuthenticatedIdentifierAction] - An authorisation error occurred with message: ${err.getMessage}"
+            s"An authorisation error occurred with message: ${err.getMessage}"
           )
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       }
