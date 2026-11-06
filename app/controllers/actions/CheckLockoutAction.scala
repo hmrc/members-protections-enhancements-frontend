@@ -44,7 +44,7 @@ class CheckLockoutActionImpl @Inject() (
       case false =>
         Future.successful(None)
       case true =>
-        logger.warn("[CheckLockoutAction][filter] - User has been locked out. Redirecting to lockout page")
+        logger.warn("User has been locked out. Redirecting to lockout page")
         sessionRepository
           .clear(request.userDetails.userId)
           .map(_ => Some(Redirect(routes.LockedOutController.onPageLoad())))

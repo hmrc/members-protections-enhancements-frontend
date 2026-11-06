@@ -54,9 +54,8 @@ class MembersCheckAndRetrieveConnector @Inject() (httpClientV2: HttpClientV2, co
             Right(handleResponse[ProtectionRecordDetails](response.json))
           case _ =>
             logger.warn(
-              s"[checkAndRetrieve] Error response received" +
-                s" with status: ${response.status}, and correlationId: ${response.header("correlationId")} " +
-                s" due to ${response.body}"
+              s"Error response received with status: ${response.status}, and correlationId: " +
+                s"${response.header("correlationId")} due to ${response.body}"
             )
             Left(handleResponse[MpeError](response.json))
         }
